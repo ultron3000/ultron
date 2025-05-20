@@ -4,8 +4,108 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ultron Streaming Hub</title>
-<script src="https://cdn.tailwindcss.com/3.4.16"></script>
-<script>tailwind.config={theme:{extend:{colors:{primary:'#8C52FF',secondary:'#FF5757'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<script src="https://cdn.tailwindcss.com/3.4.16">
+// Favorite feature support
+document.querySelectorAll('.category-card').forEach(card => {
+  const title = card.querySelector('h3')?.innerText?.trim();
+  const url = card.getAttribute('href');
+  if (title && url) {
+    const favBtn = document.createElement('div');
+    favBtn.className = 'absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow';
+    favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
+    favBtn.style.zIndex = "10";
+    favBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      let favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+      const existing = favs.find(f => f.url === url);
+      if (existing) {
+        favs = favs.filter(f => f.url !== url);
+        favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
+      } else {
+        favs.push({ title, url });
+        favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+      }
+      localStorage.setItem("ultronFavorites", JSON.stringify(favs));
+      loadFavorites();
+    };
+    card.style.position = 'relative';
+    card.appendChild(favBtn);
+  }
+});
+
+function loadFavorites() {
+  const favList = document.getElementById('favorites-list');
+  const favSection = document.getElementById('favorites-section');
+  const favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+  if (favs.length === 0) {
+    favSection.classList.add('hidden');
+    return;
+  }
+  favSection.classList.remove('hidden');
+  favList.innerHTML = '';
+  favs.forEach(fav => {
+    const card = document.createElement('a');
+    card.href = fav.url;
+    card.className = 'category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer p-4 text-center';
+    card.innerHTML = `<h3 class="font-medium text-sm">${fav.title}</h3>`;
+    favList.appendChild(card);
+  });
+}
+loadFavorites();
+
+</script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#8C52FF',secondary:'#FF5757'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}
+// Favorite feature support
+document.querySelectorAll('.category-card').forEach(card => {
+  const title = card.querySelector('h3')?.innerText?.trim();
+  const url = card.getAttribute('href');
+  if (title && url) {
+    const favBtn = document.createElement('div');
+    favBtn.className = 'absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow';
+    favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
+    favBtn.style.zIndex = "10";
+    favBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      let favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+      const existing = favs.find(f => f.url === url);
+      if (existing) {
+        favs = favs.filter(f => f.url !== url);
+        favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
+      } else {
+        favs.push({ title, url });
+        favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+      }
+      localStorage.setItem("ultronFavorites", JSON.stringify(favs));
+      loadFavorites();
+    };
+    card.style.position = 'relative';
+    card.appendChild(favBtn);
+  }
+});
+
+function loadFavorites() {
+  const favList = document.getElementById('favorites-list');
+  const favSection = document.getElementById('favorites-section');
+  const favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+  if (favs.length === 0) {
+    favSection.classList.add('hidden');
+    return;
+  }
+  favSection.classList.remove('hidden');
+  favList.innerHTML = '';
+  favs.forEach(fav => {
+    const card = document.createElement('a');
+    card.href = fav.url;
+    card.className = 'category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer p-4 text-center';
+    card.innerHTML = `<h3 class="font-medium text-sm">${fav.title}</h3>`;
+    favList.appendChild(card);
+  });
+}
+loadFavorites();
+
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
@@ -48,7 +148,7 @@ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 <body class="bg-white min-h-screen">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <!-- Nav Bar -->
-<nav class="fixed top-0 w-full bg-white shadow-md z-50">
+<nav class="sticky top-0 w-full bg-white shadow-md z-50" style="will-change: transform;">
 <div class="flex items-center justify-between px-4 py-3">
 <div class="flex items-center">
 <img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Logo" class="h-8 object-contain">
@@ -270,6 +370,17 @@ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 </div>
 </div>
 </section>
+
+<!-- Your Favorites -->
+<section id="favorites-section" class="mb-6 hidden">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-lg font-semibold text-gray-900">Your Favorites</h2>
+  </div>
+  <div id="favorites-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+    <!-- Dynamically filled by JS -->
+  </div>
+</section>
+
 <!-- Web Series -->
 <section class="mb-6">
 <div class="flex items-center justify-between mb-3">
@@ -480,6 +591,56 @@ searchResults.classList.add('hidden');
 }
 });
 });
+
+// Favorite feature support
+document.querySelectorAll('.category-card').forEach(card => {
+  const title = card.querySelector('h3')?.innerText?.trim();
+  const url = card.getAttribute('href');
+  if (title && url) {
+    const favBtn = document.createElement('div');
+    favBtn.className = 'absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow';
+    favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
+    favBtn.style.zIndex = "10";
+    favBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      let favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+      const existing = favs.find(f => f.url === url);
+      if (existing) {
+        favs = favs.filter(f => f.url !== url);
+        favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
+      } else {
+        favs.push({ title, url });
+        favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+      }
+      localStorage.setItem("ultronFavorites", JSON.stringify(favs));
+      loadFavorites();
+    };
+    card.style.position = 'relative';
+    card.appendChild(favBtn);
+  }
+});
+
+function loadFavorites() {
+  const favList = document.getElementById('favorites-list');
+  const favSection = document.getElementById('favorites-section');
+  const favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+  if (favs.length === 0) {
+    favSection.classList.add('hidden');
+    return;
+  }
+  favSection.classList.remove('hidden');
+  favList.innerHTML = '';
+  favs.forEach(fav => {
+    const card = document.createElement('a');
+    card.href = fav.url;
+    card.className = 'category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer p-4 text-center';
+    card.innerHTML = `<h3 class="font-medium text-sm">${fav.title}</h3>`;
+    favList.appendChild(card);
+  });
+}
+loadFavorites();
+
 </script>
 </div>
 </body>
