@@ -51,10 +51,32 @@ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 <nav class="fixed top-0 w-full bg-white shadow-md z-50">
 <div class="flex items-center justify-between px-4 py-3">
 <div class="flex items-center">
-<h1 class="text-xl font-['Pacifico'] text-primary">logo</h1>
+<img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Logo" class="h-8 object-contain">
 </div>
-<div class="w-10 h-10 flex items-center justify-center cursor-pointer">
+<div class="w-10 h-10 flex items-center justify-center cursor-pointer relative" id="accountBtn">
 <i class="ri-user-line ri-lg"></i>
+<div id="accountMenu" class="hidden absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50">
+<div class="p-4 border-b border-gray-100">
+<p class="text-sm font-medium">Guest User</p>
+<p class="text-xs text-gray-500">Sign in to access your account</p>
+</div>
+<a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
+<i class="ri-user-settings-line mr-3 text-gray-400"></i>
+<span class="text-sm">Profile Settings</span>
+</a>
+<a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
+<i class="ri-history-line mr-3 text-gray-400"></i>
+<span class="text-sm">Watch History</span>
+</a>
+<a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
+<i class="ri-settings-3-line mr-3 text-gray-400"></i>
+<span class="text-sm">Settings</span>
+</a>
+<a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500">
+<i class="ri-logout-box-line mr-3"></i>
+<span class="text-sm">Sign Out</span>
+</a>
+</div>
 </div>
 </div>
 </nav>
@@ -325,31 +347,31 @@ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 <!-- Tab Bar -->
 <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 sm:hidden">
 <div class="grid grid-cols-5 h-16">
-<a href="#" class="flex flex-col items-center justify-center text-primary cursor-pointer">
+<a href="#home" class="tab-item flex flex-col items-center justify-center text-primary cursor-pointer" data-section="home">
 <div class="w-6 h-6 flex items-center justify-center">
 <i class="ri-home-5-fill ri-lg"></i>
 </div>
 <span class="text-xs mt-1">Home</span>
 </a>
-<a href="#" class="flex flex-col items-center justify-center text-gray-500 cursor-pointer">
+<a href="#explore" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="explore">
 <div class="w-6 h-6 flex items-center justify-center">
 <i class="ri-compass-line ri-lg"></i>
 </div>
 <span class="text-xs mt-1">Explore</span>
 </a>
-<a href="#" class="flex flex-col items-center justify-center text-gray-500 cursor-pointer">
+<a href="#watch" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="watch">
 <div class="w-6 h-6 flex items-center justify-center">
 <i class="ri-play-circle-line ri-lg"></i>
 </div>
 <span class="text-xs mt-1">Watch</span>
 </a>
-<a href="#" class="flex flex-col items-center justify-center text-gray-500 cursor-pointer">
+<a href="#favorites" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="favorites">
 <div class="w-6 h-6 flex items-center justify-center">
 <i class="ri-heart-line ri-lg"></i>
 </div>
 <span class="text-xs mt-1">Favorites</span>
 </a>
-<a href="#" class="flex flex-col items-center justify-center text-gray-500 cursor-pointer">
+<a href="#downloads" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="downloads">
 <div class="w-6 h-6 flex items-center justify-center">
 <i class="ri-download-line ri-lg"></i>
 </div>
@@ -359,19 +381,46 @@ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 </nav>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-// Add active state to tab bar items
-const tabItems = document.querySelectorAll('nav.fixed.bottom-0 a');
+// Account menu toggle
+const accountBtn = document.getElementById('accountBtn');
+const accountMenu = document.getElementById('accountMenu');
+accountBtn.addEventListener('click', function(e) {
+e.stopPropagation();
+accountMenu.classList.toggle('hidden');
+});
+document.addEventListener('click', function(e) {
+if (!accountBtn.contains(e.target)) {
+accountMenu.classList.add('hidden');
+}
+});
+// Tab navigation
+const tabItems = document.querySelectorAll('.tab-item');
 tabItems.forEach(item => {
 item.addEventListener('click', function(e) {
 e.preventDefault();
+const section = this.getAttribute('data-section');
+// Update active state
 tabItems.forEach(tab => {
 tab.classList.remove('text-primary');
 tab.classList.add('text-gray-500');
+tab.querySelector('i').className = tab.querySelector('i').className.replace('-fill', '-line');
 });
 this.classList.remove('text-gray-500');
 this.classList.add('text-primary');
+this.querySelector('i').className = this.querySelector('i').className.replace('-line', '-fill');
+// Show section content (you can add specific content for each section)
+showSection(section);
 });
 });
+function showSection(section) {
+const message = document.createElement('div');
+message.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm z-50';
+message.textContent = `${section.charAt(0).toUpperCase() + section.slice(1)} section coming soon`;
+document.body.appendChild(message);
+setTimeout(() => {
+message.remove();
+}, 2000);
+}
 // Search functionality
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
@@ -390,7 +439,7 @@ const content = [
 {title: 'The Day of the Jackal', type: 'Web Series', url: 'https://ultron3000.github.io/jackal'}
 ];
 function performSearch(query) {
-const results = content.filter(item => 
+const results = content.filter(item =>
 item.title.toLowerCase().includes(query.toLowerCase()) ||
 item.type.toLowerCase().includes(query.toLowerCase())
 );
