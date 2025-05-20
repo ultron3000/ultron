@@ -17,6 +17,15 @@ body {
 font-family: 'Inter', sans-serif;
 background-color: #f9f9fb;
 }
+@media (min-width: 1024px) {
+.category-card {
+transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.category-card:hover {
+transform: translateY(-4px);
+box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+}
 .scrollbar-hide::-webkit-scrollbar {
 display: none;
 }
@@ -50,16 +59,25 @@ box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 </div>
 </nav>
 <!-- Main Content -->
-<main class="pt-16 pb-20 container mx-auto max-w-6xl">
+<main class="pt-16 pb-20 container mx-auto max-w-6xl px-4 lg:px-8">
 <!-- Hero Section -->
 <section class="mt-4 mb-6">
-<h1 class="text-2xl font-bold text-gray-900">Ultron Streaming Hub</h1>
-<p class="text-sm text-gray-600 mt-1">One site to rule them all — All your movies, shows, and franchises in one place.</p>
+<h1 class="text-2xl md:text-3xl font-bold text-gray-900">Ultron Streaming Hub</h1>
+<p class="text-sm md:text-base text-gray-600 mt-1">One site to rule them all — All your movies, shows, and franchises in one place.</p>
 <!-- Search Bar -->
 <div class="relative mt-4">
-<input type="text" placeholder="Search movies, shows, franchises..." class="w-full py-3 pl-10 pr-4 bg-gray-100 rounded-button text-sm focus:outline-none">
+<input type="text" id="searchInput" placeholder="Search movies, shows, franchises..." class="w-full py-3 pl-10 pr-4 bg-gray-100 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 <i class="ri-search-line text-gray-400"></i>
+</div>
+<div id="searchResults" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg hidden max-h-96 overflow-y-auto z-50">
+<div class="p-4">
+<div id="noResults" class="text-center py-8 hidden">
+<i class="ri-search-2-line text-4xl text-gray-300"></i>
+<p class="text-gray-500 mt-2">No results found</p>
+</div>
+<div id="resultsList"></div>
+</div>
 </div>
 </div>
 </section>
@@ -353,6 +371,64 @@ tab.classList.add('text-gray-500');
 this.classList.remove('text-gray-500');
 this.classList.add('text-primary');
 });
+});
+// Search functionality
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const resultsList = document.getElementById('resultsList');
+const noResults = document.getElementById('noResults');
+const content = [
+{title: 'Marvel Studios', type: 'Studio', url: 'https://ultron3000.github.io/marvel'},
+{title: 'Warner Bros', type: 'Studio', url: 'https://ultron3000.github.io/wb'},
+{title: 'Disney Animation', type: 'Animation', url: 'https://ultron3000.github.io/disney'},
+{title: 'Pixar', type: 'Animation', url: 'https://ultron3000.github.io/pixar'},
+{title: 'Mission Impossible', type: 'Franchise', url: 'https://ultron3000.github.io/mi'},
+{title: 'James Bond 007', type: 'Franchise', url: 'https://ultron3000.github.io/007'},
+{title: 'Rocky Balboa', type: 'Franchise', url: 'https://ultron3000.github.io/rocky'},
+{title: 'Predator', type: 'Franchise', url: 'https://ultron3000.github.io/predator'},
+{title: 'Moon Knight', type: 'Web Series', url: 'https://ultron3000.github.io/moon'},
+{title: 'The Day of the Jackal', type: 'Web Series', url: 'https://ultron3000.github.io/jackal'}
+];
+function performSearch(query) {
+const results = content.filter(item => 
+item.title.toLowerCase().includes(query.toLowerCase()) ||
+item.type.toLowerCase().includes(query.toLowerCase())
+);
+resultsList.innerHTML = '';
+if (results.length === 0) {
+noResults.classList.remove('hidden');
+} else {
+noResults.classList.add('hidden');
+results.forEach(result => {
+const div = document.createElement('div');
+div.className = 'flex items-center p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors';
+div.innerHTML = `
+<div class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full mr-3">
+<i class="ri-play-circle-line text-primary"></i>
+</div>
+<div>
+<h4 class="text-sm font-medium">${result.title}</h4>
+<p class="text-xs text-gray-500">${result.type}</p>
+</div>
+`;
+div.addEventListener('click', () => window.location.href = result.url);
+resultsList.appendChild(div);
+});
+}
+}
+searchInput.addEventListener('input', (e) => {
+const query = e.target.value.trim();
+if (query.length > 0) {
+searchResults.classList.remove('hidden');
+performSearch(query);
+} else {
+searchResults.classList.add('hidden');
+}
+});
+document.addEventListener('click', (e) => {
+if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+searchResults.classList.add('hidden');
+}
 });
 });
 </script>
