@@ -1,711 +1,722 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cloud</title>
-<script src="https://cdn.tailwindcss.com/3.4.16">
-// Favorite feature support
-document.querySelectorAll('.category-card').forEach(card => {
-  const title = card.querySelector('h3')?.innerText?.trim();
-  const url = card.getAttribute('href');
-  if (title && url) {
-    const favBtn = document.createElement('div');
-    favBtn.className = 'absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow';
-    favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
-    favBtn.style.zIndex = "10";
-    favBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      let favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
-      const existing = favs.find(f => f.url === url);
-      if (existing) {
-        favs = favs.filter(f => f.url !== url);
-        favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
-      } else {
-        favs.push({ title, url });
-        favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamVerse | Ultimate Streaming Hub</title>
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#8C52FF',
+            secondary: '#FF5757',
+            dark: '#1A1A2E',
+            light: '#F9F9FB'
+          },
+          borderRadius: {
+            'none': '0px',
+            'sm': '4px',
+            DEFAULT: '8px',
+            'md': '12px',
+            'lg': '16px',
+            'xl': '20px',
+            '2xl': '24px',
+            '3xl': '32px',
+            'full': '9999px',
+            'button': '8px'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Poppins', 'sans-serif']
+          }
+        }
       }
-      localStorage.setItem("ultronFavorites", JSON.stringify(favs));
-      loadFavorites();
-    };
-    card.style.position = 'relative';
-    card.appendChild(favBtn);
-  }
-});
-
-function loadFavorites() {
-  const favList = document.getElementById('favorites-list');
-  const favSection = document.getElementById('favorites-section');
-  const favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
-  if (favs.length === 0) {
-    favSection.classList.add('hidden');
-    return;
-  }
-  favSection.classList.remove('hidden');
-  favList.innerHTML = '';
-  favs.forEach(fav => {
-    const card = document.createElement('a');
-    card.href = fav.url;
-    card.className = 'category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer p-4 text-center';
-    card.innerHTML = `<h3 class="font-medium text-sm">${fav.title}</h3>`;
-    favList.appendChild(card);
-  });
-}
-loadFavorites();
-
-</script>
-<script>tailwind.config={theme:{extend:{colors:{primary:'#8C52FF',secondary:'#FF5757'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}
-// Favorite feature support
-document.querySelectorAll('.category-card').forEach(card => {
-  const title = card.querySelector('h3')?.innerText?.trim();
-  const url = card.getAttribute('href');
-  if (title && url) {
-    const favBtn = document.createElement('div');
-    favBtn.className = 'absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow';
-    favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
-    favBtn.style.zIndex = "10";
-    favBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      let favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
-      const existing = favs.find(f => f.url === url);
-      if (existing) {
-        favs = favs.filter(f => f.url !== url);
-        favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
-      } else {
-        favs.push({ title, url });
-        favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+  <style>
+    :root {
+      --header-height: 64px;
+      --tab-height: 56px;
+    }
+    
+    body {
+      background-color: #F9F9FB;
+      padding-bottom: var(--tab-height);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(90deg, #8C52FF 0%, #FF5757 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .card-hover {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .card-shadow {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    .smooth-transition {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .header-shadow {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+    
+    .tab-shadow {
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+    }
+    
+    .blur-bg {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .content-section {
+      scroll-margin-top: calc(var(--header-height) + 16px);
+    }
+    
+    @media (min-width: 640px) {
+      body {
+        padding-bottom: 0;
       }
-      localStorage.setItem("ultronFavorites", JSON.stringify(favs));
-      loadFavorites();
-    };
-    card.style.position = 'relative';
-    card.appendChild(favBtn);
-  }
-});
-
-function loadFavorites() {
-  const favList = document.getElementById('favorites-list');
-  const favSection = document.getElementById('favorites-section');
-  const favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
-  if (favs.length === 0) {
-    favSection.classList.add('hidden');
-    return;
-  }
-  favSection.classList.remove('hidden');
-  favList.innerHTML = '';
-  favs.forEach(fav => {
-    const card = document.createElement('a');
-    card.href = fav.url;
-    card.className = 'category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer p-4 text-center';
-    card.innerHTML = `<h3 class="font-medium text-sm">${fav.title}</h3>`;
-    favList.appendChild(card);
-  });
-}
-loadFavorites();
-
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
-<style>
-:where([class^="ri-"])::before { content: "\f3c2"; }
-body {
-font-family: 'Inter', sans-serif;
-background-color: #f9f9fb;
-}
-@media (min-width: 1024px) {
-.category-card {
-transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-.category-card:hover {
-transform: translateY(-4px);
-box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-}
-}
-.scrollbar-hide::-webkit-scrollbar {
-display: none;
-}
-.scrollbar-hide {
--ms-overflow-style: none;
-scrollbar-width: none;
-}
-.card-shadow {
-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-.category-card {
-transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.category-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-</style>
-<style>html { scroll-behavior: smooth; }</style>
+    }
+  </style>
 </head>
-<body class="bg-white min-h-screen">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-<!-- Nav Bar -->
-<nav class="sticky top-0 w-full bg-white shadow-md z-50" style="will-change: transform;">
-<div class="flex items-center justify-between px-4 py-3">
-<div class="flex items-center">
-<img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Logo" class="h-8 object-contain">
-</div>
-<div class="w-10 h-10 flex items-center justify-center cursor-pointer relative" id="accountBtn">
-<i class="ri-user-line ri-lg"></i>
-<div id="accountMenu" class="hidden absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50">
-<div class="p-4 border-b border-gray-100">
-<p class="text-sm font-medium">Guest User</p>
-<p class="text-xs text-gray-500">Sign in to access your account</p>
-</div>
-<a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
-<i class="ri-user-settings-line mr-3 text-gray-400"></i>
-<span class="text-sm">Profile Settings</span>
-</a>
-<a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
-<i class="ri-history-line mr-3 text-gray-400"></i>
-<span class="text-sm">Watch History</span>
-</a>
-<a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
-<i class="ri-settings-3-line mr-3 text-gray-400"></i>
-<span class="text-sm">Settings</span>
-</a>
-<a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500">
-<i class="ri-logout-box-line mr-3"></i>
-<span class="text-sm">Sign Out</span>
-</a>
-</div>
-</div>
-</div>
-</nav>
-<!-- Main Content -->
-<main class="pt-16 pb-20 container mx-auto max-w-6xl px-4 lg:px-8">
-<!-- Hero Section -->
-<section class="mt-4 mb-6">
-<h1 class="text-2xl md:text-3xl font-bold text-gray-900">Cloud Streaming Hub</h1>
-<p class="text-sm md:text-base text-gray-600 mt-1">One site to rule them all — All your movies, shows, and franchises in one place.</p>
-<!-- Search Bar -->
-<div class="relative mt-4">
-<input type="text" id="searchInput" placeholder="Search movies, shows, franchises..." class="w-full py-3 pl-10 pr-4 bg-gray-100 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-<i class="ri-search-line text-gray-400"></i>
-</div>
-<div id="searchResults" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg hidden max-h-96 overflow-y-auto z-50">
-<div class="p-4">
-<div id="noResults" class="text-center py-8 hidden">
-<i class="ri-search-2-line text-4xl text-gray-300"></i>
-<p class="text-gray-500 mt-2">No results found</p>
-</div>
-<div id="resultsList"></div>
-</div>
-</div>
-</div>
-</section>
-<!-- Featured Content -->
-<section class="mb-6">
-<div class="relative rounded-lg overflow-hidden h-40">
-<img src="https://readdy.ai/api/search-image?query=cinematic%20movie%20collage%20with%20popular%20characters%20from%20Marvel%2C%20DC%2C%20and%20other%20franchises%2C%20dramatic%20lighting%2C%20movie%20poster%20style%2C%20vibrant%20colors%2C%20no%20text&width=375&height=160&seq=1&orientation=landscape" class="w-full h-full object-cover" alt="Featured Content">
-<div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4">
-<h3 class="text-white font-bold">Trending Now</h3>
-<p class="text-white text-sm opacity-90">Discover the most popular content</p>
-</div>
-</div>
-</section>
-<!-- स्वराज्य (Swarajya) Section -->
-<section id="swarajya" class="mb-6"><section class="mb-6">
-<div class="flex items-center justify-between mb-3">
-<h2 class="text-lg font-semibold text-gray-900">स्वराज्य (Swarajya)</h2>
-<a href="#swarajya" class="text-xs text-primary cursor-pointer">View All</a>
-</div>
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-<a href="https://ultron3000.github.io/1" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://voteforshivajijayanti.com/wp-content/uploads/2024/07/Chhatrapati-Shivaji-Maharaj-12.jpg" alt="Marathi Movies">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">चित्रपट (Movies)</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/2" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://mlhcmvsgnb3v.i.optimole.com/cb:m_50.3acc4/w:1440/h:1080/q:mauto/f:best/ig:avif/https://apnaran.com/wp-content/uploads/2021/09/chhatrapayi-shivaji-maharaj.jpg" alt="Marathi Series">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">मालिका (Series)</h3>
-</div>
-</a>
-</div>
-</section>
-<!-- Animation Studios -->
-<section id="animation" class="mb-6"><section class="mb-6">
-<div class="flex items-center justify-between mb-3">
-<h2 class="text-lg font-semibold text-gray-900">Animation</h2>
-<a href="#animation" class="text-xs text-primary cursor-pointer">View All</a>
-</div>
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-<a href="https://ultron3000.github.io/disney" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Disney%20Animation%20classics%20collage%2C%20Mickey%20Mouse%2C%20Lion%20King%2C%20Frozen%2C%20magical%2C%20whimsical%2C%20iconic%20Disney%20animation%20style%2C%20colorful&width=180&height=96&seq=17&orientation=landscape" class="w-full h-full object-cover" alt="Disney Animation">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">Disney Animation</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/pixar" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Pixar%20animation%20characters%20collage%2C%203D%20animation%2C%20colorful%2C%20playful%2C%20iconic%20Pixar%20characters%20like%20Woody%2C%20Buzz%2C%20Wall-E%2C%20high%20quality&width=180&height=96&seq=4&orientation=landscape" class="w-full h-full object-cover" alt="Pixar">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">Pixar</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/dreamworks" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=DreamWorks%20animation%20characters%20collage%2C%203D%20animation%2C%20vibrant%2C%20Shrek%2C%20Kung%20Fu%20Panda%2C%20How%20to%20Train%20Your%20Dragon%2C%20high%20quality&width=180&height=96&seq=5&orientation=landscape" class="w-full h-full object-cover" alt="DreamWorks">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">DreamWorks</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/sony" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Sony%20Animation%20characters%20collage%2C%20Spider-Verse%2C%20Hotel%20Transylvania%2C%20The%20Mitchells%20vs%20the%20Machines%2C%20colorful%2C%20dynamic%2C%20stylized%20animation&width=180&height=96&seq=6&orientation=landscape" class="w-full h-full object-cover" alt="Sony Animation">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">Sony Animation</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/illumination" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Illumination%20characters%20collage%2C%20Minions%2C%20Despicable%20Me%2C%20The%20Secret%20Life%20of%20Pets%2C%20bright%20colors%2C%20funny%20characters%2C%203D%20animation&width=180&height=96&seq=7&orientation=landscape" class="w-full h-full object-cover" alt="Illumination">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">Illumination</h3>
-</div>
-</a>
-</div>
-</section>
-<!-- Studios & Franchises -->
-<section id="studios" class="mb-6"><section class="mb-6">
-<div class="flex items-center justify-between mb-3">
-<h2 class="text-lg font-semibold text-gray-900">Studios & Franchises</h2>
-<a href="#studios" class="text-xs text-primary cursor-pointer">View All</a>
-</div>
-<div class="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-<div class="flex flex-nowrap sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-<a href="https://ultron3000.github.io/wick" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-  <div class="h-20 overflow-hidden">
-    <img src="https://images5.alphacoders.com/133/1338709.png" class="w-full h-full object-cover" alt="John Wick">
-  </div>
-  <div class="p-2 text-center">
-    <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">John Wick</h3>
-  </div>
-</a>
+<body class="font-sans text-gray-900">
+  <!-- Header -->
+  <header class="fixed top-0 left-0 right-0 bg-white header-shadow z-50" style="height: var(--header-height);">
+    <div class="container mx-auto px-4 h-full flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="ri-movie-2-fill text-2xl gradient-text"></i>
+        <h1 class="text-xl font-bold font-display">StreamVerse</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <button id="searchBtn" class="sm:hidden p-2 rounded-full hover:bg-gray-100">
+          <i class="ri-search-line text-lg"></i>
+        </button>
+        
+        <div class="relative hidden sm:block w-64">
+          <input type="text" id="desktopSearch" placeholder="Search..." 
+                 class="w-full py-2 pl-10 pr-4 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="ri-search-line text-gray-400"></i>
+          </div>
+        </div>
+        
+        <div class="relative" id="accountBtn">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center cursor-pointer">
+            <i class="ri-user-line text-white"></i>
+          </div>
+          <div id="accountMenu" class="hidden absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+              <p class="text-sm font-medium">Guest User</p>
+              <p class="text-xs text-gray-500">Sign in to access your account</p>
+            </div>
+            <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 smooth-transition">
+              <i class="ri-user-settings-line mr-3 text-gray-400"></i>
+              <span class="text-sm">Profile Settings</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 smooth-transition">
+              <i class="ri-history-line mr-3 text-gray-400"></i>
+              <span class="text-sm">Watch History</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 smooth-transition">
+              <i class="ri-settings-3-line mr-3 text-gray-400"></i>
+              <span class="text-sm">Settings</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500 smooth-transition">
+              <i class="ri-logout-box-line mr-3"></i>
+              <span class="text-sm">Sign Out</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
 
-<a href="https://ultron3000.github.io/marvel" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Marvel%20Studios%20logo%20with%20Avengers%20characters%2C%20superhero%2C%20cinematic%2C%20dramatic%20lighting&width=128&height=80&seq=8&orientation=landscape" class="w-full h-full object-cover" alt="Marvel Studios">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Marvel Studios</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/wb" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Warner%20Bros%20Pictures%20logo%20with%20DC%20superheroes%2C%20Batman%2C%20Superman%2C%20Wonder%20Woman%2C%20cinematic&width=128&height=80&seq=9&orientation=landscape" class="w-full h-full object-cover" alt="Warner Bros Pictures">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Warner Bros</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/x-men" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=X-Men%20characters%20collage%2C%20Wolverine%2C%20Professor%20X%2C%20Magneto%2C%20cinematic%2C%20dramatic%20lighting&width=128&height=80&seq=10&orientation=landscape" class="w-full h-full object-cover" alt="X-MEN">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">X-MEN</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/rambo" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Rambo%20movie%20poster%2C%20Sylvester%20Stallone%2C%20action%20hero%2C%20dramatic%20lighting%2C%20gritty&width=128&height=80&seq=11&orientation=landscape" class="w-full h-full object-cover" alt="Rambo">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Rambo</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/f-f" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/46e21011533181.56275d593d69c.jpg" class="w-full h-full object-cover" alt="Fast & Furious">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Fast & Furious</h3>
-</div>
-</a>  
-<a href="https://ultron3000.github.io/transformers" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Transformers%20movie%20poster%2C%20Optimus%20Prime%2C%20Bumblebee%2C%20robots%2C%20action%2C%20dramatic%20lighting&width=128&height=80&seq=12&orientation=landscape" class="w-full h-full object-cover" alt="Transformers">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Transformers</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/bourne" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://static1.colliderimages.com/wordpress/wp-content/uploads/2022/04/Jason-Bourne-movies-in-Order-feature.jpg?q=70&fit=contain&w=1200&h=628&dpr=1" alt="Jason Bourne">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Jason Bourne</h3>
-</div>
-</a>  
-<a href="https://ultron3000.github.io/terminator" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://static.vecteezy.com/system/resources/thumbnails/030/650/090/small_2x/a-poster-for-the-movie-the-terminator-free-photo.jpg" alt="Terminator">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Terminator</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/fd" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://lh6.googleusercontent.com/proxy/NQusTMpUVI6U7v7GH10LvR8qwmjvYve8ikArOhTEFcXr8DNHFkXK8X1KyZLwNmCO4Kz1nER7_7m5btS-GpA9yCbTy0hTYfHLJOtvLmlm">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Final Destination</h3>
-</div>
-</a>    
-<a href="https://ultron3000.github.io/predator" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Predator%20movie%20franchise%20poster%2C%20alien%20hunter%2C%20sci-fi%20action%2C%20jungle%20setting%2C%20dramatic%20lighting&width=128&height=80&seq=18&orientation=landscape" class="w-full h-full object-cover" alt="Predator">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Predator</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/mi" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Mission%20Impossible%20movie%20poster%2C%20Tom%20Cruise%20action%20scenes%2C%20spy%20thriller%2C%20dramatic%20lighting&width=128&height=80&seq=19&orientation=landscape" class="w-full h-full object-cover" alt="Mission Impossible">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Mission Impossible</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/007" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=James%20Bond%20007%20movie%20poster%2C%20British%20spy%2C%20luxury%20cars%2C%20action%20scenes%2C%20dramatic%20lighting&width=128&height=80&seq=20&orientation=landscape" class="w-full h-full object-cover" alt="007">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">007 (James Bond)</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/rocky" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Rocky%20Balboa%20movie%20poster%2C%20boxing%20ring%2C%20Sylvester%20Stallone%2C%20sports%20drama%2C%20dramatic%20lighting&width=128&height=80&seq=21&orientation=landscape" class="w-full h-full object-cover" alt="Rocky Balboa">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Rocky Balboa</h3>
-</div>
-</a>
-<a href="https://ultron3000.github.io/sniper" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://t3.ftcdn.net/jpg/06/39/93/32/360_F_639933259_FgmS3sUxmPtKtlf4lTssmYVlwzffU176.jpg" alt="Sniper">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Sniper</h3>
-</div>
-</a>  
-<a href="https://ultron3000.github.io/vampire" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-20 overflow-hidden">
-<img src="https://i.pinimg.com/736x/d8/f6/ca/d8f6cadcaa1b9901df6600286bbde095.jpg" alt="Vampire">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Vampire</h3>
-</div>
-</a>  
-</div>
-</div>
-</section>
-
-<!-- Your Favorites -->
-<section id="favorites-section" class="mb-6 hidden">
-  <div class="flex items-center justify-between mb-3">
-    <h2 class="text-lg font-semibold text-gray-900">Your Favorites</h2>
+  <!-- Mobile Search -->
+  <div id="mobileSearch" class="fixed top-16 left-0 right-0 bg-white p-4 shadow-md z-40 hidden">
+    <div class="relative">
+      <input type="text" id="searchInput" placeholder="Search movies, shows..." 
+             class="w-full py-3 pl-10 pr-4 bg-gray-100 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i class="ri-search-line text-gray-400"></i>
+      </div>
+    </div>
+    <div id="searchResults" class="mt-2 bg-white rounded-lg shadow-lg max-h-80 overflow-y-auto hidden">
+      <div class="p-2">
+        <div id="noResults" class="text-center py-6 hidden">
+          <i class="ri-search-2-line text-4xl text-gray-300 mb-2"></i>
+          <p class="text-gray-500">No results found</p>
+        </div>
+        <div id="resultsList"></div>
+      </div>
+    </div>
   </div>
-  <div id="favorites-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-    <!-- Dynamically filled by JS -->
-  </div>
-</section>
 
-<!-- Web Series -->
-<section id="web-series" class="mb-6"><section class="mb-6">
-<div class="flex items-center justify-between mb-3">
-<h2 class="text-lg font-semibold text-gray-900">Web Series</h2>
-<a href="#web-series" class="text-xs text-primary cursor-pointer">View All</a>
-</div>
-<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-<a href="https://ultron3000.github.io/moon" class="category-card flex bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="w-24 h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Moon%20Knight%20TV%20series%20poster%2C%20Marvel%20character%2C%20mystical%2C%20Egyptian%20mythology%2C%20dramatic%20lighting&width=96&height=96&seq=13&orientation=squarish" class="w-full h-full object-cover" alt="Moon Knight">
-</div>
-<div class="p-3 flex flex-col justify-center">
-<h3 class="font-medium text-sm">Moon Knight</h3>
-<p class="text-xs text-gray-500 mt-1">Marvel Studios • 6 Episodes</p>
-</div>
-</a>
-<a href="https://ultron3000.github.io/jackal" class="category-card flex bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="w-24 h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=The%20Day%20of%20the%20Jackal%20TV%20series%20poster%2C%20thriller%2C%20suspense%2C%20espionage%2C%20dramatic%20lighting&width=96&height=96&seq=14&orientation=squarish" class="w-full h-full object-cover" alt="The Day of the Jackal">
-</div>
-<div class="p-3 flex flex-col justify-center">
-<h3 class="font-medium text-sm">The Day of the Jackal</h3>
-<p class="text-xs text-gray-500 mt-1">Thriller • 10 Episodes</p>
-</div>
-</a>
-</div>
-</section>
-<!-- Global Media -->
-<section class="mb-6">
-<div class="flex items-center justify-between mb-3">
-<h2 class="text-lg font-semibold text-gray-900">Global Media</h2>
-</div>
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-<a href="https://tv.garden" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Live%20TV%20streaming%2C%20multiple%20screens%20showing%20different%20channels%2C%20global%20television%2C%20broadcast%20media&width=180&height=96&seq=15&orientation=landscape" class="w-full h-full object-cover" alt="Live TV">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">Live TV</h3>
-<div class="flex items-center justify-center mt-1">
-<span class="w-2 h-2 bg-green-500 rounded-full"></span>
-<span class="text-xs text-gray-500 ml-1">Live Now</span>
-</div>
-</div>
-</a>
-<a href="https://radio.garden" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-<div class="h-24 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=Radio%20streaming%2C%20global%20radio%20stations%2C%20audio%20waves%20visualization%2C%20music%20broadcasting&width=180&height=96&seq=16&orientation=landscape" class="w-full h-full object-cover" alt="Radio">
-</div>
-<div class="p-2 text-center">
-<h3 class="font-medium text-sm">Radio</h3>
-<div class="flex items-center justify-center mt-1">
-<span class="w-2 h-2 bg-green-500 rounded-full"></span>
-<span class="text-xs text-gray-500 ml-1">Live Now</span>
-</div>
-</div>
-</a>
-</div>
-</section>
-<!-- Tip Section -->
-<section class="mb-6">
-<div class="bg-primary/10 rounded-lg p-4">
-<div class="flex items-start">
-<div class="w-8 h-8 flex items-center justify-center text-primary bg-white rounded-full mr-3 flex-shrink-0">
-<i class="ri-lightbulb-line"></i>
-</div>
-<div>
-<h3 class="font-medium text-sm text-primary">Pro Tip</h3>
-<p class="text-xs text-gray-700 mt-1">Bookmark this page for quick access to all your favorite streaming content in one place!</p>
-</div>
-</div>
-</div>
-</section>
-</main>
-<!-- Tab Bar -->
-<nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 sm:hidden">
-<div class="grid grid-cols-5 h-16">
-<a href="#home" class="tab-item flex flex-col items-center justify-center text-primary cursor-pointer" data-section="home">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-home-5-fill ri-lg"></i>
-</div>
-<span class="text-xs mt-1">Home</span>
-</a>
-<a href="#explore" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="explore">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-compass-line ri-lg"></i>
-</div>
-<span class="text-xs mt-1">Explore</span>
-</a>
-<a href="#watch" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="watch">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-play-circle-line ri-lg"></i>
-</div>
-<span class="text-xs mt-1">Watch</span>
-</a>
-<a href="#favorites" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="favorites">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-heart-line ri-lg"></i>
-</div>
-<span class="text-xs mt-1">Favorites</span>
-</a>
-<a href="#downloads" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="downloads">
-<div class="w-6 h-6 flex items-center justify-center">
-<i class="ri-download-line ri-lg"></i>
-</div>
-<span class="text-xs mt-1">Downloads</span>
-</a>
-</div>
-</nav>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-// Account menu toggle
-const accountBtn = document.getElementById('accountBtn');
-const accountMenu = document.getElementById('accountMenu');
-accountBtn.addEventListener('click', function(e) {
-e.stopPropagation();
-accountMenu.classList.toggle('hidden');
-});
-document.addEventListener('click', function(e) {
-if (!accountBtn.contains(e.target)) {
-accountMenu.classList.add('hidden');
-}
-});
-// Tab navigation
-const tabItems = document.querySelectorAll('.tab-item');
-tabItems.forEach(item => {
-item.addEventListener('click', function(e) {
-e.preventDefault();
-const section = this.getAttribute('data-section');
-// Update active state
-tabItems.forEach(tab => {
-tab.classList.remove('text-primary');
-tab.classList.add('text-gray-500');
-tab.querySelector('i').className = tab.querySelector('i').className.replace('-fill', '-line');
-});
-this.classList.remove('text-gray-500');
-this.classList.add('text-primary');
-this.querySelector('i').className = this.querySelector('i').className.replace('-line', '-fill');
-// Show section content (you can add specific content for each section)
-showSection(section);
-});
-});
-function showSection(section) {
-const message = document.createElement('div');
-message.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm z-50';
-message.textContent = `${section.charAt(0).toUpperCase() + section.slice(1)} section coming soon`;
-document.body.appendChild(message);
-setTimeout(() => {
-message.remove();
-}, 2000);
-}
-// Search functionality
-const searchInput = document.getElementById('searchInput');
-const searchResults = document.getElementById('searchResults');
-const resultsList = document.getElementById('resultsList');
-const noResults = document.getElementById('noResults');
-const content = [
-{title: 'Marvel Studios', type: 'Studio', url: 'https://ultron3000.github.io/marvel'},
-{title: 'Warner Bros', type: 'Studio', url: 'https://ultron3000.github.io/wb'},
-{title: 'Disney Animation', type: 'Animation', url: 'https://ultron3000.github.io/disney'},
-{title: 'Sony Animation', type: 'Animation', url: 'https://ultron3000.github.io/sony'},
-{title: 'Illumination', type: 'Animation', url: 'https://ultron3000.github.io/illumination'},
-{title: 'DreamWorks', type: 'Animation', url: 'https://ultron3000.github.io/dreamworks'},  
-{title: 'Pixar', type: 'Animation', url: 'https://ultron3000.github.io/pixar'},
-{title: 'Mission Impossible', type: 'Franchise', url: 'https://ultron3000.github.io/mi'},
-{title: 'James Bond 007', type: 'Franchise', url: 'https://ultron3000.github.io/007'},
-{title: 'Rambo', type: 'Franchise', url: 'https://ultron3000.github.io/rambo'},  
-{title: 'Rocky Balboa', type: 'Franchise', url: 'https://ultron3000.github.io/rocky'},
-{title: 'Predator', type: 'Franchise', url: 'https://ultron3000.github.io/predator'},
-{title: 'John Wick', type: 'Franchise', url: 'https://ultron3000.github.io/wick'},
-{title: 'Transformers', type: 'Franchise', url: 'https://ultron3000.github.io/transformers'},  
-{title: 'Moon Knight', type: 'Web Series', url: 'https://ultron3000.github.io/moon'},
-{title: 'The Day of the Jackal', type: 'Web Series', url: 'https://ultron3000.github.io/jackal'}
-];
-function performSearch(query) {
-const results = content.filter(item =>
-item.title.toLowerCase().includes(query.toLowerCase()) ||
-item.type.toLowerCase().includes(query.toLowerCase())
-);
-resultsList.innerHTML = '';
-if (results.length === 0) {
-noResults.classList.remove('hidden');
-} else {
-noResults.classList.add('hidden');
-results.forEach(result => {
-const div = document.createElement('div');
-div.className = 'flex items-center p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors';
-div.innerHTML = `
-<div class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full mr-3">
-<i class="ri-play-circle-line text-primary"></i>
-</div>
-<div>
-<h4 class="text-sm font-medium">${result.title}</h4>
-<p class="text-xs text-gray-500">${result.type}</p>
-</div>
-`;
-div.addEventListener('click', () => window.location.href = result.url);
-resultsList.appendChild(div);
-});
-}
-}
-searchInput.addEventListener('input', (e) => {
-const query = e.target.value.trim();
-if (query.length > 0) {
-searchResults.classList.remove('hidden');
-performSearch(query);
-} else {
-searchResults.classList.add('hidden');
-}
-});
-document.addEventListener('click', (e) => {
-if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-searchResults.classList.add('hidden');
-}
-});
-});
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 pt-20 pb-6 max-w-6xl">
+    <!-- Hero Section -->
+    <section class="mb-8">
+      <div class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-6 text-white">
+        <h1 class="text-2xl md:text-3xl font-bold mb-2">Your Ultimate Streaming Hub</h1>
+        <p class="text-sm md:text-base opacity-90 mb-4">All your favorite movies, shows, and franchises in one place</p>
+        <div class="relative max-w-xl">
+          <input type="text" id="heroSearch" placeholder="What would you like to watch today?" 
+                 class="w-full py-3 pl-10 pr-4 bg-white/20 backdrop-blur-sm rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white/30">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="ri-search-line text-white/80"></i>
+          </div>
+        </div>
+      </div>
+    </section>
 
-// Favorite feature support
-document.querySelectorAll('.category-card').forEach(card => {
-  const title = card.querySelector('h3')?.innerText?.trim();
-  const url = card.getAttribute('href');
-  if (title && url) {
-    const favBtn = document.createElement('div');
-    favBtn.className = 'absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow';
-    favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
-    favBtn.style.zIndex = "10";
-    favBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      let favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
-      const existing = favs.find(f => f.url === url);
-      if (existing) {
-        favs = favs.filter(f => f.url !== url);
-        favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
-      } else {
-        favs.push({ title, url });
-        favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+    <!-- Featured Content -->
+    <section class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold">Featured Content</h2>
+        <a href="#" class="text-sm text-primary font-medium flex items-center">
+          View All <i class="ri-arrow-right-s-line ml-1"></i>
+        </a>
+      </div>
+      <div class="relative rounded-2xl overflow-hidden h-48 md:h-64">
+        <img src="https://images.unsplash.com/photo-1635805737707-575885ab0820?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
+             class="w-full h-full object-cover" alt="Featured Content">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
+          <div class="flex items-center mb-2">
+            <span class="bg-secondary px-2 py-1 text-xs font-bold text-white rounded mr-2">NEW</span>
+            <span class="text-white/80 text-xs">2023 • Action • 2h 18m</span>
+          </div>
+          <h3 class="text-white text-xl md:text-2xl font-bold mb-1">The Ultimate Showdown</h3>
+          <p class="text-white/80 text-sm md:text-base">The most anticipated movie of the year is now streaming</p>
+          <button class="mt-3 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full text-sm font-medium w-fit flex items-center">
+            <i class="ri-play-fill mr-2"></i> Watch Now
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories Sections -->
+    <div class="space-y-10">
+      <!-- स्वराज्य (Swarajya) Section -->
+      <section id="swarajya" class="content-section">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">स्वराज्य (Swarajya)</h2>
+          <a href="#swarajya" class="text-sm text-primary font-medium flex items-center">
+            View All <i class="ri-arrow-right-s-line ml-1"></i>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <a href="https://ultron3000.github.io/1" class="category-card bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover relative">
+            <div class="h-32 overflow-hidden">
+              <img src="https://voteforshivajijayanti.com/wp-content/uploads/2024/07/Chhatrapati-Shivaji-Maharaj-12.jpg" 
+                   class="w-full h-full object-cover" alt="Marathi Movies">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">चित्रपट (Movies)</h3>
+              <p class="text-xs text-gray-500 mt-1">50+ titles</p>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/2" class="category-card bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover relative">
+            <div class="h-32 overflow-hidden">
+              <img src="https://mlhcmvsgnb3v.i.optimole.com/cb:m_50.3acc4/w:1440/h:1080/q:mauto/f:best/ig:avif/https://apnaran.com/wp-content/uploads/2021/09/chhatrapayi-shivaji-maharaj.jpg" 
+                   class="w-full h-full object-cover" alt="Marathi Series">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">मालिका (Series)</h3>
+              <p class="text-xs text-gray-500 mt-1">20+ series</p>
+            </div>
+          </a>
+          <!-- Add more cards as needed -->
+        </div>
+      </section>
+
+      <!-- Animation Studios -->
+      <section id="animation" class="content-section">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Animation Studios</h2>
+          <a href="#animation" class="text-sm text-primary font-medium flex items-center">
+            View All <i class="ri-arrow-right-s-line ml-1"></i>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <a href="https://ultron3000.github.io/disney" class="category-card bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover relative">
+            <div class="h-32 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1622038378186-9a1e3e1e1e1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                   class="w-full h-full object-cover" alt="Disney Animation">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Disney Animation</h3>
+              <p class="text-xs text-gray-500 mt-1">Classic & new</p>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/pixar" class="category-card bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover relative">
+            <div class="h-32 overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1622038378186-9a1e3e1e1e1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                   class="w-full h-full object-cover" alt="Pixar">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Pixar</h3>
+              <p class="text-xs text-gray-500 mt-1">Heartwarming stories</p>
+            </div>
+          </a>
+          <!-- Add more animation studios -->
+        </div>
+      </section>
+
+      <!-- Studios & Franchises -->
+      <section id="studios" class="content-section">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Studios & Franchises</h2>
+          <a href="#studios" class="text-sm text-primary font-medium flex items-center">
+            View All <i class="ri-arrow-right-s-line ml-1"></i>
+          </a>
+        </div>
+        <div class="relative">
+          <div class="overflow-x-auto scrollbar-hide pb-2">
+            <div class="flex space-x-4">
+              <a href="https://ultron3000.github.io/wick" class="category-card flex-shrink-0 w-40 sm:w-48 bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover">
+                <div class="h-24 overflow-hidden">
+                  <img src="https://images5.alphacoders.com/133/1338709.png" 
+                       class="w-full h-full object-cover" alt="John Wick">
+                </div>
+                <div class="p-3">
+                  <h3 class="font-medium text-sm">John Wick</h3>
+                  <p class="text-xs text-gray-500 mt-1">4 movies</p>
+                </div>
+              </a>
+              <a href="https://ultron3000.github.io/marvel" class="category-card flex-shrink-0 w-40 sm:w-48 bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover">
+                <div class="h-24 overflow-hidden">
+                  <img src="https://images.unsplash.com/photo-1622038378186-9a1e3e1e1e1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                       class="w-full h-full object-cover" alt="Marvel Studios">
+                </div>
+                <div class="p-3">
+                  <h3 class="font-medium text-sm">Marvel Studios</h3>
+                  <p class="text-xs text-gray-500 mt-1">30+ movies</p>
+                </div>
+              </a>
+              <!-- Add more franchises -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Your Favorites -->
+      <section id="favorites-section" class="content-section hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Your Favorites</h2>
+          <button id="clearFavorites" class="text-sm text-red-500 font-medium flex items-center">
+            Clear All <i class="ri-delete-bin-line ml-1"></i>
+          </button>
+        </div>
+        <div id="favorites-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <!-- Dynamically filled by JS -->
+        </div>
+      </section>
+
+      <!-- Web Series -->
+      <section id="web-series" class="content-section">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Web Series</h2>
+          <a href="#web-series" class="text-sm text-primary font-medium flex items-center">
+            View All <i class="ri-arrow-right-s-line ml-1"></i>
+          </a>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <a href="https://ultron3000.github.io/moon" class="category-card flex bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover">
+            <div class="w-24 h-24 overflow-hidden flex-shrink-0">
+              <img src="https://images.unsplash.com/photo-1622038378186-9a1e3e1e1e1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                   class="w-full h-full object-cover" alt="Moon Knight">
+            </div>
+            <div class="p-4 flex flex-col justify-center">
+              <h3 class="font-medium text-sm">Moon Knight</h3>
+              <p class="text-xs text-gray-500 mt-1">Marvel Studios • 6 Episodes</p>
+              <div class="flex items-center mt-2">
+                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                  <div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
+                </div>
+                <span class="text-xs text-gray-500 ml-2">75%</span>
+              </div>
+            </div>
+          </a>
+          <!-- Add more web series -->
+        </div>
+      </section>
+
+      <!-- Global Media -->
+      <section class="content-section">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Global Media</h2>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <a href="https://tv.garden" class="category-card bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover">
+            <div class="h-32 overflow-hidden relative">
+              <img src="https://images.unsplash.com/photo-1622038378186-9a1e3e1e1e1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                   class="w-full h-full object-cover" alt="Live TV">
+              <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                <div class="bg-red-500 text-white text-xs px-2 py-1 rounded-full flex items-center">
+                  <span class="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></span>
+                  LIVE
+                </div>
+              </div>
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Live TV</h3>
+              <p class="text-xs text-gray-500 mt-1">Global channels</p>
+            </div>
+          </a>
+          <!-- Add more global media -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Tab Bar (Mobile) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white tab-shadow z-50 sm:hidden" style="height: var(--tab-height);">
+    <div class="grid grid-cols-5 h-full">
+      <a href="#" class="tab-item flex flex-col items-center justify-center text-primary cursor-pointer" data-section="home">
+        <div class="w-6 h-6 flex items-center justify-center">
+          <i class="ri-home-5-fill ri-lg"></i>
+        </div>
+        <span class="text-xs mt-1">Home</span>
+      </a>
+      <a href="#" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="explore">
+        <div class="w-6 h-6 flex items-center justify-center">
+          <i class="ri-compass-line ri-lg"></i>
+        </div>
+        <span class="text-xs mt-1">Explore</span>
+      </a>
+      <a href="#" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="watch">
+        <div class="w-6 h-6 flex items-center justify-center">
+          <i class="ri-play-circle-line ri-lg"></i>
+        </div>
+        <span class="text-xs mt-1">Watch</span>
+      </a>
+      <a href="#" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="favorites">
+        <div class="w-6 h-6 flex items-center justify-center">
+          <i class="ri-heart-line ri-lg"></i>
+        </div>
+        <span class="text-xs mt-1">Favorites</span>
+      </a>
+      <a href="#" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="downloads">
+        <div class="w-6 h-6 flex items-center justify-center">
+          <i class="ri-download-line ri-lg"></i>
+        </div>
+        <span class="text-xs mt-1">Downloads</span>
+      </a>
+    </div>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Account menu toggle
+      const accountBtn = document.getElementById('accountBtn');
+      const accountMenu = document.getElementById('accountMenu');
+      
+      accountBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        accountMenu.classList.toggle('hidden');
+      });
+      
+      document.addEventListener('click', function(e) {
+        if (!accountBtn.contains(e.target)) {
+          accountMenu.classList.add('hidden');
+        }
+      });
+
+      // Mobile search toggle
+      const searchBtn = document.getElementById('searchBtn');
+      const mobileSearch = document.getElementById('mobileSearch');
+      
+      searchBtn.addEventListener('click', function() {
+        mobileSearch.classList.toggle('hidden');
+      });
+
+      // Tab navigation
+      const tabItems = document.querySelectorAll('.tab-item');
+      
+      tabItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const section = this.getAttribute('data-section');
+          
+          // Update active state
+          tabItems.forEach(tab => {
+            tab.classList.remove('text-primary');
+            tab.classList.add('text-gray-500');
+            const icon = tab.querySelector('i');
+            icon.className = icon.className.replace('-fill', '-line');
+          });
+          
+          this.classList.remove('text-gray-500');
+          this.classList.add('text-primary');
+          const activeIcon = this.querySelector('i');
+          activeIcon.className = activeIcon.className.replace('-line', '-fill');
+          
+          // Show section content
+          showSection(section);
+        });
+      });
+
+      function showSection(section) {
+        // Hide all sections first
+        document.querySelectorAll('.content-section').forEach(sec => {
+          sec.classList.add('hidden');
+        });
+        
+        // Show favorites section if clicked
+        if (section === 'favorites') {
+          document.getElementById('favorites-section').classList.remove('hidden');
+          return;
+        }
+        
+        // For other sections, show a toast message
+        const message = document.createElement('div');
+        message.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm z-50 flex items-center';
+        message.innerHTML = `${section.charAt(0).toUpperCase() + section.slice(1)} section coming soon <i class="ri-arrow-right-line ml-1"></i>`;
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+          message.classList.add('opacity-0');
+          setTimeout(() => message.remove(), 300);
+        }, 2000);
       }
-      localStorage.setItem("ultronFavorites", JSON.stringify(favs));
+
+      // Search functionality
+      const searchInput = document.getElementById('searchInput');
+      const heroSearch = document.getElementById('heroSearch');
+      const desktopSearch = document.getElementById('desktopSearch');
+      const searchResults = document.getElementById('searchResults');
+      const resultsList = document.getElementById('resultsList');
+      const noResults = document.getElementById('noResults');
+      
+      const content = [
+        {title: 'Marvel Studios', type: 'Studio', url: 'https://ultron3000.github.io/marvel'},
+        {title: 'Warner Bros', type: 'Studio', url: 'https://ultron3000.github.io/wb'},
+        {title: 'Disney Animation', type: 'Animation', url: 'https://ultron3000.github.io/disney'},
+        {title: 'Sony Animation', type: 'Animation', url: 'https://ultron3000.github.io/sony'},
+        {title: 'Illumination', type: 'Animation', url: 'https://ultron3000.github.io/illumination'},
+        {title: 'DreamWorks', type: 'Animation', url: 'https://ultron3000.github.io/dreamworks'},  
+        {title: 'Pixar', type: 'Animation', url: 'https://ultron3000.github.io/pixar'},
+        {title: 'Mission Impossible', type: 'Franchise', url: 'https://ultron3000.github.io/mi'},
+        {title: 'James Bond 007', type: 'Franchise', url: 'https://ultron3000.github.io/007'},
+        {title: 'Rambo', type: 'Franchise', url: 'https://ultron3000.github.io/rambo'},  
+        {title: 'Rocky Balboa', type: 'Franchise', url: 'https://ultron3000.github.io/rocky'},
+        {title: 'Predator', type: 'Franchise', url: 'https://ultron3000.github.io/predator'},
+        {title: 'John Wick', type: 'Franchise', url: 'https://ultron3000.github.io/wick'},
+        {title: 'Transformers', type: 'Franchise', url: 'https://ultron3000.github.io/transformers'},  
+        {title: 'Moon Knight', type: 'Web Series', url: 'https://ultron3000.github.io/moon'},
+        {title: 'The Day of the Jackal', type: 'Web Series', url: 'https://ultron3000.github.io/jackal'}
+      ];
+      
+      function performSearch(query) {
+        const results = content.filter(item =>
+          item.title.toLowerCase().includes(query.toLowerCase()) ||
+          item.type.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        resultsList.innerHTML = '';
+        
+        if (results.length === 0) {
+          noResults.classList.remove('hidden');
+        } else {
+          noResults.classList.add('hidden');
+          
+          results.forEach(result => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center p-3 hover:bg-gray-50 cursor-pointer rounded-lg smooth-transition';
+            div.innerHTML = `
+              <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-3">
+                <i class="ri-play-circle-line text-primary"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-medium truncate">${result.title}</h4>
+                <p class="text-xs text-gray-500 truncate">${result.type}</p>
+              </div>
+              <i class="ri-arrow-right-s-line text-gray-400"></i>
+            `;
+            
+            div.addEventListener('click', () => window.location.href = result.url);
+            resultsList.appendChild(div);
+          });
+        }
+      }
+      
+      function setupSearch(inputElement) {
+        inputElement.addEventListener('input', (e) => {
+          const query = e.target.value.trim();
+          
+          if (query.length > 0) {
+            searchResults.classList.remove('hidden');
+            performSearch(query);
+          } else {
+            searchResults.classList.add('hidden');
+          }
+        });
+      }
+      
+      // Setup all search inputs
+      setupSearch(searchInput);
+      setupSearch(heroSearch);
+      setupSearch(desktopSearch);
+      
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+          searchResults.classList.add('hidden');
+        }
+      });
+
+      // Favorite feature
+      function initializeFavoriteButtons() {
+        document.querySelectorAll('.category-card').forEach(card => {
+          const title = card.querySelector('h3')?.innerText?.trim();
+          const url = card.getAttribute('href');
+          
+          if (title && url) {
+            // Check if favorite button already exists
+            if (card.querySelector('.favorite-btn')) return;
+            
+            const favBtn = document.createElement('button');
+            favBtn.className = 'favorite-btn absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow hover:scale-110 smooth-transition';
+            favBtn.innerHTML = '<i class="ri-heart-line text-lg"></i>';
+            favBtn.style.zIndex = "10";
+            
+            // Check if this item is already favorited
+            const favs = JSON.parse(localStorage.getItem("streamverseFavorites") || "[]");
+            const isFavorited = favs.some(f => f.url === url);
+            
+            if (isFavorited) {
+              favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+            }
+            
+            favBtn.onclick = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              let favs = JSON.parse(localStorage.getItem("streamverseFavorites") || "[]");
+              const existingIndex = favs.findIndex(f => f.url === url);
+              
+              if (existingIndex !== -1) {
+                favs.splice(existingIndex, 1);
+                favBtn.innerHTML = '<i class="ri-heart-line text-lg"></i>';
+                
+                // Show toast message
+                showToast('Removed from favorites');
+              } else {
+                favs.push({ title, url });
+                favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+                
+                // Show toast message
+                showToast('Added to favorites');
+              }
+              
+              localStorage.setItem("streamverseFavorites", JSON.stringify(favs));
+              loadFavorites();
+            };
+            
+            card.style.position = 'relative';
+            card.appendChild(favBtn);
+          }
+        });
+      }
+      
+      function loadFavorites() {
+        const favList = document.getElementById('favorites-list');
+        const favSection = document.getElementById('favorites-section');
+        const favs = JSON.parse(localStorage.getItem("streamverseFavorites") || "[]");
+        
+        if (favs.length === 0) {
+          favSection.classList.add('hidden');
+          return;
+        }
+        
+        favSection.classList.remove('hidden');
+        favList.innerHTML = '';
+        
+        favs.forEach(fav => {
+          const card = document.createElement('a');
+          card.href = fav.url;
+          card.className = 'category-card bg-white rounded-xl overflow-hidden card-shadow cursor-pointer card-hover relative';
+          card.innerHTML = `
+            <div class="h-32 bg-gradient-to-r from-primary/10 to-secondary/10 flex items-center justify-center">
+              <i class="ri-heart-fill text-red-500 text-2xl"></i>
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">${fav.title}</h3>
+              <p class="text-xs text-gray-500 mt-1">Your favorite</p>
+            </div>
+          `;
+          
+          favList.appendChild(card);
+        });
+      }
+      
+      // Clear favorites
+      document.getElementById('clearFavorites')?.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all favorites?')) {
+          localStorage.removeItem("streamverseFavorites");
+          loadFavorites();
+          showToast('Favorites cleared');
+        }
+      });
+      
+      // Toast notification
+      function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm z-50 flex items-center';
+        toast.innerHTML = `${message} <i class="ri-check-line ml-2"></i>`;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.classList.add('opacity-0');
+          setTimeout(() => toast.remove(), 300);
+        }, 2000);
+      }
+      
+      // Initialize
+      initializeFavoriteButtons();
       loadFavorites();
-    };
-    card.style.position = 'relative';
-    card.appendChild(favBtn);
-  }
-});
-
-function loadFavorites() {
-  const favList = document.getElementById('favorites-list');
-  const favSection = document.getElementById('favorites-section');
-  const favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
-  if (favs.length === 0) {
-    favSection.classList.add('hidden');
-    return;
-  }
-  favSection.classList.remove('hidden');
-  favList.innerHTML = '';
-  favs.forEach(fav => {
-    const card = document.createElement('a');
-    card.href = fav.url;
-    card.className = 'category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer p-4 text-center';
-    card.innerHTML = `<h3 class="font-medium text-sm">${fav.title}</h3>`;
-    favList.appendChild(card);
-  });
-}
-loadFavorites();
-
-</script>
-</div>
+      
+      // Reinitialize favorite buttons when content is dynamically loaded
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.addedNodes.length) {
+            initializeFavoriteButtons();
+          }
+        });
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    });
+  </script>
 </body>
 </html>
