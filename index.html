@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cloud</title>
+<title>Cloud Streaming Hub</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,149 +11,216 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
 <style>
-:where([class^="ri-"])::before { content: "\f3c2"; }
+:root {
+  --primary: #8C52FF;
+  --primary-light: #9D6BFF;
+  --primary-dark: #7B3AFF;
+  --secondary: #FF6B6B;
+  --dark: #1A1A2E;
+  --light: #F9F9FB;
+  --gray: #E2E8F0;
+}
+
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f9f9fb;
+  background-color: var(--light);
+  color: var(--dark);
 }
-@media (min-width: 1024px) {
-  .category-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  }
-  .category-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-  }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+::-webkit-scrollbar-track {
+  background: var(--gray);
+  border-radius: 10px;
 }
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
 }
-.card-shadow {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
 }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Card hover effects */
 .category-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
 }
+
+.category-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.7) 100%);
+  z-index: 1;
+}
+
 .category-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(140, 82, 255, 0.2);
 }
-/* Enhanced image styling */
-.category-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 0.3s ease;
-}
+
 .category-card:hover img {
-  transform: scale(1.03);
+  transform: scale(1.05);
 }
-/* Improved featured content */
+
+.category-card img {
+  transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Featured content */
 .featured-content {
   position: relative;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
-.featured-content img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-/* Smoother animations */
-.tab-item {
-  transition: all 0.2s ease;
-}
-/* Better search results */
+
+/* Search results */
 #searchResults {
   scrollbar-width: thin;
-  scrollbar-color: #8C52FF #f3f4f6;
+  scrollbar-color: var(--primary) var(--gray);
 }
-#searchResults::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-#searchResults::-webkit-scrollbar-track {
-  background: #f3f4f6;
-  border-radius: 0 0 12px 12px;
-}
-#searchResults::-webkit-scrollbar-thumb {
-  background-color: #8C52FF;
-  border-radius: 6px;
-}
-/* Account menu polish */
+
+/* Account menu */
 #accountMenu {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease;
   transform-origin: top right;
   opacity: 0;
   transform: scale(0.95);
+  visibility: hidden;
 }
+
 #accountMenu.show {
   opacity: 1;
   transform: scale(1);
+  visibility: visible;
 }
-/* Favorite button enhancement */
+
+/* Favorite button */
 .favorite-btn {
   transition: all 0.2s ease;
   backdrop-filter: blur(4px);
+  z-index: 2;
 }
+
 .favorite-btn:hover {
+  transform: scale(1.15);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Floating action button */
+.fab {
+  box-shadow: 0 4px 20px rgba(140, 82, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.fab:hover {
   transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(140, 82, 255, 0.4);
 }
-/* Web series cards */
-.web-series-card {
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Tab bar indicator */
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: var(--primary);
   transition: all 0.3s ease;
 }
-.web-series-card:hover {
-  box-shadow: 0 12px 24px rgba(140, 82, 255, 0.15);
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .category-card {
+    min-height: 180px;
+  }
+  
+  .web-series-card {
+    min-height: 120px;
+  }
 }
-/* Global media cards */
-.global-media-card {
+
+/* Dark mode toggle */
+.dark-mode-toggle {
   transition: all 0.3s ease;
 }
-.global-media-card:hover .live-indicator {
-  background-color: #8C52FF;
-  color: white;
+
+.dark-mode-toggle:hover {
+  transform: rotate(30deg);
 }
 </style>
-<style>html { scroll-behavior: smooth; }</style>
 </head>
-<body class="bg-white min-h-screen">
+<body class="bg-gray-50 min-h-screen transition-colors duration-200">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <!-- Nav Bar -->
-<nav class="sticky top-0 w-full bg-white shadow-md z-50" style="will-change: transform;">
+<nav class="sticky top-0 w-full bg-white shadow-sm z-50 backdrop-blur-sm bg-opacity-90">
   <div class="flex items-center justify-between px-4 py-3">
-    <div class="flex items-center">
+    <div class="flex items-center space-x-4">
       <img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Logo" class="h-8 object-contain">
+      <span class="hidden md:block text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">Cloud Hub</span>
     </div>
-    <div class="w-10 h-10 flex items-center justify-center cursor-pointer relative" id="accountBtn">
-      <i class="ri-user-line ri-lg"></i>
-      <div id="accountMenu" class="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50">
-        <div class="p-4 border-b border-gray-100">
-          <p class="text-sm font-medium">Guest User</p>
-          <p class="text-xs text-gray-500">Sign in to access your account</p>
+    <div class="flex items-center space-x-4">
+      <button id="darkModeToggle" class="dark-mode-toggle w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+        <i class="ri-sun-line text-gray-700"></i>
+      </button>
+      <div class="w-10 h-10 flex items-center justify-center cursor-pointer relative" id="accountBtn">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white">
+          <i class="ri-user-line"></i>
         </div>
-        <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
-          <i class="ri-user-settings-line mr-3 text-gray-400"></i>
-          <span class="text-sm">Profile Settings</span>
-        </a>
-        <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
-          <i class="ri-history-line mr-3 text-gray-400"></i>
-          <span class="text-sm">Watch History</span>
-        </a>
-        <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50">
-          <i class="ri-settings-3-line mr-3 text-gray-400"></i>
-          <span class="text-sm">Settings</span>
-        </a>
-        <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500">
-          <i class="ri-logout-box-line mr-3"></i>
-          <span class="text-sm">Sign Out</span>
-        </a>
+        <div id="accountMenu" class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+          <div class="p-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50">
+            <p class="text-sm font-medium">Guest User</p>
+            <p class="text-xs text-gray-500">Sign in to access your account</p>
+          </div>
+          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+            <i class="ri-user-settings-line mr-3 text-gray-400"></i>
+            <span class="text-sm">Profile Settings</span>
+          </a>
+          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+            <i class="ri-history-line mr-3 text-gray-400"></i>
+            <span class="text-sm">Watch History</span>
+          </a>
+          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
+            <i class="ri-settings-3-line mr-3 text-gray-400"></i>
+            <span class="text-sm">Settings</span>
+          </a>
+          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500 transition-colors">
+            <i class="ri-logout-box-line mr-3"></i>
+            <span class="text-sm">Sign Out</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -162,320 +229,536 @@ body {
 <!-- Main Content -->
 <main class="pt-16 pb-20 container mx-auto max-w-6xl px-4 lg:px-8">
   <!-- Hero Section -->
-  <section class="mt-4 mb-6">
-    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Cloud Streaming Hub</h1>
-    <p class="text-sm md:text-base text-gray-600 mt-1">One site to rule them all — All your movies, shows, and franchises in one place.</p>
+  <section class="mt-4 mb-8 fade-in">
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Cloud Streaming Hub</h1>
+    <p class="text-base md:text-lg text-gray-600 mt-2 max-w-2xl">One site to rule them all — All your movies, shows, and franchises in one place.</p>
     
     <!-- Search Bar -->
-    <div class="relative mt-4">
-      <input type="text" id="searchInput" placeholder="Search movies, shows, franchises..." class="w-full py-3 pl-10 pr-4 bg-gray-100 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <i class="ri-search-line text-gray-400"></i>
+    <div class="relative mt-6 max-w-2xl">
+      <div class="relative">
+        <input type="text" id="searchInput" placeholder="Search movies, shows, franchises..." 
+               class="w-full py-3 pl-12 pr-4 bg-white rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 border border-gray-200 transition-all">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="ri-search-line text-gray-400 text-lg"></i>
+        </div>
+        <div id="searchLoading" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden">
+          <div class="loading-spinner w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
+        </div>
       </div>
-      <div id="searchResults" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-lg hidden max-h-96 overflow-y-auto z-50">
-        <div class="p-4">
+      <div id="searchResults" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-xl hidden max-h-96 overflow-y-auto z-50 border border-gray-100">
+        <div class="p-2">
           <div id="noResults" class="text-center py-8 hidden">
-            <i class="ri-search-2-line text-4xl text-gray-300"></i>
-            <p class="text-gray-500 mt-2">No results found</p>
+            <i class="ri-search-2-line text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500 font-medium">No results found</p>
+            <p class="text-sm text-gray-400 mt-1">Try different keywords</p>
           </div>
-          <div id="resultsList"></div>
+          <div id="resultsList" class="divide-y divide-gray-100"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Featured Content -->
-  <section class="mb-6">
-    <div class="featured-content h-40 md:h-48">
-      <img src="https://readdy.ai/api/search-image?query=cinematic%20movie%20collage%20with%20popular%20characters%20from%20Marvel%2C%20DC%2C%20and%20other%20franchises%2C%20dramatic%20lighting%2C%20movie%20poster%20style%2C%20vibrant%20colors%2C%20no%20text&width=375&height=160&seq=1&orientation=landscape" alt="Featured Content">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4">
-        <h3 class="text-white font-bold">Trending Now</h3>
-        <p class="text-white text-sm opacity-90">Discover the most popular content</p>
+  <section class="mb-8 fade-in">
+    <div class="featured-content h-48 md:h-64 lg:h-80 rounded-2xl overflow-hidden relative">
+      <img src="https://readdy.ai/api/search-image?query=cinematic%20movie%20collage%20with%20popular%20characters%20from%20Marvel%2C%20DC%2C%20and%20other%20franchises%2C%20dramatic%20lighting%2C%20movie%20poster%20style%2C%20vibrant%20colors%2C%20no%20text&width=375&height=160&seq=1&orientation=landscape" 
+           alt="Featured Content" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6">
+        <div class="flex items-center mb-2">
+          <span class="bg-red-500 text-white text-xs px-2 py-1 rounded mr-2">LIVE</span>
+          <span class="text-white text-xs bg-black/30 px-2 py-1 rounded">TRENDING</span>
+        </div>
+        <h3 class="text-white font-bold text-xl md:text-2xl">Trending Now</h3>
+        <p class="text-white text-sm opacity-90 max-w-md">Discover the most popular content from around the world</p>
+        <button class="mt-3 bg-white text-primary font-medium px-4 py-2 rounded-lg text-sm w-max flex items-center">
+          <i class="ri-play-fill mr-1"></i> Watch Now
+        </button>
       </div>
     </div>
   </section>
 
   <!-- स्वराज्य (Swarajya) Section -->
-  <section id="swarajya" class="mb-6">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-semibold text-gray-900">स्वराज्य (Swarajya)</h2>
-      <a href="#swarajya" class="text-xs text-primary cursor-pointer">View All</a>
+  <section id="swarajya" class="mb-8 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">स्वराज्य (Swarajya)</h2>
+        <p class="text-sm text-gray-500">Traditional Marathi content</p>
+      </div>
+      <a href="#swarajya" class="text-sm text-primary font-medium cursor-pointer flex items-center">
+        View All <i class="ri-arrow-right-line ml-1"></i>
+      </a>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-      <a href="https://ultron3000.github.io/1" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://voteforshivajijayanti.com/wp-content/uploads/2024/07/Chhatrapati-Shivaji-Maharaj-12.jpg" alt="Marathi Movies">
-        </div>
-        <div class="p-2 text-center">
-          <h3 class="font-medium text-sm">चित्रपट (Movies)</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <a href="https://ultron3000.github.io/1" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://voteforshivajijayanti.com/wp-content/uploads/2024/07/Chhatrapati-Shivaji-Maharaj-12.jpg" 
+               alt="Marathi Movies" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">चित्रपट (Movies)</h3>
+          </div>
         </div>
       </a>
-      <a href="https://ultron3000.github.io/2" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://mlhcmvsgnb3v.i.optimole.com/cb:m_50.3acc4/w:1440/h:1080/q:mauto/f:best/ig:avif/https://apnaran.com/wp-content/uploads/2021/09/chhatrapayi-shivaji-maharaj.jpg" alt="Marathi Series">
+      <a href="https://ultron3000.github.io/2" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://mlhcmvsgnb3v.i.optimole.com/cb:m_50.3acc4/w:1440/h:1080/q:mauto/f:best/ig:avif/https://apnaran.com/wp-content/uploads/2021/09/chhatrapayi-shivaji-maharaj.jpg" 
+               alt="Marathi Series" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">मालिका (Series)</h3>
+          </div>
         </div>
-        <div class="p-2 text-center">
-          <h3 class="font-medium text-sm">मालिका (Series)</h3>
+      </a>
+      <a href="#" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Marathi%20folk%20dance%20performance%2C%20traditional%20costumes%2C%20vibrant%20colors%2C%20cultural%20event&width=300&height=160&seq=2&orientation=landscape" 
+               alt="Marathi Culture" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">संस्कृती (Culture)</h3>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Marathi%20classical%20music%20performance%2C%20traditional%20instruments%2C%20musicians%20playing%2C%20cultural%20event&width=300&height=160&seq=3&orientation=landscape" 
+               alt="Marathi Music" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">संगीत (Music)</h3>
+          </div>
         </div>
       </a>
     </div>
   </section>
 
   <!-- Animation Studios -->
-  <section id="animation" class="mb-6">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-semibold text-gray-900">Animation</h2>
-      <a href="#animation" class="text-xs text-primary cursor-pointer">View All</a>
+  <section id="animation" class="mb-8 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Animation Studios</h2>
+        <p class="text-sm text-gray-500">Best animated content from top studios</p>
+      </div>
+      <a href="#animation" class="text-sm text-primary font-medium cursor-pointer flex items-center">
+        View All <i class="ri-arrow-right-line ml-1"></i>
+      </a>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-      <a href="https://ultron3000.github.io/disney" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=Disney%20Animation%20classics%20collage%2C%20Mickey%20Mouse%2C%20Lion%20King%2C%20Frozen%2C%20magical%2C%20whimsical%2C%20iconic%20Disney%20animation%20style%2C%20colorful&width=180&height=96&seq=17&orientation=landscape" alt="Disney Animation">
-        </div>
-        <div class="p-2 text-center">
-          <h3 class="font-medium text-sm">Disney Animation</h3>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/pixar" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=Pixar%20animation%20characters%2C%203D%20animation%2C%20colorful%2C%20playful%2C%20iconic%20Pixar%20characters%20like%20Woody%2C%20Buzz%2C%20Wall-E%2C%20high%20quality&width=180&height=96&seq=4&orientation=landscape" alt="Pixar">
-        </div>
-        <div class="p-2 text-center">
-          <h3 class="font-medium text-sm">Pixar</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <a href="https://ultron3000.github.io/disney" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Disney%20Animation%20classics%20collage%2C%20Mickey%20Mouse%2C%20Lion%20King%2C%20Frozen%2C%20magical%2C%20whimsical%2C%20iconic%20Disney%20animation%20style%2C%20colorful&width=300&height=160&seq=4&orientation=landscape" 
+               alt="Disney Animation" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">Disney Animation</h3>
+          </div>
         </div>
       </a>
-      <a href="https://ultron3000.github.io/dreamworks" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=DreamWorks%20animation%20characters%20collage%2C%203D%20animation%2C%20vibrant%2C%20Shrek%2C%20Kung%20Fu%20Panda%2C%20How%20to%20Train%20Your%20Dragon%2C%20high%20quality&width=180&height=96&seq=5&orientation=landscape" alt="DreamWorks">
-        </div>
-        <div class="p-2 text-center">
-          <h3 class="font-medium text-sm">DreamWorks</h3>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/sony" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=Sony%20Animation%20characters%20collage%2C%20Spider-Verse%2C%20Hotel%20Transylvania%2C%20The%20Mitchells%20vs%20the%20Machines%2C%20colorful%2C%20dynamic%2C%20stylized%20animation&width=180&height=96&seq=6&orientation=landscape" alt="Sony Animation">
-        </div>
-        <div class="p-2 text-center">
-          <h3 class="font-medium text-sm">Sony Animation</h3>
+      <a href="https://ultron3000.github.io/pixar" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Pixar%20animation%20characters%2C%203D%20animation%2C%20colorful%2C%20playful%2C%20iconic%20Pixar%20characters%20like%20Woody%2C%20Buzz%2C%20Wall-E%2C%20high%20quality&width=300&height=160&seq=5&orientation=landscape" 
+               alt="Pixar" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">Pixar</h3>
+          </div>
         </div>
       </a>
-      <a href="https://ultron3000.github.io/illumination" class="category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=Illumination%20characters%20collage%2C%20Minions%2C%20Despicable%20Me%2C%20The%20Secret%20Life%20of%20Pets%2C%20bright%20colors%2C%20funny%20characters%2C%203D%20animation&width=180&height=96&seq=7&orientation=landscape" alt="Illumination">
+      <a href="https://ultron3000.github.io/dreamworks" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=DreamWorks%20animation%20characters%20collage%2C%203D%20animation%2C%20vibrant%2C%20Shrek%2C%20Kung%20Fu%20Panda%2C%20How%20to%20Train%20Your%20Dragon%2C%20high%20quality&width=300&height=160&seq=6&orientation=landscape" 
+               alt="DreamWorks" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">DreamWorks</h3>
+          </div>
         </div>
-        <div class="p-2 text-center">
-          <h3 class="font-medium text-sm">Illumination</h3>
+      </a>
+      <a href="https://ultron3000.github.io/sony" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Sony%20Animation%20characters%20collage%2C%20Spider-Verse%2C%20Hotel%20Transylvania%2C%20The%20Mitchells%20vs%20the%20Machines%2C%20colorful%2C%20dynamic%2C%20stylized%20animation&width=300&height=160&seq=7&orientation=landscape" 
+               alt="Sony Animation" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">Sony Animation</h3>
+          </div>
+        </div>
+      </a>
+      <a href="https://ultron3000.github.io/illumination" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
+        <div class="h-32 md:h-40 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Illumination%20characters%20collage%2C%20Minions%2C%20Despicable%20Me%2C%20The%20Secret%20Life%20of%20Pets%2C%20bright%20colors%2C%20funny%20characters%2C%203D%20animation&width=300&height=160&seq=8&orientation=landscape" 
+               alt="Illumination" class="w-full h-full object-cover">
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <h3 class="font-medium text-white text-sm md:text-base">Illumination</h3>
+          </div>
         </div>
       </a>
     </div>
   </section>
 
   <!-- Studios & Franchises -->
-  <section id="studios" class="mb-6">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-semibold text-gray-900">Studios & Franchises</h2>
-      <a href="#studios" class="text-xs text-primary cursor-pointer">View All</a>
-    </div>
-    <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-      <div class="flex flex-nowrap sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-        <a href="https://ultron3000.github.io/wick" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://images5.alphacoders.com/133/1338709.png" alt="John Wick">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">John Wick</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/marvel" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=Marvel%20Studios%20logo%20with%20Avengers%20characters%2C%20superhero%2C%20cinematic%2C%20dramatic%20lighting&width=128&height=80&seq=8&orientation=landscape" alt="Marvel Studios">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Marvel Studios</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/wb" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=Warner%20Bros%20Pictures%20logo%20with%20DC%20superheroes%2C%20Batman%2C%20Superman%2C%20Wonder%20Woman%2C%20cinematic&width=128&height=80&seq=9&orientation=landscape" alt="Warner Bros Pictures">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Warner Bros</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/x-men" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=X-Men%20characters%20collage%2C%20Wolverine%2C%20Professor%20X%2C%20Magneto%2C%20cinematic%2C%20dramatic%20lighting&width=128&height=80&seq=10&orientation=landscape" alt="X-MEN">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">X-MEN</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/rambo" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=Rambo%20movie%20poster%2C%20Sylvester%20Stallone%2C%20action%20hero%2C%20dramatic%20lighting%2C%20gritty&width=128&height=80&seq=11&orientation=landscape" alt="Rambo">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Rambo</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/f-f" class="category-card flex-shrink-0 w-32 bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/46e21011533181.56275d593d69c.jpg" alt="Fast & Furious">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Fast & Furious</h3>
-          </div>
-        </a>  
-        <a href="https://ultron3000.github.io/transformers" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=Transformers%20movie%20poster%2C%20Optimus%20Prime%2C%20Bumblebee%2C%20robots%2C%20action%2C%20dramatic%20lighting&width=128&height=80&seq=12&orientation=landscape" alt="Transformers">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Transformers</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/bourne" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://static1.colliderimages.com/wordpress/wp-content/uploads/2022/04/Jason-Bourne-movies-in-Order-feature.jpg?q=70&fit=contain&w=1200&h=628&dpr=1" alt="Jason Bourne">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Jason Bourne</h3>
-          </div>
-        </a>  
-        <a href="https://ultron3000.github.io/terminator" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://static.vecteezy.com/system/resources/thumbnails/030/650/090/small_2x/a-poster-for-the-movie-the-terminator-free-photo.jpg" alt="Terminator">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Terminator</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/fd" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://lh6.googleusercontent.com/proxy/NQusTMpUVI6U7v7GH10LvR8qwmjvYve8ikArOhTEFcXr8DNHFkXK8X1KyZLwNmCO4Kz1nER7_7m5btS-GpA9yCbTy0hTYfHLJOtvLmlm">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Final Destination</h3>
-          </div>
-        </a>    
-        <a href="https://ultron3000.github.io/predator" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=Predator%20movie%20franchise%20poster%2C%20alien%20hunter%2C%20sci-fi%20action%2C%20jungle%20setting%2C%20dramatic%20lighting&width=128&height=80&seq=18&orientation=landscape" alt="Predator">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Predator</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/mi" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=Mission%20Impossible%20movie%20poster%2C%20Tom%20Cruise%20action%20scenes%2C%20spy%20thriller%2C%20dramatic%20lighting&width=128&height=80&seq=19&orientation=landscape" alt="Mission Impossible">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Mission Impossible</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/007" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=James%20Bond%20007%20movie%20poster%2C%20British%20spy%2C%20luxury%20cars%2C%20action%20scenes%2C%20dramatic%20lighting&width=128&height=80&seq=20&orientation=landscape" alt="007">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">007 (James Bond)</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/rocky" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://readdy.ai/api/search-image?query=Rocky%20Balboa%20movie%20poster%2C%20boxing%20ring%2C%20Sylvester%20Stallone%2C%20sports%20drama%2C%20dramatic%20lighting&width=128&height=80&seq=21&orientation=landscape" alt="Rocky Balboa">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Rocky Balboa</h3>
-          </div>
-        </a>
-        <a href="https://ultron3000.github.io/sniper" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://t3.ftcdn.net/jpg/06/39/93/32/360_F_639933259_FgmS3sUxmPtKtlf4lTssmYVlwzffU176.jpg" alt="Sniper">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Sniper</h3>
-          </div>
-        </a>  
-        <a href="https://ultron3000.github.io/vampire" class="category-card flex-shrink-0 w-32 sm:w-full bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-          <div class="h-20 overflow-hidden">
-            <img src="https://i.pinimg.com/736x/d8/f6/ca/d8f6cadcaa1b9901df6600286bbde095.jpg" alt="Vampire">
-          </div>
-          <div class="p-2 text-center">
-            <h3 class="font-medium text-xs whitespace-nowrap overflow-hidden text-overflow-ellipsis">Vampire</h3>
-          </div>
-        </a>  
+  <section id="studios" class="mb-8 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Studios & Franchises</h2>
+        <p class="text-sm text-gray-500">Popular movie franchises and studios</p>
       </div>
+      <a href="#studios" class="text-sm text-primary font-medium cursor-pointer flex items-center">
+        View All <i class="ri-arrow-right-line ml-1"></i>
+      </a>
+    </div>
+    <div class="relative">
+      <div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div class="flex space-x-4" style="width: max-content;">
+          <a href="https://ultron3000.github.io/wick" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://images5.alphacoders.com/133/1338709.png" alt="John Wick" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">John Wick</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Action</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">4 Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/marvel" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=Marvel%20Studios%20logo%20with%20Avengers%20characters%2C%20superhero%2C%20cinematic%2C%20dramatic%20lighting&width=300&height=160&seq=9&orientation=landscape" alt="Marvel Studios" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Marvel Studios</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Superhero</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">30+ Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/wb" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=Warner%20Bros%20Pictures%20logo%20with%20DC%20superheroes%2C%20Batman%2C%20Superman%2C%20Wonder%20Woman%2C%20cinematic&width=300&height=160&seq=10&orientation=landscape" alt="Warner Bros Pictures" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Warner Bros</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Action</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">20+ Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/x-men" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=X-Men%20characters%20collage%2C%20Wolverine%2C%20Professor%20X%2C%20Magneto%2C%20cinematic%2C%20dramatic%20lighting&width=300&height=160&seq=11&orientation=landscape" alt="X-MEN" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">X-MEN</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Sci-Fi</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">12 Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/rambo" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=Rambo%20movie%20poster%2C%20Sylvester%20Stallone%2C%20action%20hero%2C%20dramatic%20lighting%2C%20gritty&width=300&height=160&seq=12&orientation=landscape" alt="Rambo" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Rambo</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Action</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">5 Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/f-f" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/46e21011533181.56275d593d69c.jpg" alt="Fast & Furious" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Fast & Furious</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Action</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">10 Movies</span>
+              </div>
+            </div>
+          </a>  
+          <a href="https://ultron3000.github.io/transformers" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=Transformers%20movie%20poster%2C%20Optimus%20Prime%2C%20Bumblebee%2C%20robots%2C%20action%2C%20dramatic%20lighting&width=300&height=160&seq=13&orientation=landscape" alt="Transformers" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Transformers</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Sci-Fi</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">7 Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/bourne" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://static1.colliderimages.com/wordpress/wp-content/uploads/2022/04/Jason-Bourne-movies-in-Order-feature.jpg?q=70&fit=contain&w=1200&h=628&dpr=1" alt="Jason Bourne" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Jason Bourne</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Thriller</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">5 Movies</span>
+              </div>
+            </div>
+          </a>  
+          <a href="https://ultron3000.github.io/terminator" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://static.vecteezy.com/system/resources/thumbnails/030/650/090/small_2x/a-poster-for-the-movie-the-terminator-free-photo.jpg" alt="Terminator" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Terminator</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Sci-Fi</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">6 Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/fd" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://lh6.googleusercontent.com/proxy/NQusTMpUVI6U7v7GH10LvR8qwmjvYve8ikArOhTEFcXr8DNHFkXK8X1KyZLwNmCO4Kz1nER7_7m5btS-GpA9yCbTy0hTYfHLJOtvLmlm" alt="Final Destination" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Final Destination</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Horror</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">5 Movies</span>
+              </div>
+            </div>
+          </a>    
+          <a href="https://ultron3000.github.io/predator" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=Predator%20movie%20franchise%20poster%2C%20alien%20hunter%2C%20sci-fi%20action%2C%20jungle%20setting%2C%20dramatic%20lighting&width=300&height=160&seq=14&orientation=landscape" alt="Predator" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Predator</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Sci-Fi</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">5 Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/mi" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=Mission%20Impossible%20movie%20poster%2C%20Tom%20Cruise%20action%20scenes%2C%20spy%20thriller%2C%20dramatic%20lighting&width=300&height=160&seq=15&orientation=landscape" alt="Mission Impossible" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Mission Impossible</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Action</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">7 Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/007" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=James%20Bond%20007%20movie%20poster%2C%20British%20spy%2C%20luxury%20cars%2C%20action%20scenes%2C%20dramatic%20lighting&width=300&height=160&seq=16&orientation=landscape" alt="007" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">007 (James Bond)</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Action</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">25+ Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/rocky" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://readdy.ai/api/search-image?query=Rocky%20Balboa%20movie%20poster%2C%20boxing%20ring%2C%20Sylvester%20Stallone%2C%20sports%20drama%2C%20dramatic%20lighting&width=300&height=160&seq=17&orientation=landscape" alt="Rocky Balboa" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Rocky Balboa</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Drama</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">9 Movies</span>
+              </div>
+            </div>
+          </a>
+          <a href="https://ultron3000.github.io/sniper" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://t3.ftcdn.net/jpg/06/39/93/32/360_F_639933259_FgmS3sUxmPtKtlf4lTssmYVlwzffU176.jpg" alt="Sniper" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Sniper</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Action</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">8 Movies</span>
+              </div>
+            </div>
+          </a>  
+          <a href="https://ultron3000.github.io/vampire" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
+            <div class="h-24 sm:h-28 overflow-hidden relative">
+              <img src="https://i.pinimg.com/736x/d8/f6/ca/d8f6cadcaa1b9901df6600286bbde095.jpg" alt="Vampire" class="w-full h-full object-cover">
+            </div>
+            <div class="p-3">
+              <h3 class="font-medium text-sm">Vampire</h3>
+              <div class="flex items-center mt-1">
+                <span class="text-xs text-gray-500">Horror</span>
+                <span class="mx-2 text-gray-300">•</span>
+                <span class="text-xs text-gray-500">10+ Movies</span>
+              </div>
+            </div>
+          </a>  
+        </div>
+      </div>
+      <button class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full w-8 h-8 flex items-center justify-center text-primary z-10">
+        <i class="ri-arrow-right-s-line"></i>
+      </button>
     </div>
   </section>
 
   <!-- Your Favorites -->
-  <section id="favorites-section" class="mb-6 hidden">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-semibold text-gray-900">Your Favorites</h2>
+  <section id="favorites-section" class="mb-8 fade-in hidden">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Your Favorites</h2>
+        <p class="text-sm text-gray-500">Content you've saved for later</p>
+      </div>
+      <button id="clearFavorites" class="text-sm text-red-500 font-medium cursor-pointer">
+        Clear All
+      </button>
     </div>
-    <div id="favorites-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div id="favorites-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       <!-- Dynamically filled by JS -->
+    </div>
+    <div id="emptyFavorites" class="text-center py-12">
+      <i class="ri-heart-line text-4xl text-gray-300 mb-3"></i>
+      <p class="text-gray-500 font-medium">No favorites yet</p>
+      <p class="text-sm text-gray-400 mt-1">Tap the heart icon on any content to save it here</p>
     </div>
   </section>
 
   <!-- Web Series -->
-  <section id="web-series" class="mb-6">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-semibold text-gray-900">Web Series</h2>
-      <a href="#web-series" class="text-xs text-primary cursor-pointer">View All</a>
+  <section id="web-series" class="mb-8 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Web Series</h2>
+        <p class="text-sm text-gray-500">Popular web series and shows</p>
+      </div>
+      <a href="#web-series" class="text-sm text-primary font-medium cursor-pointer flex items-center">
+        View All <i class="ri-arrow-right-line ml-1"></i>
+      </a>
     </div>
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <a href="https://ultron3000.github.io/moon" class="web-series-card flex bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="w-24 h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=Moon%20Knight%20TV%20series%20poster%2C%20Marvel%20character%2C%20mystical%2C%20Egyptian%20mythology%2C%20dramatic%20lighting&width=96&height=96&seq=13&orientation=squarish" alt="Moon Knight">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <a href="https://ultron3000.github.io/moon" class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+        <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
+          <img src="https://readdy.ai/api/search-image?query=Moon%20Knight%20TV%20series%20poster%2C%20Marvel%20character%2C%20mystical%2C%20Egyptian%20mythology%2C%20dramatic%20lighting&width=112&height=112&seq=18&orientation=squarish" alt="Moon Knight" class="w-full h-full object-cover">
         </div>
-        <div class="p-3 flex flex-col justify-center">
-          <h3 class="font-medium text-sm">Moon Knight</h3>
+        <div class="p-3 flex flex-col justify-center flex-1">
+          <h3 class="font-medium text-sm sm:text-base">Moon Knight</h3>
           <p class="text-xs text-gray-500 mt-1">Marvel Studios • 6 Episodes</p>
+          <div class="flex items-center mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-1.5">
+              <div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
+            </div>
+            <span class="text-xs text-gray-500 ml-2">75%</span>
+          </div>
         </div>
       </a>
-      <a href="https://ultron3000.github.io/jackal" class="web-series-card flex bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="w-24 h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=The%20Day%20of%20the%20Jackal%20TV%20series%20poster%2C%20thriller%2C%20suspense%2C%20espionage%2C%20dramatic%20lighting&width=96&height=96&seq=14&orientation=squarish" alt="The Day of the Jackal">
+      <a href="https://ultron3000.github.io/jackal" class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+        <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
+          <img src="https://readdy.ai/api/search-image?query=The%20Day%20of%20the%20Jackal%20TV%20series%20poster%2C%20thriller%2C%20suspense%2C%20espionage%2C%20dramatic%20lighting&width=112&height=112&seq=19&orientation=squarish" alt="The Day of the Jackal" class="w-full h-full object-cover">
         </div>
-        <div class="p-3 flex flex-col justify-center">
-          <h3 class="font-medium text-sm">The Day of the Jackal</h3>
+        <div class="p-3 flex flex-col justify-center flex-1">
+          <h3 class="font-medium text-sm sm:text-base">The Day of the Jackal</h3>
           <p class="text-xs text-gray-500 mt-1">Thriller • 10 Episodes</p>
+          <div class="flex items-center mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-1.5">
+              <div class="bg-primary h-1.5 rounded-full" style="width: 90%"></div>
+            </div>
+            <span class="text-xs text-gray-500 ml-2">90%</span>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+        <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
+          <img src="https://readdy.ai/api/search-image?query=The%20Witcher%20TV%20series%20poster%2C%20fantasy%2C%20Geralt%20of%20Rivia%2C%20monster%20hunter%2C%20dramatic%20lighting&width=112&height=112&seq=20&orientation=squarish" alt="The Witcher" class="w-full h-full object-cover">
+        </div>
+        <div class="p-3 flex flex-col justify-center flex-1">
+          <h3 class="font-medium text-sm sm:text-base">The Witcher</h3>
+          <p class="text-xs text-gray-500 mt-1">Fantasy • 24 Episodes</p>
+          <div class="flex items-center mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-1.5">
+              <div class="bg-primary h-1.5 rounded-full" style="width: 85%"></div>
+            </div>
+            <span class="text-xs text-gray-500 ml-2">85%</span>
+          </div>
         </div>
       </a>
     </div>
   </section>
 
   <!-- Global Media -->
-  <section class="mb-6">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-semibold text-gray-900">Global Media</h2>
+  <section class="mb-8 fade-in">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Global Media</h2>
+        <p class="text-sm text-gray-500">Live TV and radio from around the world</p>
+      </div>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-      <a href="https://tv.garden" class="global-media-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=Live%20TV%20streaming%2C%20multiple%20screens%20showing%20different%20channels%2C%20global%20television%2C%20broadcast%20media&width=180&height=96&seq=15&orientation=landscape" alt="Live TV">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <a href="https://tv.garden" class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+        <div class="h-24 sm:h-28 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Live%20TV%20streaming%2C%20multiple%20screens%20showing%20different%20channels%2C%20global%20television%2C%20broadcast%20media&width=300&height=160&seq=21&orientation=landscape" alt="Live TV" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
         </div>
-        <div class="p-2 text-center">
+        <div class="p-3">
           <h3 class="font-medium text-sm">Live TV</h3>
-          <div class="flex items-center justify-center mt-1">
-            <span class="live-indicator w-2 h-2 bg-green-500 rounded-full transition-colors"></span>
-            <span class="text-xs text-gray-500 ml-1">Live Now</span>
+          <div class="flex items-center mt-1">
+            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+            <span class="text-xs text-gray-500 ml-1.5">1.2M watching</span>
           </div>
         </div>
       </a>
-      <a href="https://radio.garden" class="global-media-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer">
-        <div class="h-24 overflow-hidden">
-          <img src="https://readdy.ai/api/search-image?query=Radio%20streaming%2C%20global%20radio%20stations%2C%20audio%20waves%20visualization%2C%20music%20broadcasting&width=180&height=96&seq=16&orientation=landscape" alt="Radio">
+      <a href="https://radio.garden" class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+        <div class="h-24 sm:h-28 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Radio%20streaming%2C%20global%20radio%20stations%2C%20audio%20waves%20visualization%2C%20music%20broadcasting&width=300&height=160&seq=22&orientation=landscape" alt="Radio" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
         </div>
-        <div class="p-2 text-center">
+        <div class="p-3">
           <h3 class="font-medium text-sm">Radio</h3>
-          <div class="flex items-center justify-center mt-1">
-            <span class="live-indicator w-2 h-2 bg-green-500 rounded-full transition-colors"></span>
-            <span class="text-xs text-gray-500 ml-1">Live Now</span>
+          <div class="flex items-center mt-1">
+            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+            <span class="text-xs text-gray-500 ml-1.5">856K listening</span>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+        <div class="h-24 sm:h-28 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=Podcast%20studio%20setup%2C%20microphones%2C%20headphones%2C%20audio%20equipment%2C%20professional%20recording&width=300&height=160&seq=23&orientation=landscape" alt="Podcasts" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        </div>
+        <div class="p-3">
+          <h3 class="font-medium text-sm">Podcasts</h3>
+          <div class="flex items-center mt-1">
+            <span class="text-xs text-gray-500">10K+ shows</span>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+        <div class="h-24 sm:h-28 overflow-hidden relative">
+          <img src="https://readdy.ai/api/search-image?query=News%20broadcast%20studio%2C%20anchors%2C%20screens%2C%20professional%20setup%2C%20global%20news%20network&width=300&height=160&seq=24&orientation=landscape" alt="News" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
+        </div>
+        <div class="p-3">
+          <h3 class="font-medium text-sm">News Channels</h3>
+          <div class="flex items-center mt-1">
+            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+            <span class="text-xs text-gray-500 ml-1.5">500K watching</span>
           </div>
         </div>
       </a>
@@ -483,15 +766,18 @@ body {
   </section>
 
   <!-- Tip Section -->
-  <section class="mb-6">
-    <div class="bg-primary/10 rounded-lg p-4">
+  <section class="mb-8 fade-in">
+    <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-5 border border-purple-100">
       <div class="flex items-start">
-        <div class="w-8 h-8 flex items-center justify-center text-primary bg-white rounded-full mr-3 flex-shrink-0">
-          <i class="ri-lightbulb-line"></i>
+        <div class="w-10 h-10 flex items-center justify-center text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl mr-4 flex-shrink-0">
+          <i class="ri-lightbulb-flash-line text-lg"></i>
         </div>
         <div>
-          <h3 class="font-medium text-sm text-primary">Pro Tip</h3>
-          <p class="text-xs text-gray-700 mt-1">Bookmark this page for quick access to all your favorite streaming content in one place!</p>
+          <h3 class="font-medium text-purple-800">Pro Tip</h3>
+          <p class="text-sm text-gray-700 mt-1">Create an account to sync your favorites across devices and get personalized recommendations!</p>
+          <button class="mt-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium px-4 py-2 rounded-lg text-sm flex items-center">
+            <i class="ri-user-add-line mr-2"></i> Sign Up Now
+          </button>
         </div>
       </div>
     </div>
@@ -500,7 +786,8 @@ body {
 
 <!-- Tab Bar -->
 <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 sm:hidden">
-  <div class="grid grid-cols-5 h-16">
+  <div class="grid grid-cols-5 h-16 relative">
+    <div class="tab-indicator" style="width: 20%; left: 0;"></div>
     <a href="#home" class="tab-item flex flex-col items-center justify-center text-primary cursor-pointer" data-section="home">
       <div class="w-6 h-6 flex items-center justify-center">
         <i class="ri-home-5-fill ri-lg"></i>
@@ -534,18 +821,40 @@ body {
   </div>
 </nav>
 
+<!-- Floating Action Button -->
+<button class="fab fixed bottom-20 right-4 sm:right-6 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center shadow-lg z-40">
+  <i class="ri-search-line text-xl"></i>
+</button>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Dark mode toggle
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const body = document.body;
+  
+  darkModeToggle.addEventListener('click', function() {
+    body.classList.toggle('dark');
+    if (body.classList.contains('dark')) {
+      darkModeToggle.innerHTML = '<i class="ri-moon-line text-gray-700"></i>';
+      body.style.backgroundColor = '#1A1A2E';
+    } else {
+      darkModeToggle.innerHTML = '<i class="ri-sun-line text-gray-700"></i>';
+      body.style.backgroundColor = '#F9F9FB';
+    }
+  });
+
   // Account menu toggle
   const accountBtn = document.getElementById('accountBtn');
   const accountMenu = document.getElementById('accountMenu');
+  
   accountBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     accountMenu.classList.toggle('show');
     accountMenu.classList.toggle('hidden');
   });
+  
   document.addEventListener('click', function(e) {
-    if (!accountBtn.contains(e.target)) {
+    if (!accountBtn.contains(e.target) && !accountMenu.contains(e.target)) {
       accountMenu.classList.remove('show');
       accountMenu.classList.add('hidden');
     }
@@ -553,7 +862,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Tab navigation
   const tabItems = document.querySelectorAll('.tab-item');
-  tabItems.forEach(item => {
+  const tabIndicator = document.querySelector('.tab-indicator');
+  
+  tabItems.forEach((item, index) => {
     item.addEventListener('click', function(e) {
       e.preventDefault();
       const section = this.getAttribute('data-section');
@@ -564,23 +875,45 @@ document.addEventListener('DOMContentLoaded', function() {
         tab.classList.add('text-gray-500');
         tab.querySelector('i').className = tab.querySelector('i').className.replace('-fill', '-line');
       });
+      
       this.classList.remove('text-gray-500');
       this.classList.add('text-primary');
       this.querySelector('i').className = this.querySelector('i').className.replace('-line', '-fill');
       
-      // Show section content (you can add specific content for each section)
-      showSection(section);
+      // Move indicator
+      const position = index * 20;
+      tabIndicator.style.left = `${position}%`;
+      
+      // Show section content
+      if (section === 'favorites') {
+        showFavoritesSection();
+      } else {
+        showSection(section);
+      }
     });
   });
 
   function showSection(section) {
     const message = document.createElement('div');
-    message.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm z-50';
-    message.textContent = `${section.charAt(0).toUpperCase() + section.slice(1)} section coming soon`;
+    message.className = 'fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full text-sm z-50 flex items-center';
+    
+    if (section === 'home') {
+      message.innerHTML = '<i class="ri-home-5-line mr-1"></i> Already on Home';
+    } else {
+      message.innerHTML = `<i class="ri-${section}-line mr-1"></i> ${section.charAt(0).toUpperCase() + section.slice(1)} section coming soon`;
+    }
+    
     document.body.appendChild(message);
     setTimeout(() => {
-      message.remove();
+      message.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+      setTimeout(() => message.remove(), 300);
     }, 2000);
+  }
+
+  function showFavoritesSection() {
+    document.getElementById('favorites-section').classList.remove('hidden');
+    document.querySelector('main').scrollIntoView({ behavior: 'smooth' });
+    loadFavorites();
   }
 
   // Search functionality
@@ -588,6 +921,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const searchResults = document.getElementById('searchResults');
   const resultsList = document.getElementById('resultsList');
   const noResults = document.getElementById('noResults');
+  const searchLoading = document.getElementById('searchLoading');
+  
   const content = [
     {title: 'Marvel Studios', type: 'Studio', url: 'https://ultron3000.github.io/marvel'},
     {title: 'Warner Bros', type: 'Studio', url: 'https://ultron3000.github.io/wb'},
@@ -604,37 +939,49 @@ document.addEventListener('DOMContentLoaded', function() {
     {title: 'John Wick', type: 'Franchise', url: 'https://ultron3000.github.io/wick'},
     {title: 'Transformers', type: 'Franchise', url: 'https://ultron3000.github.io/transformers'},  
     {title: 'Moon Knight', type: 'Web Series', url: 'https://ultron3000.github.io/moon'},
-    {title: 'The Day of the Jackal', type: 'Web Series', url: 'https://ultron3000.github.io/jackal'}
+    {title: 'The Day of the Jackal', type: 'Web Series', url: 'https://ultron3000.github.io/jackal'},
+    {title: 'The Witcher', type: 'Web Series', url: '#'},
+    {title: 'Live TV', type: 'Global Media', url: 'https://tv.garden'},
+    {title: 'Radio', type: 'Global Media', url: 'https://radio.garden'},
+    {title: 'Podcasts', type: 'Global Media', url: '#'},
+    {title: 'News Channels', type: 'Global Media', url: '#'}
   ];
 
   function performSearch(query) {
-    const results = content.filter(item =>
-      item.title.toLowerCase().includes(query.toLowerCase()) ||
-      item.type.toLowerCase().includes(query.toLowerCase())
-    );
+    searchLoading.classList.remove('hidden');
     
-    resultsList.innerHTML = '';
-    
-    if (results.length === 0) {
-      noResults.classList.remove('hidden');
-    } else {
-      noResults.classList.add('hidden');
-      results.forEach(result => {
-        const div = document.createElement('div');
-        div.className = 'flex items-center p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors';
-        div.innerHTML = `
-          <div class="w-8 h-8 flex items-center justify-center bg-primary/10 rounded-full mr-3">
-            <i class="ri-play-circle-line text-primary"></i>
-          </div>
-          <div>
-            <h4 class="text-sm font-medium">${result.title}</h4>
-            <p class="text-xs text-gray-500">${result.type}</p>
-          </div>
-        `;
-        div.addEventListener('click', () => window.location.href = result.url);
-        resultsList.appendChild(div);
-      });
-    }
+    // Simulate network delay
+    setTimeout(() => {
+      const results = content.filter(item =>
+        item.title.toLowerCase().includes(query.toLowerCase()) ||
+        item.type.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      resultsList.innerHTML = '';
+      searchLoading.classList.add('hidden');
+      
+      if (results.length === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+        results.forEach(result => {
+          const div = document.createElement('div');
+          div.className = 'flex items-center p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors';
+          div.innerHTML = `
+            <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-3 flex-shrink-0">
+              <i class="ri-play-circle-line text-primary"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-medium truncate">${result.title}</h4>
+              <p class="text-xs text-gray-500 truncate">${result.type}</p>
+            </div>
+            <i class="ri-arrow-right-s-line text-gray-400 ml-2"></i>
+          `;
+          div.addEventListener('click', () => window.location.href = result.url);
+          resultsList.appendChild(div);
+        });
+      }
+    }, 500);
   }
 
   searchInput.addEventListener('input', (e) => {
@@ -654,53 +1001,102 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Favorite feature support
-  document.querySelectorAll('.category-card').forEach(card => {
-    const title = card.querySelector('h3')?.innerText?.trim();
+  document.querySelectorAll('.category-card, .web-series-card, .global-media-card').forEach(card => {
+    const title = card.querySelector('h3')?.innerText?.trim() || 
+                 card.querySelector('h2')?.innerText?.trim();
     const url = card.getAttribute('href');
+    
     if (title && url) {
-      const favBtn = document.createElement('div');
-      favBtn.className = 'favorite-btn absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow';
-      favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
-      favBtn.style.zIndex = "10";
+      const favBtn = document.createElement('button');
+      favBtn.className = 'favorite-btn absolute top-2 right-2 bg-white/80 rounded-full p-1.5 shadow-sm';
+      
+      // Check if already favorited
+      const favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+      const isFavorited = favs.some(f => f.url === url);
+      
+      favBtn.innerHTML = isFavorited ? 
+        '<i class="ri-heart-fill text-red-500 text-lg"></i>' : 
+        '<i class="ri-heart-line text-gray-700 text-lg"></i>';
+      
       favBtn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        let favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
-        const existing = favs.find(f => f.url === url);
-        if (existing) {
-          favs = favs.filter(f => f.url !== url);
-          favBtn.innerHTML = '<i class="ri-heart-line text-primary text-lg"></i>';
-        } else {
-          favs.push({ title, url });
-          favBtn.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
-        }
-        localStorage.setItem("ultronFavorites", JSON.stringify(favs));
-        loadFavorites();
+        toggleFavorite(title, url, favBtn);
       };
+      
       card.style.position = 'relative';
-      card.appendChild(favBtn);
+      card.insertBefore(favBtn, card.firstChild);
     }
   });
+
+  function toggleFavorite(title, url, button) {
+    let favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+    const existingIndex = favs.findIndex(f => f.url === url);
+    
+    if (existingIndex >= 0) {
+      favs.splice(existingIndex, 1);
+      button.innerHTML = '<i class="ri-heart-line text-gray-700 text-lg"></i>';
+    } else {
+      favs.push({ title, url });
+      button.innerHTML = '<i class="ri-heart-fill text-red-500 text-lg"></i>';
+      
+      // Add animation
+      button.classList.add('animate-ping');
+      setTimeout(() => button.classList.remove('animate-ping'), 300);
+    }
+    
+    localStorage.setItem("ultronFavorites", JSON.stringify(favs));
+    loadFavorites();
+  }
 
   function loadFavorites() {
     const favList = document.getElementById('favorites-list');
     const favSection = document.getElementById('favorites-section');
+    const emptyFavorites = document.getElementById('emptyFavorites');
     const favs = JSON.parse(localStorage.getItem("ultronFavorites") || "[]");
+    
     if (favs.length === 0) {
-      favSection.classList.add('hidden');
-      return;
+      emptyFavorites.classList.remove('hidden');
+      favList.innerHTML = '';
+    } else {
+      emptyFavorites.classList.add('hidden');
+      favList.innerHTML = '';
+      
+      favs.forEach(fav => {
+        const card = document.createElement('a');
+        card.href = fav.url;
+        card.className = 'category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow';
+        card.innerHTML = `
+          <div class="h-32 md:h-40 overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-b from-primary/20 to-primary/70 flex items-center justify-center">
+              <i class="ri-play-circle-fill text-white text-4xl opacity-90"></i>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+              <h3 class="font-medium text-white text-sm md:text-base">${fav.title}</h3>
+            </div>
+          </div>
+        `;
+        favList.appendChild(card);
+      });
     }
-    favSection.classList.remove('hidden');
-    favList.innerHTML = '';
-    favs.forEach(fav => {
-      const card = document.createElement('a');
-      card.href = fav.url;
-      card.className = 'category-card bg-white rounded-lg overflow-hidden card-shadow cursor-pointer p-4 text-center';
-      card.innerHTML = `<h3 class="font-medium text-sm">${fav.title}</h3>`;
-      favList.appendChild(card);
-    });
   }
+
+  // Clear favorites
+  document.getElementById('clearFavorites').addEventListener('click', function() {
+    if (confirm('Are you sure you want to clear all favorites?')) {
+      localStorage.removeItem("ultronFavorites");
+      loadFavorites();
+    }
+  });
+
+  // Initialize
   loadFavorites();
+  
+  // Add fade-in animation to all sections on load
+  const sections = document.querySelectorAll('section');
+  sections.forEach((section, index) => {
+    section.style.animationDelay = `${index * 0.1}s`;
+  });
 });
 </script>
 </div>
