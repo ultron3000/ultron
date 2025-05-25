@@ -1,15 +1,16 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Cloud Streaming Hub</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" rel="stylesheet"/>
 <style>
 :root {
   --primary: #8C52FF;
@@ -181,681 +182,678 @@ html {
   transform: rotate(30deg);
 }
 </style>
-</head>
+<style>
+.responsive-section.collapsed .grid,
+.responsive-section.collapsed .flex.space-x-4 {
+  max-height: 12rem;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+}
+.responsive-section.expanded .grid,
+.responsive-section.expanded .flex.space-x-4 {
+  max-height: 9999px;
+  overflow: visible;
+  transition: max-height 0.5s ease;
+}
+
+/* Add scroll snap for mobile horizontal scrolling */
+.overflow-x-auto {
+  scroll-snap-type: x mandatory;
+}
+.overflow-x-auto > .flex > * {
+  scroll-snap-align: start;
+}
+</style></head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-200">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <!-- Nav Bar -->
 <nav class="sticky top-0 w-full bg-white shadow-sm z-50 backdrop-blur-sm bg-opacity-90">
-  <div class="flex items-center justify-between px-4 py-3">
-    <div class="flex items-center space-x-4">
-      <img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Logo" class="h-8 object-contain">
-      <span class="hidden md:block text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">Cloud Hub</span>
-    </div>
-    <div class="flex items-center space-x-4">
-      <button id="darkModeToggle" class="dark-mode-toggle w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
-        <i class="ri-sun-line text-gray-700"></i>
-      </button>
-      <div class="w-10 h-10 flex items-center justify-center cursor-pointer relative" id="accountBtn">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white">
-          <i class="ri-user-line"></i>
-        </div>
-        <div id="accountMenu" class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-          <div class="p-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50">
-            <p class="text-sm font-medium">Guest User</p>
-            <p class="text-xs text-gray-500">Sign in to access your account</p>
-          </div>
-          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
-            <i class="ri-user-settings-line mr-3 text-gray-400"></i>
-            <span class="text-sm">Profile Settings</span>
-          </a>
-          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
-            <i class="ri-history-line mr-3 text-gray-400"></i>
-            <span class="text-sm">Watch History</span>
-          </a>
-          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
-            <i class="ri-settings-3-line mr-3 text-gray-400"></i>
-            <span class="text-sm">Settings</span>
-          </a>
-          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500 transition-colors">
-            <i class="ri-logout-box-line mr-3"></i>
-            <span class="text-sm">Sign Out</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="flex items-center justify-between px-4 py-3">
+<div class="flex items-center space-x-4">
+<img alt="Logo" class="h-8 object-contain" src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png"/>
+<span class="hidden md:block text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">Cloud Hub</span>
+</div>
+<div class="flex items-center space-x-4">
+<button class="dark-mode-toggle w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200" id="darkModeToggle">
+<i class="ri-sun-line text-gray-700"></i>
+</button>
+<div class="w-10 h-10 flex items-center justify-center cursor-pointer relative" id="accountBtn">
+<div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white">
+<i class="ri-user-line"></i>
+</div>
+<div class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden" id="accountMenu">
+<div class="p-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50">
+<p class="text-sm font-medium">Guest User</p>
+<p class="text-xs text-gray-500">Sign in to access your account</p>
+</div>
+<a class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors" href="#">
+<i class="ri-user-settings-line mr-3 text-gray-400"></i>
+<span class="text-sm">Profile Settings</span>
+</a>
+<a class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors" href="#">
+<i class="ri-history-line mr-3 text-gray-400"></i>
+<span class="text-sm">Watch History</span>
+</a>
+<a class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors" href="#">
+<i class="ri-settings-3-line mr-3 text-gray-400"></i>
+<span class="text-sm">Settings</span>
+</a>
+<a class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500 transition-colors" href="#">
+<i class="ri-logout-box-line mr-3"></i>
+<span class="text-sm">Sign Out</span>
+</a>
+</div>
+</div>
+</div>
+</div>
 </nav>
-
 <!-- Main Content -->
-<main class="pt-16 pb-20 container mx-auto max-w-6xl px-4 lg:px-8">
-  <!-- Hero Section -->
-  <section class="mt-4 mb-8 fade-in">
-    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Cloud Streaming Hub</h1>
-    <p class="text-base md:text-lg text-gray-600 mt-2 max-w-2xl">One site to rule them all — All your movies, shows, and franchises in one place.</p>
-    
-    <!-- Search Bar -->
-    <div class="relative mt-6 max-w-2xl">
-      <div class="relative">
-        <input type="text" id="searchInput" placeholder="Search movies, shows, franchises..." 
-               class="w-full py-3 pl-12 pr-4 bg-white rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 border border-gray-200 transition-all">
-        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <i class="ri-search-line text-gray-400 text-lg"></i>
-        </div>
-        <div id="searchLoading" class="absolute inset-y-0 right-0 pr-4 flex items-center hidden">
-          <div class="loading-spinner w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
-        </div>
-      </div>
-      <div id="searchResults" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-xl hidden max-h-96 overflow-y-auto z-50 border border-gray-100">
-        <div class="p-2">
-          <div id="noResults" class="text-center py-8 hidden">
-            <i class="ri-search-2-line text-4xl text-gray-300 mb-3"></i>
-            <p class="text-gray-500 font-medium">No results found</p>
-            <p class="text-sm text-gray-400 mt-1">Try different keywords</p>
-          </div>
-          <div id="resultsList" class="divide-y divide-gray-100"></div>
-        </div>
-      </div>
-    </div>
-  </div></div></div></section>
-
-  <!-- Featured Content -->
-  <section class="mb-8 fade-in">
-    <div class="featured-content h-48 md:h-64 lg:h-80 rounded-2xl overflow-hidden relative">
-      <img src="https://readdy.ai/api/search-image?query=cinematic%20movie%20collage%20with%20popular%20characters%20from%20Marvel%2C%20DC%2C%20and%20other%20franchises%2C%20dramatic%20lighting%2C%20movie%20poster%20style%2C%20vibrant%20colors%2C%20no%20text&width=375&height=160&seq=1&orientation=landscape" 
-           alt="Featured Content" class="w-full h-full object-cover">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6">
-        <div class="flex items-center mb-2">
-          <span class="bg-red-500 text-white text-xs px-2 py-1 rounded mr-2">LIVE</span>
-          <span class="text-white text-xs bg-black/30 px-2 py-1 rounded">TRENDING</span>
-        </div>
-        <h3 class="text-white font-bold text-xl md:text-2xl">Trending Now</h3>
-        <p class="text-white text-sm opacity-90 max-w-md">Discover the most popular content from around the world</p>
-        <button class="mt-3 bg-white text-primary font-medium px-4 py-2 rounded-lg text-sm w-max flex items-center">
-          <i class="ri-play-fill mr-1"></i> Watch Now
+<main class="pt-16 pb-20 w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+<!-- Hero Section -->
+<section class="mt-4 mb-8 fade-in responsive-section">
+<h1 class="text-3xl md:text-4xl font-bold text-gray-900">Cloud Streaming Hub</h1>
+<p class="text-base md:text-lg text-gray-600 mt-2 max-w-2xl">One site to rule them all — All your movies, shows, and franchises in one place.</p>
+<!-- Search Bar -->
+<div class="relative mt-6 max-w-2xl">
+<div class="relative">
+<input class="w-full py-3 pl-12 pr-4 bg-white rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 border border-gray-200 transition-all" id="searchInput" placeholder="Search movies, shows, franchises..." type="text"/>
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<i class="ri-search-line text-gray-400 text-lg"></i>
+</div>
+<div class="absolute inset-y-0 right-0 pr-4 flex items-center hidden" id="searchLoading">
+<div class="loading-spinner w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
+</div>
+</div>
+<div class="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-xl hidden max-h-96 overflow-y-auto z-50 border border-gray-100" id="searchResults">
+<div class="p-2">
+<div class="text-center py-8 hidden" id="noResults">
+<i class="ri-search-2-line text-4xl text-gray-300 mb-3"></i>
+<p class="text-gray-500 font-medium">No results found</p>
+<p class="text-sm text-gray-400 mt-1">Try different keywords</p>
+</div>
+<div class="divide-y divide-gray-100" id="resultsList"></div>
+</div>
+</div>
+</div>
+</section></main></div>
+<!-- Featured Content -->
+<section class="mb-8 fade-in responsive-section">
+<div class="featured-content h-48 md:h-64 lg:h-80 rounded-2xl overflow-hidden relative">
+<img alt="Featured Content" class="w-full h-full object-cover" src="https://readdy.ai/api/search-image?query=cinematic%20movie%20collage%20with%20popular%20characters%20from%20Marvel%2C%20DC%2C%20and%20other%20franchises%2C%20dramatic%20lighting%2C%20movie%20poster%20style%2C%20vibrant%20colors%2C%20no%20text&amp;width=375&amp;height=160&amp;seq=1&amp;orientation=landscape"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6">
+<div class="flex items-center mb-2">
+<span class="bg-red-500 text-white text-xs px-2 py-1 rounded mr-2">LIVE</span>
+<span class="text-white text-xs bg-black/30 px-2 py-1 rounded">TRENDING</span>
+</div>
+<h3 class="text-white font-bold text-xl md:text-2xl">Trending Now</h3>
+<p class="text-white text-sm opacity-90 max-w-md">Discover the most popular content from around the world</p>
+<button class="mt-3 bg-white text-primary font-medium px-4 py-2 rounded-lg text-sm w-max flex items-center">
+<i class="ri-play-fill mr-1"></i> Watch Now
         </button>
-      </div>
-    </div>
-  </div></div></div></section>
-
-  <!-- स्वराज्य (Swarajya) Section -->
-  <section id="swarajya" class="mb-8 fade-in">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h2 class="text-xl font-bold text-gray-900">स्वराज्य (Swarajya)</h2>
-        <p class="text-sm text-gray-500">Traditional Marathi content</p>
-      </div>
-      <a href="#swarajya" class="text-sm text-primary font-medium cursor-pointer flex items-center">
+</div>
+</div>
+</section>
+<!-- स्वराज्य (Swarajya) Section -->
+<section class="mb-8 fade-in responsive-section" id="swarajya">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h2 class="text-xl font-bold text-gray-900">स्वराज्य (Swarajya)</h2>
+<p class="text-sm text-gray-500">Traditional Marathi content</p>
+</div>
+<a class="text-sm text-primary font-medium cursor-pointer flex items-center" href="#swarajya">
         View All <i class="ri-arrow-right-line ml-1"></i>
-      </a>
-    </div>
-    <div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
-      <a href="https://ultron3000.github.io/1" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://voteforshivajijayanti.com/wp-content/uploads/2024/07/Chhatrapati-Shivaji-Maharaj-12.jpg" 
-               alt="Marathi Movies" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">चित्रपट (Movies)</h3>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/2" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://mlhcmvsgnb3v.i.optimole.com/cb:m_50.3acc4/w:1440/h:1080/q:mauto/f:best/ig:avif/https://apnaran.com/wp-content/uploads/2021/09/chhatrapayi-shivaji-maharaj.jpg" 
-               alt="Marathi Series" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">मालिका (Series)</h3>
-          </div>
-        </div>
-      </a>
-      <a href="#" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://media.istockphoto.com/id/542728198/vector/maharashtrian-family-showing-culture-of-maharashtra-india.jpg?s=612x612&w=0&k=20&c=yDk9bpznKIYDv2AeQ7tRoCr4zCVAH-jLVyZ2ByoYw-Q=" 
-               alt="Marathi Culture" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">संस्कृती (Culture)</h3>
-          </div>
-        </div>
-      </a>
-      <a href="#" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://images.assettype.com/english-sentinelassam/import/h-upload/2023/11/27/493925-ncpas-indian-music-line-up-for-december-2023.webp" 
-               alt="Marathi Music" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">संगीत (Music)</h3>
-          </div>
-        </div>
-      </a>
-    </div>
-  </div></div></div></section>
-
-  <!-- Animation Studios -->
-  <section id="animation" class="mb-8 fade-in">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h2 class="text-xl font-bold text-gray-900">Animation Studios</h2>
-        <p class="text-sm text-gray-500">Best animated content from top studios</p>
-      </div>
-      <a href="#animation" class="text-sm text-primary font-medium cursor-pointer flex items-center">
+</a>
+</div>
+<div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/1">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="Marathi Movies" class="w-full h-full object-cover" src="https://voteforshivajijayanti.com/wp-content/uploads/2024/07/Chhatrapati-Shivaji-Maharaj-12.jpg"/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">चित्रपट (Movies)</h3>
+</div>
+</div>
+</a>
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/2">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="Marathi Series" class="w-full h-full object-cover" src="https://mlhcmvsgnb3v.i.optimole.com/cb:m_50.3acc4/w:1440/h:1080/q:mauto/f:best/ig:avif/https://apnaran.com/wp-content/uploads/2021/09/chhatrapayi-shivaji-maharaj.jpg"/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">मालिका (Series)</h3>
+</div>
+</div>
+</a>
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="#">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="Marathi Culture" class="w-full h-full object-cover" src="https://media.istockphoto.com/id/542728198/vector/maharashtrian-family-showing-culture-of-maharashtra-india.jpg?s=612x612&amp;w=0&amp;k=20&amp;c=yDk9bpznKIYDv2AeQ7tRoCr4zCVAH-jLVyZ2ByoYw-Q="/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">संस्कृती (Culture)</h3>
+</div>
+</div>
+</a>
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="#">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="Marathi Music" class="w-full h-full object-cover" src="https://images.assettype.com/english-sentinelassam/import/h-upload/2023/11/27/493925-ncpas-indian-music-line-up-for-december-2023.webp"/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">संगीत (Music)</h3>
+</div>
+</div>
+</a>
+</div>
+</div></div></section>
+<!-- Animation Studios -->
+<section class="mb-8 fade-in responsive-section" id="animation">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h2 class="text-xl font-bold text-gray-900">Animation Studios</h2>
+<p class="text-sm text-gray-500">Best animated content from top studios</p>
+</div>
+<a class="text-sm text-primary font-medium cursor-pointer flex items-center" href="#animation">
         View All <i class="ri-arrow-right-line ml-1"></i>
-      </a>
-    </div>
-    <div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
-      <a href="https://ultron3000.github.io/disney" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://i.pinimg.com/736x/a3/69/18/a36918b35d16f0648adee6bead60e7b4.jpg" 
-               alt="Disney Animation" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">Disney Animation</h3>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/pixar" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://brandwiki.ru/up/brands/product/190605_8574.webp" 
-               alt="Pixar" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">Pixar</h3>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/dreamworks" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://images.thedirect.com/media/article_full/dreamworks-animation.jpg" 
-               alt="DreamWorks" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">DreamWorks</h3>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/sony" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://i.redd.it/gw1ia30l57991.jpg" 
-               alt="Sony Animation" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">Sony Animation</h3>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/illumination" class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer">
-        <div class="h-32 md:h-40 overflow-hidden relative">
-          <img src="https://i.ytimg.com/vi/_4A8XlGuJPY/maxresdefault.jpg" 
-               alt="Illumination" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
-            <h3 class="font-medium text-white text-sm md:text-base">Illumination</h3>
-          </div>
-        </div>
-      </a>
-    </div>
-  </div></div></div></section>
-
-  <!-- Studios & Franchises -->
-  <section id="studios" class="mb-8 fade-in">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h2 class="text-xl font-bold text-gray-900">Studios & Franchises</h2>
-        <p class="text-sm text-gray-500">Popular movie franchises and studios</p>
-      </div>
-      <a href="#studios" class="text-sm text-primary font-medium cursor-pointer flex items-center">
+</a>
+</div>
+<div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/disney">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="Disney Animation" class="w-full h-full object-cover" src="https://i.pinimg.com/736x/a3/69/18/a36918b35d16f0648adee6bead60e7b4.jpg"/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">Disney Animation</h3>
+</div>
+</div>
+</a>
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/pixar">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="Pixar" class="w-full h-full object-cover" src="https://brandwiki.ru/up/brands/product/190605_8574.webp"/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">Pixar</h3>
+</div>
+</div>
+</a>
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/dreamworks">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="DreamWorks" class="w-full h-full object-cover" src="https://images.thedirect.com/media/article_full/dreamworks-animation.jpg"/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">DreamWorks</h3>
+</div>
+</div>
+</a>
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/sony">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="Sony Animation" class="w-full h-full object-cover" src="https://i.redd.it/gw1ia30l57991.jpg"/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">Sony Animation</h3>
+</div>
+</div>
+</a>
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/illumination">
+<div class="h-32 md:h-40 overflow-hidden relative">
+<img alt="Illumination" class="w-full h-full object-cover" src="https://i.ytimg.com/vi/_4A8XlGuJPY/maxresdefault.jpg"/>
+<div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+<h3 class="font-medium text-white text-sm md:text-base">Illumination</h3>
+</div>
+</div>
+</a>
+</div>
+</div></div></section>
+<!-- Studios & Franchises -->
+<section class="mb-8 fade-in responsive-section" id="studios">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h2 class="text-xl font-bold text-gray-900">Studios &amp; Franchises</h2>
+<p class="text-sm text-gray-500">Popular movie franchises and studios</p>
+</div>
+<a class="text-sm text-primary font-medium cursor-pointer flex items-center" href="#studios">
         View All <i class="ri-arrow-right-line ml-1"></i>
-      </a>
-    </div>
-    <div class="relative">
-      <div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div class="flex space-x-4" style="width: max-content;">
-          <a href="https://ultron3000.github.io/wick" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://images5.alphacoders.com/133/1338709.png" alt="John Wick" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">John Wick</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Action</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">4 Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/marvel" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://miro.medium.com/v2/resize:fit:1400/1*hCX3hiUjYMuDnby43KtQpg.jpeg" alt="Marvel Studios" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Marvel Studios</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Superhero</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">30+ Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/wb" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://www.warnerbros.com/assets/images/blue-wb-shield-500x480.png" alt="Warner Bros Pictures" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Warner Bros Pictures.</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Action</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">20+ Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/x-men" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://i.pinimg.com/736x/f5/30/49/f53049e7e3608ec6a75dbd135bc60f12.jpg" alt="X-MEN" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">X-MEN</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Sci-Fi</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">12 Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/rambo" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/rambo-4-et00001169-18-10-2016-04-52-10.jpg" alt="Rambo" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Rambo</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Action</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">5 Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/f-f" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/46e21011533181.56275d593d69c.jpg" alt="Fast & Furious" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Fast & Furious</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Action</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">10 Movies</span>
-              </div>
-            </div>
-          </a>  
-          <a href="https://ultron3000.github.io/transformers" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://i.pinimg.com/564x/87/6d/69/876d69dfd61ac75b1f2eeafd7b5880b3.jpg" alt="Transformers" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Transformers</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Sci-Fi</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">7 Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/bourne" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://static1.colliderimages.com/wordpress/wp-content/uploads/2022/04/Jason-Bourne-movies-in-Order-feature.jpg?q=70&fit=contain&w=1200&h=628&dpr=1" alt="Jason Bourne" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Jason Bourne</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Thriller</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">5 Movies</span>
-              </div>
-            </div>
-          </a>  
-          <a href="https://ultron3000.github.io/terminator" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://static.vecteezy.com/system/resources/thumbnails/030/650/090/small_2x/a-poster-for-the-movie-the-terminator-free-photo.jpg" alt="Terminator" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Terminator</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Sci-Fi</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">6 Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/fd" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://lh6.googleusercontent.com/proxy/NQusTMpUVI6U7v7GH10LvR8qwmjvYve8ikArOhTEFcXr8DNHFkXK8X1KyZLwNmCO4Kz1nER7_7m5btS-GpA9yCbTy0hTYfHLJOtvLmlm" alt="Final Destination" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Final Destination</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Horror</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">5 Movies</span>
-              </div>
-            </div>
-          </a>    
-          <a href="https://ultron3000.github.io/predator" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://myhotposters.com/cdn/shop/products/mL1960_1024x1024.jpg?v=1745712251" alt="Predator" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Predator</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Sci-Fi</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">5 Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/mi" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://image.tmdb.org/t/p/original/l5uxY5m5OInWpcExIpKG6AR3rgL.jpg" alt="Mission Impossible" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Mission Impossible</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Action</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">7 Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/007" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/148096-tv-feature-bond-gallery-image1-3olrhqqnkd.jpg" alt="007" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">007 (James Bond)</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Action</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">25+ Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/rocky" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://postersbase.com/cdn/shop/files/1_0889cd44-7b87-4fec-a74f-dd81742a5bdd.jpg?v=1711989226&width=1080" alt="Rocky Balboa" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Rocky Balboa</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Drama</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">9 Movies</span>
-              </div>
-            </div>
-          </a>
-          <a href="https://ultron3000.github.io/sniper" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://t3.ftcdn.net/jpg/06/39/93/32/360_F_639933259_FgmS3sUxmPtKtlf4lTssmYVlwzffU176.jpg" alt="Sniper" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Sniper</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Action</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">8 Movies</span>
-              </div>
-            </div>
-          </a>  
-          <a href="https://ultron3000.github.io/vampire" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
-            <div class="h-24 sm:h-28 overflow-hidden relative">
-              <img src="https://i.pinimg.com/736x/d8/f6/ca/d8f6cadcaa1b9901df6600286bbde095.jpg" alt="Vampire" class="w-full h-full object-cover">
-            </div>
-            <div class="p-3">
-              <h3 class="font-medium text-sm">Vampire</h3>
-              <div class="flex items-center mt-1">
-                <span class="text-xs text-gray-500">Horror</span>
-                <span class="mx-2 text-gray-300">•</span>
-                <span class="text-xs text-gray-500">10+ Movies</span>
-              </div>
-            </div>
-          </a>  
-        </div>
-      </div>
-      <button class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full w-8 h-8 flex items-center justify-center text-primary z-10">
-        <i class="ri-arrow-right-s-line"></i>
-      </button>
-    </div>
-  </div></div></div></section>
-
-  <!-- Your Favorites -->
-  <section id="favorites-section" class="mb-8 fade-in hidden">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h2 class="text-xl font-bold text-gray-900">Your Favorites</h2>
-        <p class="text-sm text-gray-500">Content you've saved for later</p>
-      </div>
-      <button id="clearFavorites" class="text-sm text-red-500 font-medium cursor-pointer">
+</a>
+</div>
+<div class="relative">
+<div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+<div class="flex space-x-4" style="width: max-content;">
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/wick">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="John Wick" class="w-full h-full object-cover" src="https://images5.alphacoders.com/133/1338709.png"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">John Wick</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Action</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">4 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/marvel">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Marvel Studios" class="w-full h-full object-cover" src="https://miro.medium.com/v2/resize:fit:1400/1*hCX3hiUjYMuDnby43KtQpg.jpeg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Marvel Studios</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Superhero</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">30+ Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/wb">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Warner Bros Pictures" class="w-full h-full object-cover" src="https://www.warnerbros.com/assets/images/blue-wb-shield-500x480.png"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Warner Bros Pictures.</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Action</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">20+ Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/x-men">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="X-MEN" class="w-full h-full object-cover" src="https://i.pinimg.com/736x/f5/30/49/f53049e7e3608ec6a75dbd135bc60f12.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">X-MEN</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Sci-Fi</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">12 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/rambo">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Rambo" class="w-full h-full object-cover" src="https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/rambo-4-et00001169-18-10-2016-04-52-10.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Rambo</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Action</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">5 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/f-f">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Fast &amp; Furious" class="w-full h-full object-cover" src="https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/46e21011533181.56275d593d69c.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Fast &amp; Furious</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Action</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">10 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/transformers">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Transformers" class="w-full h-full object-cover" src="https://i.pinimg.com/564x/87/6d/69/876d69dfd61ac75b1f2eeafd7b5880b3.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Transformers</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Sci-Fi</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">7 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/bourne">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Jason Bourne" class="w-full h-full object-cover" src="https://static1.colliderimages.com/wordpress/wp-content/uploads/2022/04/Jason-Bourne-movies-in-Order-feature.jpg?q=70&amp;fit=contain&amp;w=1200&amp;h=628&amp;dpr=1"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Jason Bourne</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Thriller</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">5 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/terminator">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Terminator" class="w-full h-full object-cover" src="https://static.vecteezy.com/system/resources/thumbnails/030/650/090/small_2x/a-poster-for-the-movie-the-terminator-free-photo.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Terminator</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Sci-Fi</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">6 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/fd">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Final Destination" class="w-full h-full object-cover" src="https://lh6.googleusercontent.com/proxy/NQusTMpUVI6U7v7GH10LvR8qwmjvYve8ikArOhTEFcXr8DNHFkXK8X1KyZLwNmCO4Kz1nER7_7m5btS-GpA9yCbTy0hTYfHLJOtvLmlm"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Final Destination</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Horror</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">5 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/predator">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Predator" class="w-full h-full object-cover" src="https://myhotposters.com/cdn/shop/products/mL1960_1024x1024.jpg?v=1745712251"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Predator</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Sci-Fi</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">5 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/mi">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Mission Impossible" class="w-full h-full object-cover" src="https://image.tmdb.org/t/p/original/l5uxY5m5OInWpcExIpKG6AR3rgL.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Mission Impossible</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Action</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">7 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/007">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="007" class="w-full h-full object-cover" src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/148096-tv-feature-bond-gallery-image1-3olrhqqnkd.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">007 (James Bond)</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Action</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">25+ Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/rocky">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Rocky Balboa" class="w-full h-full object-cover" src="https://postersbase.com/cdn/shop/files/1_0889cd44-7b87-4fec-a74f-dd81742a5bdd.jpg?v=1711989226&amp;width=1080"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Rocky Balboa</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Drama</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">9 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/sniper">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Sniper" class="w-full h-full object-cover" src="https://t3.ftcdn.net/jpg/06/39/93/32/360_F_639933259_FgmS3sUxmPtKtlf4lTssmYVlwzffU176.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Sniper</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Action</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">8 Movies</span>
+</div>
+</div>
+</a>
+<a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/vampire">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Vampire" class="w-full h-full object-cover" src="https://i.pinimg.com/736x/d8/f6/ca/d8f6cadcaa1b9901df6600286bbde095.jpg"/>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Vampire</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">Horror</span>
+<span class="mx-2 text-gray-300">•</span>
+<span class="text-xs text-gray-500">10+ Movies</span>
+</div>
+</div>
+</a>
+</div>
+</div>
+<button class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full w-8 h-8 flex items-center justify-center text-primary z-10">
+<i class="ri-arrow-right-s-line"></i>
+</button>
+</div>
+</section>
+<!-- Your Favorites -->
+<section class="mb-8 fade-in hidden responsive-section" id="favorites-section">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h2 class="text-xl font-bold text-gray-900">Your Favorites</h2>
+<p class="text-sm text-gray-500">Content you've saved for later</p>
+</div>
+<button class="text-sm text-red-500 font-medium cursor-pointer" id="clearFavorites">
         Clear All
       </button>
-    </div>
-    <div id="favorites-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-      <!-- Dynamically filled by JS -->
-    </div>
-    <div id="emptyFavorites" class="text-center py-12">
-      <i class="ri-heart-line text-4xl text-gray-300 mb-3"></i>
-      <p class="text-gray-500 font-medium">No favorites yet</p>
-      <p class="text-sm text-gray-400 mt-1">Tap the heart icon on any content to save it here</p>
-    </div>
-  </div></div></div></section>
-
-  <!-- Web Series -->
-  <section id="web-series" class="mb-8 fade-in">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h2 class="text-xl font-bold text-gray-900">Web Series</h2>
-        <p class="text-sm text-gray-500">Popular web series and shows</p>
-      </div>
-      <a href="#web-series" class="text-sm text-primary font-medium cursor-pointer flex items-center">
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" id="favorites-list">
+<!-- Dynamically filled by JS -->
+</div>
+<div class="text-center py-12" id="emptyFavorites">
+<i class="ri-heart-line text-4xl text-gray-300 mb-3"></i>
+<p class="text-gray-500 font-medium">No favorites yet</p>
+<p class="text-sm text-gray-400 mt-1">Tap the heart icon on any content to save it here</p>
+</div>
+</section>
+<!-- Web Series -->
+<section class="mb-8 fade-in responsive-section" id="web-series">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h2 class="text-xl font-bold text-gray-900">Web Series</h2>
+<p class="text-sm text-gray-500">Popular web series and shows</p>
+</div>
+<a class="text-sm text-primary font-medium cursor-pointer flex items-center" href="#web-series">
         View All <i class="ri-arrow-right-line ml-1"></i>
-      </a>
-    </div>
-    <div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
-      <a href="https://ultron3000.github.io/moon" class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
-          <img src="https://cdnb.artstation.com/p/assets/images/images/048/871/113/large/athul-john-saji-moon-knight.jpg?1651137126" alt="Moon Knight" class="w-full h-full object-cover">
-        </div>
-        <div class="p-3 flex flex-col justify-center flex-1">
-          <h3 class="font-medium text-sm sm:text-base">Moon Knight</h3>
-          <p class="text-xs text-gray-500 mt-1">Marvel Studios • 6 Episodes</p>
-          <div class="flex items-center mt-2">
-            <div class="w-full bg-gray-200 rounded-full h-1.5">
-              <div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
-            </div>
-            <span class="text-xs text-gray-500 ml-2">75%</span>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/jackal" class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
-          <img src="https://image.tmdb.org/t/p/original/4kk77Ygb9soy5HQ4KBPQ9c1jXNN.jpg" alt="The Day of the Jackal" class="w-full h-full object-cover">
-        </div>
-        <div class="p-3 flex flex-col justify-center flex-1">
-          <h3 class="font-medium text-sm sm:text-base">The Day of the Jackal</h3>
-          <p class="text-xs text-gray-500 mt-1">Thriller • 10 Episodes</p>
-          <div class="flex items-center mt-2">
-            <div class="w-full bg-gray-200 rounded-full h-1.5">
-              <div class="bg-primary h-1.5 rounded-full" style="width: 90%"></div>
-            </div>
-            <span class="text-xs text-gray-500 ml-2">90%</span>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/citadel" class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
-          <img src="https://indianexpress.com/wp-content/uploads/2023/05/Citadel.jpg" alt="Citadel" class="w-full h-full object-cover">
-        </div>
-        <div class="p-3 flex flex-col justify-center flex-1">
-          <h3 class="font-medium text-sm sm:text-base">Citadel</h3>
-          <p class="text-xs text-gray-500 mt-1">Thriller • 6 Episodes</p>
-          <div class="flex items-center mt-2">
-            <div class="w-full bg-gray-200 rounded-full h-1.5">
-              <div class="bg-primary h-1.5 rounded-full" style="width: 90%"></div>
-            </div>
-            <span class="text-xs text-gray-500 ml-2">90%</span>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/diana" class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
-          <img src="https://artworks.thetvdb.com/banners/v4/series/435360/posters/670853135c84f.jpg" alt="Citadel: Diana" class="w-full h-full object-cover">
-        </div>
-        <div class="p-3 flex flex-col justify-center flex-1">
-          <h3 class="font-medium text-sm sm:text-base">Citadel: Diana</h3>
-          <p class="text-xs text-gray-500 mt-1">Thriller • 6 Episodes</p>
-          <div class="flex items-center mt-2">
-            <div class="w-full bg-gray-200 rounded-full h-1.5">
-              <div class="bg-primary h-1.5 rounded-full" style="width: 90%"></div>
-            </div>
-            <span class="text-xs text-gray-500 ml-2">90%</span>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/daredevil" class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
-          <img src="https://pbs.twimg.com/media/GhWh7Y1WgAAqOM4?format=jpg&name=4096x4096" alt="Daredevil: Born Again" class="w-full h-full object-cover">
-        </div>
-        <div class="p-3 flex flex-col justify-center flex-1">
-          <h3 class="font-medium text-sm sm:text-base">Daredevil: Born Again</h3>
-          <p class="text-xs text-gray-500 mt-1">Fantasy • 9 Episodes</p>
-          <div class="flex items-center mt-2">
-            <div class="w-full bg-gray-200 rounded-full h-1.5">
-              <div class="bg-primary h-1.5 rounded-full" style="width: 85%"></div>
-            </div>
-            <span class="text-xs text-gray-500 ml-2">85%</span>
-          </div>
-        </div>
-      </a>
-    </div>
-  </div></div></div></section>
-
-  <!-- Global Media -->
-  <section class="mb-8 fade-in">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h2 class="text-xl font-bold text-gray-900">Global Media</h2>
-        <p class="text-sm text-gray-500">Live TV and radio from around the world</p>
-      </div>
-    </div>
-    <div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
-      <a href="https://tv.garden" class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="h-24 sm:h-28 overflow-hidden relative">
-          <img src="https://cdn.vectorstock.com/i/500p/14/77/live-streaming-logo-with-play-button-online-vector-30241477.jpg" alt="Live TV" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-          <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
-        </div>
-        <div class="p-3">
-          <h3 class="font-medium text-sm">Live TV</h3>
-          <div class="flex items-center mt-1">
-            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-            <span class="text-xs text-gray-500 ml-1.5">1.2M watching</span>
-          </div>
-        </div>
-      </a>
-      <a href="https://radio.garden" class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="h-24 sm:h-28 overflow-hidden relative">
-          <img src="https://img.freepik.com/premium-vector/online-radio-icon-radio-station-vector-emblem_8071-14188.jpg?semt=ais_hybrid&w=740" alt="Radio" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-          <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
-        </div>
-        <div class="p-3">
-          <h3 class="font-medium text-sm">Radio</h3>
-          <div class="flex items-center mt-1">
-            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-            <span class="text-xs text-gray-500 ml-1.5">856K listening</span>
-          </div>
-        </div>
-      </a>
-      <a href="#" class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="h-24 sm:h-28 overflow-hidden relative">
-          <img src="https://static.vecteezy.com/system/resources/previews/007/059/750/non_2x/live-podcast-with-a-big-microphone-poster-template-vector.jpg" alt="Podcasts" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-        </div>
-        <div class="p-3">
-          <h3 class="font-medium text-sm">Podcasts</h3>
-          <div class="flex items-center mt-1">
-            <span class="text-xs text-gray-500">10K+ shows</span>
-          </div>
-        </div>
-      </a>
-      <a href="https://ultron3000.github.io/news/" class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-        <div class="h-24 sm:h-28 overflow-hidden relative">
-          <img src="https://img.freepik.com/premium-vector/world-news-concept-vector-globe-illustration-journalism-theme-live-news_570429-18111.jpg?semt=ais_hybrid&w=740" alt="News" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-          <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
-        </div>
-        <div class="p-3">
-          <h3 class="font-medium text-sm">News Channels</h3>
-          <div class="flex items-center mt-1">
-            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-            <span class="text-xs text-gray-500 ml-1.5">500K watching</span>
-          </div>
-        </div>
-      </a>
-    </div>
-  </div></div></div></section>
-
-  <!-- Tip Section -->
-  <section class="mb-8 fade-in">
-    <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-5 border border-purple-100">
-      <div class="flex items-start">
-        <div class="w-10 h-10 flex items-center justify-center text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl mr-4 flex-shrink-0">
-          <i class="ri-lightbulb-flash-line text-lg"></i>
-        </div>
-        <div>
-          <h3 class="font-medium text-purple-800">Pro Tip</h3>
-          <p class="text-sm text-gray-700 mt-1">Create an account to sync your favorites across devices and get personalized recommendations!</p>
-          <button class="mt-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium px-4 py-2 rounded-lg text-sm flex items-center">
-            <i class="ri-user-add-line mr-2"></i> Sign Up Now
+</a>
+</div>
+<div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
+<a class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://ultron3000.github.io/moon">
+<div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
+<img alt="Moon Knight" class="w-full h-full object-cover" src="https://cdnb.artstation.com/p/assets/images/images/048/871/113/large/athul-john-saji-moon-knight.jpg?1651137126"/>
+</div>
+<div class="p-3 flex flex-col justify-center flex-1">
+<h3 class="font-medium text-sm sm:text-base">Moon Knight</h3>
+<p class="text-xs text-gray-500 mt-1">Marvel Studios • 6 Episodes</p>
+<div class="flex items-center mt-2">
+<div class="w-full bg-gray-200 rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 75%"></div>
+</div>
+<span class="text-xs text-gray-500 ml-2">75%</span>
+</div>
+</div>
+</a>
+<a class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://ultron3000.github.io/jackal">
+<div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
+<img alt="The Day of the Jackal" class="w-full h-full object-cover" src="https://image.tmdb.org/t/p/original/4kk77Ygb9soy5HQ4KBPQ9c1jXNN.jpg"/>
+</div>
+<div class="p-3 flex flex-col justify-center flex-1">
+<h3 class="font-medium text-sm sm:text-base">The Day of the Jackal</h3>
+<p class="text-xs text-gray-500 mt-1">Thriller • 10 Episodes</p>
+<div class="flex items-center mt-2">
+<div class="w-full bg-gray-200 rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 90%"></div>
+</div>
+<span class="text-xs text-gray-500 ml-2">90%</span>
+</div>
+</div>
+</a>
+<a class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://ultron3000.github.io/citadel">
+<div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
+<img alt="Citadel" class="w-full h-full object-cover" src="https://indianexpress.com/wp-content/uploads/2023/05/Citadel.jpg"/>
+</div>
+<div class="p-3 flex flex-col justify-center flex-1">
+<h3 class="font-medium text-sm sm:text-base">Citadel</h3>
+<p class="text-xs text-gray-500 mt-1">Thriller • 6 Episodes</p>
+<div class="flex items-center mt-2">
+<div class="w-full bg-gray-200 rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 90%"></div>
+</div>
+<span class="text-xs text-gray-500 ml-2">90%</span>
+</div>
+</div>
+</a>
+<a class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://ultron3000.github.io/diana">
+<div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
+<img alt="Citadel: Diana" class="w-full h-full object-cover" src="https://artworks.thetvdb.com/banners/v4/series/435360/posters/670853135c84f.jpg"/>
+</div>
+<div class="p-3 flex flex-col justify-center flex-1">
+<h3 class="font-medium text-sm sm:text-base">Citadel: Diana</h3>
+<p class="text-xs text-gray-500 mt-1">Thriller • 6 Episodes</p>
+<div class="flex items-center mt-2">
+<div class="w-full bg-gray-200 rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 90%"></div>
+</div>
+<span class="text-xs text-gray-500 ml-2">90%</span>
+</div>
+</div>
+</a>
+<a class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://ultron3000.github.io/daredevil">
+<div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
+<img alt="Daredevil: Born Again" class="w-full h-full object-cover" src="https://pbs.twimg.com/media/GhWh7Y1WgAAqOM4?format=jpg&amp;name=4096x4096"/>
+</div>
+<div class="p-3 flex flex-col justify-center flex-1">
+<h3 class="font-medium text-sm sm:text-base">Daredevil: Born Again</h3>
+<p class="text-xs text-gray-500 mt-1">Fantasy • 9 Episodes</p>
+<div class="flex items-center mt-2">
+<div class="w-full bg-gray-200 rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 85%"></div>
+</div>
+<span class="text-xs text-gray-500 ml-2">85%</span>
+</div>
+</div>
+</a>
+</div>
+</div></div></section>
+<!-- Global Media -->
+<section class="mb-8 fade-in responsive-section">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h2 class="text-xl font-bold text-gray-900">Global Media</h2>
+<p class="text-sm text-gray-500">Live TV and radio from around the world</p>
+</div>
+</div>
+<div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
+<a class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://tv.garden">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Live TV" class="w-full h-full object-cover" src="https://cdn.vectorstock.com/i/500p/14/77/live-streaming-logo-with-play-button-online-vector-30241477.jpg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Live TV</h3>
+<div class="flex items-center mt-1">
+<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+<span class="text-xs text-gray-500 ml-1.5">1.2M watching</span>
+</div>
+</div>
+</a>
+<a class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://radio.garden">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Radio" class="w-full h-full object-cover" src="https://img.freepik.com/premium-vector/online-radio-icon-radio-station-vector-emblem_8071-14188.jpg?semt=ais_hybrid&amp;w=740"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Radio</h3>
+<div class="flex items-center mt-1">
+<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+<span class="text-xs text-gray-500 ml-1.5">856K listening</span>
+</div>
+</div>
+</a>
+<a class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="#">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="Podcasts" class="w-full h-full object-cover" src="https://static.vecteezy.com/system/resources/previews/007/059/750/non_2x/live-podcast-with-a-big-microphone-poster-template-vector.jpg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">Podcasts</h3>
+<div class="flex items-center mt-1">
+<span class="text-xs text-gray-500">10K+ shows</span>
+</div>
+</div>
+</a>
+<a class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://ultron3000.github.io/news/">
+<div class="h-24 sm:h-28 overflow-hidden relative">
+<img alt="News" class="w-full h-full object-cover" src="https://img.freepik.com/premium-vector/world-news-concept-vector-globe-illustration-journalism-theme-live-news_570429-18111.jpg?semt=ais_hybrid&amp;w=740"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
+</div>
+<div class="p-3">
+<h3 class="font-medium text-sm">News Channels</h3>
+<div class="flex items-center mt-1">
+<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+<span class="text-xs text-gray-500 ml-1.5">500K watching</span>
+</div>
+</div>
+</a>
+</div>
+</div></div></section>
+<!-- Tip Section -->
+<section class="mb-8 fade-in responsive-section">
+<div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-5 border border-purple-100">
+<div class="flex items-start">
+<div class="w-10 h-10 flex items-center justify-center text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl mr-4 flex-shrink-0">
+<i class="ri-lightbulb-flash-line text-lg"></i>
+</div>
+<div>
+<h3 class="font-medium text-purple-800">Pro Tip</h3>
+<p class="text-sm text-gray-700 mt-1">Create an account to sync your favorites across devices and get personalized recommendations!</p>
+<button class="mt-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium px-4 py-2 rounded-lg text-sm flex items-center">
+<i class="ri-user-add-line mr-2"></i> Sign Up Now
           </button>
-        </div>
-      </div>
-    </div>
-  </div></div></div></section>
-</main>
+</div>
+</div>
+</div>
+</section>
 
 <!-- Tab Bar -->
 <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 sm:hidden">
-  <div class="grid grid-cols-5 h-16 relative">
-    <div class="tab-indicator" style="width: 20%; left: 0;"></div>
-    <a href="#home" class="tab-item flex flex-col items-center justify-center text-primary cursor-pointer" data-section="home">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-home-5-fill ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Home</span>
-    </a>
-    <a href="#explore" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="explore">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-compass-line ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Explore</span>
-    </a>
-    <a href="#watch" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="watch">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-play-circle-line ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Watch</span>
-    </a>
-    <a href="#favorites" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="favorites">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-heart-line ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Favorites</span>
-    </a>
-    <a href="#downloads" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="downloads">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-download-line ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Downloads</span>
-    </a>
-  </div>
+<div class="grid grid-cols-5 h-16 relative">
+<div class="tab-indicator" style="width: 20%; left: 0;"></div>
+<a class="tab-item flex flex-col items-center justify-center text-primary cursor-pointer" data-section="home" href="#home">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-home-5-fill ri-lg"></i>
+</div>
+<span class="text-xs mt-1">Home</span>
+</a>
+<a class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="explore" href="#explore">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-compass-line ri-lg"></i>
+</div>
+<span class="text-xs mt-1">Explore</span>
+</a>
+<a class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="watch" href="#watch">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-play-circle-line ri-lg"></i>
+</div>
+<span class="text-xs mt-1">Watch</span>
+</a>
+<a class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="favorites" href="#favorites">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-heart-line ri-lg"></i>
+</div>
+<span class="text-xs mt-1">Favorites</span>
+</a>
+<a class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="downloads" href="#downloads">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-download-line ri-lg"></i>
+</div>
+<span class="text-xs mt-1">Downloads</span>
+</a>
+</div>
 </nav>
-
 <!-- Floating Action Button -->
 <button class="fab fixed bottom-20 right-4 sm:right-6 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center shadow-lg z-40">
-  <i class="ri-search-line text-xl"></i>
+<i class="ri-search-line text-xl"></i>
 </button>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Dark mode toggle
@@ -1132,7 +1130,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-</div>
+
 
 <script>
 document.querySelectorAll('section').forEach(section => {
@@ -1141,19 +1139,15 @@ document.querySelectorAll('section').forEach(section => {
   if (viewAll && gridWrapper) {
     viewAll.addEventListener('click', (e) => {
       e.preventDefault();
-      gridWrapper.classList.toggle('max-h-48');
-      gridWrapper.classList.toggle('overflow-hidden');
+      section.classList.toggle('expanded');
       if (viewAll.innerText.includes("View All")) {
         viewAll.innerHTML = 'Collapse <i class="ri-arrow-up-line ml-1"></i>';
       } else {
         viewAll.innerHTML = 'View All <i class="ri-arrow-right-line ml-1"></i>';
       }
     });
-    // Initial state collapsed
-    gridWrapper.classList.add('max-h-48', 'overflow-hidden', 'transition-all', 'duration-500');
+    section.classList.add('collapsed');
   }
 });
-</script>
-</body>
-
+</script></body>
 </html>
