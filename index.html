@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -26,6 +25,7 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: var(--light);
   color: var(--dark);
+  overflow-x: hidden;
 }
 
 /* Custom scrollbar */
@@ -171,6 +171,29 @@ html {
   .web-series-card {
     min-height: 120px;
   }
+  
+  .featured-content {
+    height: 400px;
+  }
+  
+  .hero-content {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .featured-content {
+    height: 250px;
+  }
+  
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .hero-description {
+    font-size: 1rem;
+  }
 }
 
 /* Dark mode toggle */
@@ -181,8 +204,142 @@ html {
 .dark-mode-toggle:hover {
   transform: rotate(30deg);
 }
-</style>
-<style>
+
+/* Scroll snap for horizontal scrolling */
+.scroll-container {
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-item {
+  scroll-snap-align: start;
+}
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Responsive grid adjustments */
+.grid-responsive {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+@media (min-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+/* Section spacing */
+.section-spacing {
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .section-spacing {
+    margin-bottom: 4rem;
+  }
+}
+
+/* Content max width */
+.content-max-width {
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Improved horizontal scrolling */
+.horizontal-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 1rem;
+}
+
+.horizontal-scroll-item {
+  flex: 0 0 auto;
+  width: 150px;
+  margin-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .horizontal-scroll-item {
+    width: 180px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .horizontal-scroll-item {
+    width: 220px;
+  }
+}
+
+/* Responsive padding */
+.responsive-padding {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-padding {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-padding {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+/* Responsive text sizes */
+.responsive-text-lg {
+  font-size: 1.125rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-text-lg {
+    font-size: 1.25rem;
+  }
+}
+
+/* Aspect ratio containers */
+.aspect-video {
+  aspect-ratio: 16/9;
+}
+
+.aspect-square {
+  aspect-ratio: 1/1;
+}
+
+/* Improved focus states */
+.focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Better button transitions */
+.button-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive section toggle */
 .responsive-section.collapsed .grid,
 .responsive-section.collapsed .flex.space-x-4 {
   max-height: 12rem;
@@ -195,26 +352,19 @@ html {
   overflow: visible;
   transition: max-height 0.5s ease;
 }
-
-/* Add scroll snap for mobile horizontal scrolling */
-.overflow-x-auto {
-  scroll-snap-type: x mandatory;
-}
-.overflow-x-auto > .flex > * {
-  scroll-snap-align: start;
-}
-</style></head>
+</style>
+</head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-200">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="content-max-width">
 <!-- Nav Bar -->
 <nav class="sticky top-0 w-full bg-white shadow-sm z-50 backdrop-blur-sm bg-opacity-90">
-<div class="flex items-center justify-between px-4 py-3">
+<div class="flex items-center justify-between responsive-padding py-3">
 <div class="flex items-center space-x-4">
 <img alt="Logo" class="h-8 object-contain" src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png"/>
 <span class="hidden md:block text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">Cloud Hub</span>
 </div>
 <div class="flex items-center space-x-4">
-<button class="dark-mode-toggle w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200" id="darkModeToggle">
+<button class="dark-mode-toggle w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 focus-visible" id="darkModeToggle">
 <i class="ri-sun-line text-gray-700"></i>
 </button>
 <div class="w-10 h-10 flex items-center justify-center cursor-pointer relative" id="accountBtn">
@@ -247,12 +397,15 @@ html {
 </div>
 </div>
 </nav>
+
 <!-- Main Content -->
-<main class="pt-16 pb-20 w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+<main class="pt-16 pb-20 w-full responsive-padding">
 <!-- Hero Section -->
 <section class="mt-4 mb-8 fade-in responsive-section">
-<h1 class="text-3xl md:text-4xl font-bold text-gray-900">Cloud Streaming Hub</h1>
-<p class="text-base md:text-lg text-gray-600 mt-2 max-w-2xl">One site to rule them all — All your movies, shows, and franchises in one place.</p>
+<div class="flex flex-col md:flex-row items-center justify-between hero-content">
+<div class="md:w-1/2 mb-6 md:mb-0">
+<h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 hero-title">Cloud Streaming Hub</h1>
+<p class="text-base md:text-lg text-gray-600 mt-2 max-w-2xl hero-description">One site to rule them all — All your movies, shows, and franchises in one place.</p>
 <!-- Search Bar -->
 <div class="relative mt-6 max-w-2xl">
 <div class="relative">
@@ -275,62 +428,73 @@ html {
 </div>
 </div>
 </div>
-</section></main></div>
+</div>
+<div class="md:w-1/2 flex justify-center">
+<div class="w-full max-w-md">
+<img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Streaming illustration" class="w-full h-auto object-contain">
+</div>
+</div>
+</div>
+</section>
+
 <!-- Featured Content -->
-<section class="mb-8 fade-in responsive-section">
-<div class="featured-content h-48 md:h-64 lg:h-80 rounded-2xl overflow-hidden relative">
+<section class="mb-8 fade-in responsive-section section-spacing">
+<div class="featured-content rounded-2xl overflow-hidden relative">
 <img alt="Featured Content" class="w-full h-full object-cover" src="https://readdy.ai/api/search-image?query=cinematic%20movie%20collage%20with%20popular%20characters%20from%20Marvel%2C%20DC%2C%20and%20other%20franchises%2C%20dramatic%20lighting%2C%20movie%20poster%20style%2C%20vibrant%20colors%2C%20no%20text&amp;width=375&amp;height=160&amp;seq=1&amp;orientation=landscape"/>
 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6">
 <div class="flex items-center mb-2">
 <span class="bg-red-500 text-white text-xs px-2 py-1 rounded mr-2">LIVE</span>
 <span class="text-white text-xs bg-black/30 px-2 py-1 rounded">TRENDING</span>
 </div>
-<h3 class="text-white font-bold text-xl md:text-2xl">Trending Now</h3>
-<p class="text-white text-sm opacity-90 max-w-md">Discover the most popular content from around the world</p>
-<button class="mt-3 bg-white text-primary font-medium px-4 py-2 rounded-lg text-sm w-max flex items-center">
+<h3 class="text-white font-bold text-xl md:text-2xl lg:text-3xl">Trending Now</h3>
+<p class="text-white text-sm opacity-90 max-w-md responsive-text-lg">Discover the most popular content from around the world</p>
+<button class="mt-3 bg-white text-primary font-medium px-4 py-2 rounded-lg text-sm w-max flex items-center button-transition hover:bg-gray-100">
 <i class="ri-play-fill mr-1"></i> Watch Now
-        </button>
+</button>
 </div>
 </div>
 </section>
+
 <!-- स्वराज्य (Swarajya) Section -->
-<section class="mb-8 fade-in responsive-section" id="swarajya">
+<section class="mb-8 fade-in responsive-section section-spacing" id="swarajya">
 <div class="flex items-center justify-between mb-4">
 <div>
-<h2 class="text-xl font-bold text-gray-900">स्वराज्य (Swarajya)</h2>
+<h2 class="text-xl md:text-2xl font-bold text-gray-900">स्वराज्य (Swarajya)</h2>
 <p class="text-sm text-gray-500">Traditional Marathi content</p>
 </div>
-<a class="text-sm text-primary font-medium cursor-pointer flex items-center" href="#swarajya">
-        View All <i class="ri-arrow-right-line ml-1"></i>
+<a class="text-sm text-primary font-medium cursor-pointer flex items-center hover:text-primary-dark" href="#swarajya">
+View All <i class="ri-arrow-right-line ml-1"></i>
 </a>
 </div>
-<div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/1">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<div class="relative">
+<div class="horizontal-scroll scrollbar-hide">
+<div class="flex space-x-4" style="width: max-content;">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="https://ultron3000.github.io/1">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Marathi Movies" class="w-full h-full object-cover" src="https://voteforshivajijayanti.com/wp-content/uploads/2024/07/Chhatrapati-Shivaji-Maharaj-12.jpg"/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">चित्रपट (Movies)</h3>
 </div>
 </div>
 </a>
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/2">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="https://ultron3000.github.io/2">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Marathi Series" class="w-full h-full object-cover" src="https://mlhcmvsgnb3v.i.optimole.com/cb:m_50.3acc4/w:1440/h:1080/q:mauto/f:best/ig:avif/https://apnaran.com/wp-content/uploads/2021/09/chhatrapayi-shivaji-maharaj.jpg"/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">मालिका (Series)</h3>
 </div>
 </div>
 </a>
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="#">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="#">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Marathi Culture" class="w-full h-full object-cover" src="https://media.istockphoto.com/id/542728198/vector/maharashtrian-family-showing-culture-of-maharashtra-india.jpg?s=612x612&amp;w=0&amp;k=20&amp;c=yDk9bpznKIYDv2AeQ7tRoCr4zCVAH-jLVyZ2ByoYw-Q="/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">संस्कृती (Culture)</h3>
 </div>
 </div>
 </a>
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="#">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="#">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Marathi Music" class="w-full h-full object-cover" src="https://images.assettype.com/english-sentinelassam/import/h-upload/2023/11/27/493925-ncpas-indian-music-line-up-for-december-2023.webp"/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">संगीत (Music)</h3>
@@ -338,53 +502,58 @@ html {
 </div>
 </a>
 </div>
-</div></div></section>
+</div>
+</div>
+</section>
+
 <!-- Animation Studios -->
-<section class="mb-8 fade-in responsive-section" id="animation">
+<section class="mb-8 fade-in responsive-section section-spacing" id="animation">
 <div class="flex items-center justify-between mb-4">
 <div>
-<h2 class="text-xl font-bold text-gray-900">Animation Studios</h2>
+<h2 class="text-xl md:text-2xl font-bold text-gray-900">Animation Studios</h2>
 <p class="text-sm text-gray-500">Best animated content from top studios</p>
 </div>
-<a class="text-sm text-primary font-medium cursor-pointer flex items-center" href="#animation">
-        View All <i class="ri-arrow-right-line ml-1"></i>
+<a class="text-sm text-primary font-medium cursor-pointer flex items-center hover:text-primary-dark" href="#animation">
+View All <i class="ri-arrow-right-line ml-1"></i>
 </a>
 </div>
-<div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/disney">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<div class="relative">
+<div class="horizontal-scroll scrollbar-hide">
+<div class="flex space-x-4" style="width: max-content;">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="https://ultron3000.github.io/disney">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Disney Animation" class="w-full h-full object-cover" src="https://i.pinimg.com/736x/a3/69/18/a36918b35d16f0648adee6bead60e7b4.jpg"/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">Disney Animation</h3>
 </div>
 </div>
 </a>
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/pixar">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="https://ultron3000.github.io/pixar">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Pixar" class="w-full h-full object-cover" src="https://brandwiki.ru/up/brands/product/190605_8574.webp"/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">Pixar</h3>
 </div>
 </div>
 </a>
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/dreamworks">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="https://ultron3000.github.io/dreamworks">
+<div class="aspect-video overflow-hidden relative">
 <img alt="DreamWorks" class="w-full h-full object-cover" src="https://images.thedirect.com/media/article_full/dreamworks-animation.jpg"/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">DreamWorks</h3>
 </div>
 </div>
 </a>
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/sony">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="https://ultron3000.github.io/sony">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Sony Animation" class="w-full h-full object-cover" src="https://i.redd.it/gw1ia30l57991.jpg"/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">Sony Animation</h3>
 </div>
 </div>
 </a>
-<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer" href="https://ultron3000.github.io/illumination">
-<div class="h-32 md:h-40 overflow-hidden relative">
+<a class="category-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer horizontal-scroll-item" href="https://ultron3000.github.io/illumination">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Illumination" class="w-full h-full object-cover" src="https://i.ytimg.com/vi/_4A8XlGuJPY/maxresdefault.jpg"/>
 <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
 <h3 class="font-medium text-white text-sm md:text-base">Illumination</h3>
@@ -392,20 +561,23 @@ html {
 </div>
 </a>
 </div>
-</div></div></section>
+</div>
+</div>
+</section>
+
 <!-- Studios & Franchises -->
-<section class="mb-8 fade-in responsive-section" id="studios">
+<section class="mb-8 fade-in responsive-section section-spacing" id="studios">
 <div class="flex items-center justify-between mb-4">
 <div>
-<h2 class="text-xl font-bold text-gray-900">Studios &amp; Franchises</h2>
+<h2 class="text-xl md:text-2xl font-bold text-gray-900">Studios &amp; Franchises</h2>
 <p class="text-sm text-gray-500">Popular movie franchises and studios</p>
 </div>
-<a class="text-sm text-primary font-medium cursor-pointer flex items-center" href="#studios">
-        View All <i class="ri-arrow-right-line ml-1"></i>
+<a class="text-sm text-primary font-medium cursor-pointer flex items-center hover:text-primary-dark" href="#studios">
+View All <i class="ri-arrow-right-line ml-1"></i>
 </a>
 </div>
 <div class="relative">
-<div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+<div class="horizontal-scroll scrollbar-hide">
 <div class="flex space-x-4" style="width: max-content;">
 <a class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0" href="https://ultron3000.github.io/wick">
 <div class="h-24 sm:h-28 overflow-hidden relative">
@@ -617,21 +789,22 @@ html {
 </a>
 </div>
 </div>
-<button class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full w-8 h-8 flex items-center justify-center text-primary z-10">
+<button class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow-lg rounded-full w-8 h-8 flex items-center justify-center text-primary z-10 button-transition hover:bg-gray-100">
 <i class="ri-arrow-right-s-line"></i>
 </button>
 </div>
 </section>
+
 <!-- Your Favorites -->
-<section class="mb-8 fade-in hidden responsive-section" id="favorites-section">
+<section class="mb-8 fade-in hidden responsive-section section-spacing" id="favorites-section">
 <div class="flex items-center justify-between mb-4">
 <div>
-<h2 class="text-xl font-bold text-gray-900">Your Favorites</h2>
+<h2 class="text-xl md:text-2xl font-bold text-gray-900">Your Favorites</h2>
 <p class="text-sm text-gray-500">Content you've saved for later</p>
 </div>
-<button class="text-sm text-red-500 font-medium cursor-pointer" id="clearFavorites">
-        Clear All
-      </button>
+<button class="text-sm text-red-500 font-medium cursor-pointer hover:text-red-600" id="clearFavorites">
+Clear All
+</button>
 </div>
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" id="favorites-list">
 <!-- Dynamically filled by JS -->
@@ -642,18 +815,21 @@ html {
 <p class="text-sm text-gray-400 mt-1">Tap the heart icon on any content to save it here</p>
 </div>
 </section>
+
 <!-- Web Series -->
-<section class="mb-8 fade-in responsive-section" id="web-series">
+<section class="mb-8 fade-in responsive-section section-spacing" id="web-series">
 <div class="flex items-center justify-between mb-4">
 <div>
-<h2 class="text-xl font-bold text-gray-900">Web Series</h2>
+<h2 class="text-xl md:text-2xl font-bold text-gray-900">Web Series</h2>
 <p class="text-sm text-gray-500">Popular web series and shows</p>
 </div>
-<a class="text-sm text-primary font-medium cursor-pointer flex items-center" href="#web-series">
-        View All <i class="ri-arrow-right-line ml-1"></i>
+<a class="text-sm text-primary font-medium cursor-pointer flex items-center hover:text-primary-dark" href="#web-series">
+View All <i class="ri-arrow-right-line ml-1"></i>
 </a>
 </div>
-<div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
+<div class="relative">
+<div class="horizontal-scroll scrollbar-hide">
+<div class="flex space-x-4" style="width: max-content;">
 <a class="web-series-card flex bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://ultron3000.github.io/moon">
 <div class="w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-l-xl">
 <img alt="Moon Knight" class="w-full h-full object-cover" src="https://cdnb.artstation.com/p/assets/images/images/048/871/113/large/athul-john-saji-moon-knight.jpg?1651137126"/>
@@ -730,18 +906,23 @@ html {
 </div>
 </a>
 </div>
-</div></div></section>
+</div>
+</div>
+</section>
+
 <!-- Global Media -->
-<section class="mb-8 fade-in responsive-section">
+<section class="mb-8 fade-in responsive-section section-spacing">
 <div class="flex items-center justify-between mb-4">
 <div>
-<h2 class="text-xl font-bold text-gray-900">Global Media</h2>
+<h2 class="text-xl md:text-2xl font-bold text-gray-900">Global Media</h2>
 <p class="text-sm text-gray-500">Live TV and radio from around the world</p>
 </div>
 </div>
-<div class="relative"><div class="overflow-x-auto scrollbar-hide pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"><div class="flex space-x-4" style="width: max-content;">
+<div class="relative">
+<div class="horizontal-scroll scrollbar-hide">
+<div class="flex space-x-4" style="width: max-content;">
 <a class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://tv.garden">
-<div class="h-24 sm:h-28 overflow-hidden relative">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Live TV" class="w-full h-full object-cover" src="https://cdn.vectorstock.com/i/500p/14/77/live-streaming-logo-with-play-button-online-vector-30241477.jpg"/>
 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
@@ -755,7 +936,7 @@ html {
 </div>
 </a>
 <a class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://radio.garden">
-<div class="h-24 sm:h-28 overflow-hidden relative">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Radio" class="w-full h-full object-cover" src="https://img.freepik.com/premium-vector/online-radio-icon-radio-station-vector-emblem_8071-14188.jpg?semt=ais_hybrid&amp;w=740"/>
 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
@@ -769,7 +950,7 @@ html {
 </div>
 </a>
 <a class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="#">
-<div class="h-24 sm:h-28 overflow-hidden relative">
+<div class="aspect-video overflow-hidden relative">
 <img alt="Podcasts" class="w-full h-full object-cover" src="https://static.vecteezy.com/system/resources/previews/007/059/750/non_2x/live-podcast-with-a-big-microphone-poster-template-vector.jpg"/>
 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 </div>
@@ -781,7 +962,7 @@ html {
 </div>
 </a>
 <a class="global-media-card bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow" href="https://ultron3000.github.io/news/">
-<div class="h-24 sm:h-28 overflow-hidden relative">
+<div class="aspect-video overflow-hidden relative">
 <img alt="News" class="w-full h-full object-cover" src="https://img.freepik.com/premium-vector/world-news-concept-vector-globe-illustration-journalism-theme-live-news_570429-18111.jpg?semt=ais_hybrid&amp;w=740"/>
 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 <div class="absolute top-2 right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded">LIVE</div>
@@ -795,9 +976,12 @@ html {
 </div>
 </a>
 </div>
-</div></div></section>
+</div>
+</div>
+</section>
+
 <!-- Tip Section -->
-<section class="mb-8 fade-in responsive-section">
+<section class="mb-8 fade-in responsive-section section-spacing">
 <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-5 border border-purple-100">
 <div class="flex items-start">
 <div class="w-10 h-10 flex items-center justify-center text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl mr-4 flex-shrink-0">
@@ -806,13 +990,14 @@ html {
 <div>
 <h3 class="font-medium text-purple-800">Pro Tip</h3>
 <p class="text-sm text-gray-700 mt-1">Create an account to sync your favorites across devices and get personalized recommendations!</p>
-<button class="mt-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium px-4 py-2 rounded-lg text-sm flex items-center">
+<button class="mt-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium px-4 py-2 rounded-lg text-sm flex items-center button-transition hover:from-purple-600 hover:to-blue-600">
 <i class="ri-user-add-line mr-2"></i> Sign Up Now
-          </button>
+</button>
 </div>
 </div>
 </div>
 </section>
+</main>
 
 <!-- Tab Bar -->
 <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 sm:hidden">
@@ -850,10 +1035,12 @@ html {
 </a>
 </div>
 </nav>
+
 <!-- Floating Action Button -->
-<button class="fab fixed bottom-20 right-4 sm:right-6 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center shadow-lg z-40">
+<button class="fab fixed bottom-20 right-4 sm:right-6 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center shadow-lg z-40 button-transition">
 <i class="ri-search-line text-xl"></i>
 </button>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Dark mode toggle
@@ -1128,26 +1315,25 @@ document.addEventListener('DOMContentLoaded', function() {
   sections.forEach((section, index) => {
     section.style.animationDelay = `${index * 0.1}s`;
   });
+  
+  // Responsive section toggle
+  document.querySelectorAll('section').forEach(section => {
+    const viewAll = section.querySelector('a[href^="#"]');
+    const gridWrapper = section.querySelector('.grid, .flex.space-x-4');
+    if (viewAll && gridWrapper) {
+      viewAll.addEventListener('click', (e) => {
+        e.preventDefault();
+        section.classList.toggle('expanded');
+        if (viewAll.innerText.includes("View All")) {
+          viewAll.innerHTML = 'Collapse <i class="ri-arrow-up-line ml-1"></i>';
+        } else {
+          viewAll.innerHTML = 'View All <i class="ri-arrow-right-line ml-1"></i>';
+        }
+      });
+      section.classList.add('collapsed');
+    }
+  });
 });
 </script>
-
-
-<script>
-document.querySelectorAll('section').forEach(section => {
-  const viewAll = section.querySelector('a[href^="#"]');
-  const gridWrapper = section.querySelector('.grid, .flex.space-x-4');
-  if (viewAll && gridWrapper) {
-    viewAll.addEventListener('click', (e) => {
-      e.preventDefault();
-      section.classList.toggle('expanded');
-      if (viewAll.innerText.includes("View All")) {
-        viewAll.innerHTML = 'Collapse <i class="ri-arrow-up-line ml-1"></i>';
-      } else {
-        viewAll.innerHTML = 'View All <i class="ri-arrow-right-line ml-1"></i>';
-      }
-    });
-    section.classList.add('collapsed');
-  }
-});
-</script></body>
+</body>
 </html>
