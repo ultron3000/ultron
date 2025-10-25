@@ -1069,41 +1069,39 @@ html {
   </section>
 
 <!-- Tab Bar -->
-<nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 sm:hidden">
-  <div class="grid grid-cols-5 h-16 relative">
-    <div class="tab-indicator" style="width: 20%; left: 0;"></div>
-    <a href="#home" class="tab-item flex flex-col items-center justify-center text-primary cursor-pointer" data-section="home">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-home-5-fill ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Home</span>
+<nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-50 sm:hidden">
+  <div class="grid grid-cols-5 h-[60px] relative">
+    <!-- Optional animated tab indicator -->
+    <div class="tab-indicator absolute bottom-0 h-[2px] bg-blue-500 transition-all duration-300" style="width: 20%; left: 0;"></div>
+
+    <!-- Tab Item -->
+    <a href="#home" class="tab-item flex flex-col items-center justify-center text-blue-600 active:text-blue-600" data-section="home">
+      <i class="ri-home-5-fill text-[1.5rem] leading-none"></i>
+      <span class="text-[0.7rem] mt-1">Home</span>
     </a>
-    <a href="#explore" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="explore">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-compass-line ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Explore</span>
+
+    <a href="#explore" class="tab-item flex flex-col items-center justify-center text-gray-500 hover:text-blue-600" data-section="explore">
+      <i class="ri-compass-line text-[1.5rem] leading-none"></i>
+      <span class="text-[0.7rem] mt-1">Explore</span>
     </a>
-    <a href="#watch" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="watch">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-play-circle-line ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Watch</span>
+
+    <a href="#watch" class="tab-item flex flex-col items-center justify-center text-gray-500 hover:text-blue-600" data-section="watch">
+      <i class="ri-play-circle-line text-[1.5rem] leading-none"></i>
+      <span class="text-[0.7rem] mt-1">Watch</span>
     </a>
-    <a href="#favorites" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="favorites">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-heart-line ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Favorites</span>
+
+    <a href="#favorites" class="tab-item flex flex-col items-center justify-center text-gray-500 hover:text-blue-600" data-section="favorites">
+      <i class="ri-heart-line text-[1.5rem] leading-none"></i>
+      <span class="text-[0.7rem] mt-1">Favorites</span>
     </a>
-    <a href="#downloads" class="tab-item flex flex-col items-center justify-center text-gray-500 cursor-pointer" data-section="downloads">
-      <div class="w-6 h-6 flex items-center justify-center">
-        <i class="ri-download-line ri-lg"></i>
-      </div>
-      <span class="text-xs mt-1">Downloads</span>
+
+    <a href="#downloads" class="tab-item flex flex-col items-center justify-center text-gray-500 hover:text-blue-600" data-section="downloads">
+      <i class="ri-download-line text-[1.5rem] leading-none"></i>
+      <span class="text-[0.7rem] mt-1">Downloads</span>
     </a>
   </div>
 </nav>
+
 
 <!-- Floating Action Button -->
 <button class="fab fixed bottom-20 right-4 sm:right-6 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white flex items-center justify-center shadow-lg z-40">
@@ -1471,4 +1469,79 @@ document.addEventListener('click', e => {
 });
 </script>
 
+<!-- Assistant Widget -->
+<div id="assistant" class="fixed bottom-4 right-4 w-80 bg-white rounded-2xl shadow-lg border border-gray-200">
+  <div class="p-3 border-b border-gray-200 flex justify-between items-center">
+    <h3 class="font-semibold text-gray-800">Jarvis</h3>
+    <button id="toggleBtn" class="text-sm text-gray-500 hover:text-gray-700">–</button>
+  </div>
+  <div id="assistantBody" class="p-3 h-80 overflow-y-auto text-sm space-y-2">
+    <p class="text-gray-500">How may i help you?</p>
+  </div>
+  <div class="border-t border-gray-200 p-2">
+    <input id="assistantInput" type="text" placeholder="Ask something..." 
+      class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200">
+  </div>
+</div>
+
+<script>
+const input = document.getElementById('assistantInput');
+const body = document.getElementById('assistantBody');
+const toggleBtn = document.getElementById('toggleBtn');
+
+// Toggle assistant visibility
+toggleBtn.addEventListener('click', () => {
+  const bodySection = document.getElementById('assistantBody');
+  const inputSection = input.parentElement;
+  const isHidden = bodySection.style.display === 'none';
+  bodySection.style.display = isHidden ? 'block' : 'none';
+  inputSection.style.display = isHidden ? 'block' : 'none';
+  toggleBtn.textContent = isHidden ? '–' : '+';
+});
+
+// Add messages to chat
+function addMessage(role, text) {
+  const div = document.createElement('div');
+  div.className = role === 'user' ? 'text-right' : 'text-left';
+  div.innerHTML = `<p class="inline-block px-3 py-2 rounded-xl ${
+    role === 'user' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+  }">${text}</p>`;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+
+// Call Netlify serverless function
+async function respond(query) {
+  addMessage('assistant', "Thinking... 🤔");
+
+  const pageText = document.body.innerText;
+
+  try {
+    const res = await fetch('/.netlify/functions/assistant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, pageContent: pageText })
+    });
+
+    const data = await res.json();
+    body.lastChild.remove(); // remove "Thinking..."
+    addMessage('assistant', data.answer || "Sorry, I couldn't find an answer.");
+  } catch (err) {
+    body.lastChild.remove();
+    addMessage('assistant', "Oops! Something went wrong.");
+    console.error(err);
+  }
+}
+
+// Handle user input
+input.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const query = input.value.trim();
+    if (!query) return;
+    addMessage('user', query);
+    input.value = '';
+    respond(query);
+  }
+});
+</script>
 
