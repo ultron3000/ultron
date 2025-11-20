@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Space Force</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Tailwind / Icons / HLS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+<style>
+body {
+  background: #0c0b1d;
+  font-family: 'Poppins', sans-serif;
+}
+.episode-card {transition: .3s;} .episode-card:hover {transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 30px rgba(0,0,0,.5);} 
+.modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 2000;}
+.modal-card {width: 95%; max-width: 1100px; background: rgba(20,18,40,0.92); border-radius: 14px; overflow: hidden; border: 1px solid rgba(168,85,247,.35); box-shadow: 0 0 20px rgba(168,85,247,.4); backdrop-filter: blur(12px);} 
+.modal-header {padding: 12px 18px; background: rgba(0,0,0,.35); border-bottom: 1px solid rgba(168,85,247,.25); display: flex; justify-content: space-between; align-items: center;} 
+.modal-player {position: relative; padding-bottom: 56.25%; height: 0; background: black;} 
+.modal-player video, .modal-player iframe {position:absolute; inset:0; width:100%; height:100%;}
+.gradient-text {background: linear-gradient(to right,#a855f7,#6366f1); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
+</style>
+</head>
+
+<body class="text-gray-100">
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-black/70 backdrop-blur-md border-b border-purple-500/40"><div class="container mx-auto px-4 py-4 flex justify-between items-center"><div class="flex items-center space-x-3"><div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-600/50"><span class="text-2xl">🚀</span></div><h1 class="text-3xl font-bold gradient-text">Space Force</h1></div></div></header>
+
+<!-- HERO -->
+<section class="relative h-64 md:h-96 overflow-hidden">
+  <video autoplay muted loop class="absolute inset-0 w-full h-full object-cover opacity-60">
+    <source src="https://imdb-video.media-imdb.com/vi555533081/1434659607842-pgv4ql-1643307123349.mp4?Expires=1763477276&Signature=rwKFhiedMIM-sy2Y9H63UpX-gbkguL1rubRAhsGCiKW3hnilbqqeZ0npx76fZxXDbvjUlMvn-90F~bZ-~TYlYocWifeE3Ch4IJnoTNNMLHoB69hXVNdlg0rGtWIduMTGYhoEtPXmKs9UbeRXFvRandq6kmDu5pJ6Bc7uaYL63Lf3~GWP9bXuVxkExrbnGHh3rh~WHw111Bqc4VGOET23nAobNqtvZR68fA0L~yOLaRIArNU-7Geg82w1P7KYjS~skO3WJJ3xelFCuApgY-pQ7C28WWYQZL9fi-K8WX0KM8QdJG34xJ8OhJOCgFCvTiKfgCpaMRK9eQbw22LDNcYRRg__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+  </video>
+  <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
+  <div class="absolute bottom-6 left-6 max-w-xl">
+    <p class="text-gray-300 text-lg">A four-star general is tasked with establishing the U.S. Space Force.</p>
+  </div>
+</section>
+
+<!-- SEASON FILTER -->
+<div class="container mx-auto px-4 py-6 flex overflow-x-auto space-x-3">
+  <button class="season-btn bg-purple-600 text-white px-5 py-2 rounded-full" data-season="all">All</button>
+  <button class="season-btn bg-gray-800 px-5 py-2 rounded-full" data-season="1">Season 1</button>
+  <button class="season-btn bg-gray-800 px-5 py-2 rounded-full" data-season="2">Season 2</button>
+</div>
+
+<!-- EPISODES GRID -->
+<div class="container mx-auto px-4"><div id="episodes" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div></div>
+
+<footer class="text-center text-gray-500 py-10 mt-10">© Space Force – Fan Project</footer>
+
+<!-- MODAL -->
+<div id="video-modal" class="modal-overlay hidden"><div class="modal-card"><div class="modal-header"><div id="modal-title" class="modal-title"></div><button id="close-video-modal" class="modal-close-btn"><i class="fas fa-times"></i></button></div><div class="modal-player"><video id="modal-video" controls playsinline></video></div></div></div>
+
+<script>
+/* EPISODES */
+const movies = [
+
+/* -------------------------
+   SEASON 1 (10 Episodes)
+------------------------- */
+{ title:"The Launch", season:1, episode:1, duration:"36 min", image:"https://image.tmdb.org/t/p/w300/t3uAHs5VIimhOQ8VPEyka9or20w.jpg", video:"https://svz.glowhavenmedia.cyou:443/v4/3vi/fnbg9/index-f2-v1-a1.txt" },
+{ title:"Save Epsilon 6!", season:1, episode:2, duration:"33 min", image:"https://image.tmdb.org/t/p/w300/bopQn4e1VpeLZIte8HzvoH9vyzh.jpg", video:"https://sy6.cometri.store:443/v4/3vi/o56zt/index-f2-v1-a1.txt" },
+{ title:"Mark and Mallory Go to Washington", season:1, episode:3, duration:"31 min", image:"https://image.tmdb.org/t/p/w300/56v2xLKe2mAtu0EJ6uftQsJD4aB.jpg", video:"https://sri.oravix.cyou:443/v4/9ow/3gwie/index-f2-v1-a1.txt" },
+{ title:"Lunar Habitat", season:1, episode:4, duration:"33 min", image:"https://image.tmdb.org/t/p/w300/tuvt9HsewYpi3JN5YlpTaCChUQt.jpg", video:"https://sad.bellevianetwork.sbs:443/v4/luy/p3idm/index-f2-v1-a1.txt" },
+{ title:"Space Flag", season:1, episode:5, duration:"34 min", image:"https://image.tmdb.org/t/p/w300/uy6sZTyYQuCFgFVxhB29HdEzQxw.jpg", video:"https://sy6.auronetwork.sbs:443/v4/9ow/apdmq/index-f2-v1-a1.txt" },
+{ title:"The Spy", season:1, episode:6, duration:"32 min", image:"https://image.tmdb.org/t/p/w300/tjMFWMQEbaSdYy5Fvkwcu11mH3O.jpg", video:"https://sad.clarynova.cyou:443/v4/kdv/yrl83/index-f2-v1-a1.txt" },
+{ title:"Edison Jaymes", season:1, episode:7, duration:"32 min", image:"https://image.tmdb.org/t/p/w300/17oGzYrSLFuX6qNkUZCFaDKKhNy.jpg", video:"https://sui.oravix.cyou:443/v4/3vi/p3idc/index-f2-v1-a1.txt" },
+{ title:"Conjugal Visit", season:1, episode:8, duration:"30 min", image:"https://image.tmdb.org/t/p/w300/820uOExhvmRqod1P7XNou9r9EUA.jpg", video:"https://sad.celestiorstudio.cyou:443/v4/onm/l135u/index-f2-v1-a1.txt" },
+{ title:"It's Good to Be Back on the Moon", season:1, episode:9, duration:"37 min", image:"https://image.tmdb.org/t/p/w300/lUdQnRynmVykWqRV5E90zXBL48c.jpg", video:"https://svz.dreamoraresort.sbs:443/v4/3vi/jy8gg/index-f2-v1-a1.txt" },
+{ title:"Proportionate Response", season:1, episode:10, duration:"35 min", image:"https://image.tmdb.org/t/p/w300/5z8Wr8BmJ40i31XsqQQwKRfq9m8.jpg", video:"https://sri.clarynova.cyou:443/v4/9ow/be5jf/index-f2-v1-a1.txt" },
+
+/* -------------------------
+   SEASON 2 (7 Episodes)
+------------------------- */
+{ title:"The Inquiry", season:2, episode:1, duration:"32 min", image:"https://image.tmdb.org/t/p/w300/jvg5UInCzOWT0zKrIBh1TRy3PoQ.jpg", video:"https://sad.velonovaenergy.sbs:443/v4/kdv/ekq5z/index-f2-v1-a1.txt" },
+{ title:"The Chinese Delegation", season:2, episode:2, duration:"30 min", image:"https://image.tmdb.org/t/p/w300/zpxxwTSHVHsPPcl0cuMNtZgYqf0.jpg", video:"https://svz.trovianaworks.online:443/v4/djx/vjctb/index-f2-v1-a1.txt" },
+{ title:"The 13th Floor", season:2, episode:3, duration:"27 min", image:"https://image.tmdb.org/t/p/w300/zjh27TW9UJCwBhuyRFgNXAJ5J54.jpg", video:"https://sri.artanix.sbs:443/v4/x68/iw9rm/index-f1-v1-a1.txt" },
+{ title:"The Europa Project", season:2, episode:4, duration:"27 min", image:"https://image.tmdb.org/t/p/w300/fKgvmtOne3I9Rzts4JLWc0Gopp0.jpg", video:"https://sri.artanix.sbs:443/v4/djx/ksxqm/index-f2-v1-a1.txt" },
+{ title:"The Mooch", season:2, episode:5, duration:"28 min", image:"https://image.tmdb.org/t/p/w300/xas3TDCgK8tVsJWH6olRRG1G5DB.jpg", video:"https://svz.glowhavenmedia.cyou:443/v4/x68/woz9e/index-f2-v1-a1.txt" },
+{ title:"Mad (Buff) Science", season:2, episode:6, duration:"31 min", image:"https://image.tmdb.org/t/p/w300/AoC7uzWXPYZmz4TY1Y1uLiS3jjQ.jpg", video:"https://sui.florenda.online/v4/3vi/nuebt/cf-master.txt?v=1758068233" },
+{ title:"The Hack", season:2, episode:7, duration:"30 min", image:"https://image.tmdb.org/t/p/w300/xw1Jfc0Dxz2aSdMWqWfZs8Lnyh1.jpg", video:"https://sri.artanix.sbs:443/v4/9ow/5qh63/index-f2-v1-a1.txt" }
+
+]; /* Keeping original list untouched */
+let currentSeason = 'all';
+
+function renderEpisodes(){const ep=document.getElementById("episodes"); ep.innerHTML=""; const list=movies.filter(m=>currentSeason==='all'||m.season==currentSeason); list.forEach(m=>{let div=document.createElement("div"); div.className="episode-card bg-gray-900/70 p-3 rounded-xl cursor-pointer"; div.innerHTML=`<img src="${m.image}" class="w-full h-36 object-cover rounded-lg"><h3 class=\"mt-2 font-semibold text-white text-sm\">${m.title}</h3><p class=\"text-gray-400 text-xs\">S${m.season} • E${m.episode} • ${m.duration}</p>`; div.onclick=()=>playInModal(m.title,m.video); ep.appendChild(div);});}
+renderEpisodes();
+
+document.querySelectorAll('.season-btn').forEach(btn=>{btn.onclick=()=>{document.querySelector('.season-btn.bg-purple-600')?.classList.remove('bg-purple-600','text-white'); btn.classList.add('bg-purple-600','text-white'); currentSeason=btn.dataset.season; renderEpisodes();};});
+
+/* *** REPLACED WITH TUKARAM PLAYBACK LOGIC *** */
+let currentHls=null;
+function showModal(){document.getElementById('video-modal').classList.remove('hidden'); document.body.style.overflow='hidden';}
+function hideModal(){document.getElementById('video-modal').classList.add('hidden'); document.body.style.overflow='';}
+function isHls(u){return u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u);} 
+function isMP4(u){return /\.mp4($|\?)/i.test(u);} 
+function isYouTube(u){return u.includes('youtu');}
+
+function playInModal(title,url){if(currentHls){try{currentHls.destroy();}catch(e){} currentHls=null;} const player=document.querySelector('.modal-player'); const modalVideo=document.getElementById('modal-video'); document.getElementById('modal-title').textContent=title;
+
+// StreamTape
+if(url.includes('streamtape.com')){player.innerHTML=`<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" frameborder="0"></iframe>`; showModal(); return;}
+
+// YouTube
+if(isYouTube(url)){player.innerHTML=`<iframe src="${url}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen frameborder="0"></iframe>`; showModal(); return;}
+
+// HLS
+if(isHls(url)){
+  if(Hls.isSupported()){currentHls=new Hls(); currentHls.loadSource(url); currentHls.attachMedia(modalVideo); currentHls.on(Hls.Events.MANIFEST_PARSED,()=>{showModal(); modalVideo.play().catch(()=>{});});}
+  else {modalVideo.src=url; showModal(); modalVideo.play().catch(()=>{});} return;
+}
+
+// MP4
+if(isMP4(url)){modalVideo.src=url; showModal(); modalVideo.play().catch(()=>{}); return;}
+
+// Fallback
+window.location.href=`player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+document.getElementById('close-video-modal').onclick=()=>{if(currentHls){try{currentHls.destroy();}catch(e){} currentHls=null;} document.querySelector('.modal-player').innerHTML=`<video id='modal-video' controls playsinline></video>`; hideModal();};
+</script>
+</body>
+</html>
