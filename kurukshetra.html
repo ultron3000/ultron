@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kurukshetra 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <script async src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
+  <style>
+    /* -----------------------------
+       Kurukshetra 2025 Theme (complete theme block)
+       Replace only this block if you want to change theme later
+       ----------------------------- */
+
+    /* Base */
+    body { background: #120804; color: #f6e7c5; font-family: 'Cinzel', serif; }
+    header, footer { background: #1e0f06; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #2a160b; }
+    ::-webkit-scrollbar-thumb { background: #cfa43a; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e7bf55; }
+
+    /* Fade in animation */
+    .fade-in { animation: fadeIn 0.45s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Glow battlefield vibe */
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: ''; position: absolute; inset: 0; border-radius: 12px;
+      box-shadow: 0 0 12px rgba(255,150,40,0.15), 0 0 24px rgba(255,90,20,0.25);
+      transition: box-shadow 0.25s ease; pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 24px rgba(255,150,40,0.3), 0 0 50px rgba(255,60,10,0.45); }
+
+    /* Gradient title text */
+    .gradient-text { background: linear-gradient(90deg, #ffdd77, #ff9933, #cc3300); -webkit-background-clip: text; color: transparent; }
+
+    /* Showcase / hero */
+    .showcase-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .showcase-overlay { position:absolute; inset:0; background:linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(70,30,10,0.55) 50%, rgba(0,0,0,0) 100%); }
+
+    /* Active buttons */
+    .season-btn.active { background:#d4a437 !important; color:#221108 !important; }
+    .filter-btn.active { background:#d4a437 !important; color:#221108 !important; }
+
+    /* Modal & player */
+    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); z-index:1000; }
+    .modal-card { width:95%; max-width:1100px; background:linear-gradient(180deg, rgba(40,22,10,0.92), rgba(25,12,6,0.97)); border-radius:12px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.7); border:1px solid rgba(212,164,55,0.35); }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(0,0,0,0.32); border-bottom:1px solid rgba(255,255,255,0.03); }
+    .modal-title { font-size:1.125rem; font-weight:600; color:#e9cd80; }
+    .modal-close-btn { width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#fff; background:rgba(255,255,255,0.04); cursor:pointer; border:1px solid rgba(255,255,255,0.02); }
+
+    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
+    .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; background:black; display:block; }
+
+    /* Spinner */
+    .spinner { width:36px; height:36px; border-radius:999px; border:4px solid rgba(255,255,255,0.06); border-top-color:#e9cd80; animation:spin 1s linear infinite; display:none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* advanced top-right control tray */
+    .adv-tray {
+      position:absolute; top:12px; right:12px; display:flex; gap:8px; align-items:center;
+      padding:8px 10px; border-radius:999px; background: rgba(20,10,5,0.55); backdrop-filter: blur(6px);
+      border: 1px solid rgba(212,164,55,0.3); box-shadow: 0 8px 30px rgba(212,164,55,0.18); z-index:22;
+      opacity:0; transform: translateY(-6px); transition: opacity 220ms ease, transform 220ms ease;
+    }
+    .adv-tray.show { opacity:1; transform: translateY(0); }
+    .adv-btn { display:flex; align-items:center; gap:6px; color:#f6e7c5; background:transparent; border:none; padding:6px 8px; border-radius:8px; cursor:pointer; }
+    .adv-select { background:transparent; color:#f6e7c5; border:none; outline:none; padding:6px; }
+    .adv-btn:hover { background: rgba(255,255,255,0.02); }
+
+    @media (max-width:640px) {
+      .adv-tray { top:8px; right:8px; padding:6px 8px; gap:6px; }
+      .adv-select { font-size:13px; }
+    }
+
+    /* Movie cards */
+    .movie-card { background: #2b1a11; }
+    .movie-card:hover { background: #3b2216; }
+
+    footer { border-top: 1px solid #3c2614; }
+
+    /* spark canvas fix */
+    #sparkCanvasPage{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;}
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-yellow-500/20 shadow-[0_0_20px_rgba(255,200,50,0.2)]">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+
+    <!-- LOGO SECTION -->
+    <div class="flex items-center space-x-3">
+      <!-- Circular Icon Badge -->
+      <div class="w-12 h-12 bg-gradient-to-br from-yellow-600 to-red-700 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(255,150,50,0.6)]">
+        <i class="fas fa-chess-knight text-yellow-200 text-2xl"></i>
+      </div>
+
+      <!-- Logo Text -->
+      <div class="flex flex-col">
+        <h1 class="text-3xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 drop-shadow-[0_0_5px_rgba(255,120,20,0.7)]">
+          Kurukshetra
+        </h1>
+        <span class="text-xs text-gray-300 tracking-widest uppercase">
+          TV Series
+        </span>
+      </div>
+    </div>
+
+    <!-- RIGHT ACTIONS -->
+    <div class="flex items-center space-x-4">
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition shadow-inner">
+        <i class="fas fa-search text-yellow-300"></i>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input id="search-input" type="text" placeholder="Search episodes..." class="w-full bg-gray-900 border border-blue-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-blue-300"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-8 relative overflow-hidden rounded-xl h-44 md:h-64">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi906938393/1434659607842-pgv4ql-1759323720163.mp4?Expires=1763635954&Signature=IZ7nyO7~vjPZNIh3rGjydAsQVUh0BImgcTEBDIeYC8M~F~DUMPRAXl-fRA6YB9X4jdRlArDG-jgkTAuS4bZcak272V8oiA4Lu4v~3-OuI3SY5jHscKir1GZ~E0wN3CZZ90ln0a7uDstKnCB5txwJL16H89v7hpKJAWdC4lnSkQIYfXKWSxrL9hCpYnqhP6uJpcL20~qI4y83Tcd15DO~luotAKSW9NDBxL1ORzyihBNs1EGS9aqAPu998fBdzL~vHH-VVMBTzyrlcgRnsUvvRuXDuc084RefSuNESReGCBTtdseESll6mgRPwF9kJsyBLs0nh9tmKxbvVkebrJpxOQ__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="relative h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg">An epic 18-day battle unfolds through the perspectives of 18 warriors, revealing their inner struggles and ethical challenges during a war between brothers.</p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2 space-x-2">
+    <button class="season-btn active bg-blue-600 text-white px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+    <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+
+  </div>
+
+  <div class="flex flex-wrap justify-between mb-8 gap-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2">
+      <button class="filter-btn active bg-blue-500 text-white px-4 py-1 rounded-full">All</button>
+
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-blue-400 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © Kurukshetra
+</footer>
+
+<!-- Modal -->
+<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <div id="modal-title" class="modal-title"></div>
+      <button id="close-video-modal" class="modal-close-btn" aria-label="Close player"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-player">
+      <video id="modal-video" controls playsinline preload="metadata"></video>
+      <div id="buffer-spinner" class="spinner" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"></div>
+
+      <!-- Advanced control tray (top-right) -->
+      <div id="adv-tray" class="adv-tray" aria-hidden="true">
+        <button id="resume-btn" class="adv-btn" title="Resume last position"><i class="fas fa-play-circle"></i></button>
+        <button id="cast-btn" class="adv-btn" title="Cast to device"><i class="fas fa-tv"></i></button>
+        <button id="pip-btn" class="adv-btn" title="Picture-in-Picture"><i class="fas fa-window-restore"></i></button>
+        <select id="speed-select" class="adv-select" title="Playback speed">
+          <option value="0.5">0.5x</option><option value="0.75">0.75x</option>
+          <option value="1" selected>1x</option><option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option><option value="2">2x</option>
+        </select>
+        <button id="subs-btn" class="adv-btn" title="Add subtitles (.vtt)"><i class="fas fa-closed-captioning"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* -----------------------------
+   Episode list (paste your episodes)
+   ----------------------------- */
+const movies = [
+  // Season 1 (18 episodes)
+  { title: "Sanjay", video: "https://svz.bellevianetwork.sbs:443/v4/qu/yoarde/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/kUK1JQ0sfPt5WIf1EmuPQYnjP5y.jpg", description: "The death of an American seaman on a U.S. nuclear submarine during an AUKUS ceremony on Sydney Harbour is investigated in a joint effort. :contentReference[oaicite:1]{index=1}", duration: "45 min", season:1, episode:1, tags:["Crime","Naval"] },
+  { title: "Vishwaroop", video: "https://svz.nordivisnetwork.store:443/v4/xq/trqcvl/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/tVQ2BPm7jibxNhtbJOtUVPbeS7A.jpg", description: "When a Navy compliance officer is found dead in a waterhole from a snakebite, the team uncovers a deadly taipan in unexpected territory. :contentReference[oaicite:2]{index=2}", duration:"46 min", season:1, episode:2, tags:["Crime","Drama"] },
+  { title: "Bhishma", video: "https://sui.cometri.store:443/v4/m9/db8ipv/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/k2WuWwAYpbUlyJFZzum8KQJoaIF.jpg", description: "When a shark spits out an arm wearing U.S. Navy equipment, the investigation tests loyalty among former Navy divers. :contentReference[oaicite:3]{index=3}", duration:"47 min", season:1, episode:3, tags:["Naval","Crime"] },
+  { title: "Dronacharya", video: "https://sy6.xylonatech.sbs:443/v4/xq/8zmlyw/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/apKLtL26fiHTAEsMlhMEojIfirR.jpg", description: "A body in Sydney’s historic Rocks area leads the team on a ghost-hunt style chase to catch a killer. :contentReference[oaicite:4]{index=4}", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
+  { title: "Abhimanyu", video: "https://sad.bellecrest.store:443/v4/ox/6mbh5o/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/9l1KalJJJBvRm5E210tkOUCuoSf.jpg", description: "One of their own is held hostage in a dog-cafe situation while the team races to save them. :contentReference[oaicite:5]{index=5}", duration:"46 min", season:1, episode:5, tags:["Drama"] },
+  { title: "Jayadrath", video: "https://sui.seawindart.space:443/v4/ck/hdevqp/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/lKEyhpPkWsniCFZGu1M5iXhDVaA.jpg", description: "With rising Indo-Pacific tensions, the task-force gets grafted into a multinational unit and a U.S. Navy researcher is found dead in a secret bunker. :contentReference[oaicite:6]{index=6}", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
+  { title: "Arjun", video: "https://sri.fintravafinance.cyou:443/v4/xq/s1vacq/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/9fhpdPOSuIox9aYpcP4cAP4A2qP.jpg", description: "A visit to a high-tech launch site ends up with the team trapped underground with limited oxygen after a research death. :contentReference[oaicite:7]{index=7}", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
+  { title: "Ghatotkach", video: "https://sui.moriartis.store:443/v4/rw/e86kuv/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/lZwb4QFBAmjzVdzK2VSU8ijG0rV.jpg", description: "The death of an American seaman on a U.S. nuclear submarine during an AUKUS ceremony on Sydney Harbour is investigated in a joint effort. :contentReference[oaicite:1]{index=1}", duration: "45 min", season:1, episode:1, tags:["Crime","Naval"] },
+  { title: "Yudhisthir", video: "https://sri.clarvista.shop:443/v4/ox/qpuxkb/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/iu3w1TjY4r4YJ9nZL3cNzn6X720.jpg", description: "When a Navy compliance officer is found dead in a waterhole from a snakebite, the team uncovers a deadly taipan in unexpected territory. :contentReference[oaicite:2]{index=2}", duration:"46 min", season:1, episode:2, tags:["Crime","Drama"] },
+  { title: "Kripacharya", video: "https://syr.mistralstudio.shop/v4/s93/e8mp5t/cf-master.txt?v=1761290725", image: "https://image.tmdb.org/t/p/w300/axMNcBhkC4G6CqfxvvckXQ9svJV.jpg", description: "When a shark spits out an arm wearing U.S. Navy equipment, the investigation tests loyalty among former Navy divers. :contentReference[oaicite:3]{index=3}", duration:"47 min", season:1, episode:3, tags:["Naval","Crime"] },
+  { title: "Kunti", video: "https://sri.bluefusion.sbs/v4/s93/wkhx9m/cf-master.txt?v=1761290745", image: "https://image.tmdb.org/t/p/w300/gBxKRzZbLFhYH3o07KyB5FAR8MU.jpg", description: "A body in Sydney’s historic Rocks area leads the team on a ghost-hunt style chase to catch a killer. :contentReference[oaicite:4]{index=4}", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
+  { title: "Dushasan", video: "https://sui.greenhavenstore.store/v4/s93/ie6qr9/cf-master.txt?v=1761292323", image: "https://image.tmdb.org/t/p/w300/hXSUCX0m5mfWTJ8XQstMoAIDdR1.jpg", description: "One of their own is held hostage in a dog-cafe situation while the team races to save them. :contentReference[oaicite:5]{index=5}", duration:"46 min", season:1, episode:5, tags:["Drama"] },
+  { title: "Karn", video: "https://snq.velonovaenergy.sbs/v4/vz/afwbmb/cf-master.txt?v=1761290790", image: "https://image.tmdb.org/t/p/w300/A861cK5n1u9aeXfnyk68XkbfsEo.jpg", description: "With rising Indo-Pacific tensions, the task-force gets grafted into a multinational unit and a U.S. Navy researcher is found dead in a secret bunker. :contentReference[oaicite:6]{index=6}", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
+  { title: "Duryodhan", video: "https://shh.halcyonbloom.store/v4/vz/uyalee/cf-master.txt?v=1761290781", image: "https://image.tmdb.org/t/p/w300/wf9oGA9NHOQ6S7ehevpuL9xwLUx.jpg", description: "A visit to a high-tech launch site ends up with the team trapped underground with limited oxygen after a research death. :contentReference[oaicite:7]{index=7}", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
+  { title: "Bheem", video: "https://sui.novacrestnetwork.online/v4/mik/qpyie5/cf-master.txt?v=1761293305", image: "https://image.tmdb.org/t/p/w300/pOtR0oV2cLyFwXS6UV1RyYjWhLV.jpg", description: "A body in Sydney’s historic Rocks area leads the team on a ghost-hunt style chase to catch a killer. :contentReference[oaicite:4]{index=4}", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
+  { title: "Ashwatthama", video: "https://sui.corvani.cyou/v4/3vi/afwbmy/cf-master.txt?v=1761291312", image: "https://image.tmdb.org/t/p/w300/hnuMALSO8Nq8LaPujwGMvVMXWvp.jpg", description: "One of their own is held hostage in a dog-cafe situation while the team races to save them. :contentReference[oaicite:5]{index=5}", duration:"46 min", season:1, episode:5, tags:["Drama"] },
+  { title: "Stree Parv", video: "https://spc.eleviora.space/v4/x68/ie6qut/cf-master.txt?v=1761294734", image: "https://image.tmdb.org/t/p/w300/cnsFrdc0Or59I7UKkF2PjFA3k5W.jpg", description: "With rising Indo-Pacific tensions, the task-force gets grafted into a multinational unit and a U.S. Navy researcher is found dead in a secret bunker. :contentReference[oaicite:6]{index=6}", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
+  { title: "Krishn", video: "https://sy6.clarynova.cyou/v4/ck/5ajd65/cf-master.txt?v=1761291318", image: "https://image.tmdb.org/t/p/w300/79ymMcnsQvMl9ETTnTEiWZIWhAC.jpg", description: "A visit to a high-tech launch site ends up with the team trapped underground with limited oxygen after a research death. :contentReference[oaicite:7]{index=7}", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
+
+ 
+];
+
+
+const container = document.getElementById('movies');
+const videoModal = document.getElementById('video-modal');
+const modalTitle = document.getElementById('modal-title');
+let currentHls = null;
+
+function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
+
+function isHls(u){return u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u);}
+function isMP4(u){return /\.mp4($|\?)/i.test(u);}
+function isYouTube(u){return u.includes('youtu');}
+
+function playInModal(title, url) {
+  if (currentHls) {
+    try { currentHls.destroy(); } catch (e) {}
+    currentHls = null;
+  }
+  const playerContainer = document.querySelector('.modal-player');
+  const modalVideo = document.getElementById('modal-video');
+  modalTitle.textContent = title || '';
+
+  // Streamtape
+  if (url.includes('streamtape.com')) {
+    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // YouTube
+  if (isYouTube(url)) {
+    playerContainer.innerHTML = `
+      <iframe src="${url}?autoplay=1&modestbranding=1&rel=0"
+              width="100%" height="100%"
+              allowfullscreen
+              allow="autoplay; encrypted-media"
+              frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // HLS
+  if (isHls(url)) {
+    if (Hls.isSupported()) {
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => { showModal(); modalVideo.play().catch(() => {}); });
+    } else {
+      modalVideo.src = url;
+      showModal();
+      modalVideo.play().catch(() => {});
+    }
+    return;
+  }
+
+  // MP4
+  if (isMP4(url)) {
+    modalVideo.src = url;
+    showModal();
+    modalVideo.play().catch(() => {});
+    return;
+  }
+
+  // Redirect to player.html for other formats
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+function closePlayer(){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer=document.querySelector('.modal-player');
+  playerContainer.innerHTML=`<video id="modal-video" class="w-full h-full" controls playsinline></video>`;
+  hideModal();
+}
+
+document.getElementById('close-video-modal').addEventListener('click',closePlayer);
+videoModal.addEventListener('click',e=>{if(e.target===videoModal)closePlayer();});
+
+function renderMovies(list){
+  container.innerHTML='';
+  list.forEach((movie,i)=>{
+    const div=document.createElement('div');
+    div.className=`movie-card animate-fade-in rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+    div.innerHTML=`
+      <div class="relative overflow-hidden rounded-t-lg">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
+            <i class="fas fa-play mr-2"></i> Watch Now
+          </button>
+        </div>
+      </div>
+      <div class="p-4">
+        <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
+        <div class="flex justify-between items-center mt-2 text-sm text-gray-400"><span>${movie.year||''}</span></div>
+      </div>`;
+    div.addEventListener('click',()=>playInModal(movie.title,movie.video));
+    container.appendChild(div);
+  });
+}
+renderMovies(movies);
+</script>
+
+<canvas id="sparkCanvasPage"></canvas>
+<style>
+#sparkCanvasPage{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;}
+</style>
+<script>
+const canvas=document.getElementById('sparkCanvasPage');const ctx=canvas.getContext('2d');const sparks=[];
+function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}window.addEventListener('resize',resizeCanvas);resizeCanvas();
+const easing=t=>t*(2-t);const dur=300,count=6,size=8,radius=12,color='#00f2ff';
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const now=performance.now();
+for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];const el=now-s.t;if(el>=dur){sparks.splice(i,1);continue;}
+const p=el/dur;const e=easing(p);const d=e*radius;const l=size*(1-e);const x1=s.x+d*Math.cos(s.a),y1=s.y+d*Math.sin(s.a);
+const x2=s.x+(d+l)*Math.cos(s.a),y2=s.y+(d+l)*Math.sin(s.a);ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+requestAnimationFrame(draw);}requestAnimationFrame(draw);
+document.addEventListener('click',e=>{for(let i=0;i<count;i++){sparks.push({x:e.clientX,y:e.clientY,a:(2*Math.PI*i)/count,t:performance.now()});}});
+</script>
+</body>
+</html>
