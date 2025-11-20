@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Ba***ds of Bollywood</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <script async src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
+  <style>
+    body { background: #0b0c0e; color: #eaeaea; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    header, footer { background: #121517; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #0077cc; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0099ff; }
+
+    .fade-in { animation: fadeIn 0.45s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: ''; position: absolute; inset: 0; border-radius: 12px;
+      box-shadow: 0 0 12px rgba(34,197,94,0.02), 0 0 18px rgba(59,130,246,0.06);
+      transition: box-shadow 0.25s ease; pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 20px rgba(34,197,94,0.03), 0 0 36px rgba(59,130,246,0.12); }
+
+    .gradient-text { background: linear-gradient(90deg, #00bfff, #0077cc); -webkit-background-clip: text; color: transparent; }
+
+    .showcase-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .showcase-overlay { position:absolute; inset:0; background:linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0) 100%); }
+
+    .season-btn.active { background:#0077cc !important; color:#fff !important; }
+    .filter-btn.active { background:#0077cc !important; color:#fff !important; }
+
+    /* Modal & player */
+    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); z-index:1000; }
+    .modal-card { width:95%; max-width:1100px; background:linear-gradient(180deg, rgba(17,24,39,0.9), rgba(17,24,39,0.95)); border-radius:12px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.7); border:1px solid rgba(0,119,204,0.28); }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(0,0,0,0.32); border-bottom:1px solid rgba(255,255,255,0.06); }
+    .modal-title { font-size:1.125rem; font-weight:600; color:#7dd3fc; }
+    .modal-close-btn { width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#fff; background:rgba(255,255,255,0.04); cursor:pointer; border:1px solid rgba(255,255,255,0.02); }
+
+    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
+    .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; background:black; display:block; }
+
+    .spinner { width:36px; height:36px; border-radius:999px; border:4px solid rgba(255,255,255,0.06); border-top-color:#7dd3fc; animation:spin 1s linear infinite; display:none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* advanced top-right control tray */
+    .adv-tray {
+      position:absolute; top:12px; right:12px; display:flex; gap:8px; align-items:center;
+      padding:8px 10px; border-radius:999px; background: rgba(8,12,20,0.45); backdrop-filter: blur(6px);
+      border: 1px solid rgba(59,130,246,0.18); box-shadow: 0 8px 30px rgba(59,130,246,0.06); z-index:22;
+      opacity:0; transform: translateY(-6px); transition: opacity 220ms ease, transform 220ms ease;
+    }
+    .adv-tray.show { opacity:1; transform: translateY(0); }
+    .adv-btn { display:flex; align-items:center; gap:6px; color:#dbeafe; background:transparent; border:none; padding:6px 8px; border-radius:8px; cursor:pointer; }
+    .adv-select { background:transparent; color:#dbeafe; border:none; outline:none; padding:6px; }
+    .adv-btn:hover { background: rgba(255,255,255,0.02); }
+
+    @media (max-width:640px) {
+      .adv-tray { top:8px; right:8px; padding:6px 8px; gap:6px; }
+      .adv-select { font-size:13px; }
+    }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-blue-600/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+        <i class="fas fa-user-astronaut text-white text-xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold gradient-text">The Ba***ds of Bollywood</h1>
+    </div>
+    <div class="flex items-center space-x-4">
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-search text-blue-300"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input id="search-input" type="text" placeholder="Search episodes..." class="w-full bg-gray-900 border border-blue-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-blue-300"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-8 relative overflow-hidden rounded-xl h-44 md:h-64">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi655673369/1434659607842-pgv4ql-1757350449655.mp4?Expires=1763635359&Signature=FyXfv2nGvyuv5KxLnrIkoVFhzjXV4314XizPqtNWrE03S5QBXnzot13rpGJ3dbTebyULZLOexXlkFUk8NwHboXn3GkE4O5BS25qJcAdDZNJBsSA1WQV0wA9Hvjx6pSoCGCYBo5EgUlqvBbKem49H-F6YdMKuyx3uFGhdpeKfnQtqASXOCo2qsFhOd3bdagWSJ8bm5scty-oc1TitFYBZoc7odSXmQctonZ0BbHVT65SZpsswf-YIAjoqlA64giYOgZBl-x6aH7SnNSnzQqIYsdEB0Vl6KNIkFfRjv~NuAX2e9RwalNZE4ho5WfH7viUNvKiuzWj1WRhblty-szUSPg__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="relative h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg"></p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2 space-x-2">
+    <button class="season-btn active bg-blue-600 text-white px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+    <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+
+  </div>
+
+  <div class="flex flex-wrap justify-between mb-8 gap-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2">
+      <button class="filter-btn active bg-blue-500 text-white px-4 py-1 rounded-full">All</button>
+
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-blue-400 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © The Ba***ds of Bollywood
+</footer>
+
+<!-- Modal -->
+<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <div id="modal-title" class="modal-title"></div>
+      <button id="close-video-modal" class="modal-close-btn" aria-label="Close player"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-player">
+      <video id="modal-video" controls playsinline preload="metadata"></video>
+      <div id="buffer-spinner" class="spinner" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"></div>
+
+      <!-- Advanced control tray (top-right) -->
+      <div id="adv-tray" class="adv-tray" aria-hidden="true">
+        <button id="resume-btn" class="adv-btn" title="Resume last position"><i class="fas fa-play-circle"></i></button>
+        <button id="cast-btn" class="adv-btn" title="Cast to device"><i class="fas fa-tv"></i></button>
+        <button id="pip-btn" class="adv-btn" title="Picture-in-Picture"><i class="fas fa-window-restore"></i></button>
+        <select id="speed-select" class="adv-select" title="Playback speed">
+          <option value="0.5">0.5x</option><option value="0.75">0.75x</option>
+          <option value="1" selected>1x</option><option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option><option value="2">2x</option>
+        </select>
+        <button id="subs-btn" class="adv-btn" title="Add subtitles (.vtt)"><i class="fas fa-closed-captioning"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* -----------------------------
+   Episode list (paste your episodes)
+   ----------------------------- */
+const movies = [
+  // Season 1 (8 episodes)
+  { title: "Meet the Ba***ds", video: "https://sad.novacrestnetwork.online/v4/luy/yrzaj/cf-master.txt?v=1758185675", image: "https://image.tmdb.org/t/p/w300/aloOSABHsRzN3mxCIuO9GKsWYPm.jpg", description: "The death of an American seaman on a U.S. nuclear submarine during an AUKUS ceremony on Sydney Harbour is investigated in a joint effort. :contentReference[oaicite:1]{index=1}", duration: "45 min", season:1, episode:1, tags:["Crime","Naval"] },
+  { title: "Movie Mafia", video: "https://svz.seawindart.space/v4/luy/befbl/cf-master.txt?v=1758184228", image: "https://image.tmdb.org/t/p/w300/qVFoUSGA03kBf5c1gxP1MAGrupA.jpg", description: "When a Navy compliance officer is found dead in a waterhole from a snakebite, the team uncovers a deadly taipan in unexpected territory. :contentReference[oaicite:2]{index=2}", duration:"46 min", season:1, episode:2, tags:["Crime","Drama"] },
+  { title: "Barbaad Mohabbat", video: "https://sad.bellevianetwork.sbs/v4/luy/3gl3x/cf-master.txt?v=1758184169", image: "https://image.tmdb.org/t/p/w300/a252PjPa59am45Jwyrln7VBxG1M.jpg", description: "When a shark spits out an arm wearing U.S. Navy equipment, the investigation tests loyalty among former Navy divers. :contentReference[oaicite:3]{index=3}", duration:"47 min", season:1, episode:3, tags:["Naval","Crime"] },
+  { title: "Bullshit Party", video: "https://sui.glowhavenmedia.cyou/v4/luy/o5goa/cf-master.txt?v=1758184244", image: "https://image.tmdb.org/t/p/w300/8DZuFjJ0Z6vdHrT6N88rWn1yWwL.jpg", description: "A body in Sydney’s historic Rocks area leads the team on a ghost-hunt style chase to catch a killer. :contentReference[oaicite:4]{index=4}", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
+  { title: "My Hero", video: "https://sui.fortimax.shop/v4/9ow/nucff/cf-master.txt?v=1758185913", image: "https://image.tmdb.org/t/p/w300/7dM2SDlutx347U7Kw15QDQhhRHS.jpg", description: "One of their own is held hostage in a dog-cafe situation while the team races to save them. :contentReference[oaicite:5]{index=5}", duration:"46 min", season:1, episode:5, tags:["Drama"] },
+  { title: "The Filmfirst Awards", video: "https://svz.nordivisnetwork.store/v4/rqz/p3ban/cf-master.txt?v=1758185618", image: "https://image.tmdb.org/t/p/w300/c31FCsxcY1zK4v1a3U7r810wJFL.jpg", description: "With rising Indo-Pacific tensions, the task-force gets grafted into a multinational unit and a U.S. Navy researcher is found dead in a secret bunker. :contentReference[oaicite:6]{index=6}", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
+  { title: "Picture Ka Title Hoga", video: "https://svz.brionix.cyou/v4/is9/r965z/cf-master.txt?v=1758185161", image: "https://image.tmdb.org/t/p/w300/foi1VeV93ZCLjnizv5BPmEeMXsR.jpg", description: "A visit to a high-tech launch site ends up with the team trapped underground with limited oxygen after a research death. :contentReference[oaicite:7]{index=7}", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
+
+ 
+];
+
+
+const container = document.getElementById('movies');
+const videoModal = document.getElementById('video-modal');
+const modalTitle = document.getElementById('modal-title');
+let currentHls = null;
+
+function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
+
+function isHls(u){return u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u);}
+function isMP4(u){return /\.mp4($|\?)/i.test(u);}
+function isYouTube(u){return u.includes('youtu');}
+
+function playInModal(title, url) {
+  if (currentHls) {
+    try { currentHls.destroy(); } catch (e) {}
+    currentHls = null;
+  }
+  const playerContainer = document.querySelector('.modal-player');
+  const modalVideo = document.getElementById('modal-video');
+  modalTitle.textContent = title || '';
+
+  // Streamtape
+  if (url.includes('streamtape.com')) {
+    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // YouTube
+  if (isYouTube(url)) {
+    playerContainer.innerHTML = `
+      <iframe src="${url}?autoplay=1&modestbranding=1&rel=0"
+              width="100%" height="100%"
+              allowfullscreen
+              allow="autoplay; encrypted-media"
+              frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // HLS
+  if (isHls(url)) {
+    if (Hls.isSupported()) {
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => { showModal(); modalVideo.play().catch(() => {}); });
+    } else {
+      modalVideo.src = url;
+      showModal();
+      modalVideo.play().catch(() => {});
+    }
+    return;
+  }
+
+  // MP4
+  if (isMP4(url)) {
+    modalVideo.src = url;
+    showModal();
+    modalVideo.play().catch(() => {});
+    return;
+  }
+
+  // Redirect to player.html for other formats
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+function closePlayer(){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer=document.querySelector('.modal-player');
+  playerContainer.innerHTML=`<video id="modal-video" class="w-full h-full" controls playsinline></video>`;
+  hideModal();
+}
+
+document.getElementById('close-video-modal').addEventListener('click',closePlayer);
+videoModal.addEventListener('click',e=>{if(e.target===videoModal)closePlayer();});
+
+function renderMovies(list){
+  container.innerHTML='';
+  list.forEach((movie,i)=>{
+    const div=document.createElement('div');
+    div.className=`movie-card animate-fade-in rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+    div.innerHTML=`
+      <div class="relative overflow-hidden rounded-t-lg">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
+            <i class="fas fa-play mr-2"></i> Watch Now
+          </button>
+        </div>
+      </div>
+      <div class="p-4">
+        <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
+        <div class="flex justify-between items-center mt-2 text-sm text-gray-400"><span>${movie.year||''}</span></div>
+      </div>`;
+    div.addEventListener('click',()=>playInModal(movie.title,movie.video));
+    container.appendChild(div);
+  });
+}
+renderMovies(movies);
+</script>
+
+<canvas id="sparkCanvasPage"></canvas>
+<style>
+#sparkCanvasPage{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;}
+</style>
+<script>
+const canvas=document.getElementById('sparkCanvasPage');const ctx=canvas.getContext('2d');const sparks=[];
+function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}window.addEventListener('resize',resizeCanvas);resizeCanvas();
+const easing=t=>t*(2-t);const dur=300,count=6,size=8,radius=12,color='#00f2ff';
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const now=performance.now();
+for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];const el=now-s.t;if(el>=dur){sparks.splice(i,1);continue;}
+const p=el/dur;const e=easing(p);const d=e*radius;const l=size*(1-e);const x1=s.x+d*Math.cos(s.a),y1=s.y+d*Math.sin(s.a);
+const x2=s.x+(d+l)*Math.cos(s.a),y2=s.y+(d+l)*Math.sin(s.a);ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+requestAnimationFrame(draw);}requestAnimationFrame(draw);
+document.addEventListener('click',e=>{for(let i=0;i<count;i++){sparks.push({x:e.clientX,y:e.clientY,a:(2*Math.PI*i)/count,t:performance.now()});}});
+</script>
+</body>
+</html>
