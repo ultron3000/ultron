@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Special Ops: Lioness</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Stream all episodes of WondLa Seasons 1 & 2, the breathtaking Apple TV+ animated series based on Tony DiTerlizzi's books.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom, #000000, #1a1a2e);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .episode-card:hover .play-icon {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    .gradient-text {
+      background: linear-gradient(90deg, #ff2d75 0%, #7e5bff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .modal-enter {
+      animation: modalEnter 0.3s ease-out forwards;
+    }
+    @keyframes modalEnter {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .showcase-header {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      max-height: 1200px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .showcase-video {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; object-fit: cover; z-index: 0;
+    }
+    .showcase-overlay {
+      position: relative; z-index: 1;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
+      width: 100%; height: 100%; display: flex; flex-direction: column;
+    }
+    .apple-logo {
+      background: linear-gradient(to right, #A2AAAD, #FAFBFB);
+      -webkit-background-clip: text;
+      background-clip: text; color: transparent; font-weight: 600;
+    }
+    .mobile-menu { transform: translateX(100%); transition: transform 0.3s ease-out; }
+    .mobile-menu.open { transform: translateX(0); }
+    .scroll-down-indicator {
+      position: absolute; bottom: 30px; left: 50%;
+      transform: translateX(-50%); animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%,20%,50%,80%,100% { transform: translateY(0) translateX(-50%); }
+      40% { transform: translateY(-20px) translateX(-50%); }
+      60% { transform: translateY(-10px) translateX(-50%); }
+    }
+    @media (max-width: 768px) {
+      .showcase-header { min-height: 100vh; height: auto; }
+      .showcase-content { padding-top: 30vh; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Showcase Header -->
+<div class="relative w-full overflow-hidden rounded-lg shadow-lg">
+  <!-- Background Video -->
+  <video 
+    class="w-full h-[60vh] sm:h-[70vh] object-cover" 
+    autoplay 
+    muted 
+    loop 
+    playsinline
+  >
+    <source src="https://imdb-video.media-imdb.com/vi1599587865/1434659607842-pgv4ql-1726755692704.mp4?Expires=1762177810&Signature=GCuIjxYYMpsIqt5a6G0VxPPyy7H7-Om~hK7izFttXgT5TmD3pHEe~RsYEUGFjaBcBEM2QsuDlmZMBEmHxnoj1WmBRzn7CBM97KEcTtwsdtGZRXe9XoXFDUDkJvALthLquftIH2lcpI~2VF3Cpe-i65aHiCuqIv0oZ-B0QgpbwOT530V0riyl6q4sLVmMsKYQzkAk-EHv3aAV9O52DJssv69hcyl88pjIzK2BqNQm7BDJUPcxiVr8QmQgb7dMTPZFsBfWYxg2Q5GQ2m7OvqFmRhSPJSDoKdIFs72XGreWdSdPMMdNwbJzYV5mfozEAggW9QTPxxE--xNbg37Mg6Rkcg__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+  </video>
+
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-b from-black/80 to-transparent py-3 px-4 sm:px-6">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#ff2d75] to-[#7e5bff] rounded-full flex items-center justify-center">
+            <i class="fas fa-play text-white text-sm sm:text-base"></i>
+          </div>
+          <h1 class="text-lg sm:text-xl font-bold text-white">Lioness</h1>
+        </div>
+        <button id="open-menu" class="md:hidden text-xl sm:text-2xl text-white">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="flex-1 flex items-end sm:items-center px-4 sm:px-6 pb-6 sm:pb-10">
+      <div class="max-w-2xl sm:max-w-3xl">
+        <h1 class="text-3xl sm:text-5xl font-bold mb-3 sm:mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#ff2d75] to-[#7e5bff]">
+          Special Ops: Lioness
+        </h1>
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span class="bg-gradient-to-r from-[#ff2d75] to-[#7e5bff] text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
+            Seasons 1 & 2
+          </span>
+          <span class="text-gray-300 text-xs sm:text-sm">2024</span>
+          <span class="hidden sm:inline text-gray-400">•</span>
+          <span class="text-gray-300 text-xs sm:text-sm">16 Episodes</span>
+        </div>
+        <p class="text-sm sm:text-lg text-gray-300 leading-relaxed">
+          CIA operative Joe attempts to balance her personal and professional lives as the tip of the spear in the agency's war on terror.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Episodes Section -->
+<main class="container mx-auto px-4 py-12 sm:py-16">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+    <h2 class="text-2xl sm:text-3xl font-bold flex items-center">
+      <span class="text-purple-300 text-lg sm:text-xl">Seasons 1 & 2</span>
+    </h2>
+
+    <!-- ✅ Season Selector Buttons -->
+    <div class="flex space-x-2">
+      <button id="season1Btn" class="bg-gradient-to-r from-[#ff2d75] to-[#7e5bff] text-white px-4 py-2 rounded-full text-sm font-semibold">Season 1</button>
+      <button id="season2Btn" class="bg-gray-700 text-white px-4 py-2 rounded-full text-sm font-semibold">Season 2</button>
+    </div>
+  </div>
+
+  <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+</main>
+
+<!-- Modal -->
+<div id="playback-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-90 p-4">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden modal-enter">
+    <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:text-purple-300 text-2xl transition">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="aspect-w-16 aspect-h-9">
+      <video id="modal-video" class="w-full" controls></video>
+    </div>
+    <div class="p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start mb-4 gap-4">
+        <div>
+          <h3 id="modal-title" class="text-xl sm:text-2xl font-bold mb-1"></h3>
+          <div class="text-gray-400 text-xs sm:text-sm">
+            <span>S<span id="season-num">1</span> • E<span id="episode-num"></span></span> • 52 min • <span class="text-purple-300">★ 9.1/10</span>
+          </div>
+        </div>
+      </div>
+      <p id="modal-description" class="text-gray-300 mb-4 sm:mb-6 text-sm sm:text-base"></p>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-gray-900 py-8 sm:py-12">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center space-x-2 mb-4">
+      <div class="w-8 h-8 bg-gradient-to-r from-[#ff2d75] to-[#7e5bff] rounded-full flex items-center justify-center">
+        <i class="fas fa-play text-white text-xs"></i>
+      </div>
+      <h1 class="text-lg font-bold apple-logo">Special Ops: Lioness</h1>
+    </div>
+    <p class="text-gray-400 text-xs sm:text-sm">© 2023 Paramount+ Original Series</p>
+  </div>
+</footer>
+
+<!-- ✅ JS Section -->
+<script>
+    const episodes = [
+      // Season 1
+      { 
+        title: "Sacrificial Soldiers", 
+        season: 1,
+        episode: 1,
+        year: 2024,
+        video: "https://queenselti.me/stream_66709fea8aa76/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/b6/5a/b65a3700f99462eca3fcae4e0aa280eb/b65a3700f99462eca3fcae4e0aa280eb.jpg",
+        runtime: "52 min",
+        rating: "9.0/10",
+          description: "Cruz Manuelos joins the Lioness program under Joe's guidance for her first undercover mission.", 
+      },
+      { 
+        title: "The Beating", 
+        season: 1,
+        episode: 2,
+        year: 2024,
+        video: "https://queenselti.me/stream_66709fa740128/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/e9/17/e917950ea5af07537224cb0d9718cd70/e917950ea5af07537224cb0d9718cd70.jpg",
+        runtime: "52 min",
+        rating: "8.9/10",
+          description: "The team works to identify their new target as Cruz struggles with the demands of the program.", 
+      },
+      { 
+        title: "Bruise Like a Fist", 
+        season: 1,
+        episode: 3,
+        year: 2024,
+        video: "https://queenselti.me/stream_66709fc0ebc27/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/ac/a9/aca9dfad9d8d9676281762755579b7be/aca9dfad9d8d9676281762755579b7be.jpg",
+        runtime: "52 min",
+        rating: "9.1/10",
+          description: "Cruz goes deeper undercover while Joe faces personal challenges at home.", 
+      },
+      { 
+        title: "The Choice of Failure", 
+        season: 1,
+        episode: 4,
+        year: 2024,
+        video: "https://queenselti.me/stream_6670a05817482/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/93/8c/938c3ed731a51e61d80eee50736ab08a/938c3ed731a51e61d80eee50736ab08a.jpg",
+        runtime: "52 min",
+        rating: "9.3/10",
+          description: "Tensions rise as the mission progresses and relationships become more complicated.", 
+      },
+      { 
+        title: "Truth Is the Shrewdest Lie", 
+        season: 1,
+        episode: 5,
+        year: 2024,
+        video: "https://queenselti.me/stream_66709ffdb9730/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/b1/66/b1664faaf4d8dfdf971384dc030e76fa/b1664faaf4d8dfdf971384dc030e76fa.jpg",
+        runtime: "52 min",
+        rating: "9.2/10",
+          description: "The team faces new challenges as the operation takes an unexpected turn.", 
+      },
+      { 
+        title: "The Lie Is the Truth", 
+        season: 1,
+        episode: 6,
+        year: 2024,
+        video: "https://queenselti.me/stream_6670a16d5f99b/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/54/52/545210466cb13b2832b835c1ab1dc8a6/545210466cb13b2832b835c1ab1dc8a6.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+        description: "With a possible human civilization finally in sight, Eva and her friends face their most dangerous mission yet.",
+      },
+      { 
+        title: "Wish the Fight Away", 
+        season: 1,
+        episode: 7,
+        year: 2024,
+        video: "https://queenselti.me/stream_6670a09cd4441/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/38/15/3815904b80c875423449b0063d88164c/3815904b80c875423449b0063d88164c.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+          description: "Loyalties are tested as the operation reaches a critical point.", 
+      },
+      { 
+        title: "Gone Is the Illusion of Order", 
+        season: 1,
+        episode: 8,
+        year: 2024,
+        video: "https://queenselti.me/stream_6670a11d5ddac/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/4b/04/4b04977db68e4df7e320b19e0e6a9dc8/4b04977db68e4df7e320b19e0e6a9dc8.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+          description: "The stakes escalate as the team prepares for the final phase of the operation.", 
+      },
+      // Season 2
+      { 
+        title: "Beware the Old Soldier", 
+        season: 2,
+        episode: 1,
+        year: 2024,
+        video: "https://queenselti.me/stream_6748d7252eecd/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/12/3d/123d5ecfa139860c69883a00c7c4d2a5/123d5ecfa139860c69883a00c7c4d2a5.jpg",
+        runtime: "52 min",
+        rating: "9.1/10",
+          description: "The explosive season finale where all secrets are revealed and sacrifices made.", 
+      },
+      { 
+        title: "I Love My Country", 
+        season: 2,
+        episode: 2,
+        year: 2024,
+        video: "https://queenselti.me/stream_672fa87ddfa55/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/e7/f6/e7f6c479ca7367da6214086d6e2b2490/e7f6c479ca7367da6214086d6e2b2490.jpg",
+        runtime: "52 min",
+        rating: "9.0/10",
+          description: "The Lioness team returns with a new mission and new challenges to overcome.", 
+      },
+      { 
+        title: "Along Came a Spider", 
+        season: 2,
+        episode: 3,
+        year: 2024,
+        video: "https://queenselti.me/stream_6748d7271167e/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/8f/7d/8f7db02e88f345897d4026c6f13931b9/8f7db02e88f345897d4026c6f13931b9.jpg",
+        runtime: "52 min",
+        rating: "9.2/10",
+          description: "A mysterious figure from Joe's past threatens the entire operation.", 
+      },
+      { 
+        title: "Five Hundred Children", 
+        season: 2,
+        episode: 4,
+        year: 2024,
+        video: "https://queenselti.me/stream_6748dd5591c7e/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/dd/e1/dde18fdad79a426e0fbf3d55fbc47f59/dde18fdad79a426e0fbf3d55fbc47f59.jpg",
+        runtime: "52 min",
+        rating: "9.3/10",
+          description: "The mission takes an emotional turn when innocent lives are put in danger.", 
+      },
+      { 
+        title: "Shatter the Moon", 
+        season: 2,
+        episode: 5,
+        year: 2024,
+        video: "https://queenselti.me/stream_6748dd5603cf5/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/9d/4b/9d4be54d546cf158fdd335471d3851d2/9d4be54d546cf158fdd335471d3851d2.jpg",
+        runtime: "52 min",
+        rating: "9.4/10",
+          description: "Plans go awry when a key team member's cover is nearly blown.", 
+      },
+      { 
+        title: "2381", 
+        season: 2,
+        episode: 6,
+        year: 2024,
+        video: "https://queenselti.me/stream_6748de44c989e/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/89/56/8956e67bd4fda019095657e8f531c27e/8956e67bd4fda019095657e8f531c27e.jpg",
+        runtime: "52 min",
+        rating: "9.6/10",
+          description: "A shocking betrayal puts the entire Lioness program at risk.", 
+      },
+      { 
+        title: "The Devil Has Aces", 
+        season: 2,
+        episode: 7,
+        year: 2024,
+        video: "https://queenselti.me/stream_6751e387bb934/uwu.m3u8",
+        image: "https://f.woowoowoowoo.net/resize/300x200/bb/c3/bbc3a6ea1d28b368d8155ac26708ff43/bbc3a6ea1d28b368d8155ac26708ff43.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+          description: "With time running out, the team takes desperate measures to complete their mission.", 
+      },
+      { 
+        title: "The Compass Points Home", 
+        season: 2,
+        episode: 8,
+        year: 2024,
+        video: "https://queenselti.me/stream_675f02a031274/uwu.m3u8",
+        image: "https://resizing.flixster.com/4HnNwmDcl6IPSvrEZRgJfeB3nis=/270x160/v2/https://statcdn.fandango.com/MPX/image/NBCU_Fandango/89/886/thumb_2F508CE6-EF23-49C3-8D79-00F619D189EC.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+          description: "The explosive season finale with consequences that will change the team forever.", 
+      },
+    ];
+
+const container = document.getElementById('episodes');
+function isStream(url) {
+  return url.includes('.m3u8') || url.includes('.txt');
+}
+
+/************** RENDER EPISODES BY SEASON **************/
+function renderEpisodes(season) {
+  container.innerHTML = "";
+  const filtered = episodes.filter(e => e.season === season);
+
+  filtered.forEach((episode) => {
+    const card = document.createElement('div');
+    card.className = 'episode-card cursor-pointer bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 relative';
+    card.innerHTML = `
+      <div class="relative">
+        <img src="${episode.image}" class="w-full h-48 md:h-56 object-cover">
+        <div class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">${episode.runtime}</div>
+        <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">S${episode.season}E${episode.episode}</div>
+      </div>
+      <div class="p-4">
+        <div class="flex justify-between items-start mb-1">
+          <h2 class="text-lg font-semibold">${episode.title}</h2>
+          <span class="text-purple-300 text-sm">${episode.rating}</span>
+        </div>
+        <p class="text-sm text-gray-400">Season ${episode.season} • Episode ${episode.episode}</p>
+      </div>
+    `;
+    
+    card.onclick = () => {
+      if (isStream(episode.video)) {
+        window.location.href = `player.html?title=${encodeURIComponent(episode.title)}&video=${encodeURIComponent(episode.video)}&index=${episode.episode}`;
+      }
+    };
+
+    container.appendChild(card);
+  });
+}
+
+/************** DEFAULT LOAD SEASON 1 **************/
+renderEpisodes(1);
+
+/************** BUTTON LOGIC **************/
+document.getElementById("season1Btn").onclick = () => {
+  season1Btn.className = "bg-gradient-to-r from-[#ff2d75] to-[#7e5bff] text-white px-4 py-2 rounded-full text-sm font-semibold";
+  season2Btn.className = "bg-gray-700 text-white px-4 py-2 rounded-full text-sm font-semibold";
+  renderEpisodes(1);
+};
+
+document.getElementById("season2Btn").onclick = () => {
+  season2Btn.className = "bg-gradient-to-r from-[#ff2d75] to-[#7e5bff] text-white px-4 py-2 rounded-full text-sm font-semibold";
+  season1Btn.className = "bg-gray-700 text-white px-4 py-2 rounded-full text-sm font-semibold";
+  renderEpisodes(2);
+};
+</script>
+
+</body>
+</html>
