@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tom Clancy's Jack Ryan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ffcc00;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ffdd33;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(255, 204, 0, 0.7); }
+    
+    .gradient-text {
+      background: linear-gradient(90deg, #ffcc00, #ff9900);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    
+    .showcase-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    
+    .showcase-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+      z-index: 1;
+    }
+    .showcase-content { position: relative; z-index: 2; }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+    }
+
+    .video-container iframe,
+    .video-container video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+        <i class="fas fa-shield-alt text-black text-xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold gradient-text">Tom Clancy's Jack Ryan</h1>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-moon text-yellow-500"></i>
+      </button>
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-search text-yellow-500"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input type="text" placeholder="Search episodes..." 
+             class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-12 relative overflow-hidden rounded-xl h-64 md:h-96">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi3701589785/1434659607842-pgv4ql-1688069661056.mp4?Expires=1762872112&Signature=ufgTypDhJg6iB4uFCtBegJJlobK1oklVuCYi3jQg1bIcm1clXgipILbe-LuXossRKjXcNY6jsgWvk7yU1qAhyU1DT0-HWYsToMIcuMAvgJT8k~poEkc~Kw2BjAtLBWGtyQWVtLD8yCy1Tgaxa97Z0VsX-gkSazdvHS~UtIRrBdlXY3NZEcTnSj4Q25hHUrVn~7fjRWfN6bMFH8FYgRPASH2EqX8aA4hOb87Sm9yfRa8WSJdvPVa9Crff6vT9HnsYH8bOwo96pB--D4l9-U9O36n29hM~s1YsoZT1mFsj4Du0sb6nmPcspu~jxv7DUsW09ExWcwXeqBxBjzJWV6PZqA__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="showcase-content h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg">Up-and-coming CIA analyst, Jack Ryan, is thrust into dangerous field assignments.</p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2">
+    <div class="flex space-x-2">
+      <button class="season-btn active bg-yellow-600 text-black px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="2">Season 2</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="3">Season 3</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="4">Season 4</button>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap justify-between mb-8 gap-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2">
+      <button class="filter-btn active bg-yellow-600 text-black px-4 py-1 rounded-full">All</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Action</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Drama</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Thriller</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Spy</button>
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-yellow-500 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © Tom Clancy's Jack Ryan (Fan Listing)
+</footer>
+
+<!-- Playback Modal -->
+<div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl">&times;</button>
+    <div class="video-container">
+      <video id="modal-video" class="w-full" controls></video>
+    </div>
+    <div class="p-6">
+      <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
+      <div id="season-episode" class="text-gray-400 text-sm mb-2"></div>
+      <div id="episode-duration" class="text-gray-400 text-sm mb-4"></div>
+      <p id="modal-description" class="text-gray-300"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========= EPISODE DATA =========
+// Note: episode titles/season counts taken from public episode guides (Wikipedia/Prime/fandom).
+// If you want direct episode posters or official thumbnails, swap the `image` fields with real URLs.
+
+const sampleMP4 = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+const movies = [
+  // Season 1 (8)
+  { title: "Pilot", video: "https://sf3.eleviora.space:443/v4/is9/aqthw/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/l3SNFqVvpGZWg5USgPMXwSIHr19.jpg", description: "Jack Ryan, a low-level CIA analyst, uncovers suspicious financial transfers that lead him into the field.", duration: "55 min", season: 1, episode: 1, tags: ["Action","Drama"] },
+  { title: "French Connection", video: "https://svz.florenda.online:443/v4/9a/3m8ja/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/1OyiIzJ07gAsvaFILfVF40ggbAp.jpg", description: "Jack follows leads to France while the investigation widens.", duration: "50 min", season: 1, episode: 2, tags: ["Action","Thriller"] },
+  { title: "Black 22", video: "https://sad.fiorellagarden.sbs:443/v4/tab/pxcvn/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/x3e3m9eZaoUzlcBXnYSlexfohm3.jpg", description: "Tensions rise as Jack and the team close in on the terrorist network.", duration: "52 min", season: 1, episode: 3, tags: ["Action","Thriller"] },
+  { title: "The Wolf", video: "https://sui.seawindart.space:443/v4/db/s5u6m/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/y7SmuZHh2fGstWS3ZSddxteftZC.jpg", description: "A dangerous adversary reveals himself, forcing Jack into a race to stop an attack.", duration: "51 min", season: 1, episode: 4, tags: ["Action","Drama"] },
+  { title: "End of Honor", video: "https://slp.xylonatech.sbs:443/v4/db/3m8ot/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/r2osBoDPBNA5PvRTUBUNoIcbsj6.jpg", description: "Field operations intensify, and loyalties are tested.", duration: "50 min", season: 1, episode: 5, tags: ["Drama","Thriller"] },
+  { title: "Sources and Methods", video: "https://sbs.oravix.cyou:443/v4/ic/dvsty/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/r0o30zw7aNWX7SfTEsuKnLESAUr.jpg", description: "Jack's analytical work proves crucial as intelligence sources are validated.", duration: "48 min", season: 1, episode: 6, tags: ["Spy","Drama"] },
+  { title: "The Boy", video: "https://sad.zenithraevents.store:443/v4/mik/ytxks/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/9jPKSghTOToUgEyUuMzPejW5W9X.jpg", description: "Personal stakes rise when the case impacts someone close to Jack.", duration: "46 min", season: 1, episode: 7, tags: ["Drama"] },
+  { title: "Inshallah", video: "https://slp.cosmavision.shop:443/v4/ic/wyp83/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/7J77cdPYnW3NxpXEpAHrLSgKCr2.jpg", description: "Season finale — the conspiracy's reach becomes frighteningly clear.", duration: "60 min", season: 1, episode: 8, tags: ["Action","Thriller"] },
+
+  // Season 2 (8)
+  { title: "Cargo", video: "https://sbs.fintravafinance.cyou:443/v4/ic/61w3q/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/qNPXv0tTC1DGzuYox2jcb3vjTPa.jpg", description: "Jack travels to South America as a regional crisis emerges.", duration: "58 min", season: 2, episode: 1, tags: ["Action","Drama"] },
+  { title: "Tertia Optio", video: "https://sy6.novacrestnetwork.online:443/v4/9a/pxcwp/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/iMluvxw78mH69dFaZvqf3u7aJfi.jpg", description: "Jack and allies dig deeper into political corruption and shadow deals.", duration: "54 min", season: 2, episode: 2, tags: ["Thriller"] },
+  { title: "Orinoco", video: "https://sri.fortimax.shop:443/v4/tab/or3lf/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/cEshkgw5Ti31FHyXTXmtVBGPN37.jpg", description: "Jungle operations and tense rescues push the team to their limits.", duration: "47 min", season: 2, episode: 3, tags: ["Action"] },
+  { title: "Dressed to Kill", video: "https://sy6.mistralstudio.shop:443/v4/tab/bi1qd/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/esaJYqjytrIH1ECZ4soKlDNcJrb.jpg", description: "A high-stakes sting pulls Jack into allied intelligence circles.", duration: "44 min", season: 2, episode: 4, tags: ["Spy","Thriller"] },
+  { title: "Blue Gold", video: "https://sui.mistralstudio.shop:443/v4/mik/fpreo/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/vb7fRtPGDyu1OjqYVihkKvsqbIP.jpg", description: "Water, power and politics collide — and the consequences are deadly.", duration: "43 min", season: 2, episode: 5, tags: ["Drama"] },
+  { title: "Persona Non Grata", video: "https://sui.aesthorium.sbs:443/v4/tab/n39if/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/dxFmsp2t0AP73aIFU6d5cGGxMMT.jpg", description: "The embassy is under pressure while alliances shift.", duration: "42 min", season: 2, episode: 6, tags: ["Drama"] },
+  { title: "Dios y Federación", video: "https://sad.clarionedge.sbs:443/v4/9a/qzbfj/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/vUkqAjva924TX3IvGU7oeKdJ2V3.jpg", description: "Election season chaos increases the danger for everyone involved.", duration: "44 min", season: 2, episode: 7, tags: ["Thriller"] },
+  { title: "Strongman", video: "https://slp.trovianaworks.online:443/v4/sc/ijac5/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/2ASTHPt5T9wXtHn6K763YQqX2HF.jpg", description: "Season 2 finale — a power play reshapes the region's future.", duration: "47 min", season: 2, episode: 8, tags: ["Action","Drama"] },
+
+  // Season 3 (8)
+  { title: "Falcon", video: "https://sbs.bellevianetwork.sbs:443/v4/tab/ewf9y/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/aY5n4mR6XqVa40zJMw6I5NaUInv.jpg", description: "Jack uncovers a chilling plot tied to an old Soviet program.", duration: "65 min", season: 3, episode: 1, tags: ["Spy","Thriller"] },
+  { title: "Old Haunts", video: "https://sri.frostlinegarden.store:443/v4/pk8/1aybj/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ojSDbVIg2SvlBguormA5UFCCkre.jpg", description: "Past operations cast long shadows as Jack goes on the run.", duration: "52 min", season: 3, episode: 2, tags: ["Drama"] },
+  { title: "Running With Wolves", video: "https://svz.harmonivia.cyou:443/v4/mik/ugzwl/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/zBbTeDkKbJu8eYhY47JvNMQoyjX.jpg", description: "A dangerous chase across Europe to locate the device.", duration: "46 min", season: 3, episode: 3, tags: ["Action"] },
+  { title: "Our Death's Keeper", video: "https://svz.aurisnova.shop:443/v4/mik/qzbfk/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/mky2xlGy2ovaJGulDPYbilmTweB.jpg", description: "A sting operation reveals new enemies and allies.", duration: "45 min", season: 3, episode: 4, tags: ["Thriller"] },
+  { title: "Druz'ya i Vragi", video: "https://svz.stellarpathventures.shop:443/v4/hld/59g1s/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/6ca9e4kgDo9pnlfdlaBE6VLV3LH.jpg", description: "Friends and foes become indistinguishable in the Kremlin's shadows.", duration: "48 min", season: 3, episode: 5, tags: ["Drama","Spy"] },
+  { title: "Ghosts", video: "https://sjx.glowfield.space:443/v4/pk8/hfogg/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/lVfJfJCaL8diIXsvMAfmNFrEEn1.jpg", description: "Old conspiracies resurface as the stakes grow worldwide.", duration: "50 min", season: 3, episode: 6, tags: ["Thriller"] },
+  { title: "Moscow Rules", video: "https://sui.ridgegateinnovationhub.shop:443/v4/db/juqly/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/Alg1L7ozoptirVHGgDKELL73Np2.jpg", description: "Tradecraft and trade-offs as the team moves into Moscow's orbit.", duration: "48 min", season: 3, episode: 7, tags: ["Spy"] },
+  { title: "Star on the Wall", video: "https://sf3.fiorellagarden.sbs:443/v4/36/tb6of/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ArMD47FBdyUu6p7rK5O8aT55QS3.jpg", description: "Season 3 finale — a race to stop a weapon before catastrophe.", duration: "60 min", season: 3, episode: 8, tags: ["Action","Thriller"] },
+
+  // Season 4 (6)
+  { title: "Triage", video: "https://sy6.astroliteonline.online:443/v4/db/8kvq5/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/rkqLHRTMqJxxl7TcdFhLR1DthrT.jpg", description: "Jack, now CIA acting deputy director, investigates internal corruption.", duration: "60 min", season: 4, episode: 1, tags: ["Drama","Spy"] },
+  { title: "Convergence", video: "https://sri.marineroadcreativeworks.cyou:443/v4/hld/vn5bp/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/gsS1hXiD6evcXMQKVn6rHb5hE82.jpg", description: "Multiple threats converge on the agency and the home front.", duration: "58 min", season: 4, episode: 2, tags: ["Thriller"] },
+  { title: "Sacrifices", video: "https://sui.clarynova.cyou:443/v4/hld/konz5/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/1t90MgoLaaGnK0rOUdgcp5hfO2N.jpg", description: "Hard choices and personal costs as the investigation deepens.", duration: "57 min", season: 4, episode: 3, tags: ["Drama"] },
+  { title: "Bethesda", video: "https://sbs.aurorionventures.space:443/v4/36/rcmsc/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ddtwRFNUfAMSsvwD8Yz681bmk2P.jpg", description: "A domestic attack threat forces a high-stakes response.", duration: "55 min", season: 4, episode: 4, tags: ["Action","Thriller"] },
+  { title: "Wukong", video: "https://sy6.harmonivia.cyou:443/v4/sc/aqtht/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ctzS6JwJl5dMUvqKIacE4f0lZiJ.jpg", description: "International threads tie into a cartel-terror alliance.", duration: "53 min", season: 4, episode: 5, tags: ["Spy"] },
+  { title: "Proof of Concept", video: "https://s1q.aurorioncreative.shop:443/v4/hld/ugzwc/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ccuT8l42kGTjSGY4CChWHReYBzk.jpg", description: "Finale — intelligence yields one last chance to stop a devastating plot.", duration: "63 min", season: 4, episode: 6, tags: ["Action","Drama"] }
+];
+
+
+/* ✅ Add MP4 detector */
+function isMP4(url) {
+  return /\.mp4($|\?)/i.test(url);
+}
+
+/* DOM elements */
+const container = document.getElementById('movies');
+const playbackModal = document.getElementById('playback-modal');
+const modalVideo = document.getElementById('modal-video');
+const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const seasonEpisode = document.getElementById('season-episode');
+const episodeDuration = document.getElementById('episode-duration');
+const closeModal = document.getElementById('close-modal');
+
+let currentSeason = 'all';
+let currentFilter = 'All';
+
+function initPage() {
+  renderMovies();
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.season-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+      this.classList.add('active', 'bg-yellow-600', 'text-black');
+      currentSeason = this.dataset.season;
+      renderMovies();
+    });
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.filter-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+      this.classList.add('active', 'bg-yellow-600', 'text-black');
+      currentFilter = this.textContent;
+      renderMovies();
+    });
+  });
+}
+
+function renderMovies() {
+  container.innerHTML = '';
+  let filtered = movies;
+  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
+  if (currentFilter !== 'All') filtered = filtered.filter(m => m.tags.includes(currentFilter));
+
+  filtered.forEach((movie, i) => {
+    const card = document.createElement('div');
+    card.className = `movie-card fade-in delay-${i%5} glow-effect`;
+    card.innerHTML = `
+      <div class="relative group cursor-pointer overflow-hidden rounded-xl">
+        <img src="${movie.image}" class="w-full h-48 object-cover rounded-xl transition group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-yellow-500 text-3xl"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="mt-3 text-white font-medium">${movie.title}</div>
+      <div class="text-gray-400 text-sm">S${movie.season} • E${movie.episode} • ${movie.duration}</div>
+    `;
+
+    card.addEventListener('click', () => {
+      if (isMP4(movie.video)) {
+        openModal(movie);
+      } else {
+        window.location.href =
+          `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function openModal(m) {
+  modalTitle.textContent = m.title;
+  modalDescription.textContent = m.description;
+  seasonEpisode.textContent = `S${m.season} • E${m.episode}`;
+  episodeDuration.textContent = m.duration;
+  modalVideo.src = m.video;
+  playbackModal.classList.remove('hidden');
+}
+
+closeModal.onclick = () => { playbackModal.classList.add('hidden'); modalVideo.pause(); };
+
+window.addEventListener('DOMContentLoaded', initPage);
+</script>
+
+</body>
+</html>
