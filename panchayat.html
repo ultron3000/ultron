@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panchayat Series</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: #0f2027;
+      background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+      color: #fff;
+    }
+
+    header {
+      background: #111;
+      text-align: center;
+      padding: 3rem 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      color: #ffcc00;
+    }
+
+    .tagline {
+      margin: 0.5rem 0 0;
+      font-size: 1rem;
+      color: #aaa;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .season-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      padding: 1rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .season-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .season-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .season-card:focus {
+      outline: 2px solid #ffd700;
+      outline-offset: 2px;
+    }
+
+    .poster {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-bottom: 2px solid #ffd700;
+      display: block;
+    }
+
+    .season-content {
+      padding: 1rem;
+    }
+
+    .season-content h2 {
+      margin-top: 0.5rem;
+      font-size: 1.4rem;
+      color: #ffd700;
+      text-align: center;
+    }
+
+    .video-player {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 1rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .video-player.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffd700;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .video-player iframe {
+      width: 100%;
+      max-width: 960px;
+      height: 54vw;
+      max-height: 540px;
+      border-radius: 12px;
+      border: none;
+    }
+
+    .back-button {
+      background: #ffd700;
+      color: #000;
+      padding: 0.6rem 1rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .coming-soon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #ccc;
+      font-size: 1rem;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background-color: #111;
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      .video-player iframe {
+        height: 56vw;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header role="banner">
+    <h1>Panchayat - Watch All Seasons</h1>
+    <p class="tagline">Enjoy all seasons of the beloved Indian comedy-drama series</p>
+  </header>
+
+  <main class="season-container">
+    <div class="season-card" onclick="playVideo('https://mega.nz/embed/XloGRC7J#a8Jvnq5K2dDZYyj_auXAf5AqSttvwFz82zHXZU1pM9o')">
+      <img class="poster" src="https://m.media-amazon.com/images/S/pv-target-images/2cda5e3fee6c153bbb44468f925b32718635b7a5fb40a6943ad9e79cfb9a5039.jpg" alt="Panchayat Season 1 Poster">
+      <div class="season-content">
+        <h2>Season 1</h2>
+      </div>
+    </div>
+
+    <div class="season-card" onclick="playVideo('https://mega.nz/embed/q45yTLpA#a_RLK5B5W5NrFeDiAMtPNDY79imd6_urXshlk2h6le8')">
+      <img class="poster" src="https://upload.wikimedia.org/wikipedia/en/thumb/1/1a/Panchayat_logo.jpg/250px-Panchayat_logo.jpg" alt="Panchayat Season 2 Poster">
+      <div class="season-content">
+        <h2>Season 2</h2>
+      </div>
+    </div>
+
+    <div class="season-card" onclick="playVideo('https://mega.nz/embed/yl4BCLYY#7HEZiYZX-nmKRb8RTFdzJGX93cL-xaKBKyDZJynEJ8A')">
+      <img class="poster" src="https://www.deccanchronicle.com/h-upload/2024/05/02/1087279-panchayat.webp" alt="Panchayat Season 3 Poster">
+      <div class="season-content">
+        <h2>Season 3</h2>
+      </div>
+    </div>
+
+    <div class="season-card" onclick="playVideo('https://mega.nz/embed/XREk0BbZ#wZLQGuwEi6WlrQn35mu7sHrUsVBAOls7relU8o0Wf0Q')">
+      <img class="poster" src="https://english.cdn.zeenews.com/sites/default/files/2024/10/29/1565535-panchayat.jpg" alt="Panchayat Season 4 Coming Soon">
+      <div class="season-content">
+        <h2>Season 4</h2>
+        
+        
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="video-player" id="videoPlayer" role="dialog" aria-modal="true" aria-labelledby="videoTitle">
+    <div class="spinner" id="spinner"></div>
+    <button class="back-button" onclick="closeVideo()" aria-label="Close video player">&larr; Back</button>
+    <h2 id="videoTitle" class="sr-only">Video Player</h2>
+    <iframe id="videoFrame" src="" allowfullscreen title="Video Player"></iframe>
+  </div>
+
+  <footer>
+    &copy; 2025 Panchayat Series Viewer. Designed for fans by fans. All rights reserved.
+  </footer>
+
+  <script>
+    function playVideo(url) {
+      const player = document.getElementById('videoPlayer');
+      const frame = document.getElementById('videoFrame');
+      const spinner = document.getElementById('spinner');
+      
+      player.classList.add('active');
+      spinner.style.display = 'block';
+      frame.style.display = 'none';
+      
+      frame.onload = function() {
+        spinner.style.display = 'none';
+        frame.style.display = 'block';
+      };
+      
+      frame.src = url;
+      window.scrollTo(0, 0);
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeVideo() {
+      const player = document.getElementById('videoPlayer');
+      const frame = document.getElementById('videoFrame');
+      
+      frame.src = '';
+      player.classList.remove('active');
+      document.body.style.overflow = '';
+      
+      // Reset for next play
+      setTimeout(() => {
+        frame.style.display = 'none';
+      }, 300);
+    }
+
+    // Close video when clicking outside content
+    document.getElementById('videoPlayer').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeVideo();
+      }
+    });
+
+    // Close video with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('videoPlayer').classList.contains('active')) {
+        closeVideo();
+      }
+    });
+  </script>
+</body>
+
+</html>
