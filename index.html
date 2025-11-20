@@ -285,6 +285,7 @@ html {
     localStorage.setItem('dark-mode', isDark);
     darkModeIcon.classList.toggle('ri-sun-line');
     darkModeIcon.classList.toggle('ri-moon-line');
+    darkModeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
   });
 
   // Account Dropdown
@@ -292,13 +293,38 @@ html {
   const accountMenu = document.getElementById('accountMenu');
 
   accountBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // prevent closing immediately
-    accountMenu.classList.toggle('hidden');
+    e.stopPropagation();
+    const isExpanded = accountMenu.classList.toggle('hidden');
+    accountBtn.setAttribute('aria-expanded', !isExpanded);
   });
 
   // Close dropdown when clicking outside
   document.addEventListener('click', () => {
     accountMenu.classList.add('hidden');
+    accountBtn.setAttribute('aria-expanded', 'false');
+  });
+
+  // Search with debounce
+  const searchInput = document.getElementById('searchInput');
+  let searchTimeout;
+
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      // Simulate search
+      document.getElementById('searchLoading').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('searchLoading').classList.add('hidden');
+      }, 500);
+    }, 300);
+  });
+
+  // Keyboard navigation for search
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      searchInput.blur();
+      document.getElementById('searchResults').classList.add('hidden');
+    }
   });
 </script>
 
@@ -307,15 +333,19 @@ html {
 <!-- Main Content -->
 <main class="pt-16 pb-20 container mx-auto max-w-6xl px-4 lg:px-8">
   <!-- Hero Section -->
-  <section class="mt-4 mb-8 fade-in">
-    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Cloud Streaming Hub</h1>
-    <p class="text-base md:text-lg text-gray-600 mt-2 max-w-2xl"></p>
+  <section class="mt-4 mb-8 fade-in" aria-labelledby="hero-heading">
+    <h1 id="hero-heading" class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Cloud Streaming Hub</h1>
+    <p class="text-base md:text-lg text-gray-600 dark:text-gray-300 mt-2 max-w-2xl">
+      Your ultimate destination for streaming movies, shows, and more
+    </p>
     
     <!-- Search Bar -->
-    <div class="relative mt-6 max-w-2xl">
+    <div class="relative mt-6 max-w-2xl" role="search">
       <div class="relative">
         <input type="text" id="searchInput" placeholder="Search movies, shows, franchises..." 
-               class="w-full py-3 pl-12 pr-4 bg-white rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 border border-gray-200 transition-all">
+               class="w-full py-3 pl-12 pr-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 border border-gray-200 dark:border-gray-700 transition-all"
+               aria-label="Search for content"
+               aria-controls="searchResults">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <i class="ri-search-line text-gray-400 text-lg"></i>
         </div>
@@ -337,10 +367,13 @@ html {
   </section>
 
   <!-- Featured Content -->
-  <section class="mb-8 fade-in">
-    <div class="featured-content h-48 md:h-64 lg:h-80 rounded-2xl overflow-hidden relative">
+  <section class="mb-8 fade-in" aria-labelledby="featured-heading">
+    <h2 id="featured-heading" class="sr-only">Featured Content</h2>
+    <div class="featured-content h-48 md:h-64 lg:h-80 rounded-2xl overflow-hidden relative group">
       <img src="https://readdy.ai/api/search-image?query=cinematic%20movie%20collage%20with%20popular%20characters%20from%20Marvel%2C%20DC%2C%20and%20other%20franchises%2C%20dramatic%20lighting%2C%20movie%20poster%20style%2C%20vibrant%20colors%2C%20no%20text&width=375&height=160&seq=1&orientation=landscape" 
-           alt="Featured Content" class="w-full h-full object-cover">
+           alt="Featured Content" 
+           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+           loading="lazy">
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-6">
         <div class="flex items-center mb-2">
           <span class="bg-red-500 text-white text-xs px-2 py-1 rounded mr-2"></span>
