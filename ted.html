@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ted</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <script async src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
+  <style>
+    /* Color scheme updated for a light comedic vibe (Ted) */
+    body { background: #0b0c10; color: #f3f4f6; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    header, footer { background: #0f1724; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0b0c10; }
+    ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #f97316; }
+
+    .fade-in { animation: fadeIn 0.45s ease-out forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: ''; position: absolute; inset: 0; border-radius: 12px;
+      box-shadow: 0 0 10px rgba(245,158,11,0.02), 0 0 18px rgba(59,130,246,0.04);
+      transition: box-shadow 0.25s ease; pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 20px rgba(245,158,11,0.04), 0 0 36px rgba(59,130,246,0.08); }
+
+    .gradient-text { background: linear-gradient(90deg, #f59e0b, #f97316); -webkit-background-clip: text; color: transparent; }
+
+    .showcase-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter: brightness(0.55) saturate(1.05); }
+    .showcase-overlay { position:absolute; inset:0; background:linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0) 100%); }
+
+    .season-btn.active { background:#f59e0b !important; color:#0b1220 !important; }
+    .filter-btn.active { background:#f59e0b !important; color:#0b1220 !important; }
+
+    /* Modal & player */
+    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); z-index:1000; }
+    .modal-card { width:95%; max-width:1100px; background:linear-gradient(180deg, rgba(10,12,18,0.95), rgba(10,12,18,0.98)); border-radius:12px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.7); border:1px solid rgba(245,158,11,0.12); }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(0,0,0,0.32); border-bottom:1px solid rgba(255,255,255,0.04); }
+    .modal-title { font-size:1.125rem; font-weight:600; color:#ffd27a; }
+    .modal-close-btn { width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#0b1220; background:#ffd27a; cursor:pointer; border:1px solid rgba(0,0,0,0.06); }
+
+    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
+    .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; background:black; display:block; }
+
+    .spinner { width:36px; height:36px; border-radius:999px; border:4px solid rgba(255,255,255,0.06); border-top-color:#ffd27a; animation:spin 1s linear infinite; display:none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* advanced top-right control tray */
+    .adv-tray {
+      position:absolute; top:12px; right:12px; display:flex; gap:8px; align-items:center;
+      padding:8px 10px; border-radius:999px; background: rgba(8,12,20,0.45); backdrop-filter: blur(6px);
+      border: 1px solid rgba(245,158,11,0.14); box-shadow: 0 8px 30px rgba(245,158,11,0.03); z-index:22;
+      opacity:0; transform: translateY(-6px); transition: opacity 220ms ease, transform 220ms ease;
+    }
+    .adv-tray.show { opacity:1; transform: translateY(0); }
+    .adv-btn { display:flex; align-items:center; gap:6px; color:#f8fafc; background:transparent; border:none; padding:6px 8px; border-radius:8px; cursor:pointer; }
+    .adv-select { background:transparent; color:#f8fafc; border:none; outline:none; padding:6px; }
+    .adv-btn:hover { background: rgba(255,255,255,0.02); }
+
+    @media (max-width:640px) {
+      .adv-tray { top:8px; right:8px; padding:6px 8px; gap:6px; }
+      .adv-select { font-size:13px; }
+    }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-500/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+        <span style="font-size:20px;">🧸</span>
+      </div>
+      <h1 class="text-2xl font-bold gradient-text">Ted</h1>
+    </div>
+    <div class="flex items-center space-x-4">
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition" title="Search episodes">
+        <i class="fas fa-search text-yellow-200"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input id="search-input" type="text" placeholder="Search episodes..." class="w-full bg-gray-900 border border-yellow-500/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-yellow-300"></i>
+    </div>
+  </div>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-8 relative overflow-hidden rounded-xl h-44 md:h-64">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi3207317273/1434659607842-pgv4ql-1700229250197.mp4?Expires=1763399934&Signature=prpYikVwfriZCNFkoYKiRp2OTxS2EEZdbLlNCcisbPMaaWJdHAVXZDM0vqSg-Zju~~wA-Sszh4lXwOzIrjGhyMV-J21t4Z12RzbylzVzkMZhL9igcyEuXM4TmHern9DVxWGwBJVz7sfAmlkH7d-a8lALYYjt~kMgfjlMghYp34kp8HogvXWmcNG1lZPjvT5EhkH-dj-f8XkoMaLmqCBYFQMB5P3K2d-qCHFRbj4ZWORG-b~ayR41tvWY0aq70GNK-0ZFOO3m9OcXA0tZMKG5KAfQIfftKWAJV3nq7ShXZxeaA8rw2gPa~TWx5OjaO27aF2RPozgF1ksLNExKNpTzbQ__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="relative h-full flex flex-col justify-end p-6 md:p-8">
+      <h2 class="text-2xl font-semibold gradient-text mb-2">
+      <p class="text-gray-300 mb-4 max-w-lg"></p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2 space-x-2">
+    <button class="season-btn active bg-yellow-400 text-black px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+    <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+  </div>
+
+  <div class="flex flex-wrap justify-between mb-8 gap-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2">
+      <button class="filter-btn active bg-yellow-300 text-black px-4 py-1 rounded-full">All</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Comedy</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Family</button>
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-yellow-300 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © Ted (2024) – Fan Listing
+</footer>
+
+<!-- Modal -->
+<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <div id="modal-title" class="modal-title"></div>
+      <button id="close-video-modal" class="modal-close-btn" aria-label="Close player"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-player">
+      <video id="modal-video" controls playsinline preload="metadata"></video>
+      <div id="buffer-spinner" class="spinner" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"></div>
+
+      <!-- Advanced control tray (top-right) -->
+      <div id="adv-tray" class="adv-tray" aria-hidden="true">
+        <button id="resume-btn" class="adv-btn" title="Resume last position"><i class="fas fa-play-circle"></i></button>
+        <button id="cast-btn" class="adv-btn" title="Cast to device"><i class="fas fa-tv"></i></button>
+        <button id="pip-btn" class="adv-btn" title="Picture-in-Picture"><i class="fas fa-window-restore"></i></button>
+        <select id="speed-select" class="adv-select" title="Playback speed">
+          <option value="0.5">0.5x</option><option value="0.75">0.75x</option>
+          <option value="1" selected>1x</option><option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option><option value="2">2x</option>
+        </select>
+        <button id="subs-btn" class="adv-btn" title="Add subtitles (.vtt)"><i class="fas fa-closed-captioning"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* -----------------------------
+   Episode list (Ted S1 - dummy URLs)
+   ----------------------------- */
+const movies = [
+  { title: "Just Say Yes", video: "https://sad.novacrestnetwork.online:443/v4/onm/1ofnd/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/xmBACM8eaKLEMWD1wlDExKHsTJP.jpg", description: "When Matty makes Ted go to school with John, Ted immediately decides to get expelled.", duration: "28 min", season:1, episode:1, tags:["Comedy","Family"] },
+  { title: "My Two Dads", video: "https://sri.clarionedge.sbs:443/v4/kdv/syarq/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/x1IL9UGBMIKDzXAVHQWJPniAboK.jpg", description: "TTed and John's plan to exact revenge on the school bully inadvertently puts them in a parental role.", duration:"25 min", season:1, episode:2, tags:["Comedy"] },
+  { title: "Ejectile Dysfunction", video: "https://sad.mistralstudio.shop:443/v4/kdv/qcx8b/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/67bSLKTjX098IecOeQCRo8qIAC2.jpg", description: "Ted and John go to extraordinary lengths so that John can watch his first adult film.", duration:"27 min", season:1, episode:3, tags:["Comedy"] },
+  { title: "Subways, Bicycles and Automobiles", video: "https://svz.arkadine.shop:443/v4/s93/vajps/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/klRB4ExBLolDvt1G5pw9MQKygLl.jpg", description: "Ted's Halloween plans with John are thwarted when Blaire forces him to be her designated driver.", duration:"30 min", season:1, episode:4, tags:["Comedy"] },
+  { title: "Desperately Seeking Susan", video: "https://sy6.ellionhealth.cyou:443/v4/9ow/arp9n/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/yM5KTUHICfT3JSU1PkDi00cWx8l.jpg", description: "Blaire asks Matty and Susan to let Ted be their marriage therapist; Susan pursues a past career.", duration:"26 min", season:1, episode:5, tags:["Comedy","Romance"] },
+  { title: "Loud Night", video: "https://sad.brightcrestshop.shop:443/v4/9ow/p93cv/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/rGZNEa0fbSrOvnAc8sSpLJqDYnY.jpg", description: "Matty's unorthodox Christmas wish is granted, completely upending the Bennett family dynamic.", duration:"29 min", season:1, episode:6, tags:["Family","Comedy"] },
+  { title: "He's Gotta Have It", video: "https://sri.celestiorstudio.cyou:443/v4/is3/jpyqk/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/qdWEoTTbw9kK5BTSD39hSE8ZQZf.jpg", description: "As the end of the school year approaches, Ted plots to help John lose his virginity.", duration:"33 min", season:1, episode:7, tags:["Comedy"] },
+];
+
+/* -----------------------------
+   Elements & state
+   ----------------------------- */
+const container = document.getElementById('movies');
+const searchBtn = document.getElementById('search-btn');
+const searchBar = document.getElementById('search-bar');
+const searchInput = document.getElementById('search-input');
+
+const videoModal = document.getElementById('video-modal');
+const modalVideo = document.getElementById('modal-video');
+const modalTitle = document.getElementById('modal-title');
+const closeBtn = document.getElementById('close-video-modal');
+const bufferSpinner = document.getElementById('buffer-spinner');
+
+const advTray = document.getElementById('adv-tray');
+const resumeBtn = document.getElementById('resume-btn');
+const castBtn = document.getElementById('cast-btn');
+const pipBtn = document.getElementById('pip-btn');
+const speedSelect = document.getElementById('speed-select');
+const subsBtn = document.getElementById('subs-btn');
+
+let currentHls = null;
+let currentMovie = null;
+let currentSeason = 'all';
+let currentFilter = 'All';
+let resumeKey = null;
+let advTimer = null;
+let castAvailable = false;
+
+/* -----------------------------
+   Utility detectors
+   ----------------------------- */
+function isHls(url){ return url && (/\.m3u8($|\?)/i.test(url) || /index.*(\.txt|\.m3u8)/i.test(url) || url.includes('/index')); }
+function isMP4(url){ return url && /\.mp4($|\?)/i.test(url); }
+function isYouTube(url){ return url && /(youtu\.be|youtube\.com)/i.test(url); }
+function formatTime(s){ if(!isFinite(s)) return '0:00'; const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=Math.floor(s%60); return (h>0? h+':':'') + (h>0? String(m).padStart(2,'0'):m) + ':' + String(sec).padStart(2,'0'); }
+
+/* -----------------------------
+   Render episodes
+   ----------------------------- */
+function renderMovies(list = movies){
+  container.innerHTML = '';
+  let filtered = list;
+  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
+  if (currentFilter !== 'All') filtered = filtered.filter(m => m.tags.includes(currentFilter));
+  filtered.forEach((m,i) => {
+    const card = document.createElement('div');
+    card.className = 'glow-effect fade-in cursor-pointer rounded-lg overflow-hidden';
+    card.innerHTML = `
+      <div class="relative group overflow-hidden rounded-lg">
+        <img src="${m.image}" class="w-full h-48 object-cover rounded-lg transition group-hover:scale-105" alt="${m.title}">
+        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-yellow-300 text-3xl">
+          <i class="fas fa-play"></i>
+        </div>
+      </div>
+      <div class="mt-3">
+        <div class="text-white font-medium">${m.title}</div>
+        <div class="text-gray-400 text-sm">S${m.season} • E${m.episode} • ${m.duration}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => playInModal(m));
+    container.appendChild(card);
+  });
+}
+renderMovies();
+
+/* -----------------------------
+   Search toggle + logic
+   ----------------------------- */
+searchBtn.addEventListener('click', ()=> searchBar.classList.toggle('hidden'));
+searchInput && searchInput.addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  const filtered = movies.filter(m => m.title.toLowerCase().includes(q) || (m.description||'').toLowerCase().includes(q));
+  renderMovies(filtered);
+});
+
+/* -----------------------------
+   Season & filter buttons
+   ----------------------------- */
+document.querySelectorAll('.season-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.season-btn').forEach(b=>b.classList.remove('active','bg-yellow-400','text-black'));
+    this.classList.add('active','bg-yellow-400','text-black');
+    currentSeason = this.dataset.season;
+    renderMovies();
+  });
+});
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active','bg-yellow-300','text-black'));
+    this.classList.add('active','bg-yellow-300','text-black');
+    currentFilter = this.textContent;
+    renderMovies();
+  });
+});
+
+/* -----------------------------
+   Modal & playback (HLS preserved)
+   ----------------------------- */
+function showModal(){ videoModal.classList.remove('hidden'); videoModal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; showAdvTray(); }
+function hideModal(){ videoModal.classList.add('hidden'); videoModal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; hideAdvTray(true); }
+
+function playInModal(item){
+  const title = item.title || 'Video';
+  const url = item.video;
+  currentMovie = item;
+  resumeKey = `ted_resume::${title.replace(/\s+/g,'_')}::s${item.season || ''}::e${item.episode || ''}`;
+  // cleanup
+  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls=null; }
+  modalVideo.pause(); modalVideo.removeAttribute('src'); try{ modalVideo.load(); }catch(e){}
+  modalTitle.textContent = title;
+
+  // show resume UI in tray if available
+  const saved = localStorage.getItem(resumeKey);
+  if(saved){
+    resumeBtn.style.display = 'inline-flex';
+    resumeBtn.dataset.saved = saved;
+  } else {
+    resumeBtn.style.display = 'none';
+    delete resumeBtn.dataset.saved;
+  }
+
+  if(!url){ modalTitle.textContent = title + ' — No URL'; showModal(); return; }
+  if(isYouTube(url)){ window.open(url, '_blank'); return; }
+
+  showModal();
+
+  if(isHls(url)){
+    if(Hls.isSupported()){
+      bufferSpinner.style.display = 'block';
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ bufferSpinner.style.display='none'; // apply resume
+        const savedPos = parseFloat(localStorage.getItem(resumeKey) || '0');
+        if(savedPos) modalVideo.currentTime = savedPos;
+        modalVideo.play().catch(()=>{}); });
+      currentHls.on(Hls.Events.ERROR, (evt,data)=>{ if(data && data.fatal){ try{ currentHls.destroy(); }catch(e){} currentHls=null; modalVideo.src = url; modalVideo.play().catch(()=>{}); }});
+    } else {
+      modalVideo.src = url;
+      modalVideo.play().catch(()=>{});
+    }
+  } else {
+    modalVideo.src = url;
+    const savedPos = parseFloat(localStorage.getItem(resumeKey) || '0');
+    if(savedPos) modalVideo.currentTime = savedPos;
+    modalVideo.play().catch(()=>{});
+  }
+}
+
+function closePlayer(){
+  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls=null; }
+  try{ modalVideo.pause(); }catch(e){}
+  modalVideo.removeAttribute('src');
+  hideModal();
+}
+closeBtn.addEventListener('click', closePlayer);
+videoModal.addEventListener('click', (e)=>{ if(e.target === videoModal) closePlayer(); });
+
+/* buffer spinner */
+modalVideo.addEventListener('waiting', ()=> { bufferSpinner.style.display = 'block'; });
+modalVideo.addEventListener('playing', ()=> { bufferSpinner.style.display = 'none'; });
+modalVideo.addEventListener('stalled', ()=> { bufferSpinner.style.display = 'block'; });
+
+/* save resume periodically */
+modalVideo.addEventListener('timeupdate', ()=> {
+  if(!resumeKey) return;
+  try{ localStorage.setItem(resumeKey, String(modalVideo.currentTime)); }catch(e){}
+});
+
+/* -----------------------------
+   Advanced tray: show/hide (top-right)
+   ----------------------------- */
+function showAdvTray(){
+  advTray.classList.add('show');
+  advTray.setAttribute('aria-hidden','false');
+  clearTimeout(advTimer);
+  advTimer = setTimeout(()=> hideAdvTray(), 3000);
+}
+function hideAdvTray(force){
+  if(force){ advTray.classList.remove('show'); advTray.setAttribute('aria-hidden','true'); return; }
+  advTray.classList.remove('show'); advTray.setAttribute('aria-hidden','true');
+}
+document.querySelector('.modal-player').addEventListener('mousemove', showAdvTray);
+document.addEventListener('fullscreenchange', showAdvTray);
+
+/* -----------------------------
+   Tray wiring: speed, PiP, subs, resume, cast fallback
+   ----------------------------- */
+speedSelect.addEventListener('change', ()=> { modalVideo.playbackRate = parseFloat(speedSelect.value); });
+
+pipBtn.addEventListener('click', async ()=> {
+  try{
+    if(document.pictureInPictureElement) await document.exitPictureInPicture();
+    else await modalVideo.requestPictureInPicture();
+  }catch(e){ alert('Picture-in-Picture not available here.'); }
+});
+
+subsBtn.addEventListener('click', ()=> {
+  const url = prompt('Paste a subtitle .vtt URL (CORS required)');
+  if(!url) return;
+  // remove previous tracks
+  const tracks = modalVideo.querySelectorAll('track');
+  tracks.forEach(t=>t.remove());
+  const tr = document.createElement('track');
+  tr.kind = 'subtitles'; tr.label = 'User subtitle'; tr.srclang = 'en'; tr.src = url; tr.default = true;
+  modalVideo.appendChild(tr);
+  setTimeout(()=>{ for(const t of modalVideo.textTracks) t.mode='showing'; }, 200);
+});
+
+resumeBtn.addEventListener('click', ()=> {
+  const saved = resumeBtn.dataset.saved;
+  if(saved) {
+    modalVideo.currentTime = parseFloat(saved);
+    resumeBtn.style.display = 'none';
+  }
+});
+
+/* CAST fallback: simple graceful UI (browser cast preferred) */
+(function initCast(){
+  let initialized = false;
+  window.__onGCastApiAvailable = function(loaded) {
+    if(loaded){ castAvailable = true; initialized = true; }
+    else { setTimeout(()=>{ if(!initialized) castAvailable = false; }, 2000); }
+  };
+  castBtn.addEventListener('click', ()=> {
+    if(!castAvailable){ const link = currentMovie && currentMovie.video ? currentMovie.video : window.location.href; alert('Casting unavailable here. Open the link on your TV / cast device: ' + link); return; }
+    alert('Casting available — use browser cast UI to select a device.');
+  });
+})();
+
+/* -----------------------------
+   Keyboard shortcuts
+   ----------------------------- */
+document.addEventListener('keydown', (e)=>{
+  if(videoModal.classList.contains('hidden')) return;
+  if(e.code === 'Space'){ e.preventDefault(); if(modalVideo.paused) modalVideo.play(); else modalVideo.pause(); showAdvTray(); }
+  if(e.key.toLowerCase() === 'f'){ const el = document.querySelector('.modal-card'); if(!document.fullscreenElement) el.requestFullscreen?.(); else document.exitFullscreen?.(); showAdvTray(); }
+  if(e.key.toLowerCase() === 'm'){ modalVideo.muted = !modalVideo.muted; showAdvTray(); }
+  if(e.key === 'ArrowRight'){ modalVideo.currentTime = Math.min((modalVideo.duration||0), modalVideo.currentTime + 10); showAdvTray(); }
+  if(e.key === 'ArrowLeft'){ modalVideo.currentTime = Math.max(0, modalVideo.currentTime - 10); showAdvTray(); }
+  if(e.key === 'ArrowUp'){ modalVideo.volume = Math.min(1, (modalVideo.volume || 1) + 0.05); showAdvTray(); }
+  if(e.key === 'ArrowDown'){ modalVideo.volume = Math.max(0, (modalVideo.volume || 1) - 0.05); showAdvTray(); }
+});
+
+/* -----------------------------
+   Small UX: show adv tray when modal opens or on mouse move
+   ----------------------------- */
+document.querySelectorAll('.modal-player').forEach(el=> el.addEventListener('mouseenter', showAdvTray));
+document.querySelectorAll('.modal-player').forEach(el=> el.addEventListener('mouseleave', ()=> advTimer = setTimeout(()=> hideAdvTray(), 3000)));
+
+/* -----------------------------
+   Ensure elements exist fallback
+   ----------------------------- */
+if(!document.querySelector('.modal-player')){
+  console.warn('modal-player not found — advanced tray will not initialize correctly.');
+}
+</script>
+</body>
+</html>
