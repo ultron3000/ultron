@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bhaukaal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ffdd33; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(255, 204, 0, 0.7); }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ffcc00, #ff9900);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .showcase-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+    .showcase-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%); z-index: 1; }
+    .showcase-content { position: relative; z-index: 2; }
+
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+    .video-container iframe, .video-container video { position: absolute; inset: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+        <i class="fas fa-shield-alt text-black text-xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold gradient-text">Bhaukaal</h1>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-moon text-yellow-500"></i>
+      </button>
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-search text-yellow-500"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input type="text" placeholder="Search episodes..." class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-12 relative overflow-hidden rounded-xl h-64 md:h-96">
+    <video autoplay muted loop class="showcase-video">
+      <!-- season trailer thumbnail used as a looping muted visual (not the actual trailer file) -->
+      <source src="https://imdb-video.media-imdb.com/vi1495057177/1434659607842-pgv4ql-1643307701760.mp4?Expires=1762567344&Signature=I2zKuA5zjG9VHpvYMbtLew1C27yIxZFHmxDT74sHbD~WP26MKsM40EHMJ6UH97FGAPt9VK6TPLyAm5LTEtRCdYqsHMFkQFqzwbCBA-7adBu2YX6L4HS7mBf-ib18dGxigWMVW23hr85lGGw7npnNsQs~hhZAp1EKiRGoe9Fb6-Uc51ynujrB2-Pj8bGqBH1SJMZk3zAdj-8~7fxjhwSkQf7zh5pRt-u8NHYJ~T-AIn472VIeYjrNINh80NwjWTPEh4XWUK-bg0S-E1J8HGct0kGkcDw2DP5rMM-bjUf-jkn76qWrK548Wv9mA8n5LsH1yQNwOpDYFALPVmF3~hcLOA__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="showcase-content h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg">Bhaukaal follows SSP Naveen Sikhera as he battles the gangs that rule Muzaffarnagar. High on action and inspired by real events — two seasons, 20 episodes.</p>
+      
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2">
+    <div class="flex space-x-2">
+      <button class="season-btn active bg-yellow-600 text-black px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="2">Season 2</button>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap justify-between mb-8 gap-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2">
+      <button class="filter-btn active bg-yellow-600 text-black px-4 py-1 rounded-full">All</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Crime</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Drama</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Action</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Thriller</button>
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-yellow-500 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © Bhaukaal · MX Player
+</footer>
+
+<!-- Playback Modal -->
+<div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl">&times;</button>
+    <div class="video-container">
+      <video id="modal-video" class="w-full" controls></video>
+    </div>
+    <div class="p-6">
+      <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
+      <div id="season-episode" class="text-gray-400 text-sm mb-2"></div>
+      <div id="episode-duration" class="text-gray-400 text-sm mb-4"></div>
+      <p id="modal-description" class="text-gray-300"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= BH A U K A A L EPISODE DATA =========
+   I replaced the original Groot entries with Bhaukaal Season 1 & 2 (10 eps each).
+   Episode synopses are taken/paraphrased from Plex / MX Player listings. */
+const movies = [
+  // Season 1 (10 eps) — poster uses season1 trailer thumbnail (YouTube)
+  {
+    title: "Episode 1",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/39a11245c702b4e2eb2cc99e92bf06a077ac71612a176fc3478c6feb9dda9213/1/hls/h264_high.m3u8", 
+    image: "https://qqcdnpictest.mxplay.com/pic/eeea5c3bf2cd9b2a031c86d6aea2675f/en/16x9/320x180/030e39e20f6074530e005935b92dac11_1920x1080.webp",
+    description: "Naveen Sikhera arrives as SSP in crime-ridden Muzaffarnagar and confronts the gangs that run the city.", 
+    duration: "32 min",
+    season: 1, episode: 1, tags: ["Crime","Drama"]
+  },
+  {
+    title: "Episode 2",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/2cf9f68f7b7ccb3b6e66fe9573ee76b5200db635af729543d6972d22aa54292e/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/7981316563578c0374ca52b2a5a2192b/en/16x9/320x180/75d68f4bec2651f5abe92a86d80c776b_1920x1080.webp",
+    description: "An innocent man is kidnapped; Sikhera begins to assemble his team and push back against Shaukeen's influence.",
+    duration: "32 min",
+    season: 1, episode: 2, tags: ["Crime","Drama"]
+  },
+  {
+    title: "Episode 3",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/f7f486838e8f97fc358cf2065eefefef33082b866c8e2d93b1d05b3597b5abaf/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/e4a12606dd14dcd55b3bb9d2a0fb7841/en/16x9/320x180/3ba4d381d911a3a925cb798af98b116d_1920x1080.webp",
+    description: "Trust is tested as undercover operations begin and the police try to infiltrate the gangs.",
+    duration: "32 min",
+    season: 1, episode: 3, tags: ["Crime","Action"]
+  },
+  {
+    title: "Episode 4",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/bb872637687defd0109d6145d39328581fee623acfee3834fa05241613ec0b2a/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/3460e4542f1258fc766c0f5f6d63706a/en/16x9/320x180/c1560482a76de9d82020b435e4bef2d7_1920x1080.webp",
+    description: "Sikhera's reforms create friction; a mobile-phone tracing unit helps the team pin down key operatives.",
+    duration: "32 min",
+    season: 1, episode: 4, tags: ["Crime","Thriller"]
+  },
+  {
+    title: "Episode 5",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/f7f738c26e8339f64bca1bc60edbf9c0733f16c61fea596e1bb6644b3392f114/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/5914ec63cd92ecee67ffa9f3714ecc96/en/16x9/320x180/832aeb7693615dc938cec185eedb376d_1920x1080.webp",
+    description: "Rifts appear in the criminal universe; politics and crime mix as the pressure mounts on the gangs.",
+    duration: "32 min",
+    season: 1, episode: 5, tags: ["Crime","Drama"]
+  },
+  {
+    title: "Episode 6",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/00cce54515b7ab20d737873f951c5ea98f78c4ff3db691dce9c48e00e9416419/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/37116fb00ab609553427434faa3edb3a/en/16x9/320x180/844918598e3c62a60b532d6a2d4e1217_1920x1080.webp",
+    description: "A massive encounter unfolds while police chase down gang members and tighten their net.",
+    duration: "32 min",
+    season: 1, episode: 6, tags: ["Action","Crime"]
+  },
+  {
+    title: "Episode 7",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/e06368cebea6ee3cc13f627dbfac1ddede49b4803d53637916f6698a2c83b764/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/8df1651a30f78ad3074721ba50202fc5/en/16x9/320x180/abc734b38d83ce900339f3e871150982_1918x1080.webp",
+    description: "Escapes, betrayals and a mole in the department — stakes rise as the Dedha/Shaukeen dynamics shift.",
+    duration: "32 min",
+    season: 1, episode: 7, tags: ["Crime","Thriller"]
+  },
+  {
+    title: "Episode 8",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/9a438d28113239067ce07661e27d63bdb3aa4beb36ce2359a6e545d40975e6a6/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/8fdcb91f124fa42aeca1a0381aab4aa0/en/16x9/320x180/1d9483b448d3a8771f75f730aef7fa50_1920x1080.webp",
+    description: "A brutal kidnapping and ransom escalate tensions; the police are ordered to halt some operations, complicating matters.",
+    duration: "32 min",
+    season: 1, episode: 8, tags: ["Drama","Crime"]
+  },
+  {
+    title: "Episode 9",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/0e113a510312c642583ac842b1fad99915430171bbe9b1ae4c3772ef7547d2ef/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/59e8ecaa5a4fe1d3cd99d3015cca289c/en/16x9/320x180/1d384bfa9d8392a2d324bb7d99c0c6ed_1920x1080.webp",
+    description: "Political pressure and high-profile events distract the police; a courtroom encounter turns violent.",
+    duration: "32 min",
+    season: 1, episode: 9, tags: ["Action","Crime"]
+  },
+  {
+    title: "Episode 10",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/8f7b6390da46ca9f2f9d2e4e44e4c1484ab18ddf0681cedde31966f1455d0a4e/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/48c4158412e9f4aece876a7611bf84c5/en/16x9/320x180/d5856394ab83d0b3a6a4b4bf163be01d_1920x1080.webp",
+    description: "Final confrontations and an intense action sequence lead to a decisive outcome for major gang figures.",
+    duration: "32 min",
+    season: 1, episode: 10, tags: ["Action","Drama"]
+  },
+
+  // Season 2 (10 eps) — poster uses season2 trailer thumbnail (YouTube)
+  {
+    title: "Episode 1",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/15de758de86fd31d73c62526adc3e47481417d09e5b7ba986d62626d3790a9ca/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/eeee5e4d7fdf623b143ecfb73683bb42/en/16x9/320x180/30ac1ab1ae6271338a452aead6ef148c_1920x1080.webp",
+    description: "Season 2 opens with Naveen setting his sights on the Dedha brothers — the stakes are higher and the danger deeper.",
+    duration: "32 min",
+    season: 2, episode: 1, tags: ["Crime","Drama"]
+  },
+  {
+    title: "Episode 2",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/6d9bd4b6c2e3d4445e8478ff34d98ced7c046ba2fb985a45ecdd0e1c97d4f61d/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/9dd691cd5595e11484795463a03c4f9a/en/16x9/320x180/1ac8d762fe8d6b924ba04360e8038ebf_1920x1080.webp",
+    description: "An operation seizes weapons but a mole allows a key goon to escape; Dedha gang prepares a brutal response.",
+    duration: "32 min",
+    season: 2, episode: 2, tags: ["Crime","Thriller"]
+  },
+  {
+    title: "Episode 3",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/08abdb8d59871ba132c4dcd2e48c1c256b2dc569d3d37b601eee2fe9e21bb6bb/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/9a28368baed1a3c4534dd70dd903fc26/en/16x9/320x180/31989783e1947d4a8b5f639b321e5574_1920x1080.webp",
+    description: "Sikhera and his team chase money trails and plan to choke the gang's finances to destabilize them.",
+    duration: "32 min",
+    season: 2, episode: 3, tags: ["Drama","Crime"]
+  },
+  {
+    title: "Episode 4",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/1b45b3207ef3311ef0295e095c129306c3e8731c300dde332bb20131981b1bcf/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/2bab52a42bfe3c9a1247087dc728e3a7/en/16x9/320x180/3932b007fdee4133c033acc854f7dc51_1920x1080.webp",
+    description: "Internal betrayals and violent reprisals shift loyalties — families of gang members are put at risk.",
+    duration: "32 min",
+    season: 2, episode: 4, tags: ["Crime","Thriller"]
+  },
+  {
+    title: "Episode 5",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/e223879568f5276e0f4c7074e98c99927209505f89477372e42f48890c30c9e6/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/9de8de3cc363dcde957172e16bbf0d82/en/16x9/320x180/28945a62414ac9813a8d27ea05d6a5a0_1920x1080.webp",
+    description: "Tactics escalate as the police target the gang's infrastructure and attempt to cut off its support.",
+    duration: "32 min",
+    season: 2, episode: 5, tags: ["Action","Crime"]
+  },
+  {
+    title: "Episode 6",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/7bb39741ee0ef2240e0a6196a8253895522e4ac9d0e12ddd309a058635f968c4/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/d3954bf4e73d4af08d6ee0f6826c2e59/en/16x9/320x180/5a3a9628310c355a4b2d58e752bb227d_1920x1080.webp",
+    description: "Political pressure mounts; press conferences and public accusations complicate Naveen's mission.",
+    duration: "32 min",
+    season: 2, episode: 6, tags: ["Drama","Crime"]
+  },
+  {
+    title: "Episode 7",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/80c072031b6061637e12c9898158ad9c75733cc3a3689683e6e6100697cec60c/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/6749320362b4769e73b75542e1aa29e9/en/16x9/320x180/2ed372e5dd3bf72979d6f0d1e6b5967d_1920x1080.webp",
+    description: "Operations intensify; the Dedha brothers strike back while the police close in with new leads.",
+    duration: "32 min",
+    season: 2, episode: 7, tags: ["Action","Crime"]
+  },
+  {
+    title: "Episode 8",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/a90fe7cc770a8b72c66db93dd3587f2ccdea5614edd6acefbbde4420b8a94122/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/f538c9546e95327f79771d693d1645bd/en/16x9/320x180/a56317277b28ddced22d7865a2fd5ada_1920x1080.webp",
+    description: "Naveen is under scrutiny; the DGP demands results and the gang ups its violence to retain control.",
+    duration: "32 min",
+    season: 2, episode: 8, tags: ["Drama","Thriller"]
+  },
+  {
+    title: "Episode 9",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/ad6db872cbfcf2b755ccdf28b4785c715f087c361dc37f348f69602dcb605960/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/e7fedb8609994a5429745332fc0c9e6e/en/16x9/320x180/d97357dd1e66ce4a252e80b56492c008_1920x1080.webp",
+    description: "Clues point to the mole and major moves are planned; the net tightens around Pintu and Chintu Dedha.",
+    duration: "32 min",
+    season: 2, episode: 9, tags: ["Crime","Thriller"]
+  },
+  {
+    title: "Episode 10",
+    video: "https://d3sgzbosmwirao.cloudfront.net/video/7ba13127d2dc64758084b04818a6ce53701789c33ce45e61e035e22d844a9e29/1/hls/h264_high.m3u8",
+    image: "https://qqcdnpictest.mxplay.com/pic/f45ca29c6998d7ffebef19a66db7baca/en/16x9/320x180/0fa78dcc49ab6c6d5c615e4afd8b0c97_1920x1080.webp",
+    description: "Season finale — raids, confrontations and the culmination of the police's efforts to break the Dedha brothers' hold.",
+    duration: "32 min",
+    season: 2, episode: 10, tags: ["Action","Drama"]
+  }
+];
+
+/* helper used in original template */
+function isMP4(url) { return /\.mp4($|\?)/i.test(url); }
+
+const container = document.getElementById('movies');
+const playbackModal = document.getElementById('playback-modal');
+const modalVideo = document.getElementById('modal-video');
+const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const seasonEpisode = document.getElementById('season-episode');
+const episodeDuration = document.getElementById('episode-duration');
+const closeModal = document.getElementById('close-modal');
+
+let currentSeason = 'all';
+let currentFilter = 'All';
+
+function initPage() {
+  renderMovies();
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.season-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+      this.classList.add('active', 'bg-yellow-600', 'text-black');
+      currentSeason = this.dataset.season;
+      renderMovies();
+    });
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.filter-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+      this.classList.add('active', 'bg-yellow-600', 'text-black');
+      currentFilter = this.textContent;
+      renderMovies();
+    });
+  });
+
+  // search toggles
+  document.getElementById('search-btn').addEventListener('click', () => {
+    const bar = document.getElementById('search-bar');
+    bar.classList.toggle('hidden');
+  });
+
+  // theme toggle (kept original simple behaviour)
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('bg-black');
+    document.body.classList.toggle('bg-white');
+    document.body.classList.toggle('text-gray-100');
+    document.body.classList.toggle('text-gray-900');
+  });
+}
+
+function renderMovies() {
+  container.innerHTML = '';
+  let filtered = movies;
+  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
+  if (currentFilter !== 'All') filtered = filtered.filter(m => m.tags.includes(currentFilter));
+
+  filtered.forEach((movie, i) => {
+    const card = document.createElement('div');
+    card.className = `movie-card fade-in delay-${i%5} glow-effect`;
+    card.innerHTML = `
+      <div class="relative group cursor-pointer overflow-hidden rounded-xl">
+        <img src="${movie.image}" class="w-full h-48 object-cover rounded-xl transition group-hover:scale-105" alt="${movie.title}">
+        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-yellow-500 text-3xl"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="mt-3 text-white font-medium">${movie.title}</div>
+      <div class="text-gray-400 text-sm">S${movie.season} • E${movie.episode} • ${movie.duration}</div>
+    `;
+
+    card.addEventListener('click', () => {
+      if (isMP4(movie.video)) {
+        openModal(movie);
+      } else {
+        // open player.html with video param (keeps original flow)
+        window.location.href = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+/* modal open/close */
+function openModal(m) {
+  modalTitle.textContent = m.title;
+  modalDescription.textContent = m.description;
+  seasonEpisode.textContent = `S${m.season} • E${m.episode}`;
+  episodeDuration.textContent = m.duration;
+  modalVideo.src = m.video;
+  playbackModal.classList.remove('hidden');
+}
+
+closeModal.onclick = () => { playbackModal.classList.add('hidden'); modalVideo.pause(); };
+
+window.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>
