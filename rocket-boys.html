@@ -1,0 +1,446 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rocket Boys</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ffcc00;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ffdd33;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(255, 204, 0, 0.7); }
+    
+    .gradient-text {
+      background: linear-gradient(90deg, #ffcc00, #ff9900);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    
+    .showcase-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    
+    .showcase-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+      z-index: 1;
+    }
+    .showcase-content { position: relative; z-index: 2; }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+    }
+
+    .video-container iframe,
+    .video-container video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
+
+<style>
+@keyframes rocketFly {
+  0% { transform: translateY(0) rotate(-45deg); }
+  50% { transform: translateY(-4px) rotate(-45deg); }
+  100% { transform: translateY(0) rotate(-45deg); }
+}
+@keyframes rocketFlame {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+</style>
+
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+
+      <!-- Logo circle stays same size -->
+      <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center relative">
+
+        <!-- Rocket Icon -->
+        <i class="fas fa-rocket text-black text-lg"
+           style="animation: rocketFly 1.2s ease-in-out infinite;"></i>
+
+        <!-- Flame -->
+        <span class="absolute bottom-0 w-1.5 h-1.5 bg-orange-400 rounded-full blur-sm"
+              style="animation: rocketFlame .4s ease-in-out infinite;"></span>
+      </div>
+
+      <h1 class="text-2xl font-bold gradient-text">Rocket Boys</h1>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-moon text-yellow-500"></i>
+      </button>
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-search text-yellow-500"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input type="text" placeholder="Search episodes..."
+             class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
+    </div>
+  </div>
+</header>
+
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-12 relative overflow-hidden rounded-xl h-64 md:h-96">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi1311818777/1434659607842-pgv4ql-1678168513431.mp4?Expires=1762346375&Signature=cgD31qHqotyJbs2QnCaIcx4RpHc951A3SjPTuBZoDd3sCCnNVETSHfs0zOAfWtEuHeI2wbmJ6YPJgevoG1YWlO63nvdsyZ5EU9xQPGpWkIJsvhW7T7SRl2FC0-NCADdkRVHUe7pglpr8CI2OOYdpD7kGYOd9IhYI0R8JE13vwGdronCCQAdIOSm2MJ4LdTozOZbeQ6X5lN~YEnKWf6s8bWocII~k7N0KvNUEdlzvW~JYw0SzuyT4mGds2d5zaMtFkZ9W-rnUTncthNzGsPOwTK2pNed7fC4-9nI4UlVoGCe07Bjp7f083ildc-NAZFRad5xDGAP15RVi33ZIuuEDOw__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="showcase-content h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg">The story of two extraordinary men, Dr. Homi Jehangir Bhabha and Dr. Vikram Ambalal Sarabhai, who created history while building India's future.</p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2">
+    <div class="flex space-x-2">
+      <button class="season-btn active bg-yellow-600 text-black px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="2">Season 2</button>
+    </div>
+  </div>
+
+
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-yellow-500 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © Rocket Boys Productions
+</footer>
+
+<!-- Playback Modal -->
+<div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl">&times;</button>
+    <div class="video-container">
+      <video id="modal-video" class="w-full" controls></video>
+    </div>
+    <div class="p-6">
+      <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
+      <div id="season-episode" class="text-gray-400 text-sm mb-2"></div>
+      <div id="episode-duration" class="text-gray-400 text-sm mb-4"></div>
+      <p id="modal-description" class="text-gray-300"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========= EPISODE DATA =========
+const movies = [
+  // Season 1
+  {
+    title: "War and Peace",
+    video: "https://sipt.pavonilaboratories.cyou/v4/db/da6fg/index-f2-v1-a1.txt",        // ← insert link
+    image: "https://images.slivcdn.com/videoasset_images/rocketboysmain_landscape_image.jpg?h=398&w=708&q=high",        // ← insert image URL
+    description: "With the country at war, Dr. Homi Bhabha and Dr. Vikram Sarabhai are faced with a monumental conflict: Is war the only way to attain peace? At odds with one another, they look back at their lives and the story of how they met.",
+    duration: "",     // ← insert duration (mins)
+    season: 1,
+    episode: 1,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "It’s Like Gravity",
+    video: "https://spok.silverforgeindustries.store/v4/36/ovg16/cf-master.txt?v=1732102698",
+    image: "https://images.slivcdn.com/landscape_thumb/show_original_rocketboys_ep02_Landscape_Thumb.jpg?h=398&w=708&q=high",
+    description: "Homi and Vikram’s friendship grows, and an unexpected roadblock leads them to meet a few people who will alter the course of their lives.",
+    duration: "",
+    season: 1,
+    episode: 2,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "The Greater Good",
+    video: "https://smeb.mindspireeducation.cyou/v4/36/hjz3y/index-f1-v1-a1.txt",
+    image: "https://images.slivcdn.com/landscape_thumb/show_original_rocketboys_ep03_Landscape_Thumb.jpg?h=398&w=708&q=high",
+    description: "Homi and Vikram set out on their individual paths in hopes to achieve their dreams.",
+    duration: "",
+    season: 1,
+    episode: 3,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "A Tryst with Destiny",
+    video: "https://slob.ironbrookarchitecture.shop/v4/9a/6dvqb/cf-master.txt?v=1732102862",
+    image: "https://images.slivcdn.com/landscape_thumb/show_original_rocketboys_ep04_Landscape_Thumb.jpg?h=398&w=708&q=high",
+    description: "Emerging as an independent country, Homi and Vikram share their vision for the country. A new face comes to light while a threat lurks in the shadow.",
+    duration: "",
+    season: 1,
+    episode: 4,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "The Outsider",
+    video: "https://cdn30092.hifel389min.com:443/stream2/i-arch-400/f2309f6e1bf51879ce0396fca859e6e7/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT290RStWWXZUbPRUVz0UbWlmWqVEMPdVRwklMWhmTU5EbZpGarlFVVVjWENWP:1763581725:185.113.8.50:3c1796b510d4e3c2623f5dd0207491ba83e6418f60f8fa4a8f9e75f4f702cfaf/./720/index.m3u8",
+    image: "https://images.slivcdn.com/landscape_thumb/show_original_rocketboys_ep05_Landscape_Thumb.jpg?h=398&w=708&q=high",
+    description: "Homi and Vikram face a backlash both at personal and professional life.",
+    duration: "",
+    season: 1,
+    episode: 5,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "A Democratic Process",
+    video: "https://cdn30092.hifel389min.com:443/stream2/i-arch-400/f2309f6e1bf51879ce0396fca859e6e7/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT2pVbVBTWt5EbZdVUy0ERjhXTEFFea1WWx4EVRpXWUVEePdUUz8ERNhnTtlVP:1763581785:185.113.8.50:10b35cbb3ab7052e78e3ad5be56b0fcec49410ef5793cc86571180e2bba94799/./720/index.m3u8",
+    image: "https://images.slivcdn.com/landscape_thumb/show_original_rocketboys_ep06_Landscape_Thumb.jpg?h=398&w=708&q=high",
+    description: "Their ideas and ambitions are challenged by a fierce rebellion. They must choose a path that they deem fit.",
+    duration: "",
+    season: 1,
+    episode: 6,
+    tags: ["Drama", "Politics"]
+  },
+  {
+    title: "We Are at War",
+    video: "https://scvo.stellarcreststudio.cyou/v4/36/go5qp/index-f1-v1-a1.txt",
+    image: "https://images.slivcdn.com/landscape_thumb/show_original_rocketboys_ep07_Landscape_Thumb.jpg?h=398&w=708&q=high",
+    description: "While India gets ready to take its first step in nuclear science, another dream gets into acceleration, but an impending war threatens to tear it all down.",
+    duration: "",
+    season: 1,
+    episode: 7,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "A New Dawn",
+    video: "https://s6p9.valenium.shop/v4/36/hjztj/index-f1-v1-a1.txt",
+    image: "https://images.slivcdn.com/landscape_thumb/show_original_rocketboys_ep08_Landscape_Thumb.jpg?h=398&w=708&q=high",
+    description: "The towering ambitions, the great sacrifices and the undeniable genius of these great men are put to test in a final showdown as the country emerges from the ravages of war.",
+    duration: "",
+    season: 1,
+    episode: 8,
+    tags: ["Drama", "History"]
+  },
+
+  // Season 2
+  {
+    title: "Lift Off",
+    video: "https://s6sy.satoriwellbeinglab.shop/v4/ic/mutjd/index-f1-v1-a1.txt",
+    image: "https://img.airtel.tv/unsafe/fit-in/495x0/filters:format(webp)/https://xstreamcp-assets-msp.streamready.in/assets/SONYLIV_VOD/EPISODE/6485d4be82488153bfe4ccd5/images/rocketboyss2_3_landscape_image.jpg?o=production",
+    description: "Dr Vikram Sarabhai prepares for a rocket launch, only to learn that the entire space programme might be in jeopardy. Meanwhile, Dr Homi Bhabha prepares to fight for his dreams but is forced to battle for his life.",
+    duration: "",
+    season: 2,
+    episode: 1,
+    tags: ["Drama", "Science"]
+  },
+  {
+    title: "Burden of Proof",
+    video: "https://sskt.valentrixinteractive.sbs/v4/db/ktxzz/cf-master.txt?v=1732102942",
+    image: "https://images.slivcdn.com/videoasset_images/rocket_boys_2_2_landscap_thumb.jpg?h=398&w=708&q=high",
+    description: "Vikram’s ambition falters prior to taking off. Mrinalini makes a daring move to assert her right as he tries to make progress. Homi’s deeds in the meantime drive the enemy to act.",
+    duration: "",
+    season: 2,
+    episode: 2,
+    tags: ["Drama", "Politics"]
+  },
+  {
+    title: "A Lasting Legacy",
+    video: "https://sxic.silverforgeindustries.store/v4/db/iracv/index-f1-v1-a1.txt",
+    image: "https://images.slivcdn.com/videoasset_images/rocket_boys_2_3_landscap_thumb.jpg?h=398&w=708&q=high",
+    description: "As political vultures close ranks, the nation experiences a severe loss and a change in power is organised. Vikram and Homi are compelled to choose a side. Would they continue to put their country before themselves in the face of an uncertain future?",
+    duration: "",
+    season: 2,
+    episode: 3,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "The Price of War",
+    video: "https://sxic.clarionworkshub.store/v4/36/ovgfi/index-f1-v1-a1.txt",
+    image: "https://images.slivcdn.com/videoasset_images/rocket_boys_2_4_landscap_thumb.jpg?h=398&w=708&q=high",
+    description: "Homi faces opposition on all fronts as he races against time, while Indira struggles to come out of her father’s enormous shadow. Meanwhile, Vikram and Mrinalini fight on the home front while the country faces the threat of a new war.",
+    duration: "",
+    season: 2,
+    episode: 4,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "Behind Enemy Lines",
+    video: "https://sunl.prismaticaeventworks.cfd/v4/db/j1hmk/cf-master.txt?v=1732103099",
+    image: "https://images.slivcdn.com/videoasset_images/rocket_boys_2_5_landscap_thumb.jpg?h=398&w=708&q=high",
+    description: "India’s nuclear future is on the line as Homi disregards caution and engages the adversary head-on. Meanwhile, Vikram contemplates forgiveness as the rift between him and Homi grows wider.",
+    duration: "",
+    season: 2,
+    episode: 5,
+    tags: ["Drama", "Politics"]
+  },
+  {
+    title: "Power Over Peace",
+    video: "https://sunl.bellavueartfoundation.store/v4/ox/x6aybl/index-f1-v1-a1.txt",
+    image: "https://images.slivcdn.com/videoasset_images/rocket_boys_2_6_landscap_thumb.jpg?h=398&w=708&q=high",
+    description: "Vikram assumes a new role that is directly opposed to all he holds dear. He is compelled to face the past and the truths hidden in it even as he has hope for the future.",
+    duration: "",
+    season: 2,
+    episode: 6,
+    tags: ["Drama", "Science"]
+  },
+  {
+    title: "The Last Guard",
+    video: "https://sskt.zenlithsustainables.cyou/v4/db/qfsgn/index-f1-v1-a1.txt",
+    image: "https://images.slivcdn.com/videoasset_images/rocket_boys_2_7_landscap_thumb.jpg?h=398&w=708&q=high",
+    description: "While Homi’s plans for the future of the nation’s nuclear programme begin to take shape, a wonderful new chapter in India’s satellite programme begins. But an unexpected tragedy upsets the balance.",
+    duration: "",
+    season: 2,
+    episode: 7,
+    tags: ["Drama", "History"]
+  },
+  {
+    title: "Smiling Buddha",
+    video: "https://slob.satoriwellbeinglab.shop/v4/9a/5gupa/index-f1-v1-a1.txt",
+    image: "https://images.slivcdn.com/videoasset_images/rocket_boys_2_8_landscap_thumb.jpg?h=398&w=708&q=high",
+    description: "In the greatest race against time, India and its scientists have just eight hours to accomplish an impossibly difficult task in the world’s greatest race against time.",
+    duration: "",
+    season: 2,
+    episode: 8,
+    tags: ["Drama", "History"]
+  }
+];
+
+
+
+/* ✅ Add Spy-Kids MP4 detector */
+function isMP4(url) {
+  return /\.mp4($|\?)/i.test(url);
+}
+
+/* DOM elements */
+const container = document.getElementById('movies');
+const playbackModal = document.getElementById('playback-modal');
+const modalVideo = document.getElementById('modal-video');
+const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const seasonEpisode = document.getElementById('season-episode');
+const episodeDuration = document.getElementById('episode-duration');
+const closeModal = document.getElementById('close-modal');
+
+let currentSeason = 'all';
+let currentFilter = 'All';
+
+function initPage() {
+  renderMovies();
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.season-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+      this.classList.add('active', 'bg-yellow-600', 'text-black');
+      currentSeason = this.dataset.season;
+      renderMovies();
+    });
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.filter-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+      this.classList.add('active', 'bg-yellow-600', 'text-black');
+      currentFilter = this.textContent;
+      renderMovies();
+    });
+  });
+}
+
+function renderMovies() {
+  container.innerHTML = '';
+  let filtered = movies;
+  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
+  if (currentFilter !== 'All') filtered = filtered.filter(m => m.tags.includes(currentFilter));
+
+  filtered.forEach((movie, i) => {
+    const card = document.createElement('div');
+    card.className = `movie-card fade-in delay-${i%5} glow-effect`;
+    card.innerHTML = `
+      <div class="relative group cursor-pointer overflow-hidden rounded-xl">
+        <img src="${movie.image}" class="w-full h-48 object-cover rounded-xl transition group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-yellow-500 text-3xl"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="mt-3 text-white font-medium">${movie.title}</div>
+      <div class="text-gray-400 text-sm">S${movie.season} • E${movie.episode} • ${movie.duration}</div>
+    `;
+
+    /* ✅ Spy-Kids logic applied */
+    card.addEventListener('click', () => {
+      if (isMP4(movie.video)) {
+        openModal(movie);
+      } else {
+        window.location.href =
+          `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function openModal(m) {
+  modalTitle.textContent = m.title;
+  modalDescription.textContent = m.description;
+  seasonEpisode.textContent = `S${m.season} • E${m.episode}`;
+  episodeDuration.textContent = m.duration;
+  modalVideo.src = m.video;
+  playbackModal.classList.remove('hidden');
+}
+
+closeModal.onclick = () => { playbackModal.classList.add('hidden'); modalVideo.pause(); };
+
+window.addEventListener('DOMContentLoaded', initPage);
+</script>
+
+</body>
+</html>
