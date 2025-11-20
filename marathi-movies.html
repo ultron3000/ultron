@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>मराठी चित्रपट संग्रह</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<style>
+  :root{--bg:#070707;--card:#121214;--accent:#ffc107;--btn-bg:#1f1f1f}
+  .light{--bg:#f7f7f8;--card:#ffffff;--btn-bg:#ffffff}
+  html,body{height:100%;margin:0;font-family:Poppins,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:#fff}
+  .light body{color:#111}
+
+  /* logo */
+  .site-logo{position:fixed;top:1rem;left:1rem;z-index:80;height:68px;border-radius:10px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.45)}
+  .site-logo img{height:100%;display:block}
+  .animate-logo{animation:float-pulse 3s ease-in-out infinite,glow 2s ease-in-out infinite alternate}
+  @keyframes float-pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  @keyframes glow{0%{filter:drop-shadow(0 0 2px #ffe) drop-shadow(0 0 6px #ffb)}50%{filter:drop-shadow(0 0 8px #ffe) drop-shadow(0 0 18px #ffb)}}
+
+  header{padding:3.25rem 1rem 0;text-align:center}
+  header h1{margin:0;font-size:1.4rem;color:var(--accent);font-weight:700}
+
+  /* toolbar top-right */
+  .toolbar{position:fixed;top:12px;right:12px;z-index:90;display:flex;gap:10px;align-items:center}
+  .tool-btn{width:48px;height:48px;border-radius:999px;background:var(--btn-bg);display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.45);transition:transform .12s}
+  .tool-btn:active{transform:scale(.96)}
+  .tool-btn svg{width:22px;height:22px;display:block}
+  .light .tool-btn{box-shadow:0 6px 18px rgba(2,6,23,.06)}
+
+  /* grid modes */
+  .movie-grid{display:grid;gap:12px;padding:1rem 1rem 3.5rem;margin-top:0}
+  .mode-standard .movie-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  @media(min-width:900px){ .mode-standard .movie-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))} }
+  @media(min-width:1200px){ .mode-standard .movie-grid{grid-template-columns:repeat(6,1fr)} }
+
+  .mode-dense .movie-grid{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;padding:.8rem}
+  @media(min-width:1200px){ .mode-dense .movie-grid{grid-template-columns:repeat(8,1fr)} }
+
+  .mode-card .movie-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:1rem}
+  @media(min-width:1200px){ .mode-card .movie-grid{grid-template-columns:repeat(5,1fr)} }
+
+  /* cards */
+  .movie-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .28s,box-shadow .28s;display:flex;flex-direction:column;align-items:stretch;perspective:1000px}
+  .movie-card:focus{outline:3px solid rgba(255,193,7,.14);outline-offset:3px}
+  .card-inner{transform-style:preserve-3d;transition:transform .35s}
+  .poster{width:100%;height:300px;object-fit:cover;display:block;transition:transform .35s,box-shadow .35s}
+  .title{padding:.7rem .6rem;font-weight:700;color:var(--accent);text-align:center;font-size:.95rem}
+
+  .mode-card .movie-card:hover{transform:translateY(-6px)}
+  .mode-card .movie-card:hover .card-inner{transform:translateZ(6px) rotateX(6deg) rotateY(-6deg) scale(1.03)}
+  .mode-card .movie-card:hover .poster{transform:translateZ(40px) scale(1.06);box-shadow:0 30px 50px rgba(0,0,0,.55)}
+
+  .mode-dense .title{display:none}
+  .mode-dense .movie-card:hover .title{display:block;position:relative;padding:.35rem .4rem;background:linear-gradient(180deg,rgba(0,0,0,.0),rgba(0,0,0,.45));color:#fff;font-size:.85rem;text-align:center}
+
+  .mode-standard .poster{height:260px}
+  .mode-dense .poster{height:140px}
+  .mode-card .poster{height:340px}
+
+  /* modal */
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;justify-content:center;align-items:center;padding:24px}
+  .modal.active{display:flex}
+  .modal-box{width:min(900px,96vw);max-height:80vh;border-radius:12px;display:flex;flex-direction:column;align-items:stretch;position:relative}
+  .modal video,.modal iframe{width:100%;height:auto;max-height:72vh;border-radius:8px;background:#000;border:none;display:block}
+  .modal-close{position:absolute;top:-12px;right:-12px;background:var(--btn-bg);border-radius:999px;padding:.35rem .45rem;border:none;cursor:pointer;font-size:1.05rem;box-shadow:0 8px 20px rgba(0,0,0,.5)}
+  .light .modal-close{background:#fff;color:#111}
+
+  @media(max-width:640px){ .poster{height:220px} .site-logo{height:52px} .toolbar{gap:8px} }
+</style>
+</head>
+<body class="mode-standard">
+
+<!-- logo -->
+<div class="site-logo animate-logo">
+  <img src="https://media.istockphoto.com/id/2167232116/vector/maharashtra-map-with-hindu-maratha-flag-card-banner-vector.jpg?s=612x612&w=0&k=20&c=6vvJVfUOmUx2Ksh2oT49bLk93q-eZo7p_J5eXvSmraM=" alt="Logo" />
+</div>
+
+<header><h1>मराठी चित्रपट संग्रह</h1></header>
+
+<!-- toolbar -->
+<div class="toolbar" role="toolbar" aria-label="View controls">
+  <button id="themeBtn" class="tool-btn" aria-pressed="false" title="Toggle dark/light">
+    <!-- two-icon SVG: we'll swap by toggling class, keep both paths -->
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <g id="icon-sun" style="display:none">
+        <path d="M6.76 4.84l-1.8-1.79L3.17 5.85l1.79 1.79L6.76 4.84zM1 13h3v-2H1v2zm10 9h2v-3h-2v3zm7.04-1.16l1.79-1.79-1.79-1.79-1.79 1.79 1.79 1.79zM17 13h3v-2h-3v2zM12 7a5 5 0 100 10 5 5 0 000-10z"/>
+      </g>
+      <g id="icon-moon">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+      </g>
+    </svg>
+  </button>
+
+  <button id="gridBtn" class="tool-btn" aria-pressed="false" title="Change grid mode">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 10v-8h8v8h-8z"/>
+    </svg>
+  </button>
+</div>
+
+<!-- grid container -->
+<main>
+  <section id="gridWrap" class="movie-grid" aria-live="polite"></section>
+</main>
+
+<!-- modal -->
+<div id="videoModal" class="modal" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-label="Video player">
+    <button id="modalClose" class="modal-close" aria-label="Close player">&times;</button>
+    <div id="playerContainer" style="width:100%;display:flex;align-items:center;justify-content:center">
+      <video id="modalVideo" controls playsinline></video>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Movie list */
+const movies = [
+ { title: "नवरदेव-बीएससी अ‍ॅग्री", url: "https://streamtape.com/e/yDlw2WYZGxherm/", image: "https://m.media-amazon.com/images/M/MV5BMWJhYzUyNWUtNmY0NC00NTA3LTkxZTgtODZhZjNkZjEzMGIxXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+ { title: "सायकल", url: "https://www.youtube.com/watch?v=QmUUNv5Gqrs", image: "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p15473483_p_v8_aa.jpg" },
+ { title: "पक पक पकाक", url: "https://www.youtube.com/watch?v=gOwVfAQ7hCI", image: "https://m.media-amazon.com/images/M/MV5BN2FlODYxZjktZTQ4Yy00M2QyLWE4MGEtNWMyZmJlYTFiMjNlXkEyXkFqcGc@._V1_.jpg" },
+ { title: "भाई: व्यक्‍ती की वल्ली", url: "https://www.youtube.com/watch?v=LpVJyUvDg18", image: "https://m.media-amazon.com/images/M/MV5BMTRlYzlkZGYtNmFlNS00ZDk5LWI4YWItOWJlMTA3ZDM4YzhmXkEyXkFqcGc@._V1_QL75_UX190_CR0,3,190,281_.jpg" },
+ { title: "देऊळ बंद", url: "https://www.youtube.com/watch?v=0WST5mM-ug4", image: "https://m.media-amazon.com/images/M/MV5BMGUzMzEzNGEtNTcxOC00MTk5LTliOGYtYjkxYzA0NWQ2MzA2XkEyXkFqcGc@._V1_.jpg" },
+ { title: "बालक-पालक", url: "https://www.youtube.com/watch?v=WKk5yPwnDl0", image: "https://m.media-amazon.com/images/M/MV5BM2JmZTE3ZWMtMTRkYi00YmM3LWI2OWMtNzQ4NDM4ZTA3OTg3XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+ { title: "हरिश्चंद्राची फॅक्टरी", url: "https://www.youtube.com/watch?v=-y37t7i4_-w", image: "https://m.media-amazon.com/images/M/MV5BOGMyOTgyZTItZjM0MC00YmVjLWJkMGMtNzU4MjM3NzljNGExXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+ { title: "डोंबिवली फास्ट", url: "https://www.youtube.com/watch?v=zL61IrgOP1g", image: "https://marathimovieworld.com/images/dombivali-fast-marathi-movie-poster.jpg" },
+ { title: "चश्मेबहाद्दर", url: "https://www.youtube.com/watch?v=g9lu73w8P7Y", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxdxfxLIhFuQHWcP7kfu0H5FhNfD6qpTIpVQ&s" },
+ { title: "जोगवा", url: "https://www.youtube.com/watch?v=0lsPUiawM6U", image: "https://m.media-amazon.com/images/M/MV5BYjgzOGFkOTUtMTNkMC00ODUwLTg2ZmMtMzFlMTZhNmNkYmZjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+ { title: "अगं बाई अरेच्चा", url: "https://www.youtube.com/watch?v=TgKICdOfD-k", image: "https://m.media-amazon.com/images/M/MV5BN2VhZjI1YWMtMjlhOC00MWQ0LTg3YmYtZDMzNjM2NTIzYjQzXkEyXkFqcGc@._V1_.jpg" },
+ { title: "खबरदार", url: "https://www.youtube.com/watch?v=Qo_dIT0NErY", image: "https://m.media-amazon.com/images/M/MV5BYjIxODY1YTktMDhjYS00ZTUyLTg3ZjctYjk5NjFlZDhjZmJlXkEyXkFqcGc@._V1_.jpg" },
+ { title: "जत्रा", url: "https://www.youtube.com/watch?v=qfv5ECUkikg", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgIndKPwa-sj_ZI20x6TPp6wX85kWZbb-_rA&s" },
+ { title: "गल्लीत गोंधळ दिल्लीत मुजरा", url: "https://www.youtube.com/watch?v=OpTdPC7UeWQ", image: "https://m.media-amazon.com/images/I/718dMrDoomL._UF1000,1000_QL80_.jpg" },
+ { title: "पुन्हा गोंधळ पुन्हा मुजरा", url: "https://www.youtube.com/watch?v=6xgj4gXX6ik", image: "https://cdn.moviefone.com/image-assets/537842/xjNUne8EmDs1NpXugBtQ44faogR.jpg?d=360x540&q=30" },
+ { title: "अशी ही बनवाबनवी", url: "https://www.youtube.com/watch?v=ruEchEsYzS4", image: "https://m.media-amazon.com/images/M/MV5BMzZhNzk1ZTktYzEyNi00MjA5LThjYjAtNGE0ZDNmZjFlNDMyXkEyXkFqcGc@._V1_.jpg" },
+ { title: "चौक", url: "https://www.youtube.com/watch?v=5M-A8ANuD_Y", image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/chowk-et00359174-1683629590.jpg" },
+ { title: "केसरी", url: "https://www.youtube.com/watch?v=Vs5aelfiuAk", image: "https://in.bmscdn.com/events/moviecard/ET00123996.jpg" },
+ { title: "झेंडा", url: "https://eTOjdo3Yv1iw.bearishxksezojbtu.cfd/UuW41VuwCiSR/hls3/01/02901/9lp26u0l8bwo_n/master.txt", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNJpR1fjz4UKpmjFlN4gsVLZLz5sSNFBXxag&s" },
+ { title: "किल्ला", url: "https://streamtape.com/e/KZpj6MxgrLh0mPG/", image: "https://in.bmscdn.com/events/moviecard/ET00028962.jpg" },
+ { title: "ठाकरे", url: "https://www.youtube.com/watch?v=LrbY9LQLPbs", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQp_HRGkEZtI0u0YOCGv2h4KyvuAMFvegYB4Q&s" },
+ { title: "वळू", url: "https://www.youtube.com/watch?v=fwbEnOX3gLk", image: "https://m.media-amazon.com/images/M/MV5BOWExNWRjMjgtOTAwMS00MWI0LTkxZGUtZjFhZTRiNGZkN2M4XkEyXkFqcGc@._V1_QL75_UY281_CR155,0,190,281_.jpg" },
+ { title: "दशावतार", url: "https://streamtape.com/e/Oo6LjMOb6zTZAgD/", image: "https://upload.wikimedia.org/wikipedia/en/thumb/6/66/Dashavatar_Marathi_movie.jpg/250px-Dashavatar_Marathi_movie.jpg" },
+ { title: "संत तुकाराम", url: "https://www.youtube.com/embed/IQHpDpAG9hk", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvta5UrpekYQ2hwl3OAMqOw9V7FArH0iIbYi0O-JNRs_kBNpOjmEzG8vnNKS1f-ffl12U&usqp=CAU" },
+ { title: "तुकाराम", url: "https://streamtape.com/e/6RwvRG4VQvIv1d/", image: "https://images.plex.tv/photo?size=large-1280&url=https%3A%2F%2Fmetadata-static.plex.tv%2Fc%2Fgracenote%2Fc6a4001ae0abaabf16aeb0dd7d251d45.jpg" },
+ { title: "अभंग तुकाराम", url: "https://streamtape.com/e/MrYrXzYAYVUmbBM/", image: "https://updatenownews.com/wp-content/uploads/2025/08/tukaram.jpg" },
+ { title: "मोरया", url: "https://streamtape.com/e/7zPYgBXgdVHAA88/", image: "https://upload.wikimedia.org/wikipedia/en/6/6a/Morya_Marathi_Movie.jpg" },
+ { title: "बाळकडू", url: "https://streamtape.com/e/K9rgoeR23dC0YYW/", image: "https://m.media-amazon.com/images/M/MV5BOGZkMjBkMTQtMmM0Ni00Y2JjLTlmZDItZWJhYjkxYTlkNTg1XkEyXkFqcGc@._V1_.jpg" },
+ { title: "नटरंग", url: "https://streamtape.com/e/K4aMX2prPJS0ZxP/", image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/natarang-et00004089-24-03-2017-17-59-29.jpg" },
+ { title: "भोंगा", url: "https://streamtape.com/e/rx8ePbWvjYFb2YY/", image: "https://static.digit.in/OTT/v2/images/bhonga-483714.jpg?tr=w-600" },
+ { title: "येड्यांची जत्रा", url: "https://streamtape.com/e/A3wDlLKADghBp0/", image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/yedyanchi-jatra-iemv004634-24-03-2017-16-47-32.jpg" },
+ { title: "धर्मवीर", url: "https://dn720405.ca.archive.org/0/items/bolleyBall_bollywood/Dharmaveer_2022_Marathi_Full_Movie_HDRip-%28CooLmovieZ.live%29.ia.mp4", image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/dharmaveer-et00327394-29-04-2022-04-20-45.jpg" },
+ { title: "धर्मवीर २", url: "https://dn720405.ca.archive.org/0/items/bolleyBall_bollywood/Dharmaveer_2022_Marathi_Full_Movie_HDRip-%28CooLmovieZ.live%29.mp4", image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/dharmaveer-2-et00403175-1719817449.jpg" },
+ { title: "यंदा कर्तव्य आहे", url: "https://skr.auronetworkfinance.sbs:443/v4/xy/uw1gu/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BYzQ3MjE2ZjctNTgwZC00YmJmLTkxOWEtNGIyNjllNTNlY2U2XkEyXkFqcGc@._V1_.jpg" },
+ { title: "देऊळ(Deool)", url: "https://streamtape.com/e/pa7K6kqd7PurQ8e/", image: "https://m.media-amazon.com/images/M/MV5BMjI0Mzg3MTE3MV5BMl5BanBnXkFtZTcwNjc4NTU3Nw@@._V1_.jpg" },
+ { title: "व्हेंटिलेटर", url: "https://file-cdn.indexer.eu.org/download/AgADeQIAAhFxwUY/1763570107/ec45a1005d1967c1fab456b2fd414c43a177c11f71ef753e8b874674f154dad7", image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/ventilator-et00043958-17-04-2017-17-58-45.jpg" },
+ { title: "पछाडलेला", url: "https://file-cdn.indexer.eu.org/download/AgADOgsAAn_84FU/1763570218/e01d9f7e7ee350f5d0531bc9b23c5c3de0d780fa1db48c7ab73c90f091589ea5", image: "https://resizing.flixster.com/8FTO3OWAXZFyGdxPTpXOdX70bGQ=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p11621877_k_v8_aa.jpg" },
+ { title: "फर्जंद", url: "https://drive.google.com/file/d/14PPQfQJfspcFMmYCPfBwTcD6WGuxAt0x/preview", image: "https://static.digit.in/OTT/v2/images/farzand-70297jpg" },
+ { title: "फत्तेशिकस्त", url: "https://drive.google.com/file/d/1fIxfr-OWT7Hd5czMlTZ5oqswX_IUFKxf/preview", image: "https://upload.wikimedia.org/wikipedia/en/8/81/Fatteshikast.jpg" },
+ { title: "पावनखिंड", url: "https://drive.google.com/file/d/1cTEVFdmlU17pFMVILTBh92OLdyMEJ-dD/preview", image: "https://m.media-amazon.com/images/M/MV5BOTMyYTEyYWMtNjI2Ny00MGZkLThjZTUtY2VhZTc5OTc5NmY0XkEyXkFqcGc@._V1_.jpg" },
+ { title: "शेर शिवराज", url: "https://drive.google.com/file/d/1BVpWybbG4QgQd8UYBFEPyVmdN3-Rs05S/preview", image: "https://i.pinimg.com/736x/de/aa/b4/deaab43ec3cafec25c5b36a3650a7989.jpg" },
+ { title: "सुभेदार", url: "https://drive.google.com/file/d/1VOyEOjnTEtn8jcZs_XTwBDwGtCgFVLFx/preview", image: "https://media-cache.cinematerial.com/p/500x/cu5tefq3/subhedar-indian-movie-poster.jpg?v=1707902225" },
+ { title: "सरसेनापती हंबीरराव", url: "https://drive.google.com/file/d/1-Tt6UuGDgkev-bTQ-V2xTzq4pytP_Bq5/preview", image: "https://marathimovieworld.com/images/sarsenapati-hambirrao-movie-posters-pravin-tarde.jpg" },
+ { title: "शिवप्रताप गरुडझेप", url: "https://drive.google.com/file/d/1X-z1n7TaLfeHUS54URe6cYmR9uFb6KT1/preview", image: "https://www.loksatta.com/wp-content/uploads/2022/09/Shivpratap-Garudjhep-Cast-2.jpg?w=350" },
+ { title: "हिरकणी", url: "https://drive.google.com/file/d/1kcjXftfjQzzfmBhKXXNv0ZqeN9CB8zsR/preview", image: "https://m.media-amazon.com/images/M/MV5BMDRlZGNlY2MtMzZmZi00Yjg1LTliNDgtZjZhZmJmZGQxOGM5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+ { title: "शिवरायांचा छावा", url: "https://drive.google.com/file/d/1qnuEq-66vaxVPzfsHAL2E346kQVjvB45/preview", image: "https://m.media-amazon.com/images/M/MV5BMjhkMTI5MTktMjc0MC00N2I3LWFlMGMtOTY0YmNmYzJlNTM3XkEyXkFqcGc@._V1_.jpg" },
+ { title: "धर्मरक्षक महावीर छत्रपती संभाजी महाराज", url: "https://drive.google.com/file/d/1y8foBArRlApJl7mzHGbWdWa0izC-GMP7/preview", image: "https://m.media-amazon.com/images/M/MV5BOTA3ZjJjYjMtNWY1Ni00NWUzLTkwZTEtZTViMGVhYzMwNDE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+ { title: "उबुंटू", url: "https://streamtape.com/e/8WBeR8R0OgFov49/", image: "https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=768,h=934,fit=crop,trim=0;3.7518610421836227;0;0/AR057846rnuEgENP/d6a7xdkuuaactxu-AMqxj5P8PNHe9vOa.jpeg" },
+ { title: "काय द्याचं बोला", url: "https://streamtape.com/e/ezmGJLzabeioZA/", image: "https://m.media-amazon.com/images/M/MV5BNTAyNTA2ODc5NF5BMl5BanBnXkFtZTcwMTg3MjgyOQ@@._V1_FMjpg_UX1000_.jpg" },
+ { title: "गोष्ट छोटी डोंगरेवाधी", url: "https://streamtape.com/e/mr9Qbgkgmdcba3w/", image: "https://upload.wikimedia.org/wikipedia/en/3/38/Goshta_choti.jpg" },
+ { title: "कट्यार काळजात घुसली", url: "https://streamtape.com/e/pl9YMYbgBrsxwK/", image: "https://upload.wikimedia.org/wikipedia/en/3/35/Katyar_Kaljat_Ghusali_%28film%29.jpg" },
+ { title: "जारण", url: "https://streamtape.com/e/78vKj6RMDZHALk0/", image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/jarann-et00446492-1747488540.jpg" },
+ { title: "फक्त लढ म्हणा", url: "https://streamtape.com/e/G6mVZLPQZ6i18lq/", image: "https://movieassetsdigital.sgp1.cdn.digitaloceanspaces.com/original/2f84a83eac30a74240fc27ed0e2503b0e49bd0a2" },
+ { title: "विटी-दांडू", url: "https://streamtape.com/e/z1XMp1DLX8sg0D/", image: "https://pbs.twimg.com/media/Bey9-HmCEAABRuW.jpg:large" },
+ { title: "गोलमाल", url: "https://skr.clarionacademy.sbs/v4/5c/6lpbf/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BYzE4OTBhYzMtNDFkNS00NGI2LWE4ZTYtNzFjZGE4ODY2ZjMzXkEyXkFqcGc@._V1_.jpg" },
+ { title: "नवरा माझा नवसाचा", url: "https://file-cdn.indexer.eu.org/download/AgADqUAAAusXYEo/1763570299/6f4cfae249412faee9c5c2996e166d349de97df8db4a8787acf17a5a03a77922", image: "https://upload.wikimedia.org/wikipedia/en/e/e5/Navra_Maza_Navsacha.jpg" },
+ { title: "फेका फेकी", url: "https://www.youtube.com/watch?v=QGTC2a7wUdU", image: "https://m.media-amazon.com/images/S/pv-target-images/b306ea7203a32c09562b261d8636439345de4e881294af28d8e3e86e990bb14b.jpg" },
+ { title: "गलगले निघाले", url: "https://streamtape.com/e/7Y6LV067y0tool/", image: "https://m.media-amazon.com/images/M/MV5BYTJiOTZkMmYtNDAxYy00ZWU3LWFmYmYtZTRkMWYyMzI4ODA5XkEyXkFqcGc@._V1_.jpg" },
+ { title: "जाऊ तिथे खाऊ", url: "https://streamtape.com/e/Wbk69428xJsbOqj/", image: "https://m.media-amazon.com/images/M/MV5BY2I5NDQ1MjItMGMxNy00NjYzLWIwM2ItODE5OTczYzljNzU0XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+ { title: "एलिझाबेथ एकादशी", url: "https://streamtape.com/e/QKZ7OxMd0wU0baB/", image: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Elizabeth_Ekadashi_Film_Poster.jpg/250px-Elizabeth_Ekadashi_Film_Poster.jpg" },
+ { title: "पांडू", url: "https://streamtape.com/e/klRApzy2vWuOlok/", image: "https://lh3.googleusercontent.com/proxy/_KJAN4ohQW8_dI86h1zfkn0IYy8S15PE5pVLD8wSzayTkJgrHOYYJTleGfeTtYyWpe2YG95MzT2hfemHzamJyRjDhmMpjys-PuDpOC6t4LnfRbSz2-4MlUupusI" },  
+];
+
+/* DOM refs */
+const gridWrap = document.getElementById('gridWrap');
+const modal = document.getElementById('videoModal');
+const playerContainer = document.getElementById('playerContainer');
+const modalVideoId = 'modalVideo';
+let currentHls = null;
+
+/* helper checks */
+const isYouTube = u => /youtu/i.test(u);
+const isHls = u => u && (u.includes('.m3u8') || u.includes('index-') || /\.txt/i.test(u));
+const isMP4 = u => /\.mp4/i.test(u);
+const isMega = u => u && u.includes('mega.nz');
+const isStreamtape = u => u && u.includes('streamtape.com');
+const isIndexer = u => u && u.includes("indexer.eu.org");
+const isGDrive = u => u.includes("drive.google.com");
+
+
+
+/* render grid safely */
+function makeCard(m){
+  const card = document.createElement('div');
+  card.className = 'movie-card';
+  card.tabIndex = 0;
+  const inner = document.createElement('div');
+  inner.className = 'card-inner';
+  const img = document.createElement('img');
+  img.className = 'poster';
+  img.src = m.image;
+  img.alt = m.title;
+  img.loading = 'lazy';
+  const t = document.createElement('div');
+  t.className = 'title';
+  t.textContent = m.title;
+  inner.appendChild(img);
+  inner.appendChild(t);
+  card.appendChild(inner);
+  card.addEventListener('click', ()=> playInModal(m.title, m.url));
+  card.addEventListener('keydown', e=> { if(e.key==='Enter' || e.key===' ') playInModal(m.title, m.url); });
+  return card;
+}
+movies.forEach(m => gridWrap.appendChild(makeCard(m)));
+
+/* Player helpers */
+function resetPlayer(){
+  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+  playerContainer.innerHTML = `<video id="${modalVideoId}" controls playsinline></video>`;
+}
+function showModal(){ modal.classList.add('active'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden'; }
+function hideModal(){ modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+
+function playInModal(title, url){
+  resetPlayer();
+  const videoEl = document.getElementById(modalVideoId);
+
+  if(isStreamtape(url)){
+    playerContainer.innerHTML = `<iframe src="${url}" allow="autoplay; fullscreen" allowfullscreen style="width:100%;height:72vh;border:0;border-radius:8px"></iframe>`;
+    showModal(); return;
+  }
+  if(isYouTube(url)){
+    const id = url.includes('v=') ? new URL(url).searchParams.get('v') : url.split('/').pop();
+    playerContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&rel=0" allow="autoplay; encrypted-media; fullscreen" frameborder="0" style="width:100%;height:72vh;border:0;border-radius:8px" allowfullscreen></iframe>`;
+    showModal(); return;
+  }
+  if(isMega(url)){
+    playerContainer.innerHTML = `<iframe src="${url}" allowfullscreen style="width:100%;height:72vh;border:0;border-radius:8px"></iframe>`;
+    showModal(); return;
+  }
+  if(isHls(url)){
+    if(Hls.isSupported()){
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(videoEl);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ showModal(); videoEl.play().catch(()=>{}); });
+    } else {
+      videoEl.src = url;
+      showModal();
+      videoEl.play().catch(()=>{});
+    }
+    return;
+  }
+  if(isMP4(url)){
+    videoEl.src = url;
+    showModal();
+    videoEl.play().catch(()=>{});
+    return;
+  }
+  // Indexer direct links (play as MP4)
+if (isIndexer(url)) {
+    videoEl.src = url;
+    showModal();
+    videoEl.play().catch(()=>{});
+    return;
+}
+// Google Drive preview embed
+if (isGDrive(url)) {
+    let fileId = "";
+    
+    // Method 1: Extract /d/FILEID/
+    const match = url.match(/\/d\/([^/]+)/);
+    if (match) fileId = match[1];
+
+    // Fallback for ?id= 
+    const idParam = new URL(url).searchParams.get("id");
+    if (!fileId && idParam) fileId = idParam;
+
+    if (fileId) {
+        const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+        playerContainer.innerHTML = `
+            <iframe src="${embedUrl}" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen 
+                    style="width:100%;height:72vh;border:0;border-radius:8px">
+            </iframe>`;
+        showModal();
+        return;
+    }
+}
+
+
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+/* close handlers */
+document.getElementById('modalClose').addEventListener('click', ()=>{ resetPlayer(); hideModal(); });
+modal.addEventListener('click', e=>{ if(e.target === modal){ resetPlayer(); hideModal(); } });
+window.addEventListener('keydown', e=>{ if(e.key==='Escape' && modal.classList.contains('active')){ resetPlayer(); hideModal(); } });
+
+/* Grid mode cycling (safe) */
+const body = document.body;
+const gridBtn = document.getElementById('gridBtn');
+const GRID_KEY = 'marathi_grid_mode';
+const modes = ['mode-standard','mode-dense','mode-card'];
+let idx = 0;
+function applyMode(i){
+  body.classList.remove(...modes);
+  body.classList.add(modes[i]);
+  localStorage.setItem(GRID_KEY, modes[i]);
+}
+function cycleMode(){
+  idx = (idx + 1) % modes.length;
+  applyMode(idx);
+}
+gridBtn.addEventListener('click', cycleMode);
+const saved = localStorage.getItem(GRID_KEY);
+if(saved && modes.includes(saved)){ idx = modes.indexOf(saved); applyMode(idx); } else { idx = 0; applyMode(0); }
+
+/* Theme toggle (safe DOM-only approach) */
+const themeBtn = document.getElementById('themeBtn');
+const iconSun = document.getElementById('icon-sun');
+const iconMoon = document.getElementById('icon-moon');
+const THEME_KEY = 'marathi_theme';
+function setTheme(t){
+  if(t === 'light'){ document.documentElement.classList.add('light'); themeBtn.setAttribute('aria-pressed','true'); iconSun.style.display = 'block'; iconMoon.style.display = 'none'; }
+  else { document.documentElement.classList.remove('light'); themeBtn.setAttribute('aria-pressed','false'); iconSun.style.display = 'none'; iconMoon.style.display = 'block'; }
+  localStorage.setItem(THEME_KEY, t);
+}
+themeBtn.addEventListener('click', ()=> setTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light'));
+const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+setTheme(savedTheme);
+
+/* Accessibility nicety: update grid title tooltip */
+function updateGridTitle(){
+  const names = ['Standard Grid','Dense Posters','Card Mode'];
+  gridBtn.title = `Grid mode: ${names[idx]}. Click to change.`;
+}
+updateGridTitle();
+gridBtn.addEventListener('click', () => setTimeout(updateGridTitle, 120));
+
+/* =========================
+   EXTREME 3D HOVER EFFECT
+   ========================= */
+
+function enable3DEffects() {
+  document.querySelectorAll('.movie-card').forEach(card => {
+    
+    // Skip in DENSE mode
+    if (document.body.classList.contains('mode-dense')) return;
+
+    const inner = card.querySelector('.card-inner');
+    const poster = card.querySelector('.poster');
+
+    // Reset first
+    card.addEventListener('mouseleave', () => {
+      inner.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
+      poster.style.transform = `translateZ(0px) scale(1)`;
+      poster.style.boxShadow = `none`;
+    });
+
+    // Mouse move tilt
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;  
+      const y = e.clientY - rect.top;
+
+      const midX = rect.width / 2;
+      const midY = rect.height / 2;
+
+      // EXTREME settings
+      const rotateY = ((x - midX) / midX) * 14;  
+      const rotateX = -((y - midY) / midY) * 14;
+
+      const pop = 65; // poster pop-out depth
+
+      inner.style.transform = `
+        perspective(1000px)
+        rotateX(${rotateX}deg)
+        rotateY(${rotateY}deg)
+        scale(1.08)
+      `;
+
+      poster.style.transform = `
+        translateZ(${pop}px) 
+        scale(1.15)
+      `;
+
+      poster.style.boxShadow = `
+        0 40px 80px rgba(0,0,0,0.55)
+      `;
+    });
+  });
+}
+
+/* Re-enable on grid mode change */
+gridBtn.addEventListener('click', () => {
+  setTimeout(enable3DEffects, 150);
+});
+
+/* Initial call */
+enable3DEffects();
+
+
+</script>
+</body>
+</html>
