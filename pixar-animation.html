@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Pixar Universe</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --pixar-blue: #1d4ed8;
+      --pixar-yellow: #fbbf24;
+      --pixar-red: #ef4444;
+      --pixar-green: #10b981;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+      color: white;
+      min-height: 100vh;
+    }
+    
+    .movie-card {
+      transition: all 0.3s ease;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-10px) scale(1.03);
+      box-shadow: 0 25px 50px -12px rgba(251, 191, 36, 0.25);
+    }
+    
+    .movie-poster {
+      transition: all 0.5s ease;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: rotateY(10deg);
+    }
+    
+    .search-glow {
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+    }
+    
+    .pixar-logo {
+      text-shadow: 0 0 10px rgba(251, 191, 36, 0.7);
+    }
+    
+    .category-btn {
+      transition: all 0.2s ease;
+    }
+    
+    .category-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .category-btn.active {
+      background-color: var(--pixar-yellow);
+      color: #111827;
+    }
+    
+    .loading-spinner {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--pixar-yellow);
+      border-radius: 4px;
+    }
+    
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-container {
+      width: 90%;
+      max-width: 1000px;
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+    
+    .modal-overlay.active .modal-container {
+      transform: scale(1);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .movie-card {
+        width: 100%;
+      }
+      
+      .modal-container {
+        width: 95%;
+      }
+    }
+  </style>
+</head>
+<body class="pb-16">
+<!-- Header with animated background -->
+<header class="relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-yellow-600 to-red-900 opacity-20 animate-gradient"></div>
+<div class="container mx-auto px-4 py-8 relative z-10">
+<div class="flex flex-col items-center justify-center text-center mb-8">
+<div class="flex items-center mb-4">
+<i class="fas fa-film text-4xl text-yellow-400 mr-3"></i>
+<h1 class="text-4xl md:text-5xl font-bold pixar-logo">
+<span class="text-yellow-400">PIXAR</span> <span class="text-white">UNIVERSE</span>
+</h1>
+<i class="fas fa-star text-3xl text-yellow-400 ml-3 animate-pulse"></i>
+</div>
+<p class="text-lg text-gray-300 max-w-2xl">
+          Explore the magical world of Pixar's animated masterpieces
+        </p>
+</div>
+</div>
+</header>
+<!-- Main content -->
+<main class="container mx-auto px-4">
+<!-- Search and filter section -->
+<div class="mb-10">
+<div class="relative max-w-2xl mx-auto mb-6">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<i class="fas fa-search text-yellow-400"></i>
+</div>
+<input class="w-full pl-10 pr-4 py-3 rounded-full bg-gray-800 border border-gray-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition-all duration-300 text-white search-glow" id="searchBar" placeholder="Search Pixar movies..." type="text"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+<button class="text-gray-400 hover:text-yellow-400" id="clearSearch">
+<i class="fas fa-times"></i>
+</button>
+</div>
+</div>
+<div class="flex flex-wrap justify-center gap-3 mb-8">
+<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="all">
+          All Movies
+        </button>
+<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="feature">
+          Feature Films
+        </button>
+<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="short">
+          Short Films
+        </button>
+<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="sequel">
+          Sequels
+        </button>
+</div>
+</div>
+<!-- Movies grid -->
+<div class="flex justify-center items-center py-20" id="loading">
+<div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="movies"></div>
+<div class="hidden text-center py-16" id="noResults">
+<i class="fas fa-film text-6xl text-gray-600 mb-4"></i>
+<h3 class="text-2xl font-semibold text-gray-300">No movies found</h3>
+<p class="text-gray-500 mt-2">Try adjusting your search or filter</p>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-20 py-6 bg-gray-900 bg-opacity-50">
+<div class="container mx-auto px-4 text-center text-gray-400">
+<div class="flex justify-center space-x-6 mb-4">
+<a class="hover:text-yellow-400 transition-colors" href="#">
+<i class="fab fa-facebook-f"></i>
+</a>
+<a class="hover:text-yellow-400 transition-colors" href="#">
+<i class="fab fa-twitter"></i>
+</a>
+<a class="hover:text-yellow-400 transition-colors" href="#">
+<i class="fab fa-instagram"></i>
+</a>
+<a class="hover:text-yellow-400 transition-colors" href="#">
+<i class="fab fa-youtube"></i>
+</a>
+</div>
+<p>© 2023 Pixar Universe. All rights reserved.</p>
+<p class="text-sm mt-2">This is a fan-made project and not affiliated with Pixar Animation Studios.</p>
+</div>
+</footer>
+
+<!-- Video Modal -->
+<div class="modal-overlay" id="video-modal">
+  <div class="modal-container">
+    <div class="relative">
+      <button class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl transition" id="close-modal">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="aspect-w-16 aspect-h-9">
+        <video class="w-full" controls id="modal-video" autoplay>
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div class="p-6 text-white">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-2xl font-bold mb-1" id="modal-title"></h3>
+            <div class="text-gray-400 text-sm">
+              <span id="modal-year"></span> • ★ <span id="modal-rating"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Enhanced movie data with categories and release years
+    const movies = [
+      { title: "WALL·E", video: "https://sr81.bradburyg.sbs:443/v4/js/jgoag/index-f2-v1-a1.txt", image: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/05c77b66174149.5b0d6304d6a65.jpg", category: "feature", year: 2008 },
+      { title: "Elemental", video: "https://sskt.mcgarrydvan.sbs:443/v4/ho/bhpt8/index-f2-v1-a1.txt", image: "https://preview.redd.it/elemental-2023-is-among-pixars-most-successful-recent-v0-lukx1jjb0ybb1.jpg?width=640&crop=smart&auto=webp&s=3d11d7a266ecc1ab4fbacb90ef2f458ef98fd0cb", category: "feature", year: 2023 },
+      { title: "Inside Out", video: "https://s9dz.baugherhatchp.sbs:443/v4/sc/mooqa/index-f2-v1-a1.txt", image: "https://i.ebayimg.com/images/g/wtUAAOSwtqtk4Ytr/s-l1200.jpg", category: "feature", year: 2015 },
+      { title: "Inside Out 2", video: "https://sojg.coombsneils.sbs:443/v4/rw/xhqzk/index-f1-v1-a1.txt", image: "https://lumiere-a.akamaihd.net/v1/images/z_95ab3f83.jpeg?region=0,0,1350,2000", category: "sequel", year: 2024 },
+      { title: "Riley's First Date?", video: "https://sj3l.vivianorov.sbs:443/v4/db/ul69l/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BMjZjYTRlMGEtNmRhOC00MzEzLTk1ZDktMmRlNjlkZjc5YjI5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "short", year: 2015 },
+      { title: "Lightyear", video: "https://scvo.mcentirecajigas.sbs/v4/k5/eorm6/index-f1-v1-a1.txt", image: "https://myhotposters.com/cdn/shop/products/mL6180.jpg?v=1745708654", category: "feature", year: 2022 },
+      { title: "Turning Red", video: "https://sj3l.ghwillawkni.sbs:443/v4/rw/eocdk/index-f2-v1-a1.txt", image: "https://i.pinimg.com/564x/f7/2c/bd/f72cbd2d0218e221c05e2b251795abb8.jpg", category: "feature", year: 2022 },
+      { title: "Luca", video: "https://sojg.wesleykqpgre.sbs:443/v4/pq/3ye3w/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/8tABCBpzu3mZbzMB3sRzMEHEvJi.jpg", category: "feature", year: 2021 },
+      { title: "Ciao Alberto", video: "https://skra.cedekkerohartf.sbs:443/v4/k5/xle8s/index-f2-v1-a1.txt", image: "https://egybest.media/uploads/m/99f4f6accffeb2c4026c31ede97947b5.jpg", category: "short", year: 2021 },
+      { title: "Soul", video: "https://sskt.desrocherswick.sbs/v4/db/qywjo/index-f1-v1-a1.txt", image: "https://lh5.googleusercontent.com/proxy/dBL2PpqEROU996gypuL3GsYRYYfInP0fdQ47OyPOX_OJeEWbe5RCXQgEN_SbKChOOu5wzsenPprwmR95R4QJqWYfREurqQ-LLoo", category: "feature", year: 2020 },
+      { title: "Onward", video: "https://skra.haltermanieddiel.sbs:443/v4/db/inlpf/index-f2-v1-a1.txt", image: "https://i0.wp.com/raisingwhasians.com/wp-content/uploads/2020/02/Onward-movie-review-safe-for-kids-691x1024.jpg", category: "feature", year: 2020 },
+      { title: "Finding Nemo", video: "https://sr81.myersbjhardi.sbs:443/v4/6s/bpu6y/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/I/71+H7cpoK9L._AC_UF1000,1000_QL80_.jpg", category: "feature", year: 2003 },
+      { title: "Finding Dory", video: "https://sr81.gatesnationjyd.sbs:443/v4/ic/hvbk5/index-f1-v1-a1.txt", image: "https://www.aceprensa.com/wp-content/uploads/2016/06/127380-0.jpg", category: "sequel", year: 2016 },  
+      { title: "Dory's Reef Cam", video: "https://sr81.swobodafocht.sbs/v4/9a/bkewb/cf-master.txt?v=1732333200", image: "https://www.dvdplanetstore.pk/wp-content/uploads/2024/01/mMWLGu9pFymqipN8yvISHsAaj72-600x900.jpg", category: "short", year: 2016 },
+      { title: "The Incredibles", video: "https://slob.mcgarrydvan.sbs:443/v4/np/xjokk/index-f2-v1-a1.txt", image: "https://i.ebayimg.com/images/g/VIQAAMXQhuVRKnzc/s-l1200.jpg", category: "feature", year: 2004 },
+      { title: "Incredibles 2", video: "https://spuc.vivianorovc.sbs/v4/js/gnt5j/cf-master.txt?v=1733545595", image: "https://live.staticflickr.com/862/43093706984_b56a7a8915_z.jpg", category: "sequel", year: 2018 },
+      { title: "Auntie Edna", video: "https://slob.squiressill.sbs:443/v4/db/inpxt/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BNDJiOWYxZTYtOTFjNS00MjY4LThjZmUtNjI5ZDQwODdmNTNiXkEyXkFqcGc@._V1_.jpg", category: "short", year: 2018 },
+      { title: "Coco", video: "https://sipt.killionorellanacoelho.sbs:443/v4/hz/dxnps/index-f1-v1-a1.txt", image: "https://i5.walmartimages.com/asr/591da8ad-5d7d-4839-924e-156c147701b4.5d243bebf10c969b420a3303a6c989ed.jpeg", category: "feature", year: 2017 },
+      { title: "Cars", video: "https://slob.sralphqesrob.sbs:443/v4/ck/hvpy8/index-f2-v1-a1.txt", image: "https://filmartgallery.com/cdn/shop/files/Cars-Vintage-Movie-Poster-Original.jpg?v=1738907489", category: "feature", year: 2006 },
+      { title: "Cars 2", video: "https://s3ae.yevettesha.sbs:443/v4/xq/e8wzv/index-f2-v1-a1.txt", image: "https://i.ebayimg.com/images/g/3rgAAOSwk7hfJHpl/s-l1200.jpg", category: "sequel", year: 2011 },
+      { title: "Cars 3", video: "https://sr81.dkneropbr.sbs/v4/js/rxsct/cf-master.txt?v=1735259302", image: "https://image.tmdb.org/t/p/original/ucGU1HyLfxoQwuq22VWwq55m0cH.jpg", category: "sequel", year: 2017 },
+      { title: "Air Mater", video: "https://slob.squiressill.sbs:443/v4/db/inpxt/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/sEixqafB6xfwovGZ38YPyUlhCuW.jpg", category: "short", year: 2011 },
+      { title: "Cars Toon: Mater's Tall Tales", video: "https://sojg.pouloszcleed.sbs:443/v4/61/cdfwx/index-f2-v1-a1.m3u8", image: "https://m.media-amazon.com/images/M/MV5BNDMxYjQ3ZDAtMjg4OC00ZTQ0LTk1NGEtNjdlMmU1MWYxNGI3XkEyXkFqcGc@._V1_.jpg", category: "short", year: 2010 },
+      { title: "The Good Dinosaur", video: "https://sxic.myersbjhardi.sbs/v4/sc/xuhud/cf-master.txt?v=1732328816", image: "https://lh3.googleusercontent.com/proxy/5mYbZ9t6WEqFmyul8Hc4kNZQ2IfSS83rp0ZKQP7H2N8a1sv1JGBSgZ6JraHtQfjXRKYiRWGD7COfp5Z5SipWlPt9BmFM3bialGL5qaz_qxyZlis", category: "feature", year: 2015 },
+      { title: "Up", video: "https://f12.megacdn.co:2228/v3-hls-playback/b9b65d54164d3f6c0fb2be6c95a833e2f99d5a4386c8dddb15ed15c4580e5340e444ef6cce00fde2ccfc3127ad7cd26017a9b08f4a211c77cb94bb57b3fbbb5195e078521cfc7cf6f6569eba03ef408bfd0897b877a2cbeb083fbbe8172283d9f3c9b4b2432e4d8bbcf1ccc50db5ad9adfc3bd515d84e1e7a0f2148475557460cfdf8d200784d63b6ffdee90b137f5af16cf55521dc57bf664e62955080e0c05304b9a3f84b29bbba93467399cde5298a8fbfffa3f159c0a1f7e067903536959/1080/index.m3u8", image: "https://i.etsystatic.com/17257718/r/il/1557b9/2441195192/il_570xN.2441195192_8kka.jpg", category: "feature", year: 2009 },
+      { title: "Carl's Date", video: "https://sipt.shahcanna.sbs/v4/6s/ocq59/index-f1-v1-a1.txt", image: "https://cdn.kinocheck.com/i/2qkknsed3e.jpg", category: "short", year: 2023 },
+      { title: "Monsters University", video: "https://198.186.130.94:443/v4/kkChLmPijNWnl8btDRe1Vg/1745459386/us/p3zyx/index-f2-v1-a1.m3u8", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKSA2w_5s325s9qQ39DEasX9Hx7Gdxyg8hfaZzpV9G87pkvgFsvk-8I-y3QrjOA1Gb3Lo&usqp=CAU", category: "sequel", year: 2013 },
+      { title: "Monsters, Inc.", video: "https://spuc.ybarrazotz.sbs/v4/db/p8b3s/cf-master.txt?v=1732147597", image: "https://i.ebayimg.com/images/g/AzQAAOSwDwNjN2eE/s-l1200.jpg", category: "feature", year: 2001 },
+      { title: "Party Central", video: "https://s3ae.squiressill.sbs:443/v4/ek/doan8/index-f2-v1-a1.txt", image: "https://i.pinimg.com/736x/17/ee/3e/17ee3ed085bccd9b03fd4adfa9a5ccf9.jpg", category: "short", year: 2013 },
+      { title: "Ratatouille", video: "https://smashyplayer.top:443/hls/baPs8vMfovyhGyknuto30g/sc/ghsd6zxw/pw3r1/tt/index-f2-v1-a1.m3u8", image: "https://images-cdn.ubuy.co.in/64389b0afd266f2c036cf595-poster-usa-disney-classics-ratatouille.jpg", category: "feature", year: 2007 },
+      { title: "Your Friend the Rat", video: "https://sxic.bsmlecuyer.sbs/v4/db/urcza9/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BMTcyOTU4MTM0OF5BMl5BanBnXkFtZTgwODQzMDgwMjE@._V1_FMjpg_UX1000_.jpg", category: "short", year: 2007 },
+      { title: "Toy Story", video: "https://s9dz.coombsneils.sbs:443/v4/np/hq5bo/index-f2-v1-a1.txt", image: "https://images-cdn.ubuy.co.in/6742c6d683a44b4221024ef9-entertainment-room-decor-toy-story-1.jpg", category: "feature", year: 1995 },
+      { title: "Toy Story 2", video: "https://s9dz.sipeskrlbtrujill.sbs:443/v4/sc/xkfhi/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/xVhEI1WCgNCCa5I86AqiwuZoog3.jpg", category: "sequel", year: 1999 },
+      { title: "Toy Story 3", video: "https://smashyplayer.top:443/hls/_Aeg_kfj63Gjjp_17Pt9PA/xq/nc31je1o/mn5jj/tt/index-f2-v1-a1.m3u8", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkG34xN0wr4pZgiLpLnfDt65WtXjZP_YOA4SZevisCxmqOyevuU1SojHsFEyBriX7barM&usqp=CAU", category: "sequel", year: 2010 },
+      { title: "Toy Story 4", video: "https://s3ae.cwsspottstcyl.sbs:443/v4/hz/vijsz/index-f2-v1-a1.txt", image: "https://i.pinimg.com/736x/32/f0/c2/32f0c2388f8745c2fa2aab3609355116.jpg", category: "sequel", year: 2019 },
+      { title: "Toy Story That Time Forgot", video: "https://s3ae.desrocherswick.sbs/v4/ck/xujkt/index-f2-v1-a1.txt", image: "https://i.pinimg.com/736x/ac/c7/b9/acc7b968fea622f39032d123b5a04497.jpg", category: "short", year: 2014 },
+      { title: "Toy Story of Terror!", video: "https://skra.wesleykqpg.sbs:443/v4/61/r1t1k/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/oPBEnNP4Fg4gv9c0KBhchmtoG4H.jpg", category: "short", year: 2013 },
+      { title: "Lamp Life", video: "https://skra.kimberlygxjeum.sbs:443/v4/pq/jwdtt/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BYmQxNzA5YTYtNWZkZi00ZDM1LWFiYjgtMzdmMmJiNjNiMmMyXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "short", year: 2020 },
+      { title: "Brave", video: "https://macdn.hakunaymatata.com/resource/ece55123e8d22e059d444e467261a3ae.mp4?Expires=1749582553&Signature=qvpkzf0u-C4jhTO33vFVU4m--rDbvBPr1CeL1AsVTztZVD5fUJzeVJwzZ7x16wbkCw3PM8JyfJQpbkXA8090m9rQWhp9azny5XzPC1DHjIEkRA1a-oj4u-WiZRTlek~tQoLSTNP1YJiLj-BLirTH6bDiFhD3h~PvMYAYKDDhmAT6QNIspnSWTaufPqS8WLoD48tBCihULo06NEfK8tQ4~rXP~A8Fo-20DlK8tqMDKutzirWaqznZMZuhVrfsj9iNx5Nehg~FUoile66SZbb910~gm0dKoG1tUkaUl4vuLy97QFUs~j7zerNbTiN23m2XQunvHJ3I0bhDggQG79Dvbw__&Key-Pair-Id=KMHN1LQ1HEUPL", image: "https://image.tmdb.org/t/p/original/L6qqU6Q3k4MmPojncNbT43FSTL.jpg", category: "feature", year: 2022 },
+      { title: "22 vs. Earth", video: "https://cdn-1.celestialodyssey.site/video-stream/a66dd7c8/playlist.m3u8", image: "https://m.media-amazon.com/images/M/MV5BODc5MGM0YzQtNDlmOS00NTMyLTg5YzYtNGU0YTc5NjU1NGE1XkEyXkFqcGc@._V1_.jpg", category: "short", year: 2021 },
+      { title: "Loop", video: "https://sh9f.cortinala.sbs:443/v4/ck/tqn9q/index-f2-v1-a1.txt", image: "https://speakingofautismcom.wordpress.com/wp-content/uploads/2019/12/img_1643.jpg", category: "short", year: 2020 },
+      { title: "Purl", video: "https://sj3l.wrendresslerle.sbs:443/v4/rw/h6dz3/index-f2-v1-a1.txt", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAHQTUlNh-wk4l8zGP7rOGM8EZ0ucf3qfn7EU5PF4AKZCtSEjpPQJCFb4etimfCQIE624&usqp=CAU", category: "short", year: 2019 },
+      { title: "Float", video: "https://sojg.cortinala.sbs:443/v4/lf/ixyal/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BNDU5ODg2YjEtODk1My00NDA5LTliMzctZmI5ODY2ZWNjZTEyXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "short", year: 2019 },
+      { title: "Lou", video: "https://sh9f.gomesscheerer.sbs:443/v4/np/xrpq3/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BZWQ5ODAwNDMtNmY0Yy00OWQ1LTk0MzctOGE4OTMyYWRjNjg0XkEyXkFqcGc@._V1_.jpg", category: "short", year: 2017 },
+      { title: "Piper", video: "https://sxic.mcentirecajigas.sbs/v4/k5/xlld9/index-f1-v1-a1.txt", image: "https://i.pinimg.com/736x/71/43/d0/7143d0e2d47e170a230a56f7a8ec0275.jpg", category: "short", year: 2016 },
+      { title: "Lava", video: "https://skra.ulrikeumdqputm.sbs:443/v4/qu/tgn3o/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BNmQ2NTAwMDktYWE5Mi00OTBkLWJiZmUtNGQ4MGM5NzMxOTRhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "short", year: 2014 },
+      { title: "Partly Cloudy", video: "https://sh9f.tiltonrigobert.sbs:443/v4/hz/no666/index-f1-v1-a1.txt", image: "https://i.pinimg.com/originals/de/00/22/de0022a3e8b016ffb9458a13fd43885f.jpg", category: "short", year: 2009 },
+      { title: "Partysaurus Rex", video: "https://spuc.skylineinnovationhub.site:443/v4/36/mml8e/index-f2-v1-a1.txt", image: "https://img.rgstatic.com/content/movie/ea692fc3-3bd1-4300-a945-86576dc225d0/poster-342.jpg", category: "short", year: 2012 },
+      { title: "A Bug's Life", video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/2025/6/9/67649/movie.67649.2025.1080p.H264.20250716041652.mp4?KEY1=8lxC7_ktfOa2pDn22MCnww&KEY2=1761288112&KEY3=1083668&KEY4=world&KEY7=febbox_video_quality_list_v3&KEY8=1083668", image: "https://i.pinimg.com/474x/74/9e/67/749e67191044fb4ace982fa646a385a7.jpg", category: "feature", year: 1998 }
+    ];
+
+    // DOM elements
+    const container = document.getElementById('movies');
+    const searchBar = document.getElementById('searchBar');
+    const clearSearch = document.getElementById('clearSearch');
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    const loading = document.getElementById('loading');
+    const noResults = document.getElementById('noResults');
+    const videoModal = document.getElementById('video-modal');
+    const modalVideo = document.getElementById('modal-video');
+    const modalTitle = document.getElementById('modal-title');
+    const modalYear = document.getElementById('modal-year');
+    const closeModalBtn = document.getElementById('close-modal');
+    
+    // Current filter state
+    let currentCategory = 'all';
+    let currentSearch = '';
+    
+    // Check if URL is MP4
+    function isMP4(url) {
+      return /\.mp4($|\?)/i.test(url);
+    }
+    
+    // Check if URL is stream (M3U8 or TXT)
+    function isStream(url) {
+      return /\.(m3u8|txt)($|\?)/i.test(url);
+    }
+    
+    // Open modal with video
+    function openVideoModal(movie) {
+      modalTitle.textContent = movie.title;
+      modalYear.textContent = movie.year || "";
+      modalVideo.src = movie.video;
+      videoModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    // Close modal
+    function closeVideoModal() {
+      videoModal.classList.remove('active');
+      modalVideo.pause();
+      modalVideo.src = "";
+      document.body.style.overflow = '';
+    }
+    
+    // Handle movie click
+    function handleMovieClick(movie) {
+      if (isMP4(movie.video)) {
+        // Play MP4 in modal
+        openVideoModal(movie);
+      } else if (isStream(movie.video)) {
+        // Redirect streams to player.html
+        const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
+        window.location.href = url;
+      } else {
+        // Default behavior for unknown formats
+        console.log("Unknown video format:", movie.video);
+      }
+    }
+    
+    // Display movies with animation
+    function displayMovies(filteredMovies) {
+      container.innerHTML = '';
+      
+      if (filteredMovies.length === 0) {
+        noResults.classList.remove('hidden');
+        return;
+      }
+      
+      noResults.classList.add('hidden');
+      
+      filteredMovies.forEach((movie, index) => {
+        const delay = (index % 10) * 0.1; // Staggered animation
+        
+        const div = document.createElement('div');
+        div.className = 'movie-card fade-in';
+        div.style.animationDelay = `${delay}s`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden rounded-xl h-full">
+            <img 
+              src="${movie.image}" 
+              alt="${movie.title}" 
+              class="movie-poster w-full h-80 object-cover rounded-xl"
+              loading="lazy"
+            >
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 pt-10">
+              <h3 class="text-lg font-bold text-white">${movie.title}</h3>
+              <div class="flex items-center text-sm text-gray-300 mt-1">
+                <span class="bg-gray-800 px-2 py-1 rounded mr-2">${movie.year}</span>
+                <span class="bg-gray-800 px-2 py-1 rounded flex items-center">
+                  <i class="fas ${movie.category === 'short' ? 'fa-clock' : 'fa-film'} text-xs mr-1"></i>
+                  ${movie.category === 'short' ? 'Short' : 'Feature'}
+                </span>
+              </div>
+            </div>
+            <div class="absolute top-2 right-2 bg-yellow-400 text-gray-900 px-2 py-1 rounded-full text-xs font-bold">
+              PIXAR
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
+              <i class="fas fa-play text-4xl text-yellow-400"></i>
+            </div>
+          </div>
+        `;
+        
+        div.onclick = () => handleMovieClick(movie);
+        
+        container.appendChild(div);
+      });
+    }
+    
+    // Filter movies based on search and category
+    function filterMovies() {
+      const filtered = movies.filter(movie => {
+        const matchesSearch = movie.title.toLowerCase().includes(currentSearch);
+        const matchesCategory = currentCategory === 'all' || movie.category === currentCategory;
+        return matchesSearch && matchesCategory;
+      });
+      
+      displayMovies(filtered);
+    }
+    
+    // Event listeners
+    searchBar.addEventListener('input', function() {
+      currentSearch = this.value.toLowerCase();
+      filterMovies();
+    });
+    
+    clearSearch.addEventListener('click', function() {
+      searchBar.value = '';
+      currentSearch = '';
+      filterMovies();
+    });
+    
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        categoryBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentCategory = this.dataset.category;
+        filterMovies();
+      });
+    });
+    
+    // Close modal when clicking overlay or close button
+    videoModal.addEventListener('click', function(e) {
+      if (e.target === this || e.target.closest('#close-modal')) {
+        closeVideoModal();
+      }
+    });
+    
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      // Set default active category
+      document.querySelector('[data-category="all"]').classList.add('active');
+      
+      // Simulate loading
+      setTimeout(() => {
+        loading.classList.add('hidden');
+        filterMovies();
+      }, 800);
+    });
+</script>
+</body>
+</html>
