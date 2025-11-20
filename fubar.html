@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FUBAR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ff4444;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ff6666;
+    }
+    
+    /* fade in */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255, 68, 68, 0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(255, 68, 68, 0.7); }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ff4444, #ff2222);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .showcase-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    .showcase-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+      z-index: 1;
+    }
+    .showcase-content { position: relative; z-index: 2; }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+    }
+    .video-container iframe,
+    .video-container video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    body { background: #0d0d0d; color: #eee; }
+    header, footer { background: #111; }
+    .season-btn.active { background: #ff4444 !important; color: #fff !important; }
+    .filter-btn.active { background: #ff4444 !important; color: #fff !important; }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-red-600/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
+        <i class="fas fa-user-shield text-white text-xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold gradient-text">FUBAR</h1>
+    </div>
+    <div class="flex items-center space-x-4">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-moon text-red-400"></i>
+      </button>
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-search text-red-400"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input type="text" placeholder="Search episodes..." 
+             class="w-full bg-gray-900 border border-red-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-red-400"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-12 relative overflow-hidden rounded-xl h-64 md:h-96">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi93898777/1434659607842-pgv4ql-1747752658020.mp4?Expires=1762874030&Signature=Afa4DvAzSkRp~hGNrQkOnNKU2linfpGTFz~NCRG2cSMIH36dqe9hJOyWxQsn2RZJsgFXHLZ-PrCVbxJmJvfjNtqEsHZlN89bYjwTBU~RiJJh4ezW-OCa5BZFL08UeNH768zxuQxw79obkJxxkNH-0WSQF5AmvZAivZlLbPC6aC27HbtwctoNVonFLNc1TAMjPuuLm-2Bk~zuwmPsOsGcxxCIolv-czPdcAlcp1TJDZJfPh9y8lct-Q2J6fy6y0mDRg~KSENRzl3T5tU8k4TtyerWDrB7BbuBrzugwiCku-k5qzXL9P3cupE~oZCx2xR0~9SZq7IbJ9ywEEHIAkBwfA__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="showcase-content h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg">
+        When a father and daughter discover they both secretly work for the CIA, an already dicey undercover mission turns into a dysfunctional family affair.
+      </p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2">
+    <div class="flex space-x-2">
+      <button class="season-btn active bg-red-600 text-white px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="2">Season 2</button>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap justify-between mb-8 gap-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2">
+      <button class="filter-btn active bg-red-500 text-white px-4 py-1 rounded-full">All</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Action</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Comedy</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Spy</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Family</button>
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-red-400 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © FUBAR – Fan Listing
+</footer>
+
+<!-- Playback Modal -->
+<div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl">&times;</button>
+    <div class="video-container">
+      <video id="modal-video" class="w-full" controls></video>
+    </div>
+    <div class="p-6">
+      <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
+      <div id="season-episode" class="text-gray-400 text-sm mb-2"></div>
+      <div id="episode-duration" class="text-gray-400 text-sm mb-4"></div>
+      <p id="modal-description" class="text-gray-300"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const sampleMP4 = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+const movies = [
+  // Season 1 (8 episodes) — titles from IMDb/Netflix guide. :contentReference[oaicite:1]{index=1}
+  { title: "Take Your Daughter to Work Day", video: "https://sri.azurafield.space:443/v4/6hp/pxbnq/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/9siVkL01SX80Ynp3gXCQmbhm8RS.jpg", description: "Luke Brunner, on the brink of retirement, uncovers a dark secret when his daughter turns out to be a CIA operative.", duration: "55 min", season: 1, episode: 1, tags: ["Action","Spy","Family"] },
+  { title: "Stole Train", video: "https://svz.clarynova.cyou:443/v4/6hp/rc658/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/1IAiiCDxTl0AuSCr1bhIzrhQsH8.jpg", description: "Luke and Emma team up to stop a deadly heist, discovering their relationship is far more complicated than either realised.", duration: "46 min", season: 1, episode: 2, tags: ["Action","Spy"] },
+  { title: "Honeyplot", video: "https://s1q.zenithraevents.store:443/v4/bgm/ug8y8/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/uFB0JisNqDHYteopbo8SNo44vmJ.jpg", description: "The team heads to Moldova to lure a target — Emma takes a risk with her cover as all trust is tested.", duration: "55 min", season: 1, episode: 3, tags: ["Spy","Drama"] },
+  { title: "Armed & Dane-gerous", video: "https://s1q.aurorionstudio.space:443/v4/gee/8kfzq/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/vhQdRh9ZhbVIQ4O7hGvDm0JtD1U.jpg", description: "In Greece the crew must extract an ally while Luke’s personal world collides with covert ops.", duration: "57 min", season: 1, episode: 4, tags: ["Action","Spy"] },
+  { title: "Here Today, Gone To-Marrow", video: "https://sf3.auronetwork.sbs:443/v4/6hp/pxbnu/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/vOXYd8xt6v7G3d7PjKcjCRTt1Nq.jpg", description: "A family emergency strains Luke’s double life as the threat from Boro tightens around them.", duration: "57 min", season: 1, episode: 5, tags: ["Drama","Family"] },
+  { title: "Royally Flushed", video: "https://sjx.bionyx.cyou:443/v4/pp/wyqkg/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/huV19z9ozKsmDqhznwrzCVhfwNH.jpg", description: "The team goes undercover within the British royal circle, investigations and danger collide.", duration: "59 min", season: 1, episode: 6, tags: ["Spy","Comedy"] },
+  { title: "Urine Luck", video: "https://sri.brightcrestshop.shop:443/v4/5c/dvobr/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/qCpHTgWn3xNfyxsYNEPEkyVIZKk.jpg", description: "Luke and Emma face a messy domestic threat that turns into an international case.", duration: "53 min", season: 1, episode: 7, tags: ["Comedy","Action"] },
+  { title: "That’s It and That’s All", video: "https://s1q.novacrestnetwork.online:443/v4/5c/ju9wu/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/4Iox7uqxMy4FS2GBZIj8ZyrYFhm.jpg", description: "Season 1 finale — all secrets surface and one family must choose who they really are.", duration: "60 min", season: 1, episode: 8, tags: ["Action","Drama"] },
+
+  // Season 2 (8 episodes) — titles from Newsweek/JustWatch/TV-guide. :contentReference[oaicite:2]{index=2}
+  { title: "Fullest House", video: "https://sui.azurafield.space/v4/tab/tblua/cf-master.txt?v=1756505590", image: "https://image.tmdb.org/t/p/w300/lWbZzSzt5VCIJ8Z5zNkZ1dUWNax.jpg", description: "Sink-or-swim for the team as a terror threat emerges under the surface.", duration: "60 min", season: 2, episode: 1, tags: ["Action","Spy"] },
+  { title: "Highly Re-Greta-Ble", video: "https://sbs.aurorioncreative.shop/v4/pk8/61jz9/cf-master.txt?v=1756505719", image: "https://image.tmdb.org/t/p/w300/pKaK4qFbV6g4kSLOgSMTfYZVrfi.jpg", description: "Old flames and new dangers collide when Luke’s past comes calling.", duration: "60 min", season: 2, episode: 2, tags: ["Drama","Spy"] },
+  { title: "Tango and Smash", video: "https://sad.xylonatech.sbs/v4/tab/hfy6m/cf-master.txt?v=1756504998", image: "https://image.tmdb.org/t/p/w300/nBNU6hXc2AY44KZgD82mtTBuPap.jpg", description: "A dance-floor surprise and a covert op collide as loyalties are tested.", duration: "60 min", season: 2, episode: 3, tags: ["Comedy","Action"] },
+  { title: "Astro-Not", video: "https://sri.moriartis.store/v4/epu/ytzjo/cf-master.txt?v=1756505770", image: "https://image.tmdb.org/t/p/w300/g8tKR7w6M3Mdl4hHlGWbwlo0iUo.jpg", description: "An undercover operation spins out of orbit during a high-stakes mission.", duration: "60 min", season: 2, episode: 4, tags: ["Spy","Thriller"] },
+  { title: "Trippin’ the Abyss", video: "https://slp.cometri.store/v4/is9/aqgsj/cf-master.txt?v=1756506322", image: "https://image.tmdb.org/t/p/w300/jICQ62ncwWn0OPSxOqotuyWuy0e.jpg", description: "The team ventures into uncharted territory while an operative’s cover begins to crumble.", duration: "60 min", season: 2, episode: 5, tags: ["Action","Drama"] },
+  { title: "Penny Possum’s Pizzapocalypse", video: "https://sbs.oravix.cyou/v4/tab/59moo/cf-master.txt?v=1756504800", image: "https://image.tmdb.org/t/p/w300/ge6LBsX5PvWCCvEYrGK3LVlTqWg.jpg", description: "Dinner goes deadly as underwater missions meet pizza-joint chaos.", duration: "60 min", season: 2, episode: 6, tags: ["Comedy","Action"] },
+  { title: "Dam It", video: "https://sad.oravix.cyou/v4/tab/koplq/cf-master.txt?v=1756505713", image: "https://image.tmdb.org/t/p/w300/c88CI3qrxaux54BKyNYYEWcPKdX.jpg", description: "A desperate race across land, sea and air to avert catastrophe and protect what matters.", duration: "60 min", season: 2, episode: 7, tags: ["Action","Thriller"] },
+  { title: "Let’s Twist Again", video: "https://sbs.rivonadesign.cyou/v4/tab/3mep5/cf-master.txt?v=1756504285", image: "https://image.tmdb.org/t/p/w300/zv4jG703SJjO7z6GmlndpkV3wBQ.jpg", description: "Season 2 finale — old secrets twist into new threats and a family must fight together.", duration: "60 min", season: 2, episode: 8, tags: ["Spy","Drama"] }
+];
+
+/* Add MP4 detector */
+function isMP4(url) {
+  return /\.mp4($|\?)/i.test(url);
+}
+
+/* DOM */
+const container = document.getElementById('movies');
+const playbackModal = document.getElementById('playback-modal');
+const modalVideo = document.getElementById('modal-video');
+const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const seasonEpisode = document.getElementById('season-episode');
+const episodeDuration = document.getElementById('episode-duration');
+const closeModal = document.getElementById('close-modal');
+
+let currentSeason = 'all';
+let currentFilter = 'All';
+
+function initPage() {
+  renderMovies();
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.season-btn.active').classList.remove('active', 'bg-red-600', 'text-white');
+      this.classList.add('active', 'bg-red-600', 'text-white');
+      currentSeason = this.dataset.season;
+      renderMovies();
+    });
+  });
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function(){
+      document.querySelector('.filter-btn.active').classList.remove('active','bg-red-500','text-white');
+      this.classList.add('active','bg-red-500','text-white');
+      currentFilter = this.textContent;
+      renderMovies();
+    });
+  });
+}
+
+function renderMovies() {
+  container.innerHTML = '';
+  let filtered = movies;
+  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
+  if (currentFilter !== 'All') filtered = filtered.filter(m => m.tags.includes(currentFilter));
+  filtered.forEach((movie, i) => {
+    const card = document.createElement('div');
+    card.className = `movie-card fade-in delay-${i%5} glow-effect`;
+    card.innerHTML = `
+      <div class="relative group cursor-pointer overflow-hidden rounded-xl">
+        <img src="${movie.image}" class="w-full h-48 object-cover rounded-xl transition group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-red-400 text-3xl"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="mt-3 text-white font-medium">${movie.title}</div>
+      <div class="text-gray-400 text-sm">S${movie.season} • E${movie.episode} • ${movie.duration}</div>
+    `;
+    card.addEventListener('click', () => {
+      if (isMP4(movie.video)) {
+        openModal(movie);
+      } else {
+        window.location.href = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
+      }
+    });
+    container.appendChild(card);
+  });
+}
+
+function openModal(m) {
+  modalTitle.textContent = m.title;
+  modalDescription.textContent = m.description;
+  seasonEpisode.textContent = `S${m.season} • E${m.episode}`;
+  episodeDuration.textContent = m.duration;
+  modalVideo.src = m.video;
+  playbackModal.classList.remove('hidden');
+}
+
+closeModal.onclick = () => {
+  playbackModal.classList.add('hidden');
+  modalVideo.pause();
+};
+
+window.addEventListener('DOMContentLoaded', initPage);
+</script>
+
+</body>
+</html>
