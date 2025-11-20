@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoorveer - Series</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: #0f2027;
+      background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+      color: #fff;
+    }
+
+    header {
+      background: #111;
+      text-align: center;
+      padding: 3rem 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      color: #ffcc00;
+    }
+
+    .season-title {
+      text-align: left;
+      margin: 2rem 1rem 1rem;
+      font-size: 1.5rem;
+      color: #ffd700;
+    }
+
+    .episode-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      padding: 0 1rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .episode-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .episode-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .poster {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-bottom: 2px solid #ffd700;
+      display: block;
+    }
+
+    .episode-content {
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .episode-content h2 {
+      font-size: 1.2rem;
+      color: #ffd700;
+      margin: 0;
+    }
+
+    .video-player {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 1rem;
+    }
+
+    .video-player iframe {
+      width: 100%;
+      max-width: 960px;
+      height: 54vw;
+      max-height: 540px;
+      border-radius: 12px;
+      border: none;
+    }
+
+    .back-button, .download-button {
+      background: #ffd700;
+      color: #000;
+      padding: 0.6rem 1rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background-color: #111;
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+      .video-player iframe {
+        height: 56vw;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Shoorveer - Series Viewer</h1>
+  </header>
+
+  <div class="season-title">Season 1</div>
+  <main class="episode-container">
+    <div class="episode-card" onclick="playVideo('https://mega.nz/embed/rpJVAaAT#n8cMf9H2Nr1O6AarrwJ1o68rglL2-b-2dpe-L22-sB0')">
+      <img class="poster" src="https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/2960/1302960-h-9c54fb166241" alt="Shoorveer Episode">
+      <div class="episode-content"><h2>Watch Now</h2></div>
+    </div>
+  </main>
+
+  <div class="video-player" id="videoPlayer">
+    <div>
+      <button class="back-button" onclick="closeVideo()">&larr; Back</button>
+      <a class="download-button" id="downloadLink" href="#" target="_blank" download>Download</a>
+    </div>
+    <iframe id="videoFrame" src="" allowfullscreen></iframe>
+  </div>
+
+  <footer>
+    &copy; 2025 Shoorveer Series Viewer. Fan Project.
+  </footer>
+
+  <script>
+    function playVideo(url) {
+      document.getElementById('videoFrame').src = url;
+      document.getElementById('downloadLink').href = url.replace('/embed/', '/file/');
+      document.getElementById('videoPlayer').style.display = 'flex';
+      window.scrollTo(0, 0);
+    }
+
+    function closeVideo() {
+      document.getElementById('videoFrame').src = '';
+      document.getElementById('videoPlayer').style.display = 'none';
+    }
+  </script>
+</body>
+
+</html>
