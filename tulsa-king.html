@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tulsa King</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- HLS.js for adaptive streaming -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    body { background: #0b0c0e; color: #eaeaea; }
+    header, footer { background: #121517; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #0077cc; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0099ff; }
+
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    @keyframes fadeIn { from {opacity:0;transform:translateY(20px);} to {opacity:1;transform:translateY(0);} }
+
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,119,204,0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(0,119,204,0.7); }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #00bfff, #0077cc);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .showcase-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .showcase-overlay {
+      position:absolute; inset:0;
+      background:linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+    }
+
+    .season-btn.active { background:#0077cc !important; color:#fff !important; }
+    .filter-btn.active { background:#0077cc !important; color:#fff !important; }
+
+    /* Modal visuals */
+    .modal-overlay {
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.9);
+      z-index:1000;
+    }
+    .modal-card {
+      width:95%; max-width:1100px;
+      background:linear-gradient(180deg, rgba(17,24,39,0.9), rgba(17,24,39,0.95));
+      border-radius:12px; overflow:hidden;
+      box-shadow:0 20px 60px rgba(0,0,0,0.7);
+      border:1px solid rgba(0,119,204,0.3);
+    }
+    .modal-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px; background:rgba(0,0,0,0.3);
+      border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    .modal-title { font-size:1.25rem; font-weight:600; color:#7dd3fc; }
+    .modal-close-btn {
+      width:40px;height:40px;border-radius:999px;
+      display:flex;align-items:center;justify-content:center;
+      color:#fff; background:rgba(255,255,255,0.05);cursor:pointer;
+    }
+    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
+    .modal-player video, .modal-player iframe {
+      position:absolute; inset:0; width:100%; height:100%;
+    }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-blue-600/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+        <i class="fas fa-city text-white text-xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold gradient-text">Tulsa King</h1>
+    </div>
+    <div class="flex items-center space-x-4">
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-search text-blue-300"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input type="text" placeholder="Search episodes..." 
+             class="w-full bg-gray-900 border border-blue-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-blue-300"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-12 relative overflow-hidden rounded-xl h-64 md:h-96">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi3710765081/1434659607842-pgv4ql-1756842050881.mp4?Expires=1763389919&Signature=kmcwDET-LPxwNu7snzCecz1Ifbumoro7F8LmC3SUdzbdL1LKs1A3Nh6GwN7m7e~z00CqdEB4afvB15LcookD~hvtP8O3jcCRPVPlmXKYXCIrnNGrDl4k79WSbn9H7sf7AlBSj-TkjZzV8O0qrxen0F9NI6UAhL98p8BBSkSZLxrGN-HfrKF7cjjAnl3Y5A5dWD269KDo1pJtMsUeXenFTRL3Ftp9w38f9kTXRC1zP5L2MaM3vJgJPQwCFMqwZ9YfC4gzshCV5GDk81NMVK-0CV9QieOg8GHWG7GrQITzvHKde0sMOYIZCXRKNvEsieGOlTW5MtLGdka7vnxyqtUWZw__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="relative h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg">
+        After 25 years in prison, Mafia capo Dwight "The General" Manfredi is exiled to Tulsa, Oklahoma to build a new criminal operation — but he quickly finds allies, enemies and a new kind of life in the heartland.
+      </p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2 space-x-2">
+    <button class="season-btn active bg-blue-600 text-white px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+    <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+    <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="2">Season 2</button>
+    <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="3">Season 3</button>
+  </div>
+
+  <div class="flex flex-wrap justify-between mb-8 gap-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2">
+      <button class="filter-btn active bg-blue-500 text-white px-4 py-1 rounded-full">All</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Crime</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Drama</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Action</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Thriller</button>
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-blue-400 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © Tulsa King – Fan Listing
+</footer>
+
+<!-- Modal -->
+<div id="video-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div id="modal-title" class="modal-title"></div>
+      <button id="close-video-modal" class="modal-close-btn"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-player">
+      <video id="modal-video" controls playsinline></video>
+    </div>
+  </div>
+</div>
+
+<script>
+const sampleMP4 = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+
+/*
+  Tulsa King episodes (Season 1, 2, 3).
+  Titles sourced from public episode listings (Wikipedia / IMDB / TV guide).
+  Replace `video` with real stream links and `image` with real posters when you have them.
+*/
+
+const movies = [
+  // Season 1 (9 episodes)
+  { title: "Go West, Old Man", video: "https://sy6.fortimax.shop:443/v4/sc/hjqpf/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/dOe72mwnTFg6ec4gX8szoNgafEr.jpg", description: "S1E1 — Premiere: Dwight arrives in Tulsa and starts building his crew.", duration: "38 min", season:1, episode:1, tags:["Crime","Drama"] },
+  { title: "Center of the Universe", video: "https://svz.ethernix.cyou:443/v4/61/pgl66/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/2CpHeTMQQJjgIAWXE3VyPeUPmux.jpg", description: "S1E2 — Dwight, Tyson and Bodhi take a road trip and Stacy learns more about Dwight.", duration:"37 min", season:1, episode:2, tags:["Crime"] },
+  { title: "Caprice", video: "https://sad.arkadine.shop:443/v4/sc/6v5jh/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ntW59Upv7ihGxHgYLTQDNYu5y4b.jpg", description: "S1E3 — Dwight spots a business opportunity; things explode on an errand.", duration:"39 min", season:1, episode:3, tags:["Drama"] },
+  { title: "Visitation Place", video: "https://spx.oravix.cyou:443/v4/ic/pgl88/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/jTesVrxg1CkdKYHeQsYDOYDAW2R.jpg", description: "S1E4 — Tulsa Arena plans go awry; tensions rise.", duration:"39 min", season:1, episode:4, tags:["Crime"] },
+  { title: "Token Joe", video: "https://svz.rivonadesign.cyou:443/v4/qu/pglm8/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ef8FQKmaxMVyj19JubHl3mgOdIB.jpg", description: "S1E5 — Dwight returns to New York; family reunion complications.", duration:"37 min", season:1, episode:5, tags:["Drama"] },
+  { title: "Stable", video: "https://syr.glowhavenmedia.cyou:443/v4/qu/nt6mz/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/pvsWgF9Q8KEKq1AAFXqt3mx1YB3.jpg", description: "S1E6 — Dwight and crew deal with a new local problem.", duration:"40 min", season:1, episode:6, tags:["Crime"] },
+  { title: "Warr Acres", video: "https://sad.nordivisnetwork.store:443/v4/61/a38cx/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/bodFvKO9iKvtdzWG2E4MnBRtpRU.jpg", description: "S1E7 — A local conflict draws the crew into violent territory.", duration:"41 min", season:1, episode:7, tags:["Action"] },
+  { title: "Adobe Walls", video: "https://svz.fortimax.shop:443/v4/ox/oqbcz/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/eCvaXeQvzDjxYPC9Vxv4va7RLGD.jpg", description: "S1E8 — Stakes get higher as enemies take notice.", duration:"43 min", season:1, episode:8, tags:["Drama"] },
+  { title: "Happy Trails", video: "https://sad.trovianaworks.online:443/v4/ox/5xebg/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/5kme01g9nQhOwxaLs4corudfpoe.jpg", description: "S1E9 — Season 1 closes with consequences and decisions for Dwight.", duration:"45 min", season:1, episode:9, tags:["Crime"] },
+
+  // Season 2 (10 episodes)
+  { title: "Back in the Saddle", video: "https://sri.pinepathcreativecollect.space:443/v4/is9/y9dmg/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/aKybcN7eYWrsd3oDB0Y1atTDLrq.jpg", description: "S2E1 — Dwight prepares for a new chapter: casino and expansion plans.", duration:"44 min", season:2, episode:1, tags:["Crime","Drama"] },
+  { title: "Kansas City Blues", video: "https://sad.seawindart.space:443/v4/mik/6v5oi/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/j7tEgHboQDBgarQOLLVkpmZqf31.jpg", description: "S2E2 — New rivals and complications emerge outside Tulsa.", duration:"42 min", season:2, episode:2, tags:["Action"] },
+  { title: "Oklahoma v. Manfredi", video: "https://svz.claravonartisan.sbs:443/v4/is9/nt6zc/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/cWFAqz2f4AucLuVc3qIj3fPYjsK.jpg", description: "S2E3 — Legal heat on Dwight puts pressure on the crew.", duration:"42 min", season:2, episode:3, tags:["Drama"] },
+  { title: "Heroes and Villains", video: "https://sri.novacrestnetwork.online:443/v4/tab/y9dbc/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/x49IrHqr9ZYLklIG8I2ZSz4TtrN.jpg", description: "S2E4 — Alliances shift when old enemies return.", duration:"43 min", season:2, episode:4, tags:["Crime"] },
+  { title: "Tilting at Windmills", video: "https://soq.bellevianetwork.sbs:443/v4/mik/jrmx8/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/qcFKPnlM6FIsQA8pLQJ3DxUhbdr.jpg", description: "S2E5 — Dwight takes on a risky new investment.", duration:"44 min", season:2, episode:5, tags:["Drama"] },
+  { title: "Life Support", video: "https://s6mb.bellevianetwork.sbs:443/v4/tab/3b1h8/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/lA1lXgbX08rDgXVgOcKIG8kHKcO.jpg", description: "S2E6 — The crew recovers from a violent set-back and regroup.", duration:"43 min", season:2, episode:6, tags:["Action"] },
+  { title: "Breathless", video: "https://svz.fintravafinance.cyou:443/v4/mik/oqbgc/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/xb3qUdeVgeR95YB8eQHgUz0prnp.jpg", description: "S2E7 — International pressure and task-forces threaten operations.", duration:"44 min", season:2, episode:7, tags:["Crime"] },
+  { title: "Blood Is Thicker Than Vodka", video: "https://sri.trovianaworks.online:443/v4/mik/lfry9/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/pYwQAxFeTVcXcPWHg86Jr9P1NCD.jpg", description: "S2E8 — A violent discovery puts everyone on edge.", duration:"41 min", season:2, episode:8, tags:["Drama"] },
+  { title: "Mango Madness", video: "https://sy6.mistralstudio.shop:443/v4/tab/hjqyw/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/2HPELYiW5rhReFwo7CplwY2j4o5.jpg", description: "S2E9 — The crew confronts internal and external threats.", duration:"41 min", season:2, episode:9, tags:["Crime"] },
+  { title: "Sting in the Tail", video: "https://sui.moriartis.store:443/v4/36/rzidf/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/fBGaUvBgaWaAf45898cylageRiz.jpg", description: "S2E10 — Season 2 finale: a missing missile and major stakes.", duration:"41 min", season:2, episode:10, tags:["Action","Crime"] },
+
+  // Season 3 (10 episodes - release schedule Sept-Nov 2025)
+  { title: "Blood and Bourbon", video: "https://s36.artverra.shop:443/v4/kdv/yueiz/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/kVcIMFusIwWQrVwRidDJKBDoqYX.jpg", description: "S3E1 — Dwight navigates new threats while launching a distillery plan.", duration:"48 min", season:3, episode:1, tags:["Crime","Drama"] },
+  { title: "The Fifty", video: "https://s36.celestiorstudio.cyou:443/v4/epu/b8tol/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/pl4h2iMdnfBcsyQZdzXyJlPttuD.jpg", description: "S3E2 — Distribution and rival families complicate Dwight's plan.", duration:"45 min", season:3, episode:2, tags:["Drama"] },
+  { title: "The G and the OG", video: "https://sri.solvonaacademy.sbs:443/v4/np/qqt5p/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/1tSPCXDWj7a98ZLqtd9ztlQloaL.jpg", description: "S3E3 — Dwight forms uneasy alliances to stop a larger threat.", duration:"48 min", season:3, episode:3, tags:["Crime"] },
+  { title: "Staring Down the Barrel", video: "https://svz.cometri.store:443/v4/is3/yoow8s/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/1cF0plTuMFx0tjL9NHDOHLtvNa5.jpg", description: "S3E4 — Dwight fights to retrieve what's taken while foes close in.", duration:"39 min", season:3, episode:4, tags:["Action"] },
+  { title: "On the Rocks", video: "https://spc.clarynova.cyou:443/v4/9ow/njfmd9/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/hkQOabNWDwdHhX4ytSg6EVsLWe5.jpg", description: "S3E5 — The bourbon launch faces sabotage and rivalry.", duration:"44 min", season:3, episode:5, tags:["Drama"] },
+  { title: "Bubbles", video: "https://syr.aurorionventures.space:443/v4/is9/1henr9/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/mkqWRARiYLT0WQL9921yWwdFyE2.jpg", description: "S3E6 — Secret deliveries and tight operations amid danger.", duration:"40 min", season:3, episode:6, tags:["Crime"] },
+  { title: "Art of War", video: "https://s39.sunsetridgeproduction.store:443/v4/kdv/tr5bzy/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/6MjNEf7gPhsK7NeV7OfQfChP5cV.jpg", description: "S3E7 — Dwight moves to reopen his distillery; stings and schemes play out.", duration:"40 min", season:3, episode:7, tags:["Action"] },
+  { title: "Nothing is Over", video: "https://spc.harbortowninnovation.store:443/v4/q3o/yovwrk/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/1W3A4cF4Pstx8rZBI3e1rv1cCQt.jpg", description: "S3E8 — Twists and turns keep the crew fighting for control.", duration:"40 min", season:3, episode:8, tags:["Drama"] },
+  { title: "Dead Weight", video: "https://snq.harborwoodwellnesslab.sbs:443/v4/n8l/s18xkj/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/jRgOHqIt1NEta7mEmCndxS0hYsY.jpg", description: "S3E9 — The pressure mounts as alliances strain.", duration:"40 min", season:3, episode:9, tags:["Crime"] },
+  { title: "Finale", video: "sampleMP4", image: "https://way2movies.live/img/noImage.png", description: "S3E10 — Season 3 finale: the bourbon war reaches its conclusion.", duration:"TBA", season:3, episode:10, tags:["Action","Drama"] }
+];
+
+let currentSeason='all', currentFilter='All';
+const container=document.getElementById('movies');
+const videoModal=document.getElementById('video-modal');
+const modalVideo=document.getElementById('modal-video');
+const modalTitle=document.getElementById('modal-title');
+const closeBtn=document.getElementById('close-video-modal');
+let currentHls=null;
+
+function isHls(url){return url&&(/\.m3u8($|\?)/i.test(url)||url.includes("index")); }
+function isMP4(url){return /\.mp4($|\?)/i.test(url); }
+function isYouTube(url){return url&&/(youtu\.be|youtube\.com)/i.test(url); }
+
+function showModal(){videoModal.classList.remove('hidden');document.body.style.overflow='hidden';}
+function hideModal(){videoModal.classList.add('hidden');document.body.style.overflow='';}
+
+function playInModal(title,url){
+  if(currentHls){currentHls.destroy();currentHls=null;}
+  modalVideo.pause();modalVideo.removeAttribute('src');modalVideo.load();
+  modalTitle.textContent=title||'';
+  if(!url){modalTitle.textContent=title+" — No URL";showModal();return;}
+  if(isYouTube(url)){window.open(url,'_blank');return;}
+  if(isHls(url)){
+    if(Hls.isSupported()){
+      currentHls=new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED,()=>{showModal();modalVideo.play().catch(()=>{});});
+    }else{modalVideo.src=url;showModal();modalVideo.play().catch(()=>{});}
+  }else{modalVideo.src=url;showModal();modalVideo.play().catch(()=>{});}
+}
+function closePlayer(){
+  if(currentHls){currentHls.destroy();currentHls=null;}
+  modalVideo.pause();modalVideo.removeAttribute('src');hideModal();
+}
+closeBtn.onclick=closePlayer;
+videoModal.onclick=e=>{if(e.target===videoModal)closePlayer();}
+
+function renderMovies(){
+  container.innerHTML='';
+  let filtered=movies;
+  if(currentSeason!=='all')filtered=filtered.filter(m=>m.season==currentSeason);
+  if(currentFilter!=='All')filtered=filtered.filter(m=>m.tags.includes(currentFilter));
+  filtered.forEach((m,i)=>{
+    const card=document.createElement('div');
+    card.className=`glow-effect fade-in delay-${i%5} cursor-pointer`;
+    card.innerHTML=`
+      <div class="relative group overflow-hidden rounded-xl">
+        <img src="${m.image}" class="w-full h-48 object-cover rounded-xl transition group-hover:scale-105" alt="${m.title}">
+        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-blue-400 text-3xl"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="mt-3 text-white font-medium">${m.title}</div>
+      <div class="text-gray-400 text-sm">S${m.season} • E${m.episode} • ${m.duration}</div>
+    `;
+    card.addEventListener('click',()=>playInModal(m.title,m.video));
+    container.appendChild(card);
+  });
+}
+renderMovies();
+
+document.querySelectorAll('.season-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelector('.season-btn.active').classList.remove('active','bg-blue-600','text-white');
+    this.classList.add('active','bg-blue-600','text-white');
+    currentSeason=this.dataset.season;renderMovies();
+  });
+});
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelector('.filter-btn.active').classList.remove('active','bg-blue-500','text-white');
+    this.classList.add('active','bg-blue-500','text-white');
+    currentFilter=this.textContent;renderMovies();
+  });
+});
+</script>
+</body>
+</html>
