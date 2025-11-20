@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Drug Lords</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Tailwind / Icons / HLS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+<style>
+body {
+  background: #0c0b1d;
+  font-family: 'Poppins', sans-serif;
+}
+.episode-card {transition: .3s;}
+.episode-card:hover {transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 30px rgba(0,0,0,.5);}
+.modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 2000;}
+.modal-card {width: 95%; max-width: 1100px; background: rgba(20,18,40,0.92); border-radius: 14px; overflow: hidden; border: 1px solid rgba(168,85,247,.35); box-shadow: 0 0 20px rgba(168,85,247,.4); backdrop-filter: blur(12px);}
+.modal-header {padding: 12px 18px; background: rgba(0,0,0,.35); border-bottom: 1px solid rgba(168,85,247,.25); display: flex; justify-content: space-between; align-items: center;}
+.modal-player {position: relative; padding-bottom: 56.25%; height: 0; background: black;}
+.modal-player video, .modal-player iframe {position:absolute; inset:0; width:100%; height:100%;}
+.gradient-text {background: linear-gradient(to right,#a855f7,#6366f1); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
+</style>
+</head>
+
+<body class="text-gray-100">
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-black/70 backdrop-blur-md border-b border-purple-500/40">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-600/50">
+        <span class="text-2xl">💊</span>
+      </div>
+      <h1 class="text-3xl font-bold gradient-text">Drug Lords</h1>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="relative h-64 md:h-96 overflow-hidden">
+  <video autoplay muted loop class="absolute inset-0 w-full h-full object-cover opacity-60">
+    <source src="https://imdb-video.media-imdb.com/vi1680850201/1434659607842-pgv4ql-1554944501382.mp4?Expires=1763483130&Signature=UMRF8CODVd3jpK3DnbjjwzM8gBT9ftHTmRTaPjfz9~Nja1AoHhlHPpDSpy8vN0trn-kUKpVgI2CMiGuY9pCeoEKWkC3XMfDXmpVhUKOkFEUg54DPhYnnxpHwHtEUcCCStCtL4BackIWtimFNjrlsLANm90CeG7u4kmk4iYxmTaAkEmTxMNhbzsRkTDDoK4WdKBYbK1-g9uIQpy9rnznw2Nd9Y5lE-jspoUHpkw9aZrQWtJkIXhhBPv16hpNwLLzwoJxAHaWYGdhyGSuiu2Ewbtt6RTe9rOmBdHCt8Cf07lThroMh8ztLcfo3-sU14SykuEMHLPk64f1zyWFIOur9Mw__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+  </video>
+  <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent"></div>
+  <div class="absolute bottom-6 left-6 max-w-xl">
+    <p class="text-gray-300 text-lg">Documentary series examining drug cartels and kingpins from around the world.</p>
+  </div>
+</section>
+
+<!-- SEASON FILTER -->
+<div class="container mx-auto px-4 py-6 flex overflow-x-auto space-x-3">
+  <button class="season-btn bg-purple-600 text-white px-5 py-2 rounded-full" data-season="all">All</button>
+  <button class="season-btn bg-gray-800 px-5 py-2 rounded-full" data-season="1">Season 1</button>
+  <button class="season-btn bg-gray-800 px-5 py-2 rounded-full" data-season="2">Season 2</button>
+</div>
+
+<!-- EPISODES GRID -->
+<div class="container mx-auto px-4">
+  <div id="episodes" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+</div>
+
+<footer class="text-center text-gray-500 py-10 mt-10">© Drug Lords – Fan Project</footer>
+
+<!-- MODAL -->
+<div id="video-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div id="modal-title" class="modal-title"></div>
+      <button id="close-video-modal" class="modal-close-btn"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-player">
+      <video id="modal-video" controls playsinline></video>
+    </div>
+  </div>
+</div>
+
+<script>
+/* EPISODES */
+const movies = [
+
+/* -------------------------
+   SEASON 1 (4 Episodes)
+------------------------- */
+{ title:"Pablo Escobar", season:1, episode:1, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/tSRHHoi2SrZSxoD3F2Xh0j2rYPS.jpg", video:"https://scvo.omniquestsolutions.shop/v4/np/hhiri/cf-master.txt?v=1740334037" },
+
+{ title:"The Cali Cartel", season:1, episode:2, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/yez8DYrUqpCuunREl9sBIc70rmD.jpg", video:"https://sxic.viatrix.space/v4/36/ggxor/index-f1-v1-a1.txt" },
+
+{ title:"Frank Lucas & The Country Boys: Heroin Kings of New York", season:1, episode:3, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/5EG8p0K2F6IQEt2FsrLfAfna4vU.jpg", video:"https://sipt.mirantiafabrics.cyou/v4/9a/uu9v8/index-f1-v1-a1.txt" },
+
+{ title:"The Pettingill Clan: Australia’s Heroin Dynasty", season:1, episode:4, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/oNNomdGjWWOtkBdqVfjunD4YlIJ.jpg", video:"https://skra.bluehavenhospitality.sbs/v4/ck/qqnba/index-f1-v1-a1.txt" },
+
+/* -------------------------
+   SEASON 2 (4 Episodes)
+------------------------- */
+{ title:"El Chapo", season:2, episode:1, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/z0j7ubFtxl1RPeEUoVhf76Bupq7.jpg", video:"https://s6sy.marvellium.shop/v4/61/lls5k/cf-master.txt?v=1740335859" },
+
+{ title:"Jemeker Thompson: Crack Queen of L.A", season:2, episode:2, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/zOiLoJZSGM70k0CG3omcTeix0lv.jpg", video:"https://sipt.novavisioninvestment.online/v4/ck/iigq5/cf-master.txt?v=1740336240" },
+
+{ title:"Christopher Coke: Jamaica’s Narco Prince", season:2, episode:3, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/cJ0bDhyVOuhleMcMJk4L783o3DF.jpg", video:"https://s9dz.stellarforgeinnovation.online/v4/ck/llsvu/index-f1-v1-a1.txt" },
+
+{ title:"Klaas Bruinsma: Europe’s Hash King", season:2, episode:4, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/e323MghFlEZh344TLnk1xdvD7Pb.jpg", video:"https://sunl.bryndellcreativehub.cyou/v4/lf/kklwh/index-f1-v1-a1.txt" },
+
+];
+
+let currentSeason = 'all';
+
+function renderEpisodes(){
+  const ep = document.getElementById("episodes");
+  ep.innerHTML = "";
+  const list = movies.filter(m => currentSeason === 'all' || m.season == currentSeason);
+  list.forEach(m => {
+    let div = document.createElement("div");
+    div.className = "episode-card bg-gray-900/70 p-3 rounded-xl cursor-pointer";
+    div.innerHTML = `
+      <img src="${m.image}" class="w-full h-36 object-cover rounded-lg">
+      <h3 class="mt-2 font-semibold text-white text-sm">${m.title}</h3>
+      <p class="text-gray-400 text-xs">S${m.season} • E${m.episode} • ${m.duration}</p>`;
+    div.onclick = () => playInModal(m.title, m.video);
+    ep.appendChild(div);
+  });
+}
+renderEpisodes();
+
+document.querySelectorAll('.season-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelector('.season-btn.bg-purple-600')?.classList.remove('bg-purple-600','text-white');
+    btn.classList.add('bg-purple-600','text-white');
+    currentSeason = btn.dataset.season;
+    renderEpisodes();
+  };
+});
+
+/* PLAYER LOGIC */
+let currentHls = null;
+function showModal(){document.getElementById('video-modal').classList.remove('hidden'); document.body.style.overflow='hidden';}
+function hideModal(){document.getElementById('video-modal').classList.add('hidden'); document.body.style.overflow='';}
+function isHls(u){return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u);}
+function isMP4(u){return /\.mp4($|\?)/i.test(u);}
+function isYouTube(u){return u.includes('youtu');}
+
+function playInModal(title, url){
+  if (currentHls){try{currentHls.destroy();}catch(e){} currentHls = null;}
+  const player = document.querySelector('.modal-player');
+  const modalVideo = document.getElementById('modal-video');
+  document.getElementById('modal-title').textContent = title;
+
+  // StreamTape
+  if(url.includes('streamtape.com')){
+    player.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // YouTube
+  if(isYouTube(url)){
+    player.innerHTML = `<iframe src="${url}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // HLS
+  if(isHls(url)){
+    if(Hls.isSupported()){
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+        showModal();
+        modalVideo.play().catch(()=>{});
+      });
+    } else { modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{}); }
+    return;
+  }
+
+  // MP4
+  if(isMP4(url)){ modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{}); return; }
+
+  // Fallback
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+document.getElementById('close-video-modal').onclick = () => {
+  if(currentHls){try{currentHls.destroy();}catch(e){} currentHls = null;}
+  document.querySelector('.modal-player').innerHTML = `<video id='modal-video' controls playsinline></video>`;
+  hideModal();
+};
+</script>
+</body>
+</html>
