@@ -61,6 +61,11 @@
     </div>
 
     <div class="flex items-center space-x-4">
+      <!-- Season 1 Button -->
+      <button id="season1-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <span class="text-yellow-500">Season 1</span>
+      </button>
+
       <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
         <i class="fas fa-moon text-yellow-500"></i>
       </button>
@@ -94,13 +99,6 @@
       <p class="text-gray-300 max-w-xl mb-4">
         In 2030 Milan, an undercover agent for the global spy agency Citadel is trapped behind enemy lines as a mole in the powerful enemy syndicate Manticore.
       </p>
-
-      <div class="flex space-x-3">
-        <button class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full">
-        </button>
-        <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full">
-        </button>
-      </div>
     </div>
   </section>
 
@@ -155,9 +153,9 @@
 
 <!-- JAVASCRIPT -->
 <script>
-/* MOVIE DATA (unchanged — same as yours) */
+/* MOVIE DATA */
 const movies = [
-      { 
+ { 
         title: "Split in Two", 
         video: "https://sad.aurorionbranding.site:443/v4/rqz/wag6o/index-f2-v1-a1.txt", 
         image: "https://m.media-amazon.com/images/S/pv-target-images/f35e7523b74a0651d3ab54d56a63306d333f37c54793fbd5d372059d58a8c7ae._BR-6_AC_SX720_FMwebp_.jpg",
@@ -202,155 +200,122 @@ const movies = [
     ];
 
 /* DOM References */
-const container = document.getElementById("movies");
-const modal = document.getElementById("video-modal");
-const modalVideo = document.getElementById("modal-video");
-const modalTitle = document.getElementById("modal-title");
-const modalDescription = document.getElementById("modal-description");
-const spinner = document.getElementById("loading-spinner");
-const nextBtn = document.getElementById("next-episode-btn");
+const container = document.getElementById('movies');
+const videoModal = document.getElementById('video-modal');
+const modalTitle = document.getElementById('modal-title');
+let currentHls = null;
 
-let currentIndex = 0;
-let hls = null;
+function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
 
-/* Utilities */
-function isHLS(u){ return /\.m3u8/.test(u); }
-function isMP4(u){ return /\.mp4/.test(u); }
-function isYT(u){ return u.includes("youtu"); }
-function isMega(u){ return u.includes("mega.nz/embed"); }
-function isStreamTape(u){ return u.includes("streamtape.com"); }
+function isHls(u){return u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u);}
+function isMP4(u){return /\.mp4($|\?)/i.test(u);}
+function isYouTube(u){return u.includes('youtu');}
 
-/* Modal Controls */
-function showModal(){ modal.classList.remove("hidden"); document.body.style.overflow="hidden"; }
-function hideModal(){
-  modal.classList.add("hidden");
-  document.body.style.overflow="";
-  modalVideo.pause();
-  modalVideo.src="";
-  if(hls){ hls.destroy(); hls=null; }
-
-  document.querySelector(".modal-player").innerHTML = `
-      <div id="loading-spinner" class="spinner hidden"></div>
-      <video id="modal-video" class="w-full h-full" controls playsinline></video>
-  `;
-}
-
-/* Playback */
-function playEpisode(index){
-  currentIndex = index;
-  const ep = movies[index];
-
-  modalTitle.textContent = ep.title;
-  modalDescription.textContent = ep.description;
-  nextBtn.classList.toggle("hidden", index === movies.length - 1);
-
-  // Reset player
-  const container = document.querySelector(".modal-player");
-  container.innerHTML = `
-    <div id="loading-spinner" class="spinner"></div>
-    <video id="modal-video" class="w-full h-full" controls playsinline></video>
-  `;
-
-  const videoEl = document.getElementById("modal-video");
-  spinner.classList.remove("hidden");
-
-  // StreamTape
-  if(isStreamTape(ep.video)){
-    container.innerHTML = `<iframe src="${ep.video}" allowfullscreen class="w-full h-full"></iframe>`;
-    showModal(); return;
+function playInModal(title, url) {
+  if (currentHls) {
+    try { currentHls.destroy(); } catch (e) {}
+    currentHls = null;
   }
+  const playerContainer = document.querySelector('.modal-player');
+  const modalVideo = document.getElementById('modal-video');
+  modalTitle.textContent = title || '';
 
-  // Mega
-  if(isMega(ep.video)){
-    container.innerHTML = `<iframe src="${ep.video}" allowfullscreen class="w-full h-full"></iframe>`;
-    showModal(); return;
+  // Streamtape
+  if (url.includes('streamtape.com')) {
+    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+    showModal();
+    return;
   }
 
   // YouTube
-  if(isYT(ep.video)){
-    container.innerHTML = `
-      <iframe class="w-full h-full"
-      src="${ep.video}?autoplay=1&modestbranding=1&rel=0"
-      allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    `;
-    showModal(); return;
+  if (isYouTube(url)) {
+    playerContainer.innerHTML = `
+      <iframe src="${url}?autoplay=1&modestbranding=1&rel=0"
+              width="100%" height="100%"
+              allowfullscreen
+              allow="autoplay; encrypted-media"
+              frameborder="0"></iframe>`;
+    showModal();
+    return;
   }
 
   // HLS
-  if(isHLS(ep.video)){
-    if(Hls.isSupported()){
-      hls = new Hls();
-      hls.loadSource(ep.video);
-      hls.attachMedia(videoEl);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        spinner.classList.add("hidden");
-        videoEl.play();
-      });
+  if (isHls(url)) {
+    if (Hls.isSupported()) {
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => { showModal(); modalVideo.play().catch(() => {}); });
     } else {
-      videoEl.src = ep.video;
-      spinner.classList.add("hidden");
-      videoEl.play();
+      modalVideo.src = url;
+      showModal();
+      modalVideo.play().catch(() => {});
     }
-    showModal();
     return;
   }
 
   // MP4
-  if(isMP4(ep.video)){
-    videoEl.src = ep.video;
-    spinner.classList.add("hidden");
-    videoEl.play();
+  if (isMP4(url)) {
+    modalVideo.src = url;
     showModal();
+    modalVideo.play().catch(() => {});
     return;
   }
 
-  // Fallback
-  window.location.href = `player.html?title=${encodeURIComponent(ep.title)}&video=${encodeURIComponent(ep.video)}`;
+  // Redirect to player.html for other formats
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
 }
 
-/* Next Episode */
-nextBtn.onclick = () => playEpisode(currentIndex + 1);
+function closePlayer(){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer=document.querySelector('.modal-player');
+  playerContainer.innerHTML=`<video id="modal-video" class="w-full h-full" controls playsinline></video>`;
+  hideModal();
+}
 
-/* Auto next */
-modalVideo?.addEventListener("ended", () => {
-  if(currentIndex < movies.length - 1) playEpisode(currentIndex + 1);
-});
+document.getElementById('close-video-modal').addEventListener('click',closePlayer);
+videoModal.addEventListener('click',e=>{if(e.target===videoModal)closePlayer();});
 
-/* Render Episode Grid */
-function renderMovies(){
-  container.innerHTML = "";
-  movies.forEach((m, i) => {
-    const card = document.createElement("div");
-    card.className = "rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer";
-    card.innerHTML = `
-      <img src="${m.image}" class="w-full">
-      <div class="p-3">
-        <h3 class="font-semibold text-lg">${m.title}</h3>
+function renderMovies(list){
+  container.innerHTML='';
+  list.forEach((movie,i)=>{
+    const div=document.createElement('div');
+    div.className=`movie-card animate-fade-in rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+    div.innerHTML=`
+      <div class="relative overflow-hidden rounded-t-lg">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
+            <i class="fas fa-play mr-2"></i> Watch Now
+          </button>
+        </div>
       </div>
-    `;
-    card.onclick = () => playEpisode(i);
-    container.appendChild(card);
+      <div class="p-4">
+        <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
+        <div class="flex justify-between items-center mt-2 text-sm text-gray-400"><span>${movie.year||''}</span></div>
+      </div>`;
+    div.addEventListener('click',()=>playInModal(movie.title,movie.video));
+    container.appendChild(div);
   });
 }
-renderMovies();
-
-/* Close modal */
-document.getElementById("close-video-modal").onclick = hideModal;
-modal.onclick = e => { if(e.target === modal) hideModal(); };
-
-/* Keyboard Controls */
-document.addEventListener("keydown", e => {
-  if(modal.classList.contains("hidden")) return;
-
-  const v = document.getElementById("modal-video");
-
-  if(e.key === "Escape") hideModal();
-  if(e.key === " ") { e.preventDefault(); v.paused ? v.play() : v.pause(); }
-  if(e.key === "ArrowRight") v.currentTime += 10;
-  if(e.key === "ArrowLeft") v.currentTime -= 10;
-});
-
+renderMovies(movies);
 </script>
 
+<canvas id="sparkCanvasPage"></canvas>
+<style>
+#sparkCanvasPage{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;}
+</style>
+<script>
+const canvas=document.getElementById('sparkCanvasPage');const ctx=canvas.getContext('2d');const sparks=[];
+function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}window.addEventListener('resize',resizeCanvas);resizeCanvas();
+const easing=t=>t*(2-t);const dur=300,count=6,size=8,radius=12,color='#00f2ff';
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const now=performance.now();
+for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];const el=now-s.t;if(el>=dur){sparks.splice(i,1);continue;}
+const p=el/dur;const e=easing(p);const d=e*radius;const l=size*(1-e);const x1=s.x+d*Math.cos(s.a),y1=s.y+d*Math.sin(s.a);
+const x2=s.x+(d+l)*Math.cos(s.a),y2=s.y+(d+l)*Math.sin(s.a);ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+requestAnimationFrame(draw);}requestAnimationFrame(draw);
+document.addEventListener('click',e=>{for(let i=0;i<count;i++){sparks.push({x:e.clientX,y:e.clientY,a:(2*Math.PI*i)/count,t:performance.now()});}});
+</script>
 </body>
 </html>
