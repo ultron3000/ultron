@@ -5,101 +5,71 @@
   <title>Citadel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- HLS.js (Required for m3u8 streaming) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
   <style>
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #111;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #ffcc00;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #ffdd33;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-    .delay-5 { animation-delay: 0.5s; }
-    
-    .glow-effect { position: relative; }
-    .glow-effect::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0);
-      transition: box-shadow 0.3s ease;
-      pointer-events: none;
-    }
-    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(255, 204, 0, 0.7); }
-    
+    /* Custom UI */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ffdd33; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn .5s ease-out forwards; }
+
     .gradient-text {
       background: linear-gradient(90deg, #ffcc00, #ff9900);
       -webkit-background-clip: text;
       color: transparent;
     }
-    
-    .showcase-video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 0;
-    }
-    
-    .showcase-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
-      z-index: 1;
-    }
-    .showcase-content { position: relative; z-index: 2; }
 
-    .video-container {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
+    #sparkCanvasPage {
+      position: fixed; top:0;left:0;width:100%;height:100%;
+      pointer-events:none; z-index:10000;
     }
 
-    .video-container iframe,
-    .video-container video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+    /* Spinner */
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #555;
+      border-top: 4px solid #ffcc00;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: auto;
+      margin-top: 80px;
     }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
+
 <body class="bg-black text-gray-100 min-h-screen">
 
+<!-- HEADER -->
 <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
   <div class="container mx-auto px-4 py-4 flex justify-between items-center">
     <div class="flex items-center space-x-2">
       <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
         <i class="fas fa-shield-alt text-black text-xl"></i>
       </div>
-      <h1 class="text-2xl font-bold gradient-text">CITADEL</h1>
+      <h1 class="text-2xl font-bold gradient-text">Citadel</h1>
     </div>
-    
+
     <div class="flex items-center space-x-4">
+      <!-- Season 1 Button -->
+      <button id="season1-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <span class="text-yellow-500">Season 1</span>
+      </button>
+
       <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
         <i class="fas fa-moon text-yellow-500"></i>
       </button>
+
       <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
         <i class="fas fa-search text-yellow-500"></i>
       </button>
@@ -108,67 +78,84 @@
 
   <div id="search-bar" class="hidden px-4 pb-4">
     <div class="relative">
-      <input type="text" placeholder="Search episodes..." 
-             class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <input type="text" placeholder="Search episodes..."
+        class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white">
       <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
     </div>
   </div>
 </header>
 
+<!-- MAIN -->
 <main class="container mx-auto px-4 py-8">
-  <section class="mb-12 relative overflow-hidden rounded-xl h-64 md:h-96">
-    <video autoplay muted loop class="showcase-video">
-      <source src="https://imdb-video.media-imdb.com/vi2384053273/1434659607842-pgv4ql-1680186912627.mp4?Expires=1762039966&Signature=jprEwKef4B4nLbnUYz0Zx9u4x4wlAWr0tfWqNE5pIqy1hC-jNoCpj24Eo9mTbGIVQjJkzJZAQLDmpfIf6aOM~4ZoVr9taie-0Ms6QGqsewgPfMxqFMVtOE~DXxN-rc9kjMM1OSf-~QPaay0AUKPRZQUtlJbK5gyF7xN34RA8GVQb3Z0yZfNVPLaMlEJ8TrvnOzTG6-8CUyIw38mwNxau5ixwFPriyrBMa9-IPJKsq3cXs8eoNpRgRwOvym4LgeZvU4LyOnSc1ZbRsUl0437m-VpIVgUe4nnFQG5BRE8PCGY7Cz-EJMZX3D9r1Q~aFDPF46K3HKIFoY35nJ1TMgPDBA__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
-    </video>
-    <div class="showcase-overlay"></div>
-    <div class="showcase-content h-full flex flex-col justify-end p-6 md:p-8">
-      <p class="text-gray-300 mb-4 max-w-lg">Global spy agency Citadel has fallen, and its agents' memories were wiped clean. Now the powerful syndicate, Manticore, is rising in the void. Can the Citadel agents recollect their past and summon the strength to fight back?</p>
+
+  <!-- Banner -->
+  <section class="mb-12 relative overflow-hidden rounded-xl">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxuPcHkU5d4MoL3SIGG26jAOgBV3eDlobjbQ&s" 
+         class="w-full h-64 md:h-96 object-cover">
+
+    <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
+      <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text"></h2>
+      <p class="text-gray-300 max-w-xl mb-4">
+        Global spy agency Citadel has fallen, and its agents' memories were wiped clean. Now the powerful syndicate, Manticore, is rising in the void. Can the Citadel agents recollect their past and summon the strength to fight back?
+      </p>
     </div>
   </section>
 
-  <div class="flex overflow-x-auto mb-6 pb-2">
-    <div class="flex space-x-2">
-
-    </div>
-  </div>
-
-  <div class="flex flex-wrap justify-between mb-8 gap-4">
-    <div class="flex space-x-2 overflow-x-auto pb-2">
- 
-    </div>
-  </div>
-
+  <!-- Episodes -->
   <section>
-    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-yellow-500 mr-2"></i>Episodes</h3>
+    <h3 class="text-xl font-semibold mb-6 flex items-center">
+      <i class="fas fa-list-ul text-yellow-500 mr-2"></i> Episodes
+    </h3>
+
     <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
   </section>
+
 </main>
 
-<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
-  © CITADEL Productions
+<!-- FOOTER -->
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8">
+  <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
+    ©  Citadel Productions. All rights reserved.
+  </div>
 </footer>
 
-<!-- Playback Modal -->
-<div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+<!-- VIDEO MODAL -->
+<div id="video-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-90 flex items-center justify-center">
   <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
-    <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl">&times;</button>
-    <div class="video-container">
-      <video id="modal-video" class="w-full" controls></video>
+
+    <!-- Close -->
+    <button id="close-video-modal"
+      class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <!-- Video Container -->
+    <div class="modal-player w-full" style="aspect-ratio:16/9;">
+      <div id="loading-spinner" class="spinner hidden"></div>
+      <video id="modal-video" class="w-full h-full" controls playsinline></video>
     </div>
+
+    <!-- Player Info -->
     <div class="p-6">
       <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
-      <div id="season-episode" class="text-gray-400 text-sm mb-2"></div>
-      <div id="episode-duration" class="text-gray-400 text-sm mb-4"></div>
-      <p id="modal-description" class="text-gray-300"></p>
+      <p id="modal-description" class="text-gray-300 mb-4"></p>
+      <button id="next-episode-btn"
+        class="hidden bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-4 rounded-full">
+        Next Episode →
+      </button>
     </div>
   </div>
 </div>
 
+<!-- SPARK EFFECT -->
+<canvas id="sparkCanvasPage"></canvas>
+
+<!-- JAVASCRIPT -->
 <script>
-// ========= EPISODE DATA =========
+/* MOVIE DATA */
 const movies = [
-      // Season 1
-      { 
+{ 
         title: "The Human Enigma", 
         video: "https://s3ae.evergreenconstruction.store/v4/il/hde6j/cf-master.txt?v=1730755972", 
         image: "https://m.media-amazon.com/images/S/pv-target-images/7cf708aacfcd9cf0afc502de08cceedb147b9360bc339863382d908e6175c229._BR-6_AC_SX720_FMwebp_.jpg",
@@ -214,91 +201,123 @@ const movies = [
      
     ];
 
-
-/* ✅ Add Spy-Kids MP4 detector */
-function isMP4(url) {
-  return /\.mp4($|\?)/i.test(url);
-}
-
-/* DOM elements */
+/* DOM References */
 const container = document.getElementById('movies');
-const playbackModal = document.getElementById('playback-modal');
-const modalVideo = document.getElementById('modal-video');
+const videoModal = document.getElementById('video-modal');
 const modalTitle = document.getElementById('modal-title');
-const modalDescription = document.getElementById('modal-description');
-const seasonEpisode = document.getElementById('season-episode');
-const episodeDuration = document.getElementById('episode-duration');
-const closeModal = document.getElementById('close-modal');
+let currentHls = null;
 
-let currentSeason = 'all';
-let currentFilter = 'All';
+function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
 
-function initPage() {
-  renderMovies();
-  document.querySelectorAll('.season-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelector('.season-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
-      this.classList.add('active', 'bg-yellow-600', 'text-black');
-      currentSeason = this.dataset.season;
-      renderMovies();
-    });
-  });
+function isHls(u){return u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u);}
+function isMP4(u){return /\.mp4($|\?)/i.test(u);}
+function isYouTube(u){return u.includes('youtu');}
 
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelector('.filter-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
-      this.classList.add('active', 'bg-yellow-600', 'text-black');
-      currentFilter = this.textContent;
-      renderMovies();
-    });
-  });
+function playInModal(title, url) {
+  if (currentHls) {
+    try { currentHls.destroy(); } catch (e) {}
+    currentHls = null;
+  }
+  const playerContainer = document.querySelector('.modal-player');
+  const modalVideo = document.getElementById('modal-video');
+  modalTitle.textContent = title || '';
+
+  // Streamtape
+  if (url.includes('streamtape.com')) {
+    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // YouTube
+  if (isYouTube(url)) {
+    playerContainer.innerHTML = `
+      <iframe src="${url}?autoplay=1&modestbranding=1&rel=0"
+              width="100%" height="100%"
+              allowfullscreen
+              allow="autoplay; encrypted-media"
+              frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // HLS
+  if (isHls(url)) {
+    if (Hls.isSupported()) {
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => { showModal(); modalVideo.play().catch(() => {}); });
+    } else {
+      modalVideo.src = url;
+      showModal();
+      modalVideo.play().catch(() => {});
+    }
+    return;
+  }
+
+  // MP4
+  if (isMP4(url)) {
+    modalVideo.src = url;
+    showModal();
+    modalVideo.play().catch(() => {});
+    return;
+  }
+
+  // Redirect to player.html for other formats
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
 }
 
-function renderMovies() {
-  container.innerHTML = '';
-  let filtered = movies;
-  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
-  if (currentFilter !== 'All') filtered = filtered.filter(m => m.tags.includes(currentFilter));
+function closePlayer(){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer=document.querySelector('.modal-player');
+  playerContainer.innerHTML=`<video id="modal-video" class="w-full h-full" controls playsinline></video>`;
+  hideModal();
+}
 
-  filtered.forEach((movie, i) => {
-    const card = document.createElement('div');
-    card.className = `movie-card fade-in delay-${i%5} glow-effect`;
-    card.innerHTML = `
-      <div class="relative group cursor-pointer overflow-hidden rounded-xl">
-        <img src="${movie.image}" class="w-full h-48 object-cover rounded-xl transition group-hover:scale-105">
-        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-yellow-500 text-3xl"><i class="fas fa-play"></i></div>
+document.getElementById('close-video-modal').addEventListener('click',closePlayer);
+videoModal.addEventListener('click',e=>{if(e.target===videoModal)closePlayer();});
+
+function renderMovies(list){
+  container.innerHTML='';
+  list.forEach((movie,i)=>{
+    const div=document.createElement('div');
+    div.className=`movie-card animate-fade-in rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+    div.innerHTML=`
+      <div class="relative overflow-hidden rounded-t-lg">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
+            <i class="fas fa-play mr-2"></i> Watch Now
+          </button>
+        </div>
       </div>
-      <div class="mt-3 text-white font-medium">${movie.title}</div>
-      <div class="text-gray-400 text-sm">S${movie.season} • E${movie.episode} • ${movie.duration}</div>
-    `;
-
-    /* ✅ Spy-Kids logic applied */
-    card.addEventListener('click', () => {
-      if (isMP4(movie.video)) {
-        openModal(movie);
-      } else {
-        window.location.href =
-          `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
-      }
-    });
-
-    container.appendChild(card);
+      <div class="p-4">
+        <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
+        <div class="flex justify-between items-center mt-2 text-sm text-gray-400"><span>${movie.year||''}</span></div>
+      </div>`;
+    div.addEventListener('click',()=>playInModal(movie.title,movie.video));
+    container.appendChild(div);
   });
 }
-
-function openModal(m) {
-  modalTitle.textContent = m.title;
-  modalDescription.textContent = m.description;
-  seasonEpisode.textContent = `S${m.season} • E${m.episode}`;
-  episodeDuration.textContent = m.duration;
-  modalVideo.src = m.video;
-  playbackModal.classList.remove('hidden');
-}
-
-closeModal.onclick = () => { playbackModal.classList.add('hidden'); modalVideo.pause(); };
-
-window.addEventListener('DOMContentLoaded', initPage);
+renderMovies(movies);
 </script>
 
+<canvas id="sparkCanvasPage"></canvas>
+<style>
+#sparkCanvasPage{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;}
+</style>
+<script>
+const canvas=document.getElementById('sparkCanvasPage');const ctx=canvas.getContext('2d');const sparks=[];
+function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}window.addEventListener('resize',resizeCanvas);resizeCanvas();
+const easing=t=>t*(2-t);const dur=300,count=6,size=8,radius=12,color='#00f2ff';
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const now=performance.now();
+for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];const el=now-s.t;if(el>=dur){sparks.splice(i,1);continue;}
+const p=el/dur;const e=easing(p);const d=e*radius;const l=size*(1-e);const x1=s.x+d*Math.cos(s.a),y1=s.y+d*Math.sin(s.a);
+const x2=s.x+(d+l)*Math.cos(s.a),y2=s.y+(d+l)*Math.sin(s.a);ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+requestAnimationFrame(draw);}requestAnimationFrame(draw);
+document.addEventListener('click',e=>{for(let i=0;i<count;i++){sparks.push({x:e.clientX,y:e.clientY,a:(2*Math.PI*i)/count,t:performance.now()});}});
+</script>
 </body>
 </html>
