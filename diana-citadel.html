@@ -5,376 +5,352 @@
   <title>Citadel - Season 1</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- HLS.js (Required for m3u8 streaming) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
   <style>
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #111;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #ffcc00;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #ffdd33;
-    }
-    
-    /* Custom animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.5s ease-out forwards;
-    }
-    
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-    .delay-5 { animation-delay: 0.5s; }
-    
-    /* Glow effect */
-    .glow-effect {
-      position: relative;
-    }
-    
-    .glow-effect::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0);
-      transition: box-shadow 0.3s ease;
-      pointer-events: none;
-    }
-    
-    .glow-effect:hover::after {
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
-    }
-    
-    /* Gradient text */
+    /* Custom UI */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ffdd33; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn .5s ease-out forwards; }
+
     .gradient-text {
       background: linear-gradient(90deg, #ffcc00, #ff9900);
       -webkit-background-clip: text;
-      background-clip: text;
       color: transparent;
     }
-    
-    /* Responsive adjustments */
-    @media (max-width: 640px) {
-      .movie-card {
-        width: calc(50% - 1rem);
-      }
+
+    #sparkCanvasPage {
+      position: fixed; top:0;left:0;width:100%;height:100%;
+      pointer-events:none; z-index:10000;
     }
-    
-    @media (max-width: 400px) {
-      .movie-card {
-        width: 100%;
-      }
+
+    /* Spinner */
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #555;
+      border-top: 4px solid #ffcc00;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: auto;
+      margin-top: 80px;
     }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
+
 <body class="bg-black text-gray-100 min-h-screen">
-  <!-- Header -->
-  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
-          <i class="fas fa-shield-alt text-black text-xl"></i>
-        </div>
-        <h1 class="text-2xl font-bold gradient-text">Citadel: Diana</h1>
-      </div>
-      
-      <div class="flex items-center space-x-4">
-        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-moon text-yellow-500"></i>
-        </button>
-        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-search text-yellow-500"></i>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Search Bar (hidden by default) -->
-    <div id="search-bar" class="hidden px-4 pb-4">
-      <div class="relative">
-        <input type="text" placeholder="Search episodes..." 
-               class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
-        <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
-      </div>
-    </div>
-  </header>
 
-  <!-- Main Content -->
-  <main class="container mx-auto px-4 py-8">
-    <!-- Hero Section -->
-    <section class="mb-12 relative overflow-hidden rounded-xl">
-      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-      <img src="https://resizing.flixster.com/lPMq-zM5jVKZq9Wj1hfng9PVp7Y=/620x336/v2/https://statcdn.fandango.com/MPX/image/NBCU_Fandango/68/695/thumb_180A7415-9B86-4287-BC0A-E2FC4109DEBE.jpg" 
-           alt="Citadel Banner" class="w-full h-64 md:h-96 object-cover">
-      <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
-        <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text">Season 1</h2>
-        <p class="text-gray-300 mb-4 max-w-lg">The thrilling first season of the global phenomenon. Follow Agent Diana as she navigates a world of espionage, betrayal, and high-stakes missions.</p>
-        <div class="flex space-x-3">
-          <button class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-play mr-2"></i> Play All
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-info-circle mr-2"></i> Details
-          </button>
-        </div>
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+        <i class="fas fa-shield-alt text-black text-xl"></i>
       </div>
-    </section>
-
-    <!-- Filters -->
-    <div class="flex flex-wrap items-center justify-between mb-8 gap-4">
-      <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-        <button class="filter-btn active bg-yellow-600 text-black px-4 py-1 rounded-full text-sm font-medium">All</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium">Action</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium">Drama</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium">Thriller</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium">Espionage</button>
-      </div>
-      
-      <div class="flex items-center space-x-2">
-        <span class="text-gray-400 text-sm">Sort by:</span>
-        <select class="bg-gray-900 border border-gray-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-yellow-500">
-          <option>Release Date</option>
-          <option>Episode Order</option>
-          <option>Popularity</option>
-        </select>
-      </div>
+      <h1 class="text-2xl font-bold gradient-text">Citadel: Diana</h1>
     </div>
 
-    <!-- Episodes Grid -->
-    <section>
-      <h3 class="text-xl font-semibold mb-6 flex items-center">
-        <i class="fas fa-list-ul text-yellow-500 mr-2"></i>
-        Episodes
-      </h3>
-      
-      <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <!-- Movie cards will be inserted here by JavaScript -->
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8">
-    <div class="container mx-auto px-4">
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <div class="mb-4 md:mb-0">
-          <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-              <i class="fas fa-shield-alt text-black text-sm"></i>
-            </div>
-            <span class="text-xl font-bold gradient-text">CITADEL</span>
-          </div>
-          <p class="text-gray-400 text-sm mt-2">© 2023 Citadel Productions. All rights reserved.</p>
-        </div>
-        
-        <div class="flex space-x-6">
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-instagram"></i></a>
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-youtube"></i></a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Playback Modal (hidden by default) -->
-  <div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
-    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
-      <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl">
-        <i class="fas fa-times"></i>
+    <div class="flex items-center space-x-4">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-moon text-yellow-500"></i>
       </button>
-      <div class="aspect-w-16 aspect-h-9">
-        <video id="modal-video" class="w-full" controls>
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      <div class="p-6">
-        <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
-        <div class="flex items-center text-gray-400 text-sm mb-4">
-          <span class="mr-4">S1 • E<span id="episode-num"></span></span>
-          <span>45 min</span>
-        </div>
-        <p id="modal-description" class="text-gray-300 mb-6">
-          Loading description...
-        </p>
-        <div class="flex space-x-3">
-          <button class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-play mr-2"></i> Play
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-plus mr-2"></i> Watchlist
-          </button>
-        </div>
-      </div>
+
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-search text-yellow-500"></i>
+      </button>
     </div>
   </div>
 
-  <script>
-    // Movie data
-    const movies = [
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input type="text" placeholder="Search episodes..."
+        class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="container mx-auto px-4 py-8">
+
+  <!-- Banner -->
+  <section class="mb-12 relative overflow-hidden rounded-xl">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+    <img src="https://resizing.flixster.com/lPMq-zM5jVKZq9Wj1hfng9PVp7Y=/620x336/v2/https://statcdn.fandango.com/MPX/image/NBCU_Fandango/68/695/thumb_180A7415-9B86-4287-BC0A-E2FC4109DEBE.jpg" 
+         class="w-full h-64 md:h-96 object-cover">
+
+    <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
+      <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text"></h2>
+      <p class="text-gray-300 max-w-xl mb-4">
+        In 2030 Milan, an undercover agent for the global spy agency Citadel is trapped behind enemy lines as a mole in the powerful enemy syndicate Manticore.
+      </p>
+
+      <div class="flex space-x-3">
+        <button class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full">
+        </button>
+        <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full">
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Episodes -->
+  <section>
+    <h3 class="text-xl font-semibold mb-6 flex items-center">
+      <i class="fas fa-list-ul text-yellow-500 mr-2"></i> Episodes
+    </h3>
+
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8">
+  <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
+    ©  Citadel Productions. All rights reserved.
+  </div>
+</footer>
+
+<!-- VIDEO MODAL -->
+<div id="video-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-90 flex items-center justify-center">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
+
+    <!-- Close -->
+    <button id="close-video-modal"
+      class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <!-- Video Container -->
+    <div class="modal-player w-full" style="aspect-ratio:16/9;">
+      <div id="loading-spinner" class="spinner hidden"></div>
+      <video id="modal-video" class="w-full h-full" controls playsinline></video>
+    </div>
+
+    <!-- Player Info -->
+    <div class="p-6">
+      <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
+      <p id="modal-description" class="text-gray-300 mb-4"></p>
+      <button id="next-episode-btn"
+        class="hidden bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-4 rounded-full">
+        Next Episode →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SPARK EFFECT -->
+<canvas id="sparkCanvasPage"></canvas>
+
+<!-- JAVASCRIPT -->
+<script>
+/* MOVIE DATA (unchanged — same as yours) */
+const movies = [
       { 
         title: "Split in Two", 
-        video: "https://macdn.hakunaymatata.com/resource/484b5cdc6162f3dddf89c52ee9480db3.mp4?Expires=1749345409&Signature=oSxqtU8s7B90tUq3ckf~~zm4rJd2L0uO5JzbciOSMz5xsqeEVdWXelqw5zQQpaqzzi-oWQ89GJPDJZmt6vecxUBbfLc0nwwjmZWK1Ng37c4HPaLmlP~ws2LyoQduOQh2zzNqq76ib-TBjSXvoonFAfilsJWQPdZbLvywHkeXsA8uEIvSG4WbtaN2HPY1w0WKuKfjjGpcit018TPUlE-6S4iDxhjYqOOqg2SR6ZC-m3NYD~8VrhZfHx2ME4Er45oDR661MNXVT~oNrsPM0~aDqK8wWsSIcE76cfyWm-tVzry2vjCpJkhVnoHkGWn0okwAtepP8SQrlkJ8ltfoI0taqg__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://sad.aurorionbranding.site:443/v4/rqz/wag6o/index-f2-v1-a1.txt", 
         image: "https://m.media-amazon.com/images/S/pv-target-images/f35e7523b74a0651d3ab54d56a63306d333f37c54793fbd5d372059d58a8c7ae._BR-6_AC_SX720_FMwebp_.jpg",
         description: "2030: in a gray and hyper-controlled Milan, Diana and Luca are sent on a mission to Lugano to spy on the exchange of a powerful weapon. Not far away, Edo Zani, Manticore Italy’s heir, has to respond to an unexpected proposal from the head of Manticore France, Cecile. In the flashbacks, Diana investigates her parents’ suspicious deaths when she meets Gabriele, a mysterious Citadel agent.",
         duration: "52 min"
       },
       { 
         title: "War", 
-        video: "https://macdn.hakunaymatata.com/resource/ec511dc643c2df7148e5033d3c659fdd.mp4?Expires=1749343370&Signature=n9BUfRK76EGS8g5rJAty2vrPZiAQuKSKyw5mdk5nYb0OvSoWIPbwxZdGwh2k2CYIICcHBVNZcFomCIx3C14EoHgqrosXc44qXzsBNXEGl~Y6yk4qxIFNc5iwkeLHR6X7DdGmk~z1IsoYcxZRyh-XKSU4uDHhVoiRnaNxk7unIRm2DjJvHlz7R3QIZsFs4alC-wVwrBTKj~zyIJJ8mDZrYy0BOdyWxRbAIP9wJlktCIwN7FCRrDprbue0tDWnQvcoFeblAhqMfAAb33rac9T7GTcvz0ALw0guOiNPzxtVUQrHic51yrcKlkLEDZP9yF8zMRY9d9PRdpBtjthlxHj~Iw__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://spc.oravix.cyou:443/v4/rqz/is3zv/index-f2-v1-a1.txt", 
         image: "https://m.media-amazon.com/images/S/pv-target-images/661b6fe92fac351e7a4f0e0f524d45cb3d9100eab863f15e13f3f2aadc5e4d87._BR-6_AC_SX720_FMwebp_.jpg",
         description: "Diana and Edo form a secret agreement and make their first move, but they underestimate Cecile’s fierce reaction. While Manticore Italy is under attack, Ettore Zani has to step in to stop a war from breaking out. In the flashbacks, Diana completes her training with Gabriele and becomes a Citadel agent.",
         duration: "48 min"
       },
       { 
         title: "Together", 
-        video: "https://macdn.hakunaymatata.com/resource/75b14f54dad67b6d280fb9a76f5284d9.mp4?Expires=1749345763&Signature=gh-YsJIswExrTbwWFsiOtpqGlsQ1geEItCsPbHfkuATFFsGGWlH6HDQmH43o9VqLX8HX0yG8Nq~giMCH-eJ5NeCkfZ0fdkVN-aHDODmPGkyLrxAlCcMRa7MQceWn4x3BNhrXNkkWhGfBzlpEQQmsfU24AIDZ9A34I9yKpDBiikARUHcRJU8oa5Nmtn0MoHkSYM5-A1vNbKTwuJjfmJosnT8AqLghuX-U0p6ihabiRyN8Cqli9B3o4DhhI5H7DEwO6NqvHSQmiqDScLa9W7xeNMhsuwo7ChRV-OiyIXg1lRqNkv-ejK91YpfEvMANx7e9RtA0C1ZNwt8qusfUJ4mjMw__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://svz.ellionhealth.cyou:443/v4/rqz/kftmv/index-f2-v1-a1.txt", 
         image: "https://m.media-amazon.com/images/S/pv-target-images/d9281667f948b73a7ff860a38d78a008bf470138650e1ad9f79cd910d37b012d._BR-6_AC_SX720_FMwebp_.jpg",
         description: "Ettore sends Edo and Diana to Sicily on a sensitive mission that threatens their alliance. However, under the Mediterranean sun, the two discover they are connected by much more than their objectives. Eight years earlier, Diana infiltrates Manticore and carries out her first mission.",
         duration: "55 min"
       },
       { 
         title: "The Zanis", 
-        video: "https://macdn.hakunaymatata.com/resource/b783018abd925ed2fb77f5a386449bad.mp4?Expires=1749345817&Signature=koDKHL2fXsEB01oNl~vICyNNzo5Dijwp1ZYXk7~Zt0cA56P2vN2H9qtkqbfTobnKpQBhdP8uSqgYOEThr8mpWft0xUuan3kmwXcoBHFXvJBgKVUzT7tXeWgK3hL0BVSZQoVgUcfrVmvJGbc~Nz1XWN2qfAEigULTga4YEq2P-NKEpB~yD9mythkUmmL65sEt1DEV-f6QwT8b~VbLhYCstKMbsbpQqpi14MzNDc7fPqg5zNNTs2X9hd2aEZMp0vXemTBlU0z4DxPrMi--5L8E6d93NmorSJSeRrzD2Lfr4tbbKOLiGvg2~lXtbxnoKrQvEbIGMJGfCGFDoYiovCYdjw__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://sri.artanix.sbs:443/v4/rqz/8hy3v/index-f2-v1-a1.txt", 
         image: "https://m.media-amazon.com/images/S/pv-target-images/678fe3e11e682b8c510e64bfb52e785ec87ee99bb89d6a957afb5e6fcfef4c6b._BR-6_AC_SX720_FMwebp_.jpg",
         description: "Diana is captured and struggles desperately to survive while Ettore has to make a hard decision in order to restore Manticore Italy's power, as memories resurface of the day when his relationship with Edo was shattered forever.",
         duration: "50 min"
       },
       { 
         title: "Attack", 
-        video: "https://macdn.hakunaymatata.com/resource/473d72af2af61352724ceb92c981afb0.mp4?Expires=1749345853&Signature=EacpSrAAmhoHPoOv8-IHxcDdrQ0RM8CbJTM~s-Y2w4E3V4cSN7kYEiiGOw4ycK38paorzqo1puvK11mIvEwxts3epSDO5YCwZR9uCZZl-wO6YrOvn~0SwB~q~o2ueAJiVx~dKfIlqX6MM5O9F~AryK3mD9bDSF0VFCeGG-eF6DlxjkGj~Y5B6WL1-BxJG8boLcu4zoG5HDdrd1TvHTMOK2VOHgQ5iJ6QyMC0xNj1W9qO32s76O78PHucdHMDc8Ed--qUUBJSRsINlpXaMiEAG5P3PcUjppzK50WT40Yo8v~XvRQL20hRG~tNV0K2epVn9gyEGes4Xk8JW00CzkFnQQ__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://sau.frostlinegarden.store:443/v4/djx/tzvae/index-f2-v1-a1.txt", 
         image: "https://m.media-amazon.com/images/S/pv-target-images/9c0364b8762bc47a208f40c4e5359801419a5c699c3b024d95c014a5023eefcf._BR-6_AC_SX720_FMwebp_.jpg",
         description: "Edo leads a group of agents in an attack on the Manticore France's headquarters in Paris. Just as Diana is about to get her hands on the weapon, she is forced to decide which side she is on, as she had to do eight years earlier, the night Citadel was destroyed.",
         duration: "49 min"
       },
       { 
         title: "Jupiter", 
-        video: "https://macdn.hakunaymatata.com/resource/3bb9e33171866e49fb51f76203f1fab2.mp4?Expires=1749345912&Signature=kOsXmDHdQG11yUKyrmtAZbfgv77MeWek2eKRDE1iWRqXVJsk6Ldi77TEe137Uu4p2i-Ysi6bDNX7qkiy6PZWlDP4HmFIhM8Y-yJl1aqjNZkDr97v3K8HiBV6o4trIe5i41xIYFTQiWRg8wHk-R6M6b3UXPyskQqA7T11BunaMgDHD4RPO1y2r3cGa4W445F5XM-7ZZWhgRbITqNzVJQrUtZ9FOaNJVRgWMButz2bvarBHdlyJRIwnmmWh1ar6P5vB81DlT6vHTe897FV~q-XiBIx4UexqqxCHT5lziw~EvVciCeF2sjrsHiOuFUlNuSm6GHj8AZfKzYtxpH88wZJjQ__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://shh.ridgegateinnovationhub.shop:443/v4/rqz/qgkjm/index-f2-v1-a1.txt", 
         image: "https://m.media-amazon.com/images/S/pv-target-images/d930c0c27c1355a65f11e838d2e02c802f78c4b0feb61308d9ec12d8fffc0a5e._BR-6_AC_SX720_FMwebp_.jpg",
         description: "As Diana ponders her choice, Edo works on a powerful new weapon. Ettore tries to get closer to his son, playing one last, surprise card. In a flashback, the Zanis mourn Enrico while Diana realizes she's the last living Citadel agent.",
         duration: "53 min"
       },
     ];
 
-    // DOM elements
-    const container = document.getElementById('movies');
-    const searchBtn = document.getElementById('search-btn');
-    const searchBar = document.getElementById('search-bar');
-    const themeToggle = document.getElementById('theme-toggle');
-    const playbackModal = document.getElementById('playback-modal');
-    const closeModal = document.getElementById('close-modal');
-    const modalVideo = document.getElementById('modal-video');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDescription = document.getElementById('modal-description');
-    const episodeNum = document.getElementById('episode-num');
+/* DOM References */
+const container = document.getElementById("movies");
+const modal = document.getElementById("video-modal");
+const modalVideo = document.getElementById("modal-video");
+const modalTitle = document.getElementById("modal-title");
+const modalDescription = document.getElementById("modal-description");
+const spinner = document.getElementById("loading-spinner");
+const nextBtn = document.getElementById("next-episode-btn");
 
-    // Initialize the page
-    function initPage() {
-      // Create movie cards
-      movies.forEach((movie, index) => {
-        const card = document.createElement('div');
-        card.className = `movie-card fade-in delay-${index % 5} glow-effect`;
-        card.innerHTML = `
-          <div class="relative group overflow-hidden rounded-xl cursor-pointer">
-            <img src="${movie.image}" alt="${movie.title}" 
-                 class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <div>
-                <h3 class="text-white font-semibold text-lg">${movie.title}</h3>
-                <p class="text-gray-300 text-sm">${movie.duration}</p>
-              </div>
-            </div>
-            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
-              <i class="fas fa-play"></i>
-            </div>
-          </div>
-          <div class="mt-3">
-            <h3 class="text-white font-medium">${movie.title}</h3>
-            <div class="flex items-center text-gray-400 text-sm mt-1">
-              <span>S1 • E${index + 1}</span>
-              <span class="mx-2">•</span>
-              <span>${movie.duration}</span>
-            </div>
-          </div>
-        `;
-        
-        card.addEventListener('click', () => {
-          openModal(movie, index + 1);
-        });
-        
-        container.appendChild(card);
+let currentIndex = 0;
+let hls = null;
+
+/* Utilities */
+function isHLS(u){ return /\.m3u8/.test(u); }
+function isMP4(u){ return /\.mp4/.test(u); }
+function isYT(u){ return u.includes("youtu"); }
+function isMega(u){ return u.includes("mega.nz/embed"); }
+function isStreamTape(u){ return u.includes("streamtape.com"); }
+
+/* Modal Controls */
+function showModal(){ modal.classList.remove("hidden"); document.body.style.overflow="hidden"; }
+function hideModal(){
+  modal.classList.add("hidden");
+  document.body.style.overflow="";
+  modalVideo.pause();
+  modalVideo.src="";
+  if(hls){ hls.destroy(); hls=null; }
+
+  document.querySelector(".modal-player").innerHTML = `
+      <div id="loading-spinner" class="spinner hidden"></div>
+      <video id="modal-video" class="w-full h-full" controls playsinline></video>
+  `;
+}
+
+/* Playback */
+function playEpisode(index){
+  currentIndex = index;
+  const ep = movies[index];
+
+  modalTitle.textContent = ep.title;
+  modalDescription.textContent = ep.description;
+  nextBtn.classList.toggle("hidden", index === movies.length - 1);
+
+  // Reset player
+  const container = document.querySelector(".modal-player");
+  container.innerHTML = `
+    <div id="loading-spinner" class="spinner"></div>
+    <video id="modal-video" class="w-full h-full" controls playsinline></video>
+  `;
+
+  const videoEl = document.getElementById("modal-video");
+  spinner.classList.remove("hidden");
+
+  // StreamTape
+  if(isStreamTape(ep.video)){
+    container.innerHTML = `<iframe src="${ep.video}" allowfullscreen class="w-full h-full"></iframe>`;
+    showModal(); return;
+  }
+
+  // Mega
+  if(isMega(ep.video)){
+    container.innerHTML = `<iframe src="${ep.video}" allowfullscreen class="w-full h-full"></iframe>`;
+    showModal(); return;
+  }
+
+  // YouTube
+  if(isYT(ep.video)){
+    container.innerHTML = `
+      <iframe class="w-full h-full"
+      src="${ep.video}?autoplay=1&modestbranding=1&rel=0"
+      allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    `;
+    showModal(); return;
+  }
+
+  // HLS
+  if(isHLS(ep.video)){
+    if(Hls.isSupported()){
+      hls = new Hls();
+      hls.loadSource(ep.video);
+      hls.attachMedia(videoEl);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        spinner.classList.add("hidden");
+        videoEl.play();
       });
-
-      // Filter buttons
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
-          this.classList.add('active', 'bg-yellow-600', 'text-black');
-        });
-      });
+    } else {
+      videoEl.src = ep.video;
+      spinner.classList.add("hidden");
+      videoEl.play();
     }
+    showModal();
+    return;
+  }
 
-    // Open modal with movie details
-    function openModal(movie, episodeNumber) {
-      modalTitle.textContent = movie.title;
-      modalDescription.textContent = movie.description;
-      episodeNum.textContent = episodeNumber;
-      modalVideo.src = movie.video;
-      
-      playbackModal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-    }
+  // MP4
+  if(isMP4(ep.video)){
+    videoEl.src = ep.video;
+    spinner.classList.add("hidden");
+    videoEl.play();
+    showModal();
+    return;
+  }
 
-    // Close modal
-    function closeModalHandler() {
-      playbackModal.classList.add('hidden');
-      modalVideo.pause();
-      document.body.style.overflow = '';
-    }
+  // Fallback
+  window.location.href = `player.html?title=${encodeURIComponent(ep.title)}&video=${encodeURIComponent(ep.video)}`;
+}
 
-    // Event listeners
-    searchBtn.addEventListener('click', () => {
-      searchBar.classList.toggle('hidden');
-    });
+/* Next Episode */
+nextBtn.onclick = () => playEpisode(currentIndex + 1);
 
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('bg-gray-100');
-      document.body.classList.toggle('text-gray-900');
-      document.body.classList.toggle('bg-black');
-      document.body.classList.toggle('text-gray-100');
-      
-      const icon = themeToggle.querySelector('i');
-      if (document.body.classList.contains('bg-black')) {
-        icon.classList.remove('fa-sun');
-        icon.classList.add('fa-moon');
-      } else {
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
-      }
-    });
+/* Auto next */
+modalVideo?.addEventListener("ended", () => {
+  if(currentIndex < movies.length - 1) playEpisode(currentIndex + 1);
+});
 
-    closeModal.addEventListener('click', closeModalHandler);
-    playbackModal.addEventListener('click', function(e) {
-      if (e.target === this) closeModalHandler();
-    });
+/* Render Episode Grid */
+function renderMovies(){
+  container.innerHTML = "";
+  movies.forEach((m, i) => {
+    const card = document.createElement("div");
+    card.className = "rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer";
+    card.innerHTML = `
+      <img src="${m.image}" class="w-full">
+      <div class="p-3">
+        <h3 class="font-semibold text-lg">${m.title}</h3>
+      </div>
+    `;
+    card.onclick = () => playEpisode(i);
+    container.appendChild(card);
+  });
+}
+renderMovies();
 
-    // Initialize the page when loaded
-    window.addEventListener('DOMContentLoaded', initPage);
-  </script>
+/* Close modal */
+document.getElementById("close-video-modal").onclick = hideModal;
+modal.onclick = e => { if(e.target === modal) hideModal(); };
+
+/* Keyboard Controls */
+document.addEventListener("keydown", e => {
+  if(modal.classList.contains("hidden")) return;
+
+  const v = document.getElementById("modal-video");
+
+  if(e.key === "Escape") hideModal();
+  if(e.key === " ") { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+  if(e.key === "ArrowRight") v.currentTime += 10;
+  if(e.key === "ArrowLeft") v.currentTime -= 10;
+});
+
+</script>
+
 </body>
 </html>
