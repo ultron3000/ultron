@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stranger Things</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <style>
+    /* Stranger Things inspired theme */
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    body { background: radial-gradient(ellipse at top, #0b0f14 0%, #06060a 60%), url(''); color: #f8f0e3; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+    header, footer { background: linear-gradient(90deg,#0b0f14, #12060a); border-bottom:1px solid rgba(255,255,255,0.04); }
+    .logo { font-family: 'Orbitron', sans-serif; letter-spacing: .12em; color:#ff3b3b; text-shadow:0 4px 20px rgba(255,59,59,0.12); }
+    .season-btn.active { background:#ff3b3b !important; color:#081017 !important; }
+    .movie-card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,59,59,0.06); }
+    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); z-index:1000; }
+    .modal-card { width:95%; max-width:1100px; border-radius:10px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.6); }
+    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
+    .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; }
+    .badge { background:rgba(255,59,59,0.95); color:#080808; padding:4px 8px; border-radius:6px; font-weight:700; font-size:12px; }
+    footer .meta { opacity:0.8; font-size:13px; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black/60 backdrop-blur-md">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-red-700 to-yellow-500">
+        <i class="fas fa-ghost text-white text-2xl"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold logo">STRANGER THINGS</h1>
+        <div class="text-xs text-slate-300">TV Series • Seasons 1–5</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden md:block">
+        <input id="search-input" type="search" placeholder="Search episodes or titles..." class="rounded-full px-3 py-2 bg-slate-900 text-slate-100 border border-slate-800" />
+      </div>
+      <button id="open-search-mobile" class="md:hidden p-2 rounded-full bg-slate-800"><i class="fas fa-search text-white"></i></button>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-6">
+    <div class="rounded-lg overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 p-6">
+      <h2 class="text-xl font-semibold">Stranger Things — Supernatural mysteries in Hawkins, Indiana</h2>
+      <p class="text-slate-300 mt-2">When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces, and one strange little girl.</p>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <div class="flex gap-2 overflow-x-auto pb-2">
+      <button class="season-btn active px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="2">Season 2</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="3">Season 3</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="4">Season 4</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="5">Season 5</button>
+    </div>
+  </section>
+
+  <section>
+    <h3 class="text-lg font-medium mb-4">Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+  </section>
+</main>
+
+<footer class="py-6 text-center text-slate-400">
+  <div class="meta">Caption: "The town of Hawkins hides more than secrets."</div>
+  <div class="mt-2">#StrangerThings #Hawkins #80sVibes</div>
+</footer>
+
+<!-- Modal -->
+<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
+  <div class="modal-card bg-black">
+    <div class="flex justify-between items-center p-3 border-b border-slate-800">
+      <div id="modal-title" class="text-white font-semibold"></div>
+      <button id="close-video-modal" class="p-2 rounded-full bg-slate-800 text-white"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-player">
+      <video id="modal-video" controls playsinline preload="metadata"></video>
+    </div>
+  </div>
+</div>
+
+<script>
+// Episodes data: Stranger Things Seasons 1-5 (video URLs are placeholders/dummy URLs so you can replace with real streams)
+const movies = [
+  // Season 1 (8 eps)
+  { title: 'S1E01 - Chapter One: The Vanishing of Will Byers', video:'https://sy6.drivonaesthetic.cyou:443/v4/tab/kapr1/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/uLES7sRpy7Ih6Kr6XCaYj1GyfTw.jpg', season:1 },
+  { title: 'S1E02 - Chapter Two: The Weirdo on Maple Street', video:'https://s5r.bellevianetwork.sbs:443/v4/tab/lfnp8/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/icjMb4yVK7dh5GDXxGhnq2s9pk4.jpg', season:1 },
+  { title: 'S1E03 - Chapter Three: Holly, Jolly', video:'https://spx.dreamoraresort.sbs:443/v4/mik/ntcbe/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/5snULpWQWp7aqFto7UbRcEkEyyS.jpg', season:1 },
+  { title: 'S1E04 - Chapter Four: The Body', video:'https://sau.fiorellagarden.sbs:443/v4/tab/1nu3e/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/60wmC1e20HV8gu688GAhsWxqxPx.jpg', season:1 },
+  { title: 'S1E05 - Chapter Five: The Flea and the Acrobat', video:'https://shh.zenithraevents.store:443/v4/tab/hjyu5/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/exT4NW9EdXG1qLZHKJnRpq3gh1H.jpg', season:1 },
+  { title: 'S1E06 - Chapter Six: The Monster', video:'https://snq.brionix.cyou:443/v4/mik/dwo5v/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/lNS6qycyucewz3duTr1tf1LU688.jpg', season:1 },
+  { title: 'S1E07 - Chapter Seven: The Bathtub', video:'https://spx.aesthorium.sbs:443/v4/tab/esayk/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/fjsTVEnqTKUO0GJSpiWKBZRUBcx.jpg', season:1 },
+  { title: 'S1E08 - Chapter Eight: The Upside Down', video:'https://s36.velonovaenergy.sbs:443/v4/is9/dwonk/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/1teJ5dbuepfqOOs9uYhYTUjr2qs.jpg', season:1 },
+
+  // Season 2 (9 eps)
+  { title: 'S2E01 - Chapter One: MADMAX', video:'https://spx.bluefusion.sbs:443/v4/pk8/w5qtj/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/efz0MgPAxPw11PIeAJNgKKg3Paa.jpg', season:2 },
+  { title: 'S2E02 - Chapter Two: Trick or Treat, Freak', video:'https://s36.nordivisnetwork.store:443/v4/tab/qmdhl/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/3gzPnRilyASmcoSyUKXhaD5ofhr.jpg', season:2 },
+  { title: 'S2E03 - Chapter Three: The Pollywog', video:'https://sy6.zenithraevents.store:443/v4/hld/3beii/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/792NQjFydcr5ucb1sga55LS6Vt3.jpg', season:2 },
+  { title: 'S2E04 - Chapter Four: Will the Wise', video:'https://soq.velonovaenergy.sbs:443/v4/pk8/y9z8d/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/wZXeV5cWC1RuaCls2mm6imzchnN.jpg', season:2 },
+  { title: 'S2E05 - Chapter Five: Dig Dug', video:'https://svz.harmonivia.cyou:443/v4/hld/rz6lp/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/oshY3LAwQRzhcjmEEr7EbOnypuU.jpg', season:2 },
+  { title: 'S2E06 - Chapter Six: The Spy', video:'https://soq.carvoni.cyou:443/v4/pk8/vyr3v/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/d90nCiTEACFEUd3fcX8DrLBi5DL.jpg', season:2 },
+  { title: 'S2E07 - Chapter Seven: The Lost Sister', video:'https://sau.velonovaenergy.sbs:443/v4/pk8/kap3w/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/kgOaaTbAutwAoA7tkVzYCfTjPXn.jpg', season:2 },
+  { title: 'S2E08 - Chapter Eight: The Mind Flayer', video:'https://soq.bellevianetwork.sbs:443/v4/mik/uc8lc/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/vuLea0DA9rYc9Y4M2Ic28CXL4Al.jpg', season:2 },
+  { title: 'S2E09 - Chapter Nine: The Gate', video:'https://spx.velonovaenergy.sbs:443/v4/tab/io5qw/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/cxCf7O5WPHfyXb7PLSJCG6EvXc3.jpg', season:2 },
+
+  // Season 3 (8 eps)
+  { title: 'S3E01 - Chapter One: Suz ie, Do You Copy?', video:'https://sq3.seawindart.space:443/v4/is9/hjypy/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/g1iZmyn42qSFkXhw6gjoNE0diKb.jpg', season:3 },
+  { title: 'S3E02 - Chapter Two: The Mall Rats', video:'https://s39.novacrestnetwork.online:443/v4/hld/jr9ck/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/qDlMvdlRGzIGtKYdV9lktEUM4vj.jpg', season:3 },
+  { title: 'S3E03 - Chapter Three: The Case of the Missing Lifeguard', video:'https://s39.starlabdigital.sbs:443/v4/hld/5xm6d/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/oaYdVvYwnvoQ7SLelKUcaAt0HKJ.jpg', season:3 },
+  { title: 'S3E04 - Chapter Four: The Sauna Test', video:'https://sau.nordivisnetwork.store:443/v4/pk8/t8lid/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/tEgd6fXKngAG8eC92dH7ey6Y4eA.jpg', season:3 },
+  { title: 'S3E05 - Chapter Five: The Flayed', video:'https://sau.glowhavenmedia.cyou:443/v4/tab/81fo1/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/cxIZ4btU6h9GQM1Fn0kotuaXlwo.jpg', season:3 },
+  { title: 'S3E06 - Chapter Six: E Pluribus Unum', video:'https://sy6.oravialuxury.online:443/v4/hld/pgbdk/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/dZKsMHJm8DPdBuqFcZxdIulrpNs.jpg', season:3 },
+  { title: 'S3E07 - Chapter Seven: The Bite', video:'https://soq.cosmavision.shop:443/v4/hld/pgbdv/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/6QA91GJK2ze1EaGPEKhil9MJIXx.jpg', season:3 },
+  { title: 'S3E08 - Chapter Eight: The Battle of Starcourt', video:'https://s39.celestiorstudio.cyou:443/v4/pk8/uc8eg/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/5YcjTWas07RteM9lssOzL9UhmJh.jpg', season:3 },
+
+  // Season 4 (9 eps)
+  { title: "S4E01 - Chapter One: The Hellfire Club", video:'https://sau.fiorellagarden.sbs:443/v4/hld/t8lke/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/xeNKubDmPiMraW4hXqzEBrN6f4A.jpg', season:4 },
+  { title: "S4E02 - Chapter Two: Vecna's Curse", video:'https://spx.starlabdigital.sbs:443/v4/pk8/a3gcj/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/lSSWqv7XrO51uY2uc4lql9Hub3f.jpg', season:4 },
+  { title: "S4E03 - Chapter Three: The Monster and the Superhero", video:'https://sau.mistralstudio.shop:443/v4/is9/qmdlz/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/6q1UM63T5tiQcWrbsJvY3bunkyZ.jpg', season:4 },
+  { title: "S4E04 - Chapter Four: Dear Billy", video:'https://s6mb.drivonaesthetic.cyou:443/v4/hld/futgl/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/u3LeFRR7AhyPp4y0Ii7hpkD488b.jpg', season:4 },
+  { title: "S4E05 - Chapter Five: The Nina Project", video:'https://sau.azurafield.space:443/v4/epu/bksot/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/edZ12qbUdOvfaDbfG9I7Xa4C4Ac.jpg', season:4 },
+  { title: "S4E06 - Chapter Six: The Dive", video:'https://shh.dreamoraresort.sbs:443/v4/hld/uc8lu/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/kvfmI9kzwpjpohLI1DSRomcYF66.jpg', season:4 },
+  { title: "S4E07 - Chapter Seven: The Mass", video:'https://sy6.glowhavenmedia.cyou:443/v4/hld/1nuqd/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/lhN2dahlME7xWcM7fU1rOKJmyco.jpg', season:4 },
+  { title: "S4E08 - Chapter Eight: Papa", video:'https://spx.drivonaesthetic.cyou:443/v4/epu/pgb8h/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/sdNa4Z49RTZDkezFAMg00hciFZZ.jpg', season:4 },
+  { title: "S4E09 - Chapter Nine: The Piggyback", video:'https://syr.claravonartisan.sbs:443/v4/epu/3bell/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/jQeh2GYSQ4QxHkkBJ1LC2hPzfNm.jpg', season:4 },
+
+  // Season 5 (placeholders — replace with real titles/URLs when available)
+  { title: 'S5E01 - Chapter One: TBA', video:'https://example.streams/stranger/s5/e01/index.m3u8', image:'https://image.tmdb.org/t/p/w300/jnpSxSMdFAj4dtF59agzgmKM9fg.jpg', season:5 },
+  { title: 'S5E02 - Chapter Two: TBA', video:'https://example.streams/stranger/s5/e02/index.m3u8', image:'https://image.tmdb.org/t/p/w300/s5e2.jpg', season:5 },
+  { title: 'S5E03 - Chapter Three: TBA', video:'https://example.streams/stranger/s5/e03/index.m3u8', image:'https://image.tmdb.org/t/p/w300/s5e3.jpg', season:5 },
+  { title: 'S5E04 - Chapter Four: TBA', video:'https://example.streams/stranger/s5/e04/index.m3u8', image:'https://image.tmdb.org/t/p/w300/s5e4.jpg', season:5 },
+  { title: 'S5E05 - Chapter Five: TBA', video:'https://example.streams/stranger/s5/e05/index.m3u8', image:'https://image.tmdb.org/t/p/w300/s5e5.jpg', season:5 },
+  { title: 'S5E06 - Chapter Six: TBA', video:'https://example.streams/stranger/s5/e06/index.m3u8', image:'https://image.tmdb.org/t/p/w300/s5e6.jpg', season:5 },
+  { title: 'S5E07 - Chapter Seven: TBA', video:'https://example.streams/stranger/s5/e07/index.m3u8', image:'https://image.tmdb.org/t/p/w300/s5e7.jpg', season:5 },
+  { title: 'S5E08 - Chapter Eight: TBA', video:'https://example.streams/stranger/s5/e08/index.m3u8', image:'https://image.tmdb.org/t/p/w300/s5e8.jpg', season:5 }
+];
+
+const container = document.getElementById('movies');
+const videoModal = document.getElementById('video-modal');
+const modalTitle = document.getElementById('modal-title');
+let currentHls = null;
+
+function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
+
+function isHls(u){return u && (u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u));}
+function isMP4(u){return /\.mp4($|\?)/i.test(u);} 
+function isYouTube(u){return u && (u.includes('youtu')||u.includes('youtube.com'));}
+
+function playInModal(title, url){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer = document.querySelector('.modal-player');
+  const modalVideo = document.getElementById('modal-video');
+  modalTitle.textContent = title||'';
+
+  // streamtape iframe
+  if(url && url.includes('streamtape.com')){
+    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen frameborder="0"></iframe>`;
+    showModal(); return;
+  }
+
+  if(isYouTube(url)){
+    playerContainer.innerHTML = `<iframe src="${url}?autoplay=1&rel=0" width="100%" height="100%" allowfullscreen frameborder="0"></iframe>`;
+    showModal(); return;
+  }
+
+  // HLS
+  if(isHls(url)){
+    if(window.Hls && Hls.isSupported()){
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ showModal(); modalVideo.play().catch(()=>{}); });
+    } else {
+      modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{});
+    }
+    return;
+  }
+
+  if(isMP4(url)){
+    modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{}); return;
+  }
+
+  // fallback: redirect to player page
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+function closePlayer(){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer = document.querySelector('.modal-player');
+  playerContainer.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
+  hideModal();
+}
+
+document.getElementById('close-video-modal').addEventListener('click', closePlayer);
+videoModal.addEventListener('click', e=>{ if(e.target===videoModal) closePlayer(); });
+
+function renderMovies(list){
+  container.innerHTML = '';
+  list.forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'movie-card rounded-lg overflow-hidden cursor-pointer';
+    div.innerHTML = `
+      <div class="relative">
+        <img src="${m.image}" alt="${m.title}" class="w-full h-60 object-cover">
+        <div class="absolute inset-0 flex items-end p-3 bg-gradient-to-t from-black/60">
+          <button class="badge">PLAY</button>
+        </div>
+      </div>
+      <div class="p-3">
+        <div class="font-semibold">${m.title}</div>
+        <div class="text-sm text-slate-400">Season ${m.season}</div>
+      </div>`;
+    div.addEventListener('click', ()=> playInModal(m.title, m.video));
+    container.appendChild(div);
+  });
+}
+
+// initial render
+renderMovies(movies);
+
+// season filter
+const seasonBtns = document.querySelectorAll('.season-btn');
+seasonBtns.forEach(btn => btn.addEventListener('click', ()=>{
+  seasonBtns.forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const season = btn.dataset.season;
+  const filtered = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+  renderMovies(filtered);
+}));
+
+// search
+const searchInput = document.getElementById('search-input');
+searchInput && searchInput.addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  const activeSeasonBtn = document.querySelector('.season-btn.active');
+  const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+  let list = season === 'all' ? movies : movies.filter(m=>String(m.season)===String(season));
+  if(q){ list = list.filter(m => m.title.toLowerCase().includes(q)); }
+  renderMovies(list);
+});
+
+</script>
+</body>
+</html>
