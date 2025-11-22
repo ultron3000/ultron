@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wednesday</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Gothic Purple Theme */
+    body { background-color: #0b0b0d; color: #ddd; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
+
+    .gradient-text { background: linear-gradient(90deg, #7c3aed, #a78bfa); -webkit-background-clip: text; color: transparent; }
+    .glow-effect { position: relative; }
+    .glow-effect::after { content: ''; position: absolute; inset: 0; border-radius: 12px; box-shadow: 0 0 15px rgba(124,58,237,0); transition: box-shadow 0.3s ease; pointer-events: none; }
+    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(124,58,237,0.7); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    .showcase-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+    .showcase-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.5), rgba(0,0,0,0)); z-index: 1; }
+    .showcase-content { position: relative; z-index: 2; }
+
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+    .video-container video { position: absolute; inset: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-purple-700/30">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-purple-700 rounded-full flex items-center justify-center">
+        <span class="text-white text-xl font-black">W</span>
+      </div>
+      <h1 class="text-2xl font-bold gradient-text">Wednesday</h1>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition"><i class="fas fa-moon text-purple-400"></i></button>
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition"><i class="fas fa-search text-purple-400"></i></button>
+    </div>
+  </div>
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input type="text" placeholder="Search episodes..." class="w-full bg-gray-900 border border-purple-600/40 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-purple-400"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-12 relative overflow-hidden rounded-xl h-64 md:h-96">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi3929524249/1434659607842-pgv4ql-1755178405573.mp4?Expires=1762784375&Signature=GN5gsrAjfLCHeBmyiwY3g7rq4WARm2ScvMY6aQ1WDRi0DykIOQgIRYHkt2GvsW4rTM37fiqIoRTwVBrj5dkSahaKcpeXe2fPa5fK7zL47WDxt-pr3yoVYQNop~3Vskvs9kNe~CaIT8XAVc0lAIe8f-MuFOLavBDu8TvbxXU8YFH796sRK5cdjjUpbwgi3~CZVEmDrxXsIlke~K8evMyU~CDO7dFL9JvZwz7kZemchhq5eXGx279FpHLX20RiYL~VHncVGe1ShVt0~9yDoh4TCqS9H4DHYfWc2AGkYzZaS0DaSdpo6mh0whlzmsFAq1Pnn0FUZPyYrpZSFiVGJIqp2w__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="showcase-content h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg">Follow Wednesday Addams as she navigates life at Nevermore Academy, mastering her psychic ability and uncovering dark secrets.</p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2">
+    <div class="flex space-x-2">
+      <button class="season-btn active bg-purple-600 text-black px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="2">Season 2</button>
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-purple-400 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © 2025 Nevermore Studios
+</footer>
+
+<div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl">&times;</button>
+    <div class="video-container"><video id="modal-video" class="w-full" controls></video></div>
+    <div class="p-6">
+      <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
+      <div id="season-episode" class="text-gray-400 text-sm mb-2"></div>
+      <div id="episode-duration" class="text-gray-400 text-sm mb-4"></div>
+      <p id="modal-description" class="text-gray-300"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const movies = [
+  // ===== Season 1 =====
+  { title: "Wednesday's Child Is Full of Woe", video: "https://svz.solvonaacademy.sbs:443/v4/6s/6vxrh/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABRau0OfdR2XiDVJKbosrUguN9E823JJik83QPSbk78xpYSlsuA3ukuo9v2aWKPIHmFCrvcl0kU7jy0mT_FGp1DNg1O0lzZ3VPTrgPhtT4WB2_slAE1osX6d6.webp?r=952", description: "Wednesday enrolls at Nevermore Academy after an incident at her old school, only to discover the school's dark mysteries.", duration: "58 min", season: 1, episode: 1, tags: ["Mystery", "Horror"] },
+  { title: "Woe Is the Loneliest Number", video: "https://sjx.clarynova.cyou:443/v4/6s/t8yfg/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABcgZnvtaD-K1zxuS9C5dp6zgPRSBHhSjibTDF56qD51O8W4HTNfs2AFlqwtVYtHQHOeupS0ub9EJsu77-lMXe6jaNrvi7t1QUL8FJgseTYRkM7fM5Tdv_JZ4.webp?r=c99", description: "A murder rocks Nevermore, and Wednesday begins investigating while adjusting to her new psychic visions.", duration: "49 min", season: 1, episode: 2, tags: ["Thriller"] },
+  { title: "Friend or Woe", video: "https://sbs.clarynova.cyou:443/v4/ty/qmawq/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABUDKNEB1pBwnu_RXfzP0xnC4k2cz4HulwQ93P4EwhvqT4FXKKhBpljaO4oiDKFmesn0OJbYmmZbXfMzOahtWq0xoWwY0dMXAPTL1zN2DTcfXDYU0r-cglSt6.webp?r=40bg", description: "Wednesday stumbles into a deadly secret society within Nevermore and faces more danger than she expected.", duration: "47 min", season: 1, episode: 3, tags: ["Mystery"] },
+  { title: "Woe What a Night", video: "https://svz.ellionhealth.cyou:443/v4/6s/w5ezh/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABbv6q4nKAIJ7y7bny28gw_Qc_s9kTfFdA8bdTP003iaiw6OhBjjNOfzfMhOgqD7Vk7t7DvtQU9IVhSexDSkk7o4Hn-QTJPKsAEoayYwVEVqEqflcW2Do3Fip.webp?r=0b4", description: "The Rave'N dance turns deadly as Wednesday unravels clues leading to the monster terrorizing Nevermore.", duration: "50 min", season: 1, episode: 4, tags: ["Drama"] },
+  { title: "You Reap What You Woe", video: "https://s1q.fiorellagarden.sbs:443/v4/6s/a31di/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABf8Aw8Af3JDmZBdCiS5fNLuiEVIhduj5mxtLIXQFaJak0retmAR0_eIqkCXlC-hu2YMQD8lvNItvPLEBvBdLfV8uefPXan2rgjjRuh0DZeIiduerzGqd7iJS.webp?r=e5d", description: "A family weekend brings the Addamses together at Nevermore and reveals shocking truths about Morticia's past.", duration: "48 min", season: 1, episode: 5, tags: ["Family"] },
+  { title: "Quid Pro Woe", video: "https://sui.dreamoraresort.sbs:443/v4/ty/bkt5a/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABZf3PiaLYl-ER8sWFeIw2Z560fzeTQmAPviwt3YnGMxDfLg63g8u6aUmsHZZH2Z4o6SBYIRyZ2PMo3fFtnP26nr6PhVMn7nX5NDP_PJ8_bEpEd3Ezfmofxgv.webp?r=21c", description: "Wednesday uncovers the school's hidden tunnels and learns more about her ancestor Goody Addams.", duration: "51 min", season: 1, episode: 6, tags: ["Fantasy"] },
+  { title: "If You Don’t Woe Me by Now", video: "https://sjx.celestiorstudio.cyou:443/v4/ty/ntvex/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABXVM0jmBGYrCi9BUQdr1ExNT9LCJn17WCL9KKp9JuKgH6SzZUFpMl0OacUk7XF4zcVVjuU8RIKVF1TdAJCNYVgErGKgn0WwdNq60WGUoqU_kJVLP3TkUlnIr.webp?r=288", description: "Wednesday's investigations point to shocking suspects as the killer strikes again.", duration: "45 min", season: 1, episode: 7, tags: ["Horror"] },
+  { title: "A Murder of Woes", video: "https://sbs.zenithraevents.store:443/v4/6s/a31dt/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABZMlXG39lo4-qufHnTdLwQaeI6ku5GLsIVRI1vL7filQJem5OE3QpVXdHGRQP9AmCnWuD8ebtP4MDGqcSC4PKSE2Uvx_FPe9GisatKLnxoLARbpxiJgKrnK2.webp?r=2e0", description: "The pieces of the puzzle come together in a final confrontation revealing Nevermore’s darkest secret.", duration: "56 min", season: 1, episode: 8, tags: ["Thriller"] },
+
+  // ===== Season 2 =====
+  { title: "Woe and Behold", video: "https://sui.oravialuxury.online:443/v4/tab/3bnwz/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABaXkU45ZXupNiPrPU8rKYlhydRnhuxOaU5h6Yt2q-Cr3GFtZ0wxgsr0ZA8sxp_AzylnwTAbV2pcVkHv7PNygp1KVpAIb_2-37qW-zLPJR4WlOi_nnmG0IAz9.webp?r=677", description: "Returning to Nevermore, Wednesday faces the aftermath of the murders and a new sinister threat.", duration: "53 min", season: 2, episode: 1, tags: ["Mystery"] },
+  { title: "Full Moon Woes", video: "https://sbs.rivonadesign.cyou:443/v4/tab/hjmtv/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABZEb-1xChJkJI9ZCXz75XwdSwF-P2n9ScrgvwGbS1fb3LG1BIRnxCmSHw8hgYpE3OIa4Fo-4DQZOoqUeTP5B4OI49QPqLpZCfvICDHLm5Nu1HbhrQR8zMZJx.webp?r=22c", description: "A strange lunar event causes chaos at Nevermore as Wednesday investigates a cursed relic.", duration: "50 min", season: 2, episode: 2, tags: ["Fantasy"] },
+  { title: "The Witching Hour Woe", video: "https://s1q.fortimax.shop:443/v4/epu/6vxul/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABcmSOEcPN1IzcvlzRSZjH-Wr4X_BgRKTITYs4ugqKhA_HXPuC1UzFAxQczq26hLnDSiQF6zzvZsfkd3kpDJ5jmjigw6l0wE_AU45uw_um4pPKgBFMDy9B5MR.webp?r=73b", description: "Wednesday forms unlikely alliances to track a witch coven threatening the academy.", duration: "49 min", season: 2, episode: 3, tags: ["Horror"] },
+  { title: "Double, Double, Woe and Trouble", video: "https://slp.florencelab.space:443/v4/tab/splmf/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABZPcezk8r1htr8czZ76-tMP09NbK3lucW-peokfK592jMEGuJVRZuEPny8-y8ysXdPQBq-C2G9xd7d3TrDcU32VB1-yX8gMYdin4hfHfTUTeKLmbhaLS1eGO.webp?r=2b8", description: "An imposter walks among the students, and Wednesday must expose them before it's too late.", duration: "51 min", season: 2, episode: 4, tags: ["Thriller"] },
+  { title: "To Woe or Not to Woe", video: "https://sy6.dreamoraresort.sbs:443/v4/pk8/5ts1x/index-f2-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABRkhY3pujVZ9oaTqAPHzvBuJ477C_u9Gl3COnlpT88wofxxatd6rsMjGruI-5kImm_AFPu3V0fW8gBS_J-1yRFSXTBnprKqgaQquVRWM2SrzH8PQWqDuo-6u.webp?r=a42", description: "Wednesday is torn between loyalty to her friends and her quest for the truth.", duration: "47 min", season: 2, episode: 5, tags: ["Drama"] },
+  { title: "Dark Woe Rising", video: "https://sf3.celestiorstudio.cyou:443/v4/tab/ifb9m/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABVyOcT09gIvsvmjeFrx4CdiY8vd277poyEgOxGQz_4SE-MXcYuFjwCPYJjKXp4TvxQ1L59C8jUPxzcBoBRmc4Vveh6FZv3AzrEHv-ttnon53we4RWvkZ66AR.webp?r=069", description: "A new prophecy emerges, linking Wednesday's fate with Nevermore’s survival.", duration: "54 min", season: 2, episode: 6, tags: ["Fantasy"] },
+  { title: "A Web of Woe", video: "https://sbs.starlabdigital.sbs:443/v4/pk8/kj8xm/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABVLMhYFs43xmPdceyhVIahmCgWeT6CXiI835RV1kXzKKNsG03YlwoUWeSkIxGYegKxMcOIzw1fFrcWQXE6mKr4tYb9P6ktUvtRbYa0e24fqfA0tRASfavopC.webp?r=d3c", description: "Secrets unravel as betrayal and power consume those closest to Wednesday.", duration: "50 min", season: 2, episode: 7, tags: ["Mystery"] },
+  { title: "Woe Ever After", video: "https://sf3.oravialuxury.online:443/v4/pk8/ar1lt/index-f1-v1-a1.txt", image: "https://occ-0-8621-2164.1.nflxso.net/dnm/api/v6/9pS1daC2n6UGc3dUogvWIPMR_OU/AAAABRRYxyq9yQHM2oUDbOKMWwG1-rKXFh0CY5Cb3oG7EBiRK2rStjLQYGKo1-cZd1Rzn1jz9GZPJ4TSf9BZoSoqmx9WbGtbMpIIL2NPPSEa8aHNTmxq4zsTfIH-.webp?r=3cd", description: "Wednesday faces her destiny in a dark showdown that determines Nevermore’s future.", duration: "57 min", season: 2, episode: 8, tags: ["Thriller"] }
+];
+
+function isMP4(url) { return /\.mp4($|\?)/i.test(url); }
+const container = document.getElementById('movies');
+const playbackModal = document.getElementById('playback-modal');
+const modalVideo = document.getElementById('modal-video');
+const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const seasonEpisode = document.getElementById('season-episode');
+const episodeDuration = document.getElementById('episode-duration');
+const closeModal = document.getElementById('close-modal');
+
+let currentSeason = 'all';
+
+function initPage() {
+  renderMovies();
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.season-btn.active').classList.remove('active', 'bg-purple-600', 'text-black');
+      this.classList.add('active', 'bg-purple-600', 'text-black');
+      currentSeason = this.dataset.season;
+      renderMovies();
+    });
+  });
+}
+
+function renderMovies() {
+  container.innerHTML = '';
+  let filtered = movies;
+  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
+
+  filtered.forEach((movie, i) => {
+    const card = document.createElement('div');
+    card.className = `movie-card fade-in delay-${i%5} glow-effect`;
+    card.innerHTML = `
+      <div class="relative group cursor-pointer overflow-hidden rounded-xl">
+        <img src="${movie.image}" class="w-full h-48 object-cover rounded-xl transition group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-purple-400 text-3xl"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="mt-3 text-white font-medium">${movie.title}</div>
+      <div class="text-gray-400 text-sm">S${movie.season} • E${movie.episode} • ${movie.duration}</div>`;
+
+    card.addEventListener('click', () => {
+      if (isMP4(movie.video)) openModal(movie);
+      else window.location.href = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
+    });
+    container.appendChild(card);
+  });
+}
+
+function openModal(m) {
+  modalTitle.textContent = m.title;
+  modalDescription.textContent = m.description;
+  seasonEpisode.textContent = `S${m.season} • E${m.episode}`;
+  episodeDuration.textContent = m.duration;
+  modalVideo.src = m.video;
+  playbackModal.classList.remove('hidden');
+}
+
+closeModal.onclick = () => { playbackModal.classList.add('hidden'); modalVideo.pause(); };
+window.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>
