@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Silicon Valley</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    body { background: #0b0f14; color: #e6eef6; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+    header, footer { background: #071122; }
+    .season-btn.active { background:#ffd166 !important; color:#081017 !important; }
+    .movie-card { background: #071627; border:1px solid rgba(255,255,255,0.03); }
+    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); z-index:1000; }
+    .modal-card { width:95%; max-width:1100px; border-radius:10px; overflow:hidden; }
+    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
+    .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black/60 backdrop-blur-md border-b border-slate-700/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-12 h-12 bg-gradient-to-br from-sky-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+        <i class="fas fa-microchip text-white text-2xl"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold">Silicon Valley</h1>
+        <div class="text-xs text-slate-300">TV Series • Seasons 1–6</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden md:block">
+        <input id="search-input" type="search" placeholder="Search episodes or titles..." class="rounded-full px-3 py-2 bg-slate-900 text-slate-100 border border-slate-800" />
+      </div>
+      <button id="open-search-mobile" class="md:hidden p-2 rounded-full bg-slate-800"><i class="fas fa-search text-white"></i></button>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-6">
+    <div class="rounded-lg overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 p-6">
+      <h2 class="text-xl font-semibold">Silicon Valley — A comedy about a startup</h2>
+      <p class="text-slate-300 mt-2">A group of software developers build a startup in Silicon Valley and navigate the tech world, investors, and ridiculous competition.</p>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <div class="flex gap-2 overflow-x-auto pb-2">
+      <button class="season-btn active px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="2">Season 2</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="3">Season 3</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="4">Season 4</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="5">Season 5</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="6">Season 6</button>
+    </div>
+  </section>
+
+  <section>
+    <h3 class="text-lg font-medium mb-4">Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+  </section>
+</main>
+
+<footer class="py-6 text-center text-slate-400">© Silicon Valley</footer>
+
+<!-- Modal -->
+<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
+  <div class="modal-card bg-black">
+    <div class="flex justify-between items-center p-3 border-b border-slate-800">
+      <div id="modal-title" class="text-white font-semibold"></div>
+      <button id="close-video-modal" class="p-2 rounded-full bg-slate-800 text-white"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-player">
+      <video id="modal-video" controls playsinline preload="metadata"></video>
+    </div>
+  </div>
+</div>
+
+<script>
+// Episodes data: Silicon Valley seasons 1-6 (placeholders for video URLs)
+const movies = [
+  // Season 1 (8 eps)
+  { title: 'S1E01 - Minimum Viable Product', video:'https://cdn.example.com/sv/s01e01.m3u8', image:'https://via.placeholder.com/300x450?text=S1E01', season:1 },
+  { title: 'S1E02 - The Cap Table', video:'https://cdn.example.com/sv/s01e02.mp4', image:'https://via.placeholder.com/300x450?text=S1E02', season:1 },
+  { title: 'S1E03 - Articles of Incorporation', video:'https://cdn.example.com/sv/s01e03.m3u8', image:'https://via.placeholder.com/300x450?text=S1E03', season:1 },
+  { title: 'S1E04 - Fiduciary Duties', video:'https://cdn.example.com/sv/s01e04.mp4', image:'https://via.placeholder.com/300x450?text=S1E04', season:1 },
+  { title: 'S1E05 - Signaling Risk', video:'https://cdn.example.com/sv/s01e05.m3u8', image:'https://via.placeholder.com/300x450?text=S1E05', season:1 },
+  { title: 'S1E06 - Third Party Insourcing', video:'https://cdn.example.com/sv/s01e06.mp4', image:'https://via.placeholder.com/300x450?text=S1E06', season:1 },
+  { title: 'S1E07 - Proof of Concept', video:'https://cdn.example.com/sv/s01e07.m3u8', image:'https://via.placeholder.com/300x450?text=S1E07', season:1 },
+  { title: 'S1E08 - Optimal Tip-To-Tip Efficiency', video:'https://cdn.example.com/sv/s01e08.mp4', image:'https://via.placeholder.com/300x450?text=S1E08', season:1 },
+  // Season 2 (10 eps)
+  { title: 'S2E01 - Sand Hill Shuffle', video:'https://cdn.example.com/sv/s02e01.m3u8', image:'https://via.placeholder.com/300x450?text=S2E01', season:2 },
+  { title: 'S2E02 - Runaway Devaluation', video:'https://cdn.example.com/sv/s02e02.mp4', image:'https://via.placeholder.com/300x450?text=S2E02', season:2 },
+  { title: 'S2E03 - Bad Money', video:'https://cdn.example.com/sv/s02e03.m3u8', image:'https://via.placeholder.com/300x450?text=S2E03', season:2 },
+  { title: 'S2E04 - The Lady', video:'https://cdn.example.com/sv/s02e04.mp4', image:'https://via.placeholder.com/300x450?text=S2E04', season:2 },
+  { title: 'S2E05 - Server Space', video:'https://cdn.example.com/sv/s02e05.m3u8', image:'https://via.placeholder.com/300x450?text=S2E05', season:2 },
+  { title: 'S2E06 - Homicide', video:'https://cdn.example.com/sv/s02e06.mp4', image:'https://via.placeholder.com/300x450?text=S2E06', season:2 },
+  { title: 'S2E07 - Adult Content', video:'https://cdn.example.com/sv/s02e07.m3u8', image:'https://via.placeholder.com/300x450?text=S2E07', season:2 },
+  { title: 'S2E08 - White Hat/Black Hat', video:'https://cdn.example.com/sv/s02e08.mp4', image:'https://via.placeholder.com/300x450?text=S2E08', season:2 },
+  { title: 'S2E09 - Binding Arbitration', video:'https://cdn.example.com/sv/s02e09.m3u8', image:'https://via.placeholder.com/300x450?text=S2E09', season:2 },
+  { title: 'S2E10 - Two Days of the Condor', video:'https://cdn.example.com/sv/s02e10.mp4', image:'https://via.placeholder.com/300x450?text=S2E10', season:2 },
+  // Season 3 (10 eps)
+  { title: 'S3E01 - S3 Ep1', video:'https://cdn.example.com/sv/s03e01.m3u8', image:'https://via.placeholder.com/300x450?text=S3E01', season:3 },
+  { title: 'S3E02 - S3 Ep2', video:'https://cdn.example.com/sv/s03e02.mp4', image:'https://via.placeholder.com/300x450?text=S3E02', season:3 },
+  { title: 'S3E03 - S3 Ep3', video:'https://cdn.example.com/sv/s03e03.m3u8', image:'https://via.placeholder.com/300x450?text=S3E03', season:3 },
+  { title: 'S3E04 - S3 Ep4', video:'https://cdn.example.com/sv/s03e04.mp4', image:'https://via.placeholder.com/300x450?text=S3E04', season:3 },
+  { title: 'S3E05 - S3 Ep5', video:'https://cdn.example.com/sv/s03e05.m3u8', image:'https://via.placeholder.com/300x450?text=S3E05', season:3 },
+  { title: 'S3E06 - S3 Ep6', video:'https://cdn.example.com/sv/s03e06.mp4', image:'https://via.placeholder.com/300x450?text=S3E06', season:3 },
+  { title: 'S3E07 - S3 Ep7', video:'https://cdn.example.com/sv/s03e07.m3u8', image:'https://via.placeholder.com/300x450?text=S3E07', season:3 },
+  { title: 'S3E08 - S3 Ep8', video:'https://cdn.example.com/sv/s03e08.mp4', image:'https://via.placeholder.com/300x450?text=S3E08', season:3 },
+  { title: 'S3E09 - S3 Ep9', video:'https://cdn.example.com/sv/s03e09.m3u8', image:'https://via.placeholder.com/300x450?text=S3E09', season:3 },
+  { title: 'S3E10 - S3 Ep10', video:'https://cdn.example.com/sv/s03e10.mp4', image:'https://via.placeholder.com/300x450?text=S3E10', season:3 },
+  // Season 4 (10 eps)
+  { title: 'S4E01 - S4 Ep1', video:'https://cdn.example.com/sv/s04e01.m3u8', image:'https://via.placeholder.com/300x450?text=S4E01', season:4 },
+  { title: 'S4E02 - S4 Ep2', video:'https://cdn.example.com/sv/s04e02.mp4', image:'https://via.placeholder.com/300x450?text=S4E02', season:4 },
+  { title: 'S4E03 - S4 Ep3', video:'https://cdn.example.com/sv/s04e03.m3u8', image:'https://via.placeholder.com/300x450?text=S4E03', season:4 },
+  { title: 'S4E04 - S4 Ep4', video:'https://cdn.example.com/sv/s04e04.mp4', image:'https://via.placeholder.com/300x450?text=S4E04', season:4 },
+  { title: 'S4E05 - S4 Ep5', video:'https://cdn.example.com/sv/s04e05.m3u8', image:'https://via.placeholder.com/300x450?text=S4E05', season:4 },
+  { title: 'S4E06 - S4 Ep6', video:'https://cdn.example.com/sv/s04e06.mp4', image:'https://via.placeholder.com/300x450?text=S4E06', season:4 },
+  { title: 'S4E07 - S4 Ep7', video:'https://cdn.example.com/sv/s04e07.m3u8', image:'https://via.placeholder.com/300x450?text=S4E07', season:4 },
+  { title: 'S4E08 - S4 Ep8', video:'https://cdn.example.com/sv/s04e08.mp4', image:'https://via.placeholder.com/300x450?text=S4E08', season:4 },
+  { title: 'S4E09 - S4 Ep9', video:'https://cdn.example.com/sv/s04e09.m3u8', image:'https://via.placeholder.com/300x450?text=S4E09', season:4 },
+  { title: 'S4E10 - S4 Ep10', video:'https://cdn.example.com/sv/s04e10.mp4', image:'https://via.placeholder.com/300x450?text=S4E10', season:4 },
+  // Season 5 (8 eps)
+  { title: 'S5E01 - S5 Ep1', video:'https://cdn.example.com/sv/s05e01.m3u8', image:'https://via.placeholder.com/300x450?text=S5E01', season:5 },
+  { title: 'S5E02 - S5 Ep2', video:'https://cdn.example.com/sv/s05e02.mp4', image:'https://via.placeholder.com/300x450?text=S5E02', season:5 },
+  { title: 'S5E03 - S5 Ep3', video:'https://cdn.example.com/sv/s05e03.m3u8', image:'https://via.placeholder.com/300x450?text=S5E03', season:5 },
+  { title: 'S5E04 - S5 Ep4', video:'https://cdn.example.com/sv/s05e04.mp4', image:'https://via.placeholder.com/300x450?text=S5E04', season:5 },
+  { title: 'S5E05 - S5 Ep5', video:'https://cdn.example.com/sv/s05e05.m3u8', image:'https://via.placeholder.com/300x450?text=S5E05', season:5 },
+  { title: 'S5E06 - S5 Ep6', video:'https://cdn.example.com/sv/s05e06.mp4', image:'https://via.placeholder.com/300x450?text=S5E06', season:5 },
+  { title: 'S5E07 - S5 Ep7', video:'https://cdn.example.com/sv/s05e07.m3u8', image:'https://via.placeholder.com/300x450?text=S5E07', season:5 },
+  { title: 'S5E08 - S5 Ep8', video:'https://cdn.example.com/sv/s05e08.mp4', image:'https://via.placeholder.com/300x450?text=S5E08', season:5 },
+  // Season 6 (7 eps)
+  { title: 'S6E01 - S6 Ep1', video:'https://cdn.example.com/sv/s06e01.m3u8', image:'https://via.placeholder.com/300x450?text=S6E01', season:6 },
+  { title: 'S6E02 - S6 Ep2', video:'https://cdn.example.com/sv/s06e02.mp4', image:'https://via.placeholder.com/300x450?text=S6E02', season:6 },
+  { title: 'S6E03 - S6 Ep3', video:'https://cdn.example.com/sv/s06e03.m3u8', image:'https://via.placeholder.com/300x450?text=S6E03', season:6 },
+  { title: 'S6E04 - S6 Ep4', video:'https://cdn.example.com/sv/s06e04.mp4', image:'https://via.placeholder.com/300x450?text=S6E04', season:6 },
+  { title: 'S6E05 - S6 Ep5', video:'https://cdn.example.com/sv/s06e05.m3u8', image:'https://via.placeholder.com/300x450?text=S6E05', season:6 },
+  { title: 'S6E06 - S6 Ep6', video:'https://cdn.example.com/sv/s06e06.mp4', image:'https://via.placeholder.com/300x450?text=S6E06', season:6 },
+  { title: 'S6E07 - S6 Ep7', video:'https://cdn.example.com/sv/s06e07.m3u8', image:'https://via.placeholder.com/300x450?text=S6E07', season:6 },
+];
+
+const container = document.getElementById('movies');
+const videoModal = document.getElementById('video-modal');
+const modalTitle = document.getElementById('modal-title');
+let currentHls = null;
+
+function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
+
+function isHls(u){return u && (u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u));}
+function isMP4(u){return /\.mp4($|\?)/i.test(u);} 
+function isYouTube(u){return u && (u.includes('youtu')||u.includes('youtube.com'));}
+
+function playInModal(title, url){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer = document.querySelector('.modal-player');
+  const modalVideo = document.getElementById('modal-video');
+  modalTitle.textContent = title||'';
+
+  // streamtape iframe
+  if(url && url.includes('streamtape.com')){
+    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen frameborder="0"></iframe>`;
+    showModal(); return;
+  }
+
+  if(isYouTube(url)){
+    playerContainer.innerHTML = `<iframe src="${url}?autoplay=1&rel=0" width="100%" height="100%" allowfullscreen frameborder="0"></iframe>`;
+    showModal(); return;
+  }
+
+  // HLS
+  if(isHls(url)){
+    if(window.Hls && Hls.isSupported()){
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ showModal(); modalVideo.play().catch(()=>{}); });
+    } else {
+      modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{});
+    }
+    return;
+  }
+
+  if(isMP4(url)){
+    modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{}); return;
+  }
+
+  // fallback: redirect to player page
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+function closePlayer(){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer = document.querySelector('.modal-player');
+  playerContainer.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
+  hideModal();
+}
+
+document.getElementById('close-video-modal').addEventListener('click', closePlayer);
+videoModal.addEventListener('click', e=>{ if(e.target===videoModal) closePlayer(); });
+
+function renderMovies(list){
+  container.innerHTML = '';
+  list.forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'movie-card rounded-lg overflow-hidden cursor-pointer';
+    div.innerHTML = `
+      <div class="relative">
+        <img src="${m.image}" alt="${m.title}" class="w-full h-60 object-cover">
+        <div class="absolute inset-0 flex items-end p-3 bg-gradient-to-t from-black/60">
+          <button class="bg-yellow-400 text-black px-3 py-1 rounded">Play</button>
+        </div>
+      </div>
+      <div class="p-3">
+        <div class="font-semibold">${m.title}</div>
+        <div class="text-sm text-slate-400">Season ${m.season}</div>
+      </div>`;
+    div.addEventListener('click', ()=> playInModal(m.title, m.video));
+    container.appendChild(div);
+  });
+}
+
+// initial render
+renderMovies(movies);
+
+// season filter
+const seasonBtns = document.querySelectorAll('.season-btn');
+seasonBtns.forEach(btn => btn.addEventListener('click', ()=>{
+  seasonBtns.forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const season = btn.dataset.season;
+  const filtered = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+  renderMovies(filtered);
+}));
+
+// search
+const searchInput = document.getElementById('search-input');
+searchInput && searchInput.addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  const activeSeasonBtn = document.querySelector('.season-btn.active');
+  const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+  let list = season === 'all' ? movies : movies.filter(m=>String(m.season)===String(season));
+  if(q){ list = list.filter(m => m.title.toLowerCase().includes(q)); }
+  renderMovies(list);
+});
+
+</script>
+</body>
+</html>
