@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marvel Cinematic Universe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            marvel: {
+              red: '#ED1D24',
+              gold: '#FFCC00',
+              dark: '#151515',
+              light: '#F0F0F0'
+            }
+          },
+          fontFamily: {
+            'marvel': ['"Marvel"', 'sans-serif'],
+            'bebas': ['"Bebas Neue"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+    body { font-family: 'Bebas Neue', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
+    .marvel-font { font-family: 'Bebas Neue', sans-serif; }
+    .movie-card { transition: all 0.3s ease; transform-style: preserve-3d; cursor: pointer; }
+    .movie-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 30px rgba(237,29,36,0.3); }
+    .movie-poster { transition: all 0.5s ease; }
+    .movie-card:hover .movie-poster { transform: scale(1.05); }
+    .search-input:focus { box-shadow: 0 0 0 3px rgba(237,29,36,0.5); }
+    .phase-badge { position: absolute; top: 10px; right: 10px; z-index: 10; }
+    .filter-btn.active { background-color: #ED1D24; color: white; }
+    .loading-spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { 0%{transform:rotate(0deg)}100%{transform:rotate(360deg)} }
+    .gradient-overlay { background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%); }
+    .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .hidden { display: none; }
+    /* Modal specific */
+    #playback-modal .aspect-video { aspect-ratio: 16/9; }
+    #playerError { display: none; }
+    .quality-btn { cursor: pointer; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-black sticky top-0 z-50 border-b border-marvel-red/20">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 bg-marvel-red rounded-full flex items-center justify-center">
+            <span class="text-white font-bold text-xl">MCU</span>
+          </div>
+          <h1 class="text-3xl font-bold text-marvel-red marvel-font tracking-wider">MARVEL CINEMATIC UNIVERSE</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button id="theme-toggle" class="text-marvel-gold hover:text-marvel-red transition-colors">
+            <i class="fas fa-moon text-xl"></i>
+          </button>
+          <button id="view-toggle" class="text-marvel-gold hover:text-marvel-red transition-colors">
+            <i class="fas fa-th-large text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+
+
+  <!-- Hero Section -->
+  <section class="relative h-96 bg-gradient-to-r from-black to-marvel-red/50 overflow-hidden">
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1635805737707-6ca606e33180?q=80&w=1470&auto=format&fit=crop')] bg-cover bg-center opacity-50"></div>
+    <div class="relative h-full flex items-center justify-center">
+      <div class="text-center px-4">
+        <h2 class="text-5xl md:text-7xl font-bold text-white mb-4 tracking-wider marvel-font">THE ULTIMATE COLLECTION</h2>
+        <p class="text-xl text-marvel-gold mb-8 max-w-3xl mx-auto">Every movie from the Marvel Cinematic Universe in one place</p>
+        <div class="relative max-w-2xl mx-auto">
+          <input id="search-input" type="text" placeholder="Search Marvel movies..." 
+                 class="w-full py-4 px-6 rounded-full bg-black/80 text-white border border-marvel-red/50 focus:outline-none focus:border-marvel-red transition-all duration-300">
+          <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-marvel-red text-white rounded-full p-3 hover:bg-marvel-red/90 transition-colors">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Filters -->
+    <div class="mb-8">
+      <div class="flex flex-wrap gap-3 mb-6 scrollbar-hide overflow-x-auto pb-2">
+        <button class="filter-btn active px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="all">All Movies</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="phase1">Phase 1</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="phase2">Phase 2</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="phase3">Phase 3</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="phase4">Phase 4</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="phase5">Phase 5</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="avengers">Avengers</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="spiderman">Spider-Man</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-marvel-dark text-marvel-gold border border-marvel-gold/30 hover:bg-marvel-red hover:border-marvel-red transition-colors" data-filter="guardians">Guardians</button>
+      </div>
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl text-marvel-gold marvel-font tracking-wider">Marvel Collection</h3>
+        <div class="flex items-center space-x-2">
+          <span class="text-marvel-gold/80">Sort by:</span>
+          <select id="sort-select" class="bg-marvel-dark text-marvel-gold border border-marvel-gold/30 rounded px-3 py-1 focus:outline-none focus:border-marvel-red">
+            <option value="release">Release Date</option>
+            <option value="title">Title (A-Z)</option>
+            <option value="rating">Rating</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Movies Grid -->
+    <div id="movies-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="flex justify-center items-center py-12 hidden">
+      <div class="w-12 h-12 border-4 border-marvel-red border-t-transparent rounded-full loading-spinner"></div>
+    </div>
+  </main>
+
+  <!-- Modal Player -->
+  <div id="playback-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-90">
+    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden p-4">
+      <button id="close-modal" class="absolute top-3 right-3 z-50 text-white hover:text-yellow-500 text-2xl transition">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="aspect-video">
+        <video id="modal-video" class="w-full h-full bg-black" controls playsinline></video>
+      </div>
+
+      <div id="qualityControls" class="flex justify-center mt-3"></div>
+      <div id="playerError" class="hidden bg-red-900 text-white p-2 rounded mt-2 text-center"></div>
+
+      <div class="flex justify-between mt-3">
+        <button id="prevBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+          <i class="fas fa-step-backward mr-1"></i> Prev
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="fullscreenBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+            <i class="fas fa-expand mr-1"></i> Fullscreen
+          </button>
+          <button id="muteBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+            <i class="fas fa-volume-up mr-1"></i> Mute
+          </button>
+        </div>
+        <button id="nextBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+          Next <i class="fas fa-step-forward ml-1"></i>
+        </button>
+      </div>
+
+      <h3 id="modal-title" class="text-xl font-bold text-yellow-400 mt-3"></h3>
+      <div class="text-center text-gray-400 text-sm mt-1">Keyboard: Space=Play/Pause, ←/→ seek, F=Fullscreen, N=Next, P=Prev, M=Mute</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-black py-8 border-t border-marvel-red/20">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <div class="flex items-center space-x-2">
+            </div>
+          </div>
+        </div>
+        <div class="flex space-x-6">
+          <a href="#" class="text-marvel-gold/70 hover:text-marvel-red transition-colors"><i class="fab fa-facebook-f text-xl"></i></a>
+          <a href="#" class="text-marvel-gold/70 hover:text-marvel-red transition-colors"><i class="fab fa-twitter text-xl"></i></a>
+          <a href="https://www.instagram.com/stark_4152" class="text-marvel-gold/70 hover:text-marvel-red transition-colors"><i class="fab fa-instagram text-xl"></i></a>
+          <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-marvel-gold/70 hover:text-marvel-red transition-colors"><i class="fab fa-youtube text-xl"></i></a>
+        </div>
+      </div>
+      <div class="mt-8 pt-6 border-t border-marvel-red/10 text-center text-marvel-gold/50 text-sm">
+        <p>©  This is a fan-made project.</p>
+        <p class="mt-2"> </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // --- Data (same as before; truncated for brevity here but left intact in your file) ---
+    const movies = [
+      { 
+        title: "Iron Man", 
+        video: "https://sri.aesthorium.sbs:443/v4/6s/hfqn1/index-f1-v1-a1.txt", 
+        image: "https://i.pinimg.com/736x/9f/bf/d3/9fbfd3709ca02fedd3b0588712c1ae77.jpg",
+        phase: "phase1",
+        year: 2008,
+        rating: 4.5,
+        tags: ["ironman", "phase1", "avengers"]
+      },
+      { 
+        title: "Iron Man 2", 
+        video: "https://sau.artverra.shop:443/v4/rw/s5jgb/index-f1-v1-a1.txt", 
+        image: "https://wallpapercat.com/w/full/b/9/e/2138932-2000x3000-samsung-hd-iron-man-2-background.jpg",
+        phase: "phase1",
+        year: 2010,
+        rating: 4.0,
+        tags: ["ironman", "phase1", "avengers"]
+      },
+      { 
+        title: "Iron Man 3", 
+        video: "https://sui.clarynova.cyou:443/v4/il/wyfxt/index-f1-v1-a1.txt", 
+        image: "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p9259486_p_v13_aa.jpg",
+        phase: "phase2",
+        year: 2013,
+        rating: 4.0,
+        tags: ["ironman", "phase2"]
+      },
+      { 
+        title: "Thor", 
+        video: "https://sri.azurafield.space:443/v4/m9/f5wig/index-f1-v1-a1.txt", 
+        image: "https://i.pinimg.com/736x/5f/f0/af/5ff0af99c2c5c4f79ba306da9153c8ac.jpg",
+        phase: "phase1",
+        year: 2011,
+        rating: 4.0,
+        tags: ["thor", "phase1", "avengers"]
+      },
+      { 
+        title: "Thor: The Dark World", 
+        video: "https://svz.brionix.cyou:443/v4/tab/qzqqx/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/I/71LWvG06O3L._AC_UF1000,1000_QL80_.jpg",
+        phase: "phase2",
+        year: 2013,
+        rating: 3.5,
+        tags: ["thor", "phase2"]
+      },
+      { 
+        title: "Thor: Ragnarok", 
+        video: "https://sy6.fiorellagarden.sbs:443/v4/hld/ewh9t/index-f2-v1-a1.txt", 
+        image: "https://i.etsystatic.com/34603156/r/il/c854a5/3761657289/il_570xN.3761657289_4704.jpg",
+        phase: "phase3",
+        year: 2017,
+        rating: 4.5,
+        tags: ["thor", "phase3"]
+      },
+      { 
+        title: "Thor: Love and Thunder", 
+        video: "https://sad.frostlinegarden.store:443/v4/luy/3csfv/index-f2-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/I/817V2XHqCtL._AC_UF894,1000_QL80_.jpg",
+        phase: "phase4",
+        year: 2022,
+        rating: 3.5,
+        tags: ["thor", "phase4"]
+      },
+      { 
+        title: "Shang-Chi and the Legend of the Ten Rings", 
+        video: "https://soq.auroriacollective.cyou:443/v4/rw/y3h3g/index-f1-v1-a1.txt", 
+        image: "https://posterspy.com/wp-content/uploads/2021/08/shang-chi-2.jpg",
+        phase: "phase4",
+        year: 2021,
+        rating: 4.0,
+        tags: ["shangchi", "phase4"]
+      },
+      { 
+        title: "Black Panther", 
+        video: "https://snq.eleviora.space:443/v4/epu/aqndz/index-f2-v1-a1.txt", 
+        image: "https://myhotposters.com/cdn/shop/products/mL1096.jpg?v=1745713076",
+        phase: "phase3",
+        year: 2018,
+        rating: 4.5,
+        tags: ["blackpanther", "phase3"]
+      },
+      { 
+        title: "Black Panther: Wakanda Forever", 
+        video: "https://syr.glowhavenmedia.cyou:443/v4/ek/wn9xw/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/I/81SeUOr5QJL._AC_UF1000,1000_QL80_.jpg",
+        phase: "phase4",
+        year: 2022,
+        rating: 4.0,
+        tags: ["blackpanther", "phase4"]
+      },
+      { 
+        title: "Black Widow", 
+        video: "https://sri.eleviora.space:443/v4/lf/5ticp/index-f1-v1-a1.txt", 
+        image: "https://preview.redd.it/4vh7dnpge7i71.jpg?width=1080&crop=smart&auto=webp&s=1767470d5dd70fa722f9e9e7ab3199530b3b030e",
+        phase: "phase4",
+        year: 2021,
+        rating: 3.5,
+        tags: ["blackwidow", "phase4"]
+      },
+      { 
+        title: "Thunderbolts", 
+        video: "https://s39.azurafield.space:443/v4/8q/a3hxp/index-f2-v1-a2.txt", 
+        image: "https://lh4.googleusercontent.com/proxy/y1INP4XK0QYR0Na0BD4NZafVD35q02BL5oyjXNr2710BkioyCnKYJoPsGYT4HX9MXMUxt9Wepo1O7dP2C3QDi-31QTDPBar3_g",
+        phase: "phase5",
+        year: 2024,
+        rating: 0,
+        tags: ["thunderbolts", "phase5"]
+      },
+      { 
+        title: "Doctor Strange", 
+        video: "https://sad.velonovaenergy.sbs:443/v4/ty/arvws/index-f1-v1-a1.txt", 
+        image: "https://cdnb.artstation.com/p/assets/images/images/021/449/133/large/narinder-singh-docter-strange.jpg?1571734835",
+        phase: "phase3",
+        year: 2016,
+        rating: 4.0,
+        tags: ["doctorstrange", "phase3"]
+      },
+      { 
+        title: "Doctor Strange in the Multiverse of Madness", 
+        video: "https://spx.nordivisnetwork.store:443/v4/hz/arlyv/index-f1-v1-a1.txt", 
+        image: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/ca1b4e149215717.62e69741513f5.jpg",
+        phase: "phase4",
+        year: 2022,
+        rating: 3.5,
+        tags: ["doctorstrange", "phase4"]
+      },
+      { 
+        title: "Avengers", 
+        video: "https://s5r.glowhavenmedia.cyou:443/v4/6s/ythfy/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/I/81yI1yqne9L._AC_UF894,1000_QL80_.jpg",
+        phase: "phase1",
+        year: 2012,
+        rating: 4.5,
+        tags: ["avengers", "phase1"]
+      },
+      { 
+        title: "Avengers: Age of Ultron", 
+        video: "https://sau.bluefusion.sbs/v4/mik/tbxzd/cf-master.txt?v=1756726864", 
+        image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/w780/4ssDuvEDkSArWEdyBl2X5EHvYKU.jpg",
+        phase: "phase2",
+        year: 2015,
+        rating: 4.0,
+        tags: ["avengers", "phase2"]
+      },
+      { 
+        title: "Avengers: Infinity War", 
+        video: "https://sau.xylonatech.sbs:443/v4/9a/qzk6u/index-f1-v1-a1.txt", 
+        image: "https://static.posters.cz/image/1300/90209.jpg",
+        phase: "phase3",
+        year: 2018,
+        rating: 4.5,
+        tags: ["avengers", "phase3"]
+      },
+      { 
+        title: "Avengers: Endgame", 
+        video: "https://snq.greenhavenstore.store:443/v4/ek/dvpjm/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/I/81ai6zx6eXL._AC_SL1500_.jpg",
+        phase: "phase3",
+        year: 2019,
+        rating: 4.5,
+        tags: ["avengers", "phase3"]
+      },
+      { 
+        title: "Captain America: The First Avenger", 
+        video: "https://svz.cometri.store:443/v4/pq/ij1qp/index-f1-v1-a1.txt", 
+        image: "https://i.pinimg.com/736x/1b/2c/22/1b2c22393e84916ee5b5deb3abd7ad57.jpg",
+        phase: "phase1",
+        year: 2011,
+        rating: 4.0,
+        tags: ["captainamerica", "phase1", "avengers"]
+      },
+      { 
+        title: "Captain America: The Winter Soldier", 
+        video: "https://spx.solvonaacademy.sbs:443/v4/ox/tbxe1/index-f1-v1-a1.txt", 
+        image: "https://external-preview.redd.it/cVrOLbB7JjPXqTRoTDY4Eytro1VjS9w6U-KqRiGBINk.jpg?auto=webp&s=b9c2f039f3a846f7541d27d5290605d925c20ecb",
+        phase: "phase2",
+        year: 2014,
+        rating: 4.5,
+        tags: ["captainamerica", "phase2"]
+      },
+      { 
+        title: "Captain America: Civil War", 
+        video: "https://sad.solvonaacademy.sbs:443/v4/is9/fpoco/index-f1-v1-a1.txt", 
+        image: "https://posterspy.com/wp-content/uploads/2018/08/Civil-War-posterspy.jpg",
+        phase: "phase3",
+        year: 2016,
+        rating: 4.5,
+        tags: ["captainamerica", "phase3", "avengers"]
+      },
+      { 
+        title: "Captain America: Brave New World", 
+        video: "https://s39.nordivisnetwork.store:443/v4/pp/6kbqb/index-f1-v1-a1.txt", 
+        image: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/2e317a1c-f1ce-4a5f-90db-d88cc01db2d0/diqz7q1-f09abcc6-904e-4b39-97b5-9b62514b7751.png/v1/fill/w_1280,h_2066,q_80,strp/captain_america_brave_new_world_poster_2025_by_mrandrew7w7_diqz7q1-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MjA2NiIsInBhdGgiOiJcL2ZcLzJlMzE3YTFjLWYxY2UtNGE1Zi05MGRiLWQ4OGNjMDFkYjJkMFwvZGlxejdxMS1mMDlhYmNjNi05MDRlLTRiMzktOTdiNS05YjYyNTE0Yjc3NTEucG5nIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.twNOZJzs0phift96dP6fsfnTJ_6wM37SSbOFFdT2ilY",
+        phase: "phase5",
+        year: 2024,
+        rating: 0,
+        tags: ["captainamerica", "phase5"]
+      },
+      { 
+        title: "Guardians of the Galaxy", 
+        video: "https://sad.novacrestnetwork.online:443/v4/ty/rcvjp/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/I/81lxKU40BvL.jpg",
+        phase: "phase2",
+        year: 2014,
+        rating: 4.5,
+        tags: ["guardians", "phase2"]
+      },
+      { 
+        title: "Guardians of the Galaxy Vol. 2", 
+        video: "https://sad.aesthorium.sbs:443/v4/m9/8izyt/index-f1-v1-a1.txt", 
+        image: "https://w0.peakpx.com/wallpaper/885/973/HD-wallpaper-guardians-of-the-galaxy-vol-2-of-the-guardians-galaxy-vol-2.jpg",
+        phase: "phase3",
+        year: 2017,
+        rating: 4.0,
+        tags: ["guardians", "phase3"]
+      },
+      { 
+        title: "Guardians of the Galaxy Vol. 3", 
+        video: "https://svz.oravix.cyou:443/v4/bgm/areuj/index-f1-v1-a1.txt", 
+        image: "https://res.cloudinary.com/ybmedia/image/upload/c_crop,h_1333,w_2000,x_0,y_49/c_fill,f_auto,h_1200,q_auto,w_1200/v1/m/5/1/5181d6f08379d440b790be8a8c05d3461cd84b1b/20-facts-might-know-guardians-galaxy-vol-3.jpg",
+        phase: "phase5",
+        year: 2023,
+        rating: 4.5,
+        tags: ["guardians", "phase5"]
+      },
+      { 
+        title: "The Guardians of the Galaxy Holiday Special", 
+        video: "https://s36.glowfield.space:443/v4/is3/ankep/index-f2-v1-a1.txt", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjvPrh3hwWD64-Nl3WaTfqOB_8NBZZzhQ3Aw&s",
+        phase: "phase4",
+        year: 2022,
+        rating: 4.0,
+        tags: ["guardians", "phase4"]
+      },
+      { 
+        title: "Ant-Man", 
+        video: "https://sri.seawindart.space:443/v4/9a/vnddi/index-f1-v1-a1.txt", 
+        image: "https://cdn.marvel.com/content/1x/ant-man_lob_crd_01_8.jpg",
+        phase: "phase2",
+        year: 2015,
+        rating: 4.0,
+        tags: ["antman", "phase2"]
+      },
+      { 
+        title: "Ant-Man and the Wasp", 
+        video: "https://sy6.brionix.cyou:443/v4/epu/3z1hi/index-f2-v1-a1.txt", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1-hOFMNNPJEzrV6gIKmWlmgJVAXMzelWyPA&s",
+        phase: "phase3",
+        year: 2018,
+        rating: 3.5,
+        tags: ["antman", "phase3"]
+      },
+      { 
+        title: "Ant-Man and the Wasp: Quantumania", 
+        video: "https://svz.dreamoraresort.sbs:443/v4/djx/lvq3g/index-f2-v1-a1.txt", 
+        image: "https://images-cdn.ubuy.co.in/67ccbb6bfe123c67447a6df0-ant-man-movie-poster-antman-and-the.jpg",
+        phase: "phase5",
+        year: 2023,
+        rating: 3.0,
+        tags: ["antman", "phase5"]
+      },
+      { 
+        title: "Eternals", 
+        video: "https://sui.nordivisnetwork.store:443/v4/pq/jpzau/index-f1-v1-a1.txt", 
+        image: "https://images3.alphacoders.com/118/1188387.jpg",
+        phase: "phase4",
+        year: 2021,
+        rating: 3.0,
+        tags: ["eternals", "phase4"]
+      },
+      { 
+        title: "Captain Marvel", 
+        video: "https://sy6.novacrestnetwork.online:443/v4/pk8/yt9dk/index-f2-v1-a1.txt", 
+        image: "https://rukminim2.flixcart.com/image/850/1000/jruyikw0/poster/a/z/k/medium-captain-marvel-3-captain-marvel-poster-for-room-office-13-original-imafdk6yrqzthbfh.jpeg?q=90&crop=false",
+        phase: "phase3",
+        year: 2019,
+        rating: 3.5,
+        tags: ["captainmarvel", "phase3"]
+      },
+      { 
+        title: "The Marvels", 
+        video: "https://sad.clarynova.cyou:443/v4/3vi/qgwyb/index-f2-v1-a1.txt", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS11JsXoW8T2zHwfHfK0C7LArn5W7_V2yNT9w&s",
+        phase: "phase5",
+        year: 2023,
+        rating: 3.0,
+        tags: ["captainmarvel", "phase5"]
+      },
+      { 
+        title: "The Incredible Hulk", 
+        video: "https://svz.novacrestnetwork.online:443/v4/pk8/qzg53/index-f2-v1-a1.txt", 
+        image: "https://i.pinimg.com/736x/76/a5/da/76a5dacd642d7bb242718d378fa0eb86.jpg",
+        phase: "phase1",
+        year: 2008,
+        rating: 3.5,
+        tags: ["hulk", "phase1"]
+      },
+      { 
+        title: "Hulk", 
+        video: "https://sui.corvani.cyou:443/v4/ho/3cvfe/index-f1-v1-a1.txt", 
+        image: "https://i.pinimg.com/474x/87/1b/8b/871b8b656e59d2743260cf1f3a938ee8.jpg",
+        phase: "prequel",
+        year: 2003,
+        rating: 3.0,
+        tags: ["hulk"]
+      },
+      { 
+        title: "Daredevil", 
+        video: "https://sui.cosmavision.shop:443/v4/is3/hkih1/index-f2-v1-a1.txt", 
+        image: "https://pbcdn1.podbean.com/imglogo/ep-logo/pbblog553442/daredevil_2003_580x877_975674-396x600.jpg",
+        phase: "prequel",
+        year: 2003,
+        rating: 3.0,
+        tags: ["daredevil"]
+      },
+      { 
+        title: "Spider-Man: Homecoming", 
+        video: "https://spc.novacrestnetwork.online:443/v4/pk8/6166v/index-f2-v1-a1.txt", 
+        image: "https://c8.alamy.com/comp/MJ2BR7/spider-man-homecoming-2017-directed-by-jon-watts-and-starring-tom-holland-michael-keaton-and-robert-downey-jr-peter-parker-takes-on-the-vulture-and-his-alien-technology-MJ2BR7.jpg",
+        phase: "phase3",
+        year: 2017,
+        rating: 4.0,
+        tags: ["spiderman", "phase3"]
+      },
+      { 
+        title: "Spider-Man: Far from Home", 
+        video: "https://spx.ellionhealth.cyou:443/v4/hld/6kcln/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/I/9113Gh15i2L._AC_UF1000,1000_QL80_.jpg",
+        phase: "phase3",
+        year: 2019,
+        rating: 4.0,
+        tags: ["spiderman", "phase3"]
+      },
+      { 
+        title: "Spider-Man: No Way Home", 
+        video: "https://sui.oravialuxury.online:443/v4/tab/yt5ea/index-f1-v1-a1.txt", 
+        image: "https://i.redd.it/uxr2q9bjj9j91.jpg",
+        phase: "phase4",
+        year: 2021,
+        rating: 4.5,
+        tags: ["spiderman", "phase4"]
+      },
+      { 
+        title: "Fantastic Four", 
+        video: "https://sui.aurisnova.shop:443/v4/pk8/bih8a/index-f1-v1-a2.txt", 
+        image: "https://i.pinimg.com/736x/cd/fd/be/cdfdbeb26419e868e0f9f0d5116b5fdf.jpg",
+        phase: "prequel",
+        year: 2005,
+        rating: 3.0,
+        tags: ["fantasticfour"]
+      },
+      { 
+        title: "Fantastic Four: Rise of the Silver Surfer", 
+        video: "https://sau.aurorionfinance.shop:443/v4/s93/6ei93/index-f2-v1-a1.txt", 
+        image: "https://i.ebayimg.com/00/s/MTYwMFgxMDQ1/z/bhIAAOSw2Upf0Tq6/$_57.JPG?set_id=8800005007",
+        phase: "prequel",
+        year: 2007,
+        rating: 2.5,
+        tags: ["fantasticfour"]
+      },
+      { 
+        title: "Fantastic Four (2015)", 
+        video: "https://sy6.corvani.cyou:443/v4/9ow/vsje3/index-f1-v1-a1.txt", 
+        image: "https://editorial.rottentomatoes.com/wp-content/uploads/2017/02/Fantastic-Four-2015-Poster.jpg",
+        phase: "prequel",
+        year: 2015,
+        rating: 2.0,
+        tags: ["fantasticfour"]
+      },
+      { 
+        title: "The Fantastic 4: First Steps (2025)", 
+        video: "https://spx.glowhavenmedia.cyou:443/v4/onm/h1ssw/index-f1-v1-a1.txt", 
+        image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/w780/x26MtUlwtWD26d0G0FXcppxCJio.jpg",
+        phase: "prequel",
+        year: 2025,
+        rating: 2.0,
+        tags: ["fantasticfour"]
+      },
+      { 
+        title: "Marvel One-Shot: The Consultant", 
+        video: "https://sad.mindspireagency.sbs:443/v4/onm/q3xez/index-f2-v1-a1.txt", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTou-v4biZcjGeCsRXUZW9GEP_Ox-t5lQguBQ&s",
+        phase: "phase1",
+        year: 2011,
+        rating: 3.5,
+        tags: ["oneshot", "phase1"]
+      },
+      { 
+        title: "Marvel One-Shot: A Funny Thing Happened on the Way to Thor's Hammer", 
+        video: "https://shh.artverra.shop:443/v4/luy/rq3ye/index-f2-v1-a1.txt", 
+        image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/w780/njrOqsmFH4pxBrhcoslqLfw2OGk.jpg",
+        phase: "phase1",
+        year: 2011,
+        rating: 3.5,
+        tags: ["oneshot", "phase1"]
+      },
+      { 
+        title: "Marvel One-Shot: Item 47", 
+        video: "https://sxic.lucernaarchitecture.space:443/v4/hz/gra5o/index-f2-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BMTI2NDI2MzgtNTMzNi00MmEyLWE0ZDYtZmQ2NjJjMjUyYzMzXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        phase: "phase1",
+        year: 2012,
+        rating: 3.5,
+        tags: ["oneshot", "phase1"]
+      },
+      { 
+        title: "Marvel One-Shot: Agent Carter", 
+        video: "https://sad.pinecrestculinarygroup.cyou:443/v4/s93/urih1/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjljNTdlZDYtMmQ4Yy00N2ZjLWExOTUtMDUzZTM1NGE0OWU4XkEyXkFqcGc@._V1_.jpg",
+        phase: "phase2",
+        year: 2013,
+        rating: 4.0,
+        tags: ["oneshot", "phase2"]
+      },
+      { 
+        title: "Marvel One-Shot: All Hail the King", 
+        video: "https://sri.arkadine.shop:443/v4/is3/eljeu/index-f2-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BOTZlNmY1ZTEtZjI4Zi00OWU3LTg4YjgtMTg2MzAxYTEyZjE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        phase: "phase2",
+        year: 2014,
+        rating: 4.0,
+        tags: ["oneshot", "phase2"]
+      },
+      { 
+        title: "Werewolf by Night", 
+        video: "https://sui.nordivisnetwork.store:443/v4/luy/ypue1/index-f2-v1-a1.txt", 
+        image: "https://preview.redd.it/another-poster-for-werewolf-by-night-v0-tw7lbjoa65n91.png?width=640&crop=smart&auto=webp&s=cf1e5a48070391b56081050d5e29971b84eb1b2b",
+        phase: "phase4",
+        year: 2022,
+        rating: 4.0,
+        tags: ["special", "phase4"]
+      }
+    ];
+
+    // --- DOM Elements ---
+    const moviesContainer = document.getElementById('movies-container');
+    const searchInput = document.getElementById('search-input');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const sortSelect = document.getElementById('sort-select');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const themeToggle = document.getElementById('theme-toggle');
+    const viewToggle = document.getElementById('view-toggle');
+
+    // Modal elements
+    const modal = document.getElementById('playback-modal');
+    const modalVideo = document.getElementById('modal-video');
+    const modalTitle = document.getElementById('modal-title');
+    const qualityControls = document.getElementById('qualityControls');
+    const playerError = document.getElementById('playerError');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const closeModalBtn = document.getElementById('close-modal');
+
+    // State
+    let currentFilter = 'all';
+    let currentSort = 'release';
+    let currentView = 'grid';
+    let currentVideo = null; // { index: number (within filtered), movie: {} }
+
+    // Helpers
+    function isStream(url) {
+      return /\.(m3u8|txt)$/i.test(url);
+    }
+
+    function isMP4(url) {
+      return /\.mp4(\?|$)/i.test(url);
+    }
+
+    function getFilteredMovies() {
+      let filtered = [...movies];
+
+      // Filter by phase / tag
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(m => {
+          if (currentFilter === 'phase1') return m.phase === 'phase1';
+          if (currentFilter === 'phase2') return m.phase === 'phase2';
+          if (currentFilter === 'phase3') return m.phase === 'phase3';
+          if (currentFilter === 'phase4') return m.phase === 'phase4';
+          if (currentFilter === 'phase5') return m.phase === 'phase5';
+          if (currentFilter === 'avengers') return m.tags && m.tags.includes('avengers');
+          if (currentFilter === 'spiderman') return m.tags && m.tags.includes('spiderman');
+          if (currentFilter === 'guardians') return m.tags && m.tags.includes('guardians');
+          return true;
+        });
+      }
+
+      // Search filter
+      const searchTerm = (searchInput.value || '').toLowerCase().trim();
+      if (searchTerm) {
+        filtered = filtered.filter(m => m.title.toLowerCase().includes(searchTerm));
+      }
+
+      // Sort
+      filtered.sort((a,b) => {
+        if (currentSort === 'title') return a.title.localeCompare(b.title);
+        if (currentSort === 'rating') return (b.rating||0) - (a.rating||0);
+        return (a.year||0) - (b.year||0);
+      });
+
+      return filtered;
+    }
+
+    // Render
+    function renderMovies() {
+      loadingSpinner.classList.remove('hidden');
+      moviesContainer.innerHTML = '';
+
+      const filtered = getFilteredMovies();
+      if (filtered.length === 0) {
+        moviesContainer.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-film text-5xl text-yellow-400 mb-4"></i><h3 class="text-xl font-semibold">No movies found</h3><p class="text-gray-400">Try adjusting your search or filter</p></div>';
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
+
+      filtered.forEach((movie, idx) => {
+        const card = createMovieCard(movie, idx);
+        moviesContainer.appendChild(card);
+      });
+
+      loadingSpinner.classList.add('hidden');
+    }
+
+    function createMovieCard(movie, indexInFiltered) {
+      const card = document.createElement('div');
+      card.className = `movie-card relative rounded-lg overflow-hidden shadow-lg bg-marvel-dark transition-all duration-300 h-80`;
+
+      let phaseText = '';
+      if (movie.phase === 'phase1') phaseText = 'Phase 1';
+      if (movie.phase === 'phase2') phaseText = 'Phase 2';
+      if (movie.phase === 'phase3') phaseText = 'Phase 3';
+      if (movie.phase === 'phase4') phaseText = 'Phase 4';
+      if (movie.phase === 'phase5') phaseText = 'Phase 5';
+
+      // Rating stars
+      let stars = '';
+      if (movie.rating > 0) {
+        const fullStars = Math.floor(movie.rating);
+        const hasHalf = (movie.rating % 1) >= 0.5;
+        for (let i=0;i<fullStars;i++) stars += '<i class="fas fa-star text-marvel-gold"></i>';
+        if (hasHalf) stars += '<i class="fas fa-star-half-alt text-marvel-gold"></i>';
+        const empty = 5 - fullStars - (hasHalf?1:0);
+        for (let i=0;i<empty;i++) stars += '<i class="far fa-star text-marvel-gold"></i>';
+      } else {
+        stars = '<span class="text-marvel-gold/70">Not rated</span>';
+      }
+
+      card.innerHTML = `
+        <div class="absolute inset-0 gradient-overlay z-10"></div>
+        <img src="${movie.image || ''}" alt="${movie.title}" class="movie-poster absolute inset-0 w-full h-full object-cover transition-transform duration-500">
+        ${phaseText ? `<div class="phase-badge bg-marvel-red text-white text-xs px-2 py-1 rounded-full">${phaseText}</div>` : ''}
+        <div class="absolute bottom-0 left-0 right-0 z-20 p-4 text-white">
+          <h3 class="text-xl font-bold truncate">${movie.title}</h3>
+          <div class="flex items-center justify-between mt-1">
+            <span class="text-sm text-marvel-gold">${movie.year || ''}</span>
+            <div class="flex items-center space-x-1 text-sm">${stars}</div>
+          </div>
+        </div>
+      `;
+
+      // Click behavior: decide modal vs player.html
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        // When clicked, use index within the currently filtered list
+        const filtered = getFilteredMovies();
+        // Find this movie's index in filtered (by identity/title)
+        const idx = filtered.findIndex(m => m.title === movie.title && m.year === movie.year);
+        // If not found fallback to provided index
+        const indexToUse = idx >= 0 ? idx : indexInFiltered;
+        // If video is stream -> redirect to player.html
+        const video = movie.video;
+        if (typeof video === 'object') {
+          // if object includes m3u8/text keys, prefer redirect; otherwise if mp4 present use modal
+          const values = Object.values(video).join(' ');
+          if (isStream(values) && !isMP4(values)) {
+            const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(values)}`;
+            window.location.href = url;
+            return;
+          }
+        }
+        // if video string
+        if (typeof video === 'string' && isStream(video) && !isMP4(video)) {
+          const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(video)}`;
+          window.location.href = url;
+          return;
+        }
+
+        // Otherwise open modal (mp4 or direct playable)
+        playInModal(filtered, indexToUse);
+      });
+
+      return card;
+    }
+
+    // Play modal functions
+    function playInModal(filteredArray, index) {
+      const movie = filteredArray[index];
+      if (!movie) return showError("Movie not available");
+
+      // Prepare quality controls if movie.video is object
+      qualityControls.innerHTML = '';
+      if (typeof movie.video === 'object') {
+        // movie.video = { low: '...', medium: '...', high: '...' }
+        const entries = Object.entries(movie.video);
+        entries.forEach(([quality, url]) => {
+          const btn = document.createElement('button');
+          btn.className = 'quality-btn px-3 py-1 mx-1 rounded bg-gray-700 hover:bg-gray-600 text-sm';
+          btn.dataset.quality = quality;
+          btn.dataset.url = url;
+          btn.innerText = quality.toUpperCase();
+          qualityControls.appendChild(btn);
+        });
+      }
+
+      modalTitle.textContent = movie.title;
+      // Choose src: prefer high > medium > low if object
+      let src = '';
+      if (typeof movie.video === 'object') {
+        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+      } else {
+        src = movie.video;
+      }
+
+      // set video src
+      modalVideo.pause();
+      modalVideo.src = src;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      currentVideo = { index, movie };
+      // Try to autoplay; if blocked show friendly message
+      modalVideo.play().catch(err => {
+        // show small notice but don't block user
+        showError("Autoplay blocked — click play to start.");
+      });
+
+      // update prev/next button enable/disable
+      updatePrevNextButtons();
+    }
+
+    function updatePrevNextButtons() {
+      const filtered = getFilteredMovies();
+      if (!currentVideo) { prevBtn.disabled = nextBtn.disabled = true; return; }
+      prevBtn.disabled = currentVideo.index <= 0;
+      nextBtn.disabled = currentVideo.index >= filtered.length - 1;
+    }
+
+    function showError(msg) {
+      playerError.textContent = msg;
+      playerError.classList.remove('hidden');
+      setTimeout(() => playerError.classList.add('hidden'), 4000);
+    }
+
+    // Event listeners for modal controls
+    closeModalBtn.addEventListener('click', closeModal);
+    prevBtn.addEventListener('click', playPrevious);
+    nextBtn.addEventListener('click', playNext);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+
+    // Quality selector click (event delegation)
+    qualityControls.addEventListener('click', (e) => {
+      const target = e.target;
+      if (target.classList.contains('quality-btn')) {
+        const url = target.dataset.url;
+        const currentTime = modalVideo.currentTime || 0;
+        modalVideo.src = url;
+        modalVideo.currentTime = currentTime;
+        modalVideo.play().catch(() => showError("Please click play manually."));
+      }
+    });
+
+    // Keyboard shortcuts while modal open
+    document.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('hidden')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModal(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': seek(10); break;
+        case 'arrowleft': seek(-10); break;
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+        case 'n': playNext(); break;
+        case 'p': playPrevious(); break;
+      }
+    });
+
+    modalVideo.addEventListener('error', () => {
+      showError("Failed to load video. It may be blocked or unavailable.");
+    });
+
+    function closeModal() {
+      modalVideo.pause();
+      modalVideo.src = '';
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      currentVideo = null;
+    }
+
+    function togglePlayPause() { modalVideo.paused ? modalVideo.play() : modalVideo.pause(); }
+    function seek(seconds) { modalVideo.currentTime = Math.max(0, (modalVideo.currentTime || 0) + seconds); }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        modalVideo.requestFullscreen?.().catch(err => showError("Fullscreen failed: " + err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      modalVideo.muted = !modalVideo.muted;
+      muteBtn.innerHTML = modalVideo.muted ? '<i class="fas fa-volume-mute mr-1"></i> Unmute' : '<i class="fas fa-volume-up mr-1"></i> Mute';
+    }
+
+    function playNext() {
+      const filtered = getFilteredMovies();
+      if (!currentVideo) return;
+      if (currentVideo.index < filtered.length - 1) {
+        playInModal(filtered, currentVideo.index + 1);
+      } else {
+        showError("No next video in this category.");
+      }
+    }
+    function playPrevious() {
+      const filtered = getFilteredMovies();
+      if (!currentVideo) return;
+      if (currentVideo.index > 0) {
+        playInModal(filtered, currentVideo.index - 1);
+      } else {
+        showError("No previous video in this category.");
+      }
+    }
+
+    // Setup UI listeners
+    function setupEventListeners() {
+      // Search
+      searchInput.addEventListener('input', () => renderMovies());
+
+      // Filters
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter || 'all';
+          renderMovies();
+        });
+      });
+
+      // Sort select
+      sortSelect.addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        renderMovies();
+      });
+
+      // Theme toggle
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('bg-gray-100');
+        document.body.classList.toggle('bg-black');
+        const icon = themeToggle.querySelector('i');
+        if (icon.classList.contains('fa-moon')) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+        else { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+      });
+
+      // View toggle (grid / list)
+      viewToggle.addEventListener('click', () => {
+        currentView = currentView === 'grid' ? 'list' : 'grid';
+        const icon = viewToggle.querySelector('i');
+        if (currentView === 'grid') { icon.classList.remove('fa-list'); icon.classList.add('fa-th-large'); }
+        else { icon.classList.remove('fa-th-large'); icon.classList.add('fa-list'); }
+        renderMovies();
+      });
+
+      // Close modal when clicking outside video area (optional UX)
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setupEventListeners();
+      renderMovies();
+    });
+
+  </script>
+</body>
+</html>
