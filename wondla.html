@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WondLa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    body { background: #0b0f14; color: #e6eef6; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+    header, footer { background: #071122; }
+    .season-btn.active { background:#ffd166 !important; color:#081017 !important; }
+    .movie-card { background: #071627; border:1px solid rgba(255,255,255,0.03); }
+    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); z-index:1000; }
+    .modal-card { width:95%; max-width:1100px; border-radius:10px; overflow:hidden; }
+    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
+    .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black/60 backdrop-blur-md border-b border-slate-700/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+        <i class="fas fa-globe text-white text-2xl"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold">WondLa</h1>
+        <div class="text-xs text-slate-300">Animated Series • Seasons 1–2</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden md:block">
+        <input id="search-input" type="search" placeholder="Search episodes..." class="rounded-full px-3 py-2 bg-slate-900 text-slate-100 border border-slate-800" />
+      </div>
+      <button id="open-search-mobile" class="md:hidden p-2 rounded-full bg-slate-800"><i class="fas fa-search text-white"></i></button>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-6">
+    <div class="rounded-lg overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 p-6">
+      <h2 class="text-xl font-semibold">WondLa — Adventures on Orbona</h2>
+      <p class="text-slate-300 mt-2">Follow Eva’s journey across the world of Orbona as she discovers humanity’s past, present, and future.</p>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <div class="flex gap-2 overflow-x-auto pb-2">
+      <button class="season-btn active px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="2">Season 2</button>
+    </div>
+  </section>
+
+  <section>
+    <h3 class="text-lg font-medium mb-4">Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+  </section>
+</main>
+
+<footer class="py-6 text-center text-slate-400">© WondLa</footer>
+
+<!-- Modal -->
+<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
+  <div class="modal-card bg-black">
+    <div class="flex justify-between items-center p-3 border-b border-slate-800">
+      <div id="modal-title" class="text-white font-semibold"></div>
+      <button id="close-video-modal" class="p-2 rounded-full bg-slate-800 text-white"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-player">
+      <video id="modal-video" controls playsinline preload="metadata"></video>
+    </div>
+  </div>
+</div>
+
+<script>
+const movies = [
+  // --- SEASON 1 ---
+  { title:"Doors", season:1, episode:1, video:"https://cdn30092.samui390dod.com:443/stream2/i-arch-400/124de233b0783ac68aa5e25dcbcc16b0/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT21kaW1mTHlUeNpHZt9ERrJzTUt2MORVV1kVbWl2TXpEaORkUplFVrhnTy0UP:1763901432:160.119.251.137:591bca2070b92981d3dd33b0fe0563ca8436652c211da90777c92e77c5ba2af3/./720/index.m3u8", image:"https://m.media-amazon.com/images/S/pv-target-images/df9d65a374a436b71648a8c844aa352a3d677a5436e362023af0e62bbb13a12e._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Lifeforms", season:1, episode:2, video:"https://sr81.zenitharchitecture.site/v4/m9/vyvtf/index-f1-v1-a1.txt", image:"https://m.media-amazon.com/images/S/pv-target-images/c020719c46943c6ef124eba57d1e518c6a3264454c8f6bd876961ddf5b6f98b0._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Bargain", season:1, episode:3, video:"https://sj3l.blueridgecreatives.store/v4/ek/i9igk/index-f1-v1-a1.txt", image:"https://m.media-amazon.com/images/S/pv-target-images/4d15fe3179cc07df205c593d95785e3e04b93206058b95d39768e024972fad31._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Ghosts", season:1, episode:4, video:"https://sdqm.zenlithsustainables.cyou:443/v4/m9/eke6o/index-f2-v1-a1.txt", image:"https://m.media-amazon.com/images/S/pv-target-images/b382da394b710a5c2ed31828a54ab07c9e6701f6ae9ca15ac974e5b4fb7f0feb._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Captive", season:1, episode:5, video:"https://sdqm.viatrixartstudio.space/v4/rw/msmbu/index-f2-v1-a1.txt", image:"https://m.media-amazon.com/images/S/pv-target-images/72d81aedd78ea05623001edef5d913934c3a0f0810a10aa081065eaeb98d85d7._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Bridge", season:1, episode:6, video:"https://sxic.amberlineproductions.shop/v4/vz/pdphc/index-f1-v1-a1.txt", image:"https://m.media-amazon.com/images/S/pv-target-images/2b457b89bad2479fc676314aa2a118cc20d378694df583cd8425416fd3f94f05._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Ruins", season:1, episode:7, video:"https://sskt.aqualisnetworkmedia.store:443/v4/m9/r3ro1/index-f2-v1-a1.txt", image:"https://m.media-amazon.com/images/S/pv-target-images/61f0b6d4931e212586f2a720f0cb38bba2e8a555fe8367f8defa8fc1b3175db6._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  // --- SEASON 2 ---
+  { title:"Home", season:2, episode:1, video:"https://vip.opstream17.com:443/20250510/18248_83756b98/3000k/hls/mixed.m3u8", image:"https://m.media-amazon.com/images/S/pv-target-images/eb96e99f73465d4fcc97a1f36139e8a6e96b36e6a6e18b69bd9cfb5d2df81c43._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Family", season:2, episode:2, video:"https://vip.opstream17.com:443/20250510/18249_e743a091/3000k/hls/mixed.m3u8", image:"https://m.media-amazon.com/images/S/pv-target-images/04f96a32c3055c7fe47d006191a936f222e8469c179a3809dcbd781437bd1344._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Discovery", season:2, episode:3, video:"https://vip.opstream17.com:443/20250510/18250_d40c4b6c/3000k/hls/mixed.m3u8", image:"https://m.media-amazon.com/images/S/pv-target-images/65f2cd89b134bde1fd10f26276b3c6715b89d8466baf56f2335a57a7b995c30d._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Lesson", season:2, episode:4, video:"https://vip.opstream17.com:443/20250510/18251_009d4a3d/3000k/hls/mixed.m3u8", image:"https://m.media-amazon.com/images/S/pv-target-images/61acd7aa12a553dcb086c098619869df8483506d6ad4197cefd5c36ef6258cae._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Truth", season:2, episode:5, video:"https://vip.opstream17.com:443/20250510/18252_9b4f523b/3000k/hls/mixed.m3u8", image:"https://m.media-amazon.com/images/S/pv-target-images/3d203b94bb63b33b0de3a23f37cd252eead72728c14017d36c368ff08d290940._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Connection", season:2, episode:6, video:"https://vip.opstream17.com:443/20250510/18253_152aa228/3000k/hls/mixed.m3u8", image:"https://m.media-amazon.com/images/S/pv-target-images/66bbac616dbaa6aba65ce3db7252cc348f94a236c271aace3855d91e67dd2416._BR-6_AC_SX720_FMwebp_.jpg" },
+
+  { title:"Heart", season:2, episode:7, video:"https://vip.opstream17.com:443/20250510/18254_ea117e04/3000k/hls/mixed.m3u8", image:"https://m.media-amazon.com/images/S/pv-target-images/4957d82410ad8896a66c68260d9b8756434a43fd2db4a905acf2f1c7fe9dbecc._BR-6_AC_SX720_FMwebp_.jpg" },
+];
+
+const container = document.getElementById('movies');
+const videoModal = document.getElementById('video-modal');
+const modalTitle = document.getElementById('modal-title');
+let currentHls = null;
+
+function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
+
+function isHls(u){return u && (u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u));}
+function isMP4(u){return /\.mp4($|\?)/i.test(u);} 
+function isYouTube(u){return u && (u.includes('youtu')||u.includes('youtube.com'));}
+
+function playInModal(title, url){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer = document.querySelector('.modal-player');
+  const modalVideo = document.getElementById('modal-video');
+  modalTitle.textContent = title||'';
+
+  if(url.includes('streamtape')) {
+    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  if(isYouTube(url)){
+    playerContainer.innerHTML = `<iframe src="${url}?autoplay=1&rel=0" width="100%" height="100%" allowfullscreen frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  if(isHls(url)){
+    if(window.Hls && Hls.isSupported()){
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ showModal(); modalVideo.play().catch(()=>{}); });
+    } else {
+      modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{});
+    }
+    return;
+  }
+
+  if(isMP4(url)){
+    modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{});
+    return;
+  }
+
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+function closePlayer(){
+  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+  const playerContainer = document.querySelector('.modal-player');
+  playerContainer.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
+  hideModal();
+}
+
+document.getElementById('close-video-modal').addEventListener('click', closePlayer);
+videoModal.addEventListener('click', e=>{ if(e.target===videoModal) closePlayer(); });
+
+function renderMovies(list){
+  container.innerHTML = '';
+  list.forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'movie-card rounded-lg overflow-hidden cursor-pointer';
+    div.innerHTML = `
+      <div class="relative">
+        <img src="${m.image}" alt="${m.title}" class="w-full h-60 object-cover">
+        <div class="absolute inset-0 flex items-end p-3 bg-gradient-to-t from-black/60">
+          <button class="bg-yellow-400 text-black px-3 py-1 rounded">Play</button>
+        </div>
+      </div>
+      <div class="p-3">
+        <div class="font-semibold">${m.title}</div>
+        <div class="text-sm text-slate-400">Season ${m.season} • Episode ${m.episode}</div>
+      </div>`;
+    div.addEventListener('click', ()=> playInModal(m.title, m.video));
+    container.appendChild(div);
+  });
+}
+
+renderMovies(movies);
+
+// season filter
+const seasonBtns = document.querySelectorAll('.season-btn');
+seasonBtns.forEach(btn => btn.addEventListener('click', ()=>{
+  seasonBtns.forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const season = btn.dataset.season;
+  const filtered = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+  renderMovies(filtered);
+}));
+
+// search
+const searchInput = document.getElementById('search-input');
+searchInput && searchInput.addEventListener('input', (e)=>{
+  const q = e.target.value.trim().toLowerCase();
+  const activeSeasonBtn = document.querySelector('.season-btn.active');
+  const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+  let list = season === 'all' ? movies : movies.filter(m=>String(m.season)===String(season));
+  if(q){ list = list.filter(m => m.title.toLowerCase().includes(q)); }
+  renderMovies(list);
+});
+</script>
+</body>
+</html>
