@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>I Am Groot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ffcc00;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ffdd33;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    
+    .glow-effect { position: relative; }
+    .glow-effect::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
+    }
+    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(255, 204, 0, 0.7); }
+    
+    .gradient-text {
+      background: linear-gradient(90deg, #ffcc00, #ff9900);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    
+    .showcase-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    
+    .showcase-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+      z-index: 1;
+    }
+    .showcase-content { position: relative; z-index: 2; }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+    }
+
+    .video-container iframe,
+    .video-container video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+
+<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+        <i class="fas fa-shield-alt text-black text-xl"></i>
+      </div>
+      <h1 class="text-2xl font-bold gradient-text">I Am Groot</h1>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-moon text-yellow-500"></i>
+      </button>
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+        <i class="fas fa-search text-yellow-500"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="search-bar" class="hidden px-4 pb-4">
+    <div class="relative">
+      <input type="text" placeholder="Search episodes..." 
+             class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white">
+      <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+  <section class="mb-12 relative overflow-hidden rounded-xl h-64 md:h-96">
+    <video autoplay muted loop class="showcase-video">
+      <source src="https://imdb-video.media-imdb.com/vi210224921/1434659607842-pgv4ql-1691413662477.mp4?Expires=1763928530&Signature=shgxhPFjKHyEIddQ1kwQt9tNPDR0dZFym~7ZBPndb6AFQbIG0zDqP5dtA75Umv9MlDyqMVqRbhkfRkB1ppXJ5xLDN3LQYUcbwbpixgioOUj57jlAxmZCNZhqUGaaTIBLn5qN6MWnvx9dyB1yEBvJK9yGFRCJUQbpXUqyJh1Avj2UM~qZOuBdvxE4JPPocAhJyILHSvLZLax68NWgj-qvsZdv-pPqs4ZBIsVydwTpOBOkePF0QFPiN~PCDaYW9-48cJTRQBqsRM94BHuOz6~PCcBs84EJCUbdz-961IeVeavWeDMjXqOE4ZU6rz7KYtxd95dwnd7kWkPB-~PWj3OfOw__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="showcase-content h-full flex flex-col justify-end p-6 md:p-8">
+      <p class="text-gray-300 mb-4 max-w-lg">The complete adventures of Baby Groot. Watch as the adorable Flora Colossus gets into all sorts of mischief across the galaxy.</p>
+    </div>
+  </section>
+
+  <div class="flex overflow-x-auto mb-6 pb-2">
+    <div class="flex space-x-2">
+      <button class="season-btn active bg-yellow-600 text-black px-4 py-2 rounded-full" data-season="all">All Episodes</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="2">Season 2</button>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap justify-between mb-8 gap-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2">
+      <button class="filter-btn active bg-yellow-600 text-black px-4 py-1 rounded-full">All</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Adventure</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Comedy</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Family</button>
+      <button class="filter-btn bg-gray-800 px-4 py-1 rounded-full">Sci-Fi</button>
+    </div>
+  </div>
+
+  <section>
+    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-yellow-500 mr-2"></i>Episodes</h3>
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+  </section>
+</main>
+
+<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
+  © 2023 Marvel Studios Productions
+</footer>
+
+<!-- Playback Modal -->
+<div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden">
+    <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl">&times;</button>
+    <div class="video-container">
+      <video id="modal-video" class="w-full" controls></video>
+    </div>
+    <div class="p-6">
+      <h3 id="modal-title" class="text-2xl font-bold mb-2"></h3>
+      <div id="season-episode" class="text-gray-400 text-sm mb-2"></div>
+      <div id="episode-duration" class="text-gray-400 text-sm mb-4"></div>
+      <p id="modal-description" class="text-gray-300"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========= EPISODE DATA =========
+const movies = [
+      // Season 1
+      { 
+        title: "Groot's First Steps", 
+        video: "https://sojg.merridianhospitality.site/v4/9a/b9uzv/cf-master.txt?v=1731882962", 
+        image: "https://image.tmdb.org/t/p/w300/iecIwrRoq1uZfhJ9XRrZD29Zr4R.jpg",
+        description: "Baby Groot takes his first steps out of his pot, only to learn you have to walk before you can run.",
+        duration: "6 min",
+        season: 1,
+        episode: 1,
+        tags: ["Adventure", "Family"]
+      },
+      { 
+        title: "The Little Guy", 
+        video: "https://sxic.obsidianfitnesslab.sbs/v4/ic/gory1/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w300/6pFcTY18M9EpKQEEZZMzVnX4bMF.jpg",
+        description: "Groot discovers a miniature civilization that believes the seemingly enormous tree toddler is the hero they've been waiting for.",
+        duration: "4 min",
+        season: 1,
+        episode: 2,
+        tags: ["Adventure", "Comedy"]
+      },
+      { 
+        title: "Groot's Pursuit", 
+        video: "https://sojg.ethervoxventures.cyou/v4/36/v6ec8/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w300/nv0q5V1vGwRVO4Rv3MOEmniUbWj.jpg",
+        description: "Groot investigates a spooky noise that's been haunting the Quadrant, which leads to an intense dance off.",
+        duration: "4 min",
+        season: 1,
+        episode: 3,
+        tags: ["Comedy", "Sci-Fi"]
+      },
+      { 
+        title: "Groot Takes a Bath", 
+        video: "https://sxic.silverlark.sbs/v4/36/6dnbb/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w300/stKeLppDBwscxoE9RXxNyrur27G.jpg",
+        description: "Everybody needs some alone time to relax and wash up, but things go quite differently when you're a Flora Colossi toddler.",
+        duration: "4 min",
+        season: 1,
+        episode: 4,
+        tags: ["Comedy", "Family"]
+      },
+      { 
+        title: "Magnum Opus", 
+        video: "https://slob.auroravisionfactory.shop/v4/ic/irjxm/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w300/cnhzecqkKHBIyM4QMbxRy5fbW3l.jpg",
+        description: "Groot sets out to paint a family portrait of himself and the Guardians, only to discover just how messy the artistic process can be.",
+        duration: "4 min",
+        season: 1,
+        episode: 5,
+        tags: ["Comedy", "Family"]
+      },
+      
+      // Season 2
+      { 
+        title: "Are You My Groot?", 
+        video: "https://sdqm.zenithwellbeing.site/v4/9a/enqm6/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w300/rJelmgL1yTFfH2PhC3LufMhYQko.jpg",
+        description: "Groot stumbles across a strange egg, adopting the little creature that emerges as his own.",
+        duration: "5 min",
+        season: 2,
+        episode: 1,
+        tags: ["Adventure", "Comedy"]
+      },
+      { 
+        title: "Groot Noses Around", 
+        video: "https://skra.zenithwellbeing.site/v4/36/hj8ge/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w300/bf39ykfbUodisUirJXcUbI8bRFe.jpg",
+        description: "When Groot gets the sense of smell, he learns not to stick his new nose where it doesn't belong.",
+        duration: "5 min",
+        season: 2,
+        episode: 2,
+        tags: ["Adventure", "Family"]
+      },
+      { 
+        title: "Groot's Snow Day", 
+        video: "https://sojg.torinaworks.shop/v4/ic/tm6qt/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w300/6H9lUVRUJyWn7t0VAix83TszrfJ.jpg",
+        description: "Groot builds a snowman with scraps of junk, creating an unstoppable snowman-robot that wreaks havoc.",
+        duration: "4 min",
+        season: 2,
+        episode: 3,
+        tags: ["Comedy", "Family"]
+      },
+      { 
+        title: "Groot's Sweet Treat", 
+        video: "https://scvo.greenhavenconsult.sbs/v4/36/p83ek/cf-master.txt?v=1731883081", 
+        image: "https://image.tmdb.org/t/p/w300/4PSxBL0Muya07GIteMxJhA4A2iB.jpg",
+        description: "Groot frantically scours the ship for coins as an intergalactic ice cream truck approaches.",
+        duration: "6 min",
+        season: 2,
+        episode: 4,
+        tags: ["Adventure", "Family"]
+      },
+      { 
+        title: "Groot and the Great Prophecy", 
+        video: "https://sdqm.zenlith.space/v4/9a/rw1u8/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w300/o7gblk3nygQh2lEIjCHEdLK3RHA.jpg",
+        description: "Groot lands in the heart of an ancient temple with a prophecy he must fulfill to save the universe.",
+        duration: "5 min",
+        season: 2,
+        episode: 5,
+        tags: ["Comedy", "Sci-Fi"]
+      }
+    ];
+
+
+/* ✅ Add Spy-Kids MP4 detector */
+function isMP4(url) {
+  return /\.mp4($|\?)/i.test(url);
+}
+
+/* DOM elements */
+const container = document.getElementById('movies');
+const playbackModal = document.getElementById('playback-modal');
+const modalVideo = document.getElementById('modal-video');
+const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const seasonEpisode = document.getElementById('season-episode');
+const episodeDuration = document.getElementById('episode-duration');
+const closeModal = document.getElementById('close-modal');
+
+let currentSeason = 'all';
+let currentFilter = 'All';
+
+function initPage() {
+  renderMovies();
+  document.querySelectorAll('.season-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.season-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+      this.classList.add('active', 'bg-yellow-600', 'text-black');
+      currentSeason = this.dataset.season;
+      renderMovies();
+    });
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelector('.filter-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+      this.classList.add('active', 'bg-yellow-600', 'text-black');
+      currentFilter = this.textContent;
+      renderMovies();
+    });
+  });
+}
+
+function renderMovies() {
+  container.innerHTML = '';
+  let filtered = movies;
+  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
+  if (currentFilter !== 'All') filtered = filtered.filter(m => m.tags.includes(currentFilter));
+
+  filtered.forEach((movie, i) => {
+    const card = document.createElement('div');
+    card.className = `movie-card fade-in delay-${i%5} glow-effect`;
+    card.innerHTML = `
+      <div class="relative group cursor-pointer overflow-hidden rounded-xl">
+        <img src="${movie.image}" class="w-full h-48 object-cover rounded-xl transition group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-yellow-500 text-3xl"><i class="fas fa-play"></i></div>
+      </div>
+      <div class="mt-3 text-white font-medium">${movie.title}</div>
+      <div class="text-gray-400 text-sm">S${movie.season} • E${movie.episode} • ${movie.duration}</div>
+    `;
+
+    /* ✅ Spy-Kids logic applied */
+    card.addEventListener('click', () => {
+      if (isMP4(movie.video)) {
+        openModal(movie);
+      } else {
+        window.location.href =
+          `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function openModal(m) {
+  modalTitle.textContent = m.title;
+  modalDescription.textContent = m.description;
+  seasonEpisode.textContent = `S${m.season} • E${m.episode}`;
+  episodeDuration.textContent = m.duration;
+  modalVideo.src = m.video;
+  playbackModal.classList.remove('hidden');
+}
+
+closeModal.onclick = () => { playbackModal.classList.add('hidden'); modalVideo.pause(); };
+
+window.addEventListener('DOMContentLoaded', initPage);
+</script>
+
+</body>
+</html>
