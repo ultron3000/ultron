@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>X-Men '97 - Season 1 | Marvel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- ✅ HLS.js from Batman -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    :root {--marvel-red:#ed1d24;--marvel-yellow:#ffcc00;--marvel-dark:#151515;}
+    body{font-family:'Montserrat',sans-serif;background-color:var(--marvel-dark);color:#fff;}
+    .title-font{font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+    .gradient-text{background:linear-gradient(90deg,var(--marvel-yellow),#ff9900);-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .red-gradient-text{background:linear-gradient(90deg,var(--marvel-red),#ff3333);-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .episode-card{transition:.3s;}
+    .episode-card:hover{transform:translateY(-5px);}
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- Loading -->
+<div id="loading-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
+  <div class="w-10 h-10 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+</div>
+
+<!-- Header -->
+<header class="sticky top-0 z-40 bg-black/90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+  <div class="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+        <i class="fas fa-shield-alt text-white text-xl"></i>
+      </div>
+      <h1 class="text-2xl md:text-3xl font-bold red-gradient-text title-font">X-MEN '97</h1>
+    </div>
+    <div class="flex items-center space-x-4 mt-2 md:mt-0">
+      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition"><i class="fas fa-search text-yellow-500 text-lg"></i></button>
+      <button class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition flex items-center"><i class="fas fa-user mr-2"></i>Sign In</button>
+    </div>
+  </div>
+  <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
+    <div class="relative max-w-2xl mx-auto">
+      <input type="text" placeholder="Search..." class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-3 px-5 pl-12 text-white">
+      <i class="fas fa-search absolute left-5 top-3.5 text-yellow-500"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+
+  <!-- Hero -->
+  <section class="mb-12 relative rounded-xl shadow-2xl overflow-hidden">
+    <img src="https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/5168/1708448275168-i" class="w-full h-64 md:h-[32rem] object-cover object-top">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 z-20 p-8">
+      <h2 class="text-6xl font-bold mb-3 gradient-text title-font">X-MEN '97</h2>
+      <p class="text-gray-300 max-w-xl text-sm md:text-base">The iconic X-Men animated series returns!</p>
+    </div>
+  </section>
+
+  <!-- Episodes -->
+  <section class="mb-12">
+    <h3 class="text-3xl font-bold gradient-text title-font flex items-center mb-6"><i class="fas fa-list-ul text-yellow-500 mr-3"></i> Season 1 Episodes</h3>
+    <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  </section>
+</main>
+
+<!-- ✅ Batman Style Modal -->
+<div id="video-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+    <button id="close-video-modal" class="absolute top-4 right-4 bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-times text-xl"></i></button>
+    <video id="modal-video" class="w-full" controls playsinline></video>
+    <h3 id="video-title" class="text-xl font-bold p-4 gradient-text text-center"></h3>
+  </div>
+</div>
+
+<script>
+/* ===== EPISODES DATA (SAME) ===== */
+const episodes = [
+      { 
+        title: "To Me, My X-Men", 
+        video: "https://queenselti.me/stream_6669e4430e780/uwu.m3u8",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4399/1710398324399-h",
+        description: "Cyclops races to find the source of new anti-mutant technology as the X-Men face their first mission without Professor X. The team must come together to protect a world that fears and hates them while dealing with internal conflicts.",
+        duration: "48 min",
+        rating: 4.9,
+        releaseDate: "March 20, 2024"
+      },
+      { 
+        title: "Mutant Liberation Begins", 
+        video: "https://queenselti.me/stream_6669e5c812a96/uwu.m3u8",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/7154/1710398547154-h",
+        description: "When Magneto is forced by the UN to stand trial, a group of anti-mutant rioters test his resolve. The X-Men must intervene as tensions between humans and mutants reach a boiling point, leading to unexpected consequences.",
+        duration: "52 min",
+        rating: 4.8,
+        releaseDate: "March 27, 2024"
+      },
+      { 
+        title: "Fire Made Flesh", 
+        video: "https://queenselti.me/stream_6669e5256a625/uwu.m3u8", 
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/6589/1711000026589-h",
+        description: "When a visitor arrives at the mansion with a dangerous secret that threatens Cyclops and Jean's relationship, the team is propelled into a tragic confrontation with an immortal mad scientist who has dark plans for mutantkind.",
+        duration: "49 min",
+        rating: 4.7,
+        releaseDate: "April 3, 2024"
+      },
+      { 
+        title: "Motendo/Lifedeath - Part 1", 
+        video: "https://queenselti.me/stream_6669e525cf1c9/uwu.m3u8", 
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/1413/1711727121413-h",
+        description: "On her birthday, a nostalgic Jubilee is forced to relive the X-Men's greatest adventures when an entertainment system transports her into a 16-bit video game. Meanwhile, Storm faces her own challenges in a parallel storyline.",
+        duration: "51 min",
+        rating: 4.6,
+        releaseDate: "April 10, 2024"
+      },
+      { 
+        title: "Remember It", 
+        video: "https://queenselti.me/stream_6669e75b5ad04/uwu.m3u8", 
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/3617/1712147193617-h",
+        description: "As Genosha prepares to join the UN, select members of the team head to the island nation to be honorees. Back at the mansion, a behind-the-scenes press event risks airing the X-Men's dirty laundry as tensions reach a climax.",
+        duration: "47 min",
+        rating: 5.0,
+        releaseDate: "April 17, 2024"
+      },
+      { 
+        title: "Lifedeath - Part 2", 
+        video: "https://queenselti.me/stream_6669e69497183/uwu.m3u8",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/8235/1713333688235-h",
+        description: "Storm is forced to face her worst fears in order to free herself from a mysterious predicament. Her journey of self-discovery takes her to unexpected places as she confronts what it truly means to be a mutant and a leader.",
+        duration: "58 min",
+        rating: 4.8,
+        releaseDate: "April 24, 2024"
+      },
+      { 
+        title: "Bright Eyes", 
+        video: "https://queenselti.me/stream_6669e6a0bfae0/uwu.m3u8", 
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/8480/1713934968480-h",
+        description: "Cyclops focuses the X-Men on finding Bolivar Trask. However, when the team locates the Sentinel inventor, they realize that they all have been played by a mastermind with connections to their past and dire implications for their future.",
+        duration: "49 min",
+        rating: 4.9,
+        releaseDate: "May 1, 2024"
+      },
+      { 
+        title: "Tolerance Is Extinction - Part 1", 
+        video: "https://queenselti.me/stream_6669e8bc3f0b4/uwu.m3u8", 
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/7150/1714543097150-h",
+        description: "The X-Men must unite to face a new threat that could change the course of mutant-human relations forever. As old enemies return and alliances shift, the team finds themselves in their most dangerous battle yet.",
+        duration: "51 min",
+        rating: 4.7,
+        releaseDate: "May 8, 2024"
+      },
+      { 
+        title: "Tolerance Is Extinction - Part 2", 
+        video: "https://queenselti.me/stream_6669e7c0ec773/uwu.m3u8", 
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/775/1715149110775-h",
+        description: "The X-Men work to settle the score before it is too late as the conflict reaches its peak. With the fate of mutantkind hanging in the balance, difficult choices must be made that will change the team forever.",
+        duration: "47 min",
+        rating: 4.9,
+        releaseDate: "May 15, 2024"
+      },
+      { 
+        title: "Tolerance Is Extinction - Part 3", 
+        video: "https://queenselti.me/stream_6669e852da0bd/uwu.m3u8",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/3293/1715363523293-h",
+        description: "The X-Men's dream is put to the test as mutant-human relations reach a tipping point. In this explosive season finale, the team must make their final stand against overwhelming odds, leading to shocking revelations and consequences.",
+        duration: "58 min",
+        rating: 5.0,
+        releaseDate: "May 22, 2024"
+      },
+    ];
+
+const container = document.getElementById("episodes");
+const modalVideo = document.getElementById("modal-video");
+const videoModal = document.getElementById("video-modal");
+const videoTitle = document.getElementById("video-title");
+let currentHls = null;
+
+/* ===== ✅ BATMAN FUNCTIONS ===== */
+function isHls(url){return url.includes(".m3u8")||url.includes("index")||url.endsWith(".m3u8");}
+
+function playInModal(title,url){
+  if(currentHls){currentHls.destroy();currentHls=null;}
+  modalVideo.pause();modalVideo.removeAttribute("src");modalVideo.load();
+  videoTitle.textContent=title;
+
+  if(isHls(url)){
+    if(Hls.isSupported()){
+      currentHls=new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(modalVideo);
+      currentHls.on(Hls.Events.MANIFEST_PARSED,()=>{showModal();modalVideo.play();});
+    } else {
+      modalVideo.src=url;showModal();modalVideo.play();
+    }
+  } else {
+    modalVideo.src=url;showModal();modalVideo.play();
+  }
+}
+
+function showModal(){videoModal.classList.remove("hidden");document.body.style.overflow="hidden";}
+function closePlayer(){
+  if(currentHls){currentHls.destroy();currentHls=null;}
+  modalVideo.pause();modalVideo.removeAttribute("src");
+  videoModal.classList.add("hidden");document.body.style.overflow="";
+}
+
+/* ===== ✅ OPEN VIDEO (BATMAN LOGIC) ===== */
+function openVideoModal(ep){
+  playInModal(ep.title, ep.video);
+}
+
+/* ===== Build Episode Cards (Same UI) ===== */
+episodes.forEach((ep,i)=>{
+  const card=document.createElement("div");
+  card.className="episode-card bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800";
+  card.innerHTML=`
+    <div class="relative group cursor-pointer">
+      <img src="${ep.image}" class="w-full h-40 object-cover group-hover:opacity-80">
+      <div class="absolute top-3 left-3 bg-red-600 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">${i+1}</div>
+      <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+        <div class="bg-yellow-600 text-black rounded-full w-12 h-12 flex items-center justify-center"><i class="fas fa-play"></i></div>
+      </div>
+    </div>
+    <div class="p-4">
+      <h3 class="font-semibold">${ep.title}</h3>
+      <p class="text-xs text-gray-400 line-clamp-2">${ep.description}</p>
+    </div>`;
+  card.addEventListener("click",()=>openVideoModal(ep));
+  container.appendChild(card);
+});
+
+/* ===== Close Modal ===== */
+document.getElementById("close-video-modal").onclick=closePlayer;
+videoModal.onclick=e=>{if(e.target===videoModal)closePlayer();}
+
+/* Remove fake loader */
+setTimeout(()=>document.getElementById("loading-overlay").classList.add("hidden"),800);
+</script>
+
+</body>
+</html>
