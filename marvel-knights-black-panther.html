@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Marvel Knights: Black Panther | 6 Episodes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {--marvel-red:#ed1d24;--marvel-yellow:#ffcc00;--marvel-dark:#151515;}
+    body{font-family:'Montserrat',sans-serif;background-color:var(--marvel-dark);color:#fff;}
+    .title-font{font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+    .gradient-text{background:linear-gradient(90deg,var(--marvel-yellow),#ff9900);-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .episode-card{transition:.3s;}
+    .episode-card:hover{transform:translateY(-5px);}
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- Loader -->
+<div id="loading-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
+  <div class="w-10 h-10 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+</div>
+
+<!-- Header -->
+<header class="sticky top-0 z-40 bg-black/90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+  <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+        <i class="fas fa-cat text-white text-xl"></i>
+      </div>
+      <h1 class="text-2xl md:text-3xl font-bold red-gradient-text title-font">MARVEL KNIGHTS: BLACK PANTHER</h1>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+
+  <!-- Hero -->
+  <section class="mb-12 relative rounded-xl shadow-2xl overflow-hidden">
+    <img src="https://i.ytimg.com/vi/ry8e5ldzLDQ/maxresdefault.jpg" class="w-full h-64 md:h-[32rem] object-cover">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 p-8">
+      <h2 class="text-6xl font-bold mb-3 gradient-text title-font"></h2>
+      <p class="text-gray-300 max-w-xl text-sm md:text-base">
+        The animated motion comic series following T'Challa's rise as Black Panther and the fight for Wakanda.
+      </p>
+    </div>
+  </section>
+
+  <!-- Episodes -->
+  <section class="mb-12">
+    <h3 class="text-3xl font-bold gradient-text title-font flex items-center mb-6"><i class="fas fa-list-ul text-yellow-500 mr-3"></i> Episodes</h3>
+    <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  </section>
+</main>
+
+<!-- ✅ YouTube Modal -->
+<div id="video-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4">
+  <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+    <button id="close-video-modal" class="absolute top-4 right-4 bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center"><i class="fas fa-times text-xl"></i></button>
+    
+    <iframe id="yt-frame" class="w-full h-[400px] md:h-[520px]" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    
+    <h3 id="video-title" class="text-xl font-bold p-4 gradient-text text-center"></h3>
+  </div>
+</div>
+
+<script>
+/* === MARVEL KNIGHTS BLACK PANTHER EPISODES === */
+const episodes = [
+  { title:"Episode 1", id:"ry8e5ldzLDQ" },
+  { title:"Episode 2", id:"xGTw6pfKayg" },
+  { title:"Episode 3", id:"RCVvSh4TWuI" },
+  { title:"Episode 4", id:"l94hF9wu_pk" },
+  { title:"Episode 5", id:"yCoKcttSdL8" },
+  { title:"Episode 6", id:"KrtAxKZopkw" }
+];
+
+const container=document.getElementById("episodes");
+const modal=document.getElementById("video-modal");
+const frame=document.getElementById("yt-frame");
+const titleBox=document.getElementById("video-title");
+
+/* Build Cards */
+episodes.forEach((ep,i)=>{
+  const card=document.createElement("div");
+  card.className="episode-card bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800 cursor-pointer";
+  card.innerHTML=`
+    <div class="relative">
+      <img src="https://img.youtube.com/vi/${ep.id}/hqdefault.jpg" class="w-full h-40 object-cover">
+      <div class="absolute top-3 left-3 bg-red-600 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">${i+1}</div>
+      <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition">
+        <div class="bg-yellow-600 text-black rounded-full w-12 h-12 flex items-center justify-center"><i class="fas fa-play"></i></div>
+      </div>
+    </div>
+    <div class="p-4"><h3 class="font-semibold">${ep.title}</h3></div>
+  `;
+  card.addEventListener("click",()=>{
+    frame.src=`https://www.youtube.com/embed/${ep.id}?autoplay=1`;
+    titleBox.textContent=ep.title;
+    modal.classList.remove("hidden");
+    document.body.style.overflow="hidden";
+  });
+  container.appendChild(card);
+});
+
+/* Close Modal */
+document.getElementById("close-video-modal").onclick=close;
+modal.onclick = e => { if(e.target===modal) close(); };
+
+function close(){
+  frame.src="";
+  modal.classList.add("hidden");
+  document.body.style.overflow="";
+}
+
+/* Loader remove */
+setTimeout(()=>document.getElementById("loading-overlay").classList.add("hidden"),800);
+</script>
+
+</body>
+</html>
