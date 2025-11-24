@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Marvel Studios | The Falcon and The Winter Soldier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #ffcc00;
+      --secondary: #111827;
+      --accent: #1e40af;
+      --daduration: #0f172a;
+      --light: #f8fafc;
+    }
+    
+    body {
+      background-color: var(--dark);
+      color: var(--light);
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .movie-card {
+      transition: all 0.3s ease;,
+        genre: ["Drama", "Thriller"]
+      transform-origin: center;
+      perspective: 1000px;
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 25px 50px -12px rgba(255, 204, 0, 0.25);
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: rotateX(5deg);
+    }
+    
+    .movie-poster {
+      transition: all 0.5s ease;
+      transform-style: preserve-3d;
+    }
+    
+    .movie-poster::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+      border-radius: 0.5rem;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(90deg, #ffcc00, #ff8c00);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .search-input:focus {
+      box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.3);
+    }
+    
+    .filter-chip {
+      transition: all 0.2s ease;
+    }
+    
+    .filter-chip:hover {
+      transform: translateY(-2px);
+    }
+    
+    .filter-chip.active {
+      background-color: var(--primary);
+      color: var(--dark);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    .delay-6 { animation-delay: 0.6s; }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ffb700;
+    }
+    
+    /* Dark/Light mode transition */
+    .dark-light-transition {
+      transition: background-color 0.5s ease, color 0.3s ease;
+    }
+    
+    /* Video showcase styles */
+    .video-showcase {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      overflow: hidden;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .video-showcase video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.4));
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.5rem;
+      z-index: 1;
+      transition: opacity 0.3s ease;
+    }
+    
+    .video-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .play-showcase-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--primary);
+      color: var(--dark);
+      border-radius: 50%;
+      width: 4rem;
+      height: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .play-showcase-btn:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+    }
+    
+    .play-showcase-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .volume-control {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 3;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .volume-control:hover {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+    
+    @media (max-width: 768px) {
+      .video-showcase {
+        padding-bottom: 75%; /* 4:3 aspect ratio for mobile */
+      }
+      
+      .play-showcase-btn {
+        width: 3rem;
+        height: 3rem;
+      }
+      
+      .video-overlay {
+        padding: 1rem;
+      }
+      
+      .video-overlay h2 {
+        font-size: 1.5rem;
+      }
+      
+      .video-overlay p {
+        font-size: 0.875rem;
+      }
+    }
+    
+    /* Loading animation */
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 0.5;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+    
+    .animate-pulse {
+      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="dark-light-transition">
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-gradient-to-b from-gray-900 to-transparent backdrop-blur-sm">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-film text-2xl text-yellow-400"></i>
+            <h1 class="text-2xl font-bold gradient-text">Marvel Studios</h1>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-700 transition">
+              <i class="fas fa-moon text-yellow-400"></i>
+            </button>
+            
+            <div class="relative group">
+              <button class="p-2 rounded-full hover:bg-gray-700 transition">
+                <i class="fas fa-sliders-h text-yellow-400"></i>
+              </button>
+              <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
+                <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700">Settings</a>
+                <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700">Help</a>
+                <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-700">About</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Video Showcase -->
+<div class="container mx-auto px-4 mt-4">
+  <div class="video-showcase relative">
+
+    <!-- YouTube Iframe -->
+    <iframe 
+      id="showcaseVideo"
+      src="https://www.youtube.com/embed/IWBsDaFWyTE?autoplay=1&mute=1&loop=1&playlist=IWBsDaFWyTE&controls=0&playsinline=1"
+      class="w-full h-full absolute top-0 left-0"
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen>
+    </iframe>
+
+    <!-- Volume Control -->
+    <div class="volume-control" id="volumeControl">
+      <i class="fas fa-volume-up text-white"></i>
+    </div>
+
+    <!-- Play Button Overlay -->
+    <div class="play-showcase-btn hidden" id="playShowcaseBtn">
+      <i class="fas fa-play text-xl"></i>
+    </div>
+
+    <!-- Text Overlay -->
+    <div class="video-overlay" id="videoOverlay">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">The Falcon and The Winter Soldier</h2>
+      <p class="text-gray-300 max-w-2xl text-sm md:text-base">
+        Sam Wilson and Bucky Barnes team up in a global adventure that tests their abilities and their patience.
+      </p>
+      <div class="flex items-center mt-4 space-x-3">
+        <button class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+          <i class="fas fa-play mr-2"></i> Watch Now
+        </button>
+        <button class="bg-gray-800 bg-opacity-70 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition">
+          <i class="fas fa-info-circle mr-2"></i> More Info
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+      <!-- Search and Filters -->
+      <div class="mb-8">
+        <div class="relative mb-6">
+          <input 
+            id="searchBar" 
+            type="text" 
+            placeholder="Search episodes..." 
+            class="w-full px-6 py-4 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:border-yellow-400 text-white search-input transition"
+          >
+          <i class="fas fa-search absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+        </div>
+        
+        <div class="flex flex-wrap gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 active">
+            All Episodes
+          </button>
+          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
+            Latest
+          </button>
+          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
+            Popular
+          </button>
+          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
+            Action
+          </button>
+          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
+            Drama
+          </button>
+          <button class="filter-chip px-4 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700">
+            Thriller
+          </button>
+        </div>
+        
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">All Episodes <span id="episode-count" class="text-yellow-400">(6)</span></h3>
+          <div class="flex items-center space-x-2">
+            <span class="text-gray-400">Sort by:</span>
+            <select class="bg-gray-800 border border-gray-700 text-white px-3 py-1 rounded-lg focus:outline-none focus:border-yellow-400">
+              <option>Release Date</option>
+              <option>Alphabetical</option>
+              <option>Popularity</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Movies Grid -->
+      <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+      
+      <!-- Loading Spinner -->
+      <div id="loading-spinner" class="hidden flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+      </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-6">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <div class="flex items-center space-x-2">
+              <i class="fas fa-film text-xl text-yellow-400"></i>
+              <span class="text-lg font-semibold gradient-text">Marvel Studios</span>
+            </div>
+            <p class="text-gray-400 mt-2">© 2023 All Rights Reserved</p>
+          </div>
+          
+          <div class="flex space-x-6">
+            <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-gray-400 hover:text-yellow-400 transition"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Movie data - Secret Invasion Episodes
+    const movies = [
+      { 
+        title: "New World Order", 
+        year: 2021,
+        video: "https://sy6.aurorionagency.cyou:443/v4/vz1/61smc/index-f2-v1-a1.txt",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/6343/936343-h",
+        duration: "50 min",
+        rating: "8.2/10",
+        description: "Sam Wilson struggles with the decision to become the new Captain America after being given the shield by Steve Rogers.",
+        cast: "Samuel L. Jackson, Ben Mendelsohn, Cobie Smulders, Kingsley Ben-Adir",
+        director: "Ali Selim",
+        genre: ["Action", "Thriller"]
+      },
+      { 
+        title: "The Star-Spangled Man", 
+        year: 2021,
+        video: "https://sui.fintravafinance.cyou:443/v4/ox/3m6uz/index-f2-v1-a1.txt",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/2921/942921-h",
+        duration: "48 min",
+        rating: "8.5/10",
+        description: "Sam and Bucky's distrust of the new Captain America grows as they investigate the Flag Smashers, a group of super-soldiers with a mysterious agenda.",
+        cast: "Anthony Mackie, Sebastian Stan, Wyatt Russell, Erin Kellyman",
+        director: "Kari Skogland",
+        genre: ["Action", "Drama"]
+      },
+      { 
+        title: "Power Broker", 
+        year: 2021,
+        video: "https://sri.mindspirecreative.space:443/v4/ox/bivck/index-f2-v1-a1.txt",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/360/950360-h",
+        duration: "52 min",
+        rating: "9.0/10",
+        description: "Sam and Bucky's mission to stop the Flag Smashers takes them to Madripoor, where they reunite with an old ally and encounter a dangerous new foe.",
+        cast: "Anthony Mackie, Sebastian Stan, Daniel Brühl, Emily VanCamp",
+        director: "Kari Skogland",
+        genre: ["Action", "Thriller"]
+      },
+      { 
+        title: "The Whole World Is Watching", 
+        year: 2021,
+        video: "https://sad.aurorioncreative.site:443/v4/tab/ijnet/index-f2-v1-a1.txt",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/6750/956750-h",
+        runtime: "49 min",
+        rating: "9.2/10",
+        description: "John Walker's pursuit of the Flag Smashers takes a dark turn, while Sam and Bucky visit Isaiah Bradley and learn the truth about super-soldier experiments.",
+        cast: "Anthony Mackie, Sebastian Stan, Wyatt Russell, Carl Lumbly",
+        director: "Kari Skogland"
+      },
+      { 
+        title: "Truth", 
+        year: 2021,
+        video: "https://sad.clarionedge.sbs:443/v4/us/pxzoq/index-f1-v1-a1.txt",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/3681/963681-h",
+        duration: "51 min",
+        rating: "9.5/10",
+        description: "John Walker faces the consequences of his actions, while Sam makes a life-changing decision about the shield and his future as a hero.",
+        cast: "Anthony Mackie, Sebastian Stan, Wyatt Russell, Julia Louis-Dreyfus",
+        director: "Kari Skogland",
+        genre: ["Drama", "Action"]
+      },
+      { 
+        title: "One World, One People", 
+        year: 2021,
+        video: "https://svz.cometri.store:443/v4/epu/dvfb3/index-f2-v1-a1.txt",
+        image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/818/970818-h",
+        duration: "54 min",
+        rating: "9.8/10",
+        description: "Sam Wilson fully embraces his role as Captain America and teams up with Bucky to stop the Flag Smashers once and for all.",
+        cast: "Anthony Mackie, Sebastian Stan, Erin Kellyman, Danny Ramirez",
+        director: "Kari Skogland",
+        genre: ["Action", "Adventure"]
+      }
+    ];
+
+    // Characters Data
+    const characters = [
+      
+    ];
+
+    // DOM Elements
+    const container = document.getElementById('movies');
+    const searchBar = document.getElementById('searchBar');
+    const themeToggle = document.getElementById('theme-toggle');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const episodeCount = document.getElementById('episode-count');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMovies(movies);
+      setupEventListeners();
+      checkThemePreference();
+    });
+
+    // Render movies
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      episodeCount.textContent = `(${moviesToRender.length})`;
+      
+      moviesToRender.forEach((movie, index) => {
+        const delayClass = `delay-${(index % 6) + 1}`;
+        
+        const movieCard = document.createElement('div');
+        movieCard.className = `movie-card animate-fade-in ${delayClass}`;
+        movieCard.innerHTML = `
+          <div class="relative overflow-hidden rounded-xl movie-poster h-80">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover">
+            <div class="absolute bottom-0 left-0 right-0 p-4 z-10">
+              <div class="flex justify-between items-center mb-2">
+                <span class="bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded">${movie.rating} ★</span>
+                <span class="bg-gray-900 bg-opacity-70 text-white text-xs px-2 py-1 rounded">${movie.duration || movie.runtime || '50 min'}</span>
+              </div>
+              <h3 class="text-lg font-bold text-white">Episode ${index + 1}: ${movie.title}</h3>
+              <div class="flex flex-wrap gap-1 mt-2">
+                ${(movie.genre || ['Action']).map(g => `<span class="text-xs bg-gray-800 text-gray-300 px-2 py-1 rounded">${g}</span>`).join('')}
+              </div>
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
+              <button class="play-button bg-yellow-400 text-gray-900 rounded-full w-16 h-16 flex items-center justify-center transform hover:scale-110 transition-transform">
+                <i class="fas fa-play text-xl"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        movieCard.addEventListener('click', () => {
+          loadingSpinner.classList.remove('hidden');
+          setTimeout(() => {
+            const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}&index=${index}`;
+            window.location.href = url;
+          }, 500);
+        });
+        
+        container.appendChild(movieCard);
+      });
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Search functionality
+      searchBar.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const filteredMovies = movies.filter(movie => 
+          movie.title.toLowerCase().includes(searchTerm) ||
+          movie.genre.some(g => g.toLowerCase().includes(searchTerm))
+        );
+        renderMovies(filteredMovies);
+      });
+      
+      // Filter chips
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+          document.querySelector('.filter-chip.active').classList.remove('active');
+          this.classList.add('active');
+          
+          const filterText = this.textContent.trim();
+          if (filterText === 'All Episodes') {
+            renderMovies(movies);
+          } else {
+            const filteredMovies = movies.filter(movie => 
+              movie.genre.includes(filterText)
+            );
+            renderMovies(filteredMovies);
+          }
+        });
+      });
+      
+      // Theme toggle
+      themeToggle.addEventListener('click', toggleTheme);
+    }
+
+    // Theme management
+    function checkThemePreference() {
+      if (localStorage.getItem('theme') === 'dark' || 
+          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        themeToggle.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+      } else {
+        document.documentElement.classList.remove('dark');
+        themeToggle.innerHTML = '<i class="fas fa-moon text-yellow-400"></i>';
+      }
+    }
+
+    function toggleTheme() {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+        themeToggle.innerHTML = '<i class="fas fa-moon text-yellow-400"></i>';
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+        themeToggle.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+      }
+    }
+
+    // Simulate loading more movies on scroll (for demo purposes)
+    window.addEventListener('scroll', () => {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        // In a real app, you would fetch more data here
+      }
+    });
+  </script>
+</body>
+</html>
