@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Black Panther's Quest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js (kept for HLS support) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    :root {--avengers-blue:#0b63b6;--avengers-gold:#ffcc00;--site-dark:#0f1720;}
+    body{font-family:'Montserrat',sans-serif;background-color:var(--site-dark);color:#fff;}
+    .title-font{font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
+    .gradient-text{background:linear-gradient(90deg,var(--avengers-gold),#ffb84d);-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .accent-text{background:linear-gradient(90deg,var(--avengers-blue),#2a9df4);-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .episode-card{transition:.3s;}
+    .episode-card:hover{transform:translateY(-5px);}
+    /* modal-player styling */
+    .modal-overlay { position: fixed; inset: 0; z-index: 50; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.9); padding: 1rem; }
+    .modal-card { width: 100%; max-width: 64rem; background: #111827; border-radius: 0.75rem; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255,204,0,0.06); }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.03); background: rgba(0,0,0,0.25); }
+    .modal-title { font-size: 1.125rem; font-weight:700; color:var(--avengers-gold); }
+    .modal-close-btn { width:40px; height:40px; border-radius:999px; background:transparent; border:1px solid rgba(255,255,255,0.04); display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; }
+    .modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+    .modal-player video, .modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+<!-- Loading -->
+<div id="loading-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
+  <div class="w-10 h-10 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+</div>
+
+<!-- Header -->
+<header class="sticky top-0 z-40 bg-black/90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+  <div class="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 bg-gradient-to-br from-blue-700 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
+        <i class="fas fa-cat text-white text-xl"></i>
+      </div>
+      <h1 class="text-2xl md:text-3xl font-bold accent-text title-font">Black Panther's Quest</h1>
+    </div>
+    <div class="flex items-center space-x-4 mt-2 md:mt-0">
+    </div>
+  </div>
+  <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
+    <div class="relative max-w-2xl mx-auto">
+      <input type="text" placeholder="Search episodes..." class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-3 px-5 pl-12 text-white">
+      <i class="fas fa-search absolute left-5 top-3.5 text-yellow-500"></i>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+
+  <!-- Hero -->
+  <section class="mb-12 relative rounded-xl shadow-2xl overflow-hidden">
+    <img src="https://m.media-amazon.com/images/S/pv-target-images/de066937e2d82162c2f3eb8f963a3805f9c5a4b88f075e1ff3ecc28df966ad38.jpg" class="w-full h-64 md:h-[32rem] object-cover object-top">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 z-20 p-8">
+      <p class="text-gray-300 max-w-xl text-sm md:text-base">Follow Black Panther and the Avengers through daring missions, political intrigue in Wakanda, and dangerous foes across the globe.</p>
+    </div>
+  </section>
+
+  <!-- Episodes -->
+  <section class="mb-12">
+    <h3 class="text-3xl font-bold gradient-text title-font flex items-center mb-6"><i class="fas fa-list-ul text-yellow-500 mr-3"></i> Season 5 · 23 Episodes</h3>
+    <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  </section>
+</main>
+
+<!-- Video Modal (updated to Tukaram-style modal-player) -->
+<div id="video-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div id="modal-title" class="modal-title"></div>
+      <button id="close-video-modal" class="modal-close-btn" aria-label="Close video"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-player" id="modal-player">
+      <!-- dynamic: video element or iframe will be inserted here -->
+      <video id="modal-video" class="w-full h-full" controls playsinline></video>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== EPISODES DATA (REPLACED) =====
+   Note: 'video' fields are sample MP4/placeholders. Replace with your actual episode URL (mp4, .m3u8, embed links etc.).
+*/
+const episodes = [
+  { title: "Episode 01: Rising Shadows", video: "https://scvo.zenithstrategylabs.online/v4/xq/gmez5/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5132/1145132-h-52bd1eb1ccdd", description: "T'Challa faces a new threat that tests his leadership and the Avengers' trust.", duration: "22 min", rating: 4.8, releaseDate: "2025-01-01" },
+  { title: "Episode 02: Wakandan Threads", video: "https://sr81.pavonilaboratories.cyou/v4/sc/jnckz/cf-master.txt?v=1739617094", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5134/1145134-h-664f0c5e1652", description: "A political conspiracy in Wakanda forces secret alliances.", duration: "22 min", rating: 4.7, releaseDate: "2025-01-08" },
+  { title: "Episode 03: Echoes of Midnight", video: "https://scvo.crystalhavenresearch.shop/v4/js/5twjp/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5136/1145136-h-d0d55ef1dbd5", description: "Black Panther and the team hunt a shadowy organization with ties to Vibranium.", duration: "22 min", rating: 4.7, releaseDate: "2025-01-15" },
+  { title: "Episode 04: Broken Vows", video: "https://scvo.terraforgeinnovations.space/v4/db/pskgh/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5138/1145138-h-8955deb46c98", description: "An old ally's betrayal puts T'Challa in a moral dilemma.", duration: "22 min", rating: 4.6, releaseDate: "2025-01-22" },
+  { title: "Episode 05: The Sound of War", video: "https://sr81.crystalhavenresearch.shop/v4/ic/lpuiq/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5140/1145140-h-6a96f84ec910", description: "Battlefronts expand as global powers scramble for Wakanda's protection.", duration: "22 min", rating: 4.8, releaseDate: "2025-01-29" },
+  { title: "Episode 06: Labyrinth of Kings", video: "https://skra.zenlith.space/v4/61/xb6z8/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5142/1145142-h-0cb730d3bf11", description: "A cryptic relic draws T'Challa into a deadly maze beneath Wakanda.", duration: "22 min", rating: 4.6, releaseDate: "2025-02-05" },
+  { title: "Episode 07: Cloak and Dagger", video: "https://sdqm.mountainpeakstudio.space/v4/ic/i6sby/cf-master.txt?v=1739617674", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5143/1145143-h-b47527df6047", description: "Stealth missions push the Avengers to their limits behind enemy lines.", duration: "22 min", rating: 4.5, releaseDate: "2025-02-12" },
+  { title: "Episode 08: Wakanda Under Siege", video: "https://sojg.harmonynetworks.space/v4/k5/psk6s/cf-master.txt?v=1739617715", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5144/1145144-h-ae25f7d30698", description: "A coordinated strike threatens the heart of Wakanda.", duration: "22 min", rating: 4.9, releaseDate: "2025-02-19" },
+  { title: "Episode 09: The Lost Protocol", video: "https://spuc.lucernaarchitecture.space/v4/m9/lpue8/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5145/1145145-h-987ac0c471b1", description: "An old protocol resurfaces that could change the balance of power.", duration: "22 min", rating: 4.6, releaseDate: "2025-02-26" },
+  { title: "Episode 10: Broken Crown", video: "https://sj3l.zenlithsustainables.cyou/v4/m9/8qtrp/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5146/1145146-h-49d8346da48e", description: "T'Challa must reconcile throne duties with the needs of his friends.", duration: "22 min", rating: 4.7, releaseDate: "2025-03-05" },
+  { title: "Episode 11: Web of Lies", video: "https://scvo.lumintrixeducation.sbs/v4/k5/mxifx/cf-master.txt?v=1739617972", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5147/1145147-h-7396dead5bf1", description: "Deception from within threatens to tear the Avengers apart.", duration: "22 min", rating: 4.5, releaseDate: "2025-03-12" },
+  { title: "Episode 12: Nightfall Rising", video: "https://s3ae.auroravisionfactory.shop/v4/ic/i6smx/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5148/1145148-h-6c78f2de703e", description: "A night mission exposes secrets best left buried.", duration: "22 min", rating: 4.6, releaseDate: "2025-03-19" },
+  { title: "Episode 13: Allies & Adversaries", video: "https://sskt.zironixart.cyou/v4/sc/3cv8z/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5149/1145149-h-6b98f8e6c20e", description: "Tense alliances are forged; enemies reveal their true designs.", duration: "22 min", rating: 4.8, releaseDate: "2025-03-26" },
+  { title: "Episode 14: Riftwalkers", video: "https://spok.futureverseinsights.shop/v4/61/i6sgm/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5150/1145150-h-2a28cb697833", description: "A sci-tech anomaly opens paths to dangerous new arenas.", duration: "22 min", rating: 4.7, releaseDate: "2025-04-02" },
+  { title: "Episode 15: Heart of the Panther", video: "https://s8v3.velonovatechsystem.store/v4/rw/dojov/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5151/1145151-h-9defc0db3b07", description: "T'Challa confronts personal stakes that could cost everything.", duration: "22 min", rating: 4.9, releaseDate: "2025-04-09" },
+  { title: "Episode 16: The Shifting Guard", video: "https://slob.crystalhavenresearch.shop/v4/6s/8qtqk/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5152/1145152-h-e3f9b416c7e4", description: "A trusted protector's loyalties come into question.", duration: "22 min", rating: 4.6, releaseDate: "2025-04-16" },
+  { title: "Episode 17: Fractured Nations", video: "https://sj3l.marvellium.shop/v4/9a/pskpu/cf-master.txt?v=1739618545", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5154/1145154-h-c96527a9e2d8", description: "Geopolitics and Vibranium greed spark an international crisis.", duration: "22 min", rating: 4.5, releaseDate: "2025-04-23" },
+  { title: "Episode 18: Veil of Secrets", video: "https://sdqm.futureverseinsights.shop/v4/6s/c85ce/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5155/1145155-h-462cc8261bb6", description: "Hidden histories surface that change Wakanda's future.", duration: "22 min", rating: 4.8, releaseDate: "2025-04-30" },
+  { title: "Episode 19: The Long Night", video: "https://spuc.bluehavenhospitality.sbs/v4/36/qjtcs/cf-master.txt?v=1739636631", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5156/1145156-h-62839777d237", description: "A siege tests the Avengers' endurance through darkness.", duration: "22 min", rating: 4.9, releaseDate: "2025-05-07" },
+  { title: "Episode 20: The Price of Power", video: "https://spuc.crimsonforestventures.online/v4/36/he9ll/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5157/1145157-h-f4bfa43c5286", description: "Choices are made that have consequences across the world.", duration: "22 min", rating: 4.7, releaseDate: "2025-05-14" },
+  { title: "Episode 21: Echoes and Ashes", video: "https://sdqm.amberleaftravel.online/v4/sc/3cavb/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5158/1145158-h-ae5ca62f8ea2", description: "Past actions come back to haunt present plans.", duration: "22 min", rating: 4.8, releaseDate: "2025-05-21" },
+  { title: "Episode 22: Twilight War", video: "https://slob.marvellaworldwide.shop/v4/ox/gmhex/index-f1-v1-a1.txt", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5159/1145159-h-ec5fa49b040e", description: "A massive confrontation looms as factions collide.", duration: "22 min", rating: 4.9, releaseDate: "2025-05-28" },
+  { title: "Episode 23: Crown & Consequence (Season Finale)", video: "https://sr81.silverlark.sbs/v4/sc/psuur/cf-master.txt?v=1739619058", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5160/1145160-h-4670edc3ca5e", description: "A climactic finale — loyalties, legacy, and the future of Wakanda are decided.", duration: "26 min", rating: 5.0, releaseDate: "2025-06-04" }
+];
+
+/* DOM refs */
+const container = document.getElementById("episodes");
+const videoModal = document.getElementById("video-modal");
+const modalPlayer = document.getElementById("modal-player");
+const modalVideo = () => document.getElementById("modal-video"); // in case we recreate it
+const modalTitle = document.getElementById("modal-title");
+let currentHls = null;
+
+/* ===== helper functions (Tukaram-style) ===== */
+function isHls(u){
+  if(!u) return false;
+  return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
+}
+function isMP4(u){ return /\.mp4($|\?)/i.test(u || ''); }
+function isYouTube(u){ return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/'))); }
+
+/* Show / hide modal */
+function showModal(){ videoModal.classList.remove("hidden"); document.body.style.overflow="hidden"; }
+function hideModal(){ videoModal.classList.add("hidden"); document.body.style.overflow=""; }
+
+/* Reset player container to a fresh <video> element (used on close) */
+function resetPlayerContainer(){
+  // Destroy HLS if active
+  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+
+  // Replace modal-player content with a fresh <video> element
+  modalPlayer.innerHTML = '<video id="modal-video" class="w-full h-full" controls playsinline></video>';
+}
+
+/* Close player / cleanup */
+function closePlayer(){
+  // If HLS is active, destroy it
+  if(currentHls){ try{ currentHls.destroy(); } catch(e){} currentHls = null; }
+
+  // Pause and remove src if video element present
+  const vid = document.getElementById('modal-video');
+  if(vid){
+    try { vid.pause(); } catch(e) {}
+    try { vid.removeAttribute('src'); vid.load(); } catch(e) {}
+  }
+
+  // Reset container back to default video element
+  resetPlayerContainer();
+  hideModal();
+}
+
+/* Core: playInModal - supports iframe hosts (streamtape), YouTube, HLS, MP4, fallback redirect */
+function playInModal(title, url){
+  // Ensure previous HLS destroyed
+  if(currentHls){ try{ currentHls.destroy(); } catch(e){} currentHls = null; }
+
+  // Reset modal player to default video element before deciding
+  resetPlayerContainer();
+
+  modalTitle.textContent = title || '';
+
+  if(!url){
+    modalTitle.textContent = (title || '') + ' — No playable URL provided';
+    showModal();
+    return;
+  }
+
+  // Streamtape or other iframe-friendly host (simple include)
+  if(url.includes('streamtape.com') || url.includes('openload.co') || url.includes('vidcdn') || url.includes('dood')) {
+    // Basic iframe embed
+    modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // YouTube (handle both watch links and embed variants)
+  if(isYouTube(url)){
+    // Normalize embed url: if it's a watch?v= link, convert to embed
+    let embedUrl = url;
+    if(url.includes('watch') && url.includes('v=')){
+      const vid = new URLSearchParams(url.split('?')[1]).get('v');
+      if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+    } else if(url.includes('youtu.be/')){
+      const parts = url.split('youtu.be/');
+      if(parts[1]) {
+        const vid = parts[1].split(/[?&]/)[0];
+        embedUrl = `https://www.youtube.com/embed/${vid}`;
+      }
+    }
+    // Append autoplay
+    modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // HLS
+  if(isHls(url)){
+    const vidEl = document.getElementById('modal-video');
+    if(Hls.isSupported()){
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(vidEl);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+        showModal();
+        vidEl.play().catch(()=>{});
+      });
+    } else {
+      // Native HLS (Safari)
+      vidEl.src = url;
+      showModal();
+      vidEl.play().catch(()=>{});
+    }
+    return;
+  }
+
+  // MP4
+  if(isMP4(url)){
+    const vidEl = document.getElementById('modal-video');
+    vidEl.src = url;
+    showModal();
+    vidEl.play().catch(()=>{});
+    return;
+  }
+
+  // Unknown format - redirect to player.html fallback (keeps behavior consistent)
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+/* Build episode cards */
+episodes.forEach((ep,i)=>{
+  const card=document.createElement("div");
+  card.className="episode-card bg-gray-900/50 rounded-xl overflow-hidden border border-gray-800 cursor-pointer";
+  card.innerHTML=`
+    <div class="relative group">
+      <img src="${ep.image}" class="w-full h-40 object-cover group-hover:opacity-80">
+      <div class="absolute top-3 left-3 bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold">${i+1}</div>
+      <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+        <div class="bg-yellow-600 text-black rounded-full w-12 h-12 flex items-center justify-center"><i class="fas fa-play"></i></div>
+      </div>
+    </div>
+    <div class="p-4">
+      <h3 class="font-semibold">${ep.title}</h3>
+      <p class="text-xs text-gray-400 line-clamp-2">${ep.description}</p>
+    </div>`;
+  card.addEventListener("click",()=> {
+    // Use Tukaram-style playInModal which supports iframes / youtube / hls / mp4
+    playInModal(ep.title, ep.video);
+  });
+  container.appendChild(card);
+});
+
+/* Close Modal */
+document.getElementById("close-video-modal").onclick = closePlayer;
+videoModal.onclick = e => { if(e.target === videoModal) closePlayer(); }
+
+/* Remove fake loader */
+setTimeout(()=>document.getElementById("loading-overlay").classList.add("hidden"),800);
+
+/* Search toggle (if you have a search button; keep safe-check) */
+const searchBtn = document.getElementById("search-btn");
+if(searchBtn) {
+  searchBtn.addEventListener("click", ()=>{
+    const bar = document.getElementById("search-bar");
+    if(bar) bar.classList.toggle("hidden");
+  });
+}
+</script>
+
+</body>
+</html>
