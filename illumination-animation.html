@@ -1,381 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Illumination Collection | Disney+</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Stream all your favorite Illumination movies including Despicable Me, Minions, Sing, and more on Disney+">
+  <meta charset="UTF-8" />
+  <title>Illumination Collection | Updated</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Stream Illumination movies — updated player + shorts section" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- HLS.js (used by the modal player) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    :root {
+      --bg-1: #000000;
+      --bg-2: #11121a;
+      --yellow: #FED141;
+      --muted: #9CA3AF;
+    }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom, #000000, #1a1a2e);
-      min-height: 100vh;
-      color: white;
+      background: linear-gradient(to bottom, var(--bg-1), var(--bg-2));
+      color: #fff;
+      margin: 0;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
-    .movie-card:hover .play-icon {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1.1);
-    }
-    .gradient-text {
-      background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .modal-enter {
-      animation: modalEnter 0.3s ease-out forwards;
-    }
-    @keyframes modalEnter {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-    .showcase-header {
-      background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%), 
-                  url('https://www.illumination.com/wp-content/uploads/2021/06/illumination-logo.png') no-repeat center center;
-      background-size: cover;
-      height: 70vh;
-      min-height: 500px;
-      display: flex;
-      flex-direction: column;
-    }
-    .minion-yellow {
-      background-color: #FED141;
-    }
-    .minion-yellow-text {
-      color: #FED141;
-    }
-    .minion-blue {
-      background-color: #6DB8E8;
-    }
-    .scroll-container {
-      scrollbar-width: thin;
-      scrollbar-color: #FED141 #1a1a2e;
-    }
-    .scroll-container::-webkit-scrollbar {
-      height: 8px;
-    }
-    .scroll-container::-webkit-scrollbar-track {
-      background: #1a1a2e;
-    }
-    .scroll-container::-webkit-scrollbar-thumb {
-      background-color: #FED141;
-      border-radius: 20px;
-    }
-    .shine-effect {
+
+    /* header */
+    .minion-yellow { background: var(--yellow); color: #000; }
+    .minion-yellow-text { color: var(--yellow); }
+
+    /* cards */
+    .movie-card {
+      transition: transform .28s ease, box-shadow .28s ease;
+      cursor: pointer;
       position: relative;
       overflow: hidden;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
     }
-    .shine-effect::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -60%;
-      width: 200%;
-      height: 200%;
-      background: rgba(255,255,255,0.13);
-      background: linear-gradient(
-        to right,
-        rgba(255,255,255,0.13) 0%,
-        rgba(255,255,255,0.13) 77%,
-        rgba(255,255,255,0.5) 92%,
-        rgba(255,255,255,0.0) 100%
-      );
-      transform: rotate(30deg);
-      transition: all 0.7s ease-out;
+    .movie-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
     }
-    .shine-effect:hover::after {
-      left: 100%;
+    .movie-poster { display:block; width:100%; height:200px; object-fit:cover; }
+
+    /* play overlay */
+    .overlay {
+      position: absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,0.28); opacity:0; transition: opacity .22s ease;
+      pointer-events: none;
     }
+    .movie-card:hover .overlay { opacity:1; pointer-events: auto; }
+    .play-circle {
+      width:64px; height:64px; border-radius:999px; background: var(--yellow); display:flex;
+      align-items:center; justify-content:center; transform: scale(1); transition: transform .18s ease;
+    }
+    .movie-card:hover .play-circle { transform: scale(1.08); }
+
+    /* modal */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-backdrop.active { display:flex; }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
+
+    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
+    .player-meta .meta-left { max-width:65%; }
+    .player-meta h3 { margin:0; font-size:1.125rem; }
+    .player-meta p { margin:6px 0 0 0; color:var(--muted); font-size:0.92rem; }
+
+    .controls-row { display:flex; gap:8px; align-items:center; }
+
+    .btn {
+      background:transparent; border:1px solid var(--yellow); color:var(--yellow);
+      padding:8px 12px; border-radius:8px; cursor:pointer;
+    }
+    .btn:hover { background: rgba(254,209,65,0.06); }
+
+    .hidden { display:none; }
+
+    /* mobile nav */
+    .nav-toggle { display:none; }
+    @media (max-width: 768px) {
+      .nav-toggle { display:block; }
+      header nav { display:none; }
+      header nav.open { display:block; }
+    }
+
+    /* small niceties */
+    .spinner { width:36px; height:36px; border-radius:50%; border:4px solid rgba(255,209,65,0.18); border-top-color:var(--yellow); animation:spin 0.9s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* horizontal shorts row styles */
+    .shorts-row { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; }
+    .short-card { min-width:180px; width:180px; flex:0 0 auto; }
   </style>
 </head>
 <body>
-  <div class="showcase-header">
-    <header class="bg-gradient-to-b from-black to-transparent py-4 px-6">
-      <div class="container mx-auto flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <div class="w-10 h-10 minion-yellow rounded-full flex items-center justify-center shine-effect">
-            <i class="fas fa-play text-black"></i>
-          </div>
-          <h1 class="text-xl font-bold minion-yellow-text">Illumination<span class="text-white">+</span></h1>
-        </div>
-        <nav class="hidden md:flex space-x-6">
-          <a href="#" class="hover:minion-yellow-text transition">Home</a>
-          <a href="#" class="hover:minion-yellow-text transition">Movies</a>
-          <a href="#" class="hover:minion-yellow-text transition">Characters</a>
-          <a href="#" class="hover:minion-yellow-text transition">Shorts</a>
-        </nav>
-        <button class="md:hidden text-2xl minion-yellow-text">
-          <i class="fas fa-bars"></i>
-        </button>
-      </div>
-    </header>
 
-    <div class="container mx-auto px-4 flex-1 flex items-center">
-      <div class="max-w-4xl">
-        <h1 class="text-5xl md:text-6xl font-bold mb-4 gradient-text">Illumination Collection</h1>
-        <div class="flex items-center space-x-4 mb-6">
-          <span class="minion-yellow text-black px-3 py-1 rounded-full text-sm font-semibold">Featured</span>
-          <span class="text-gray-400">2007-2024</span>
-          <span class="text-gray-400">•</span>
-          <span class="text-gray-400">24 Movies & Shorts</span>
+  <!-- HEADER -->
+  <header class="py-4 px-6">
+    <div class="container mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 minion-yellow rounded-full flex items-center justify-center">
+          <i class="fas fa-play"></i>
         </div>
-        <p class="text-lg text-gray-300 mb-6">
-          Enjoy all your favorite Illumination Entertainment movies in one place. From the mischievous Minions to the singing animals of Sing, 
-          discover the magic of Illumination's animated universe.
-        </p>
-        <div class="flex space-x-4">
-          <button class="minion-yellow hover:bg-yellow-600 text-black font-semibold py-3 px-8 rounded-full flex items-center transition transform hover:scale-105 shine-effect">
-            <i class="fas fa-play mr-2"></i> Featured
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-full flex items-center transition">
-            <i class="fas fa-plus mr-2"></i> My List
-          </button>
+        <div>
+          <h1 class="text-xl font-semibold">Illumination+</h1>
+          <div class="text-sm text-gray-400">Animation • Family</div>
         </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <nav class="hidden md:flex gap-6 items-center" id="mainNav">
+          <a href="#" class="text-sm text-gray-300 nav-link">Home</a>
+          <a href="#" class="text-sm text-gray-300 nav-link">Movies</a>
+          <a href="#" class="text-sm text-gray-300 nav-link">Shorts</a>
+          <a href="#" class="text-sm text-gray-300 nav-link">About</a>
+        </nav>
+
+        <button id="navToggle" class="nav-toggle p-2 text-yellow-400 md:hidden"><i class="fas fa-bars"></i></button>
       </div>
     </div>
-  </div>
+  </header>
 
-  <main class="container mx-auto px-4 pb-16">
-    <!-- Featured Collection -->
-    <section class="mb-12">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold flex items-center">
-          <span class="mr-2 minion-yellow-text">Featured</span>
-          <i class="fas fa-star minion-yellow-text"></i>
-        </h2>
-        <a href="#" class="text-sm minion-yellow-text hover:underline">View All</a>
+  <!-- HERO -->
+  <section class="px-6 mb-8">
+    <div class="container mx-auto">
+      <div class="rounded-lg p-8" style="background:linear-gradient(180deg, rgba(255,209,65,0.04), rgba(255,209,65,0.02));">
+        <h2 class="text-3xl font-bold mb-2">Illumination Collection</h2>
+        <p class="text-gray-400">All your favorite Illumination movies in one place.</p>
       </div>
-      <div class="relative">
-        <div class="scroll-container overflow-x-auto pb-4 flex space-x-6">
-          <div class="flex-none w-64 md:w-80">
-            <div class="movie-card cursor-pointer bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 relative">
-              <div class="relative">
-                <img src="https://image.tmdb.org/t/p/original/dpXxBDi0ut5svjh5fbAqLoaJSq8.jpg" alt="Migration" class="w-full h-40 md:h-48 object-cover">
-                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 transition">
-                  <div class="play-icon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 minion-yellow bg-opacity-90 rounded-full w-12 h-12 flex items-center justify-center opacity-0 transition">
-                    <i class="fas fa-play text-black"></i>
-                  </div>
-                </div>
-                <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">92 min</span>
-              </div>
-              <div class="p-4">
-                <div class="flex justify-between items-start mb-1">
-                  <h2 class="text-lg font-semibold">Migration</h2>
-                  <span class="minion-yellow-text text-sm">★ 4.2</span>
-                </div>
-                <p class="text-sm text-gray-400">2023 • Animation</p>
-              </div>
-            </div>
-          </div>
-          <div class="flex-none w-64 md:w-80">
-            <div class="movie-card cursor-pointer bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 relative">
-              <div class="relative">
-                <img src="https://image.tmdb.org/t/p/original/1WiUlJH7MMxWn2MIxW1hwMcYam6.jpg" alt="Minions: The Rise of Gru" class="w-full h-40 md:h-48 object-cover">
-                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 transition">
-                  <div class="play-icon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 minion-yellow bg-opacity-90 rounded-full w-12 h-12 flex items-center justify-center opacity-0 transition">
-                    <i class="fas fa-play text-black"></i>
-                  </div>
-                </div>
-                <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">88 min</span>
-              </div>
-              <div class="p-4">
-                <div class="flex justify-between items-start mb-1">
-                  <h2 class="text-lg font-semibold">Minions: The Rise of Gru</h2>
-                  <span class="minion-yellow-text text-sm">★ 4.6</span>
-                </div>
-                <p class="text-sm text-gray-400">2022 • Animation</p>
-              </div>
-            </div>
-          </div>
-          <div class="flex-none w-64 md:w-80">
-            <div class="movie-card cursor-pointer bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 relative">
-              <div class="relative">
-                <img src="https://m.media-amazon.com/images/I/71YTT3TvWKL.jpg" alt="Sing" class="w-full h-40 md:h-48 object-cover">
-                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 transition">
-                  <div class="play-icon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 minion-yellow bg-opacity-90 rounded-full w-12 h-12 flex items-center justify-center opacity-0 transition">
-                    <i class="fas fa-play text-black"></i>
-                  </div>
-                </div>
-                <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">108 min</span>
-              </div>
-              <div class="p-4">
-                <div class="flex justify-between items-start mb-1">
-                  <h2 class="text-lg font-semibold">Sing</h2>
-                  <span class="minion-yellow-text text-sm">★ 4.3</span>
-                </div>
-                <p class="text-sm text-gray-400">2016 • Musical</p>
-              </div>
-            </div>
-          </div>
-          <div class="flex-none w-64 md:w-80">
-            <div class="movie-card cursor-pointer bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 relative">
-              <div class="relative">
-                <img src="https://i.ebayimg.com/images/g/yTwAAOSwdCtmjJf3/s-l1200.jpg" alt="Despicable Me 4" class="w-full h-40 md:h-48 object-cover">
-                <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 transition">
-                  <div class="play-icon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 minion-yellow bg-opacity-90 rounded-full w-12 h-12 flex items-center justify-center opacity-0 transition">
-                    <i class="fas fa-play text-black"></i>
-                  </div>
-                </div>
-                <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">90 min</span>
-              </div>
-              <div class="p-4">
-                <div class="flex justify-between items-start mb-1">
-                  <h2 class="text-lg font-semibold">Despicable Me 4</h2>
-                  <span class="minion-yellow-text text-sm">★ 6.2</span>
-                </div>
-                <p class="text-sm text-gray-400">2024 • Comedy</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Franchise Sections -->
-    <section class="mb-12">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold flex items-center">
-          <i class="fas fa-users mr-2 minion-yellow-text"></i>
-          <span>Despicable Me & Minions</span>
-        </h2>
-        <a href="#" class="text-sm minion-yellow-text hover:underline">View All</a>
-      </div>
-      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
-    </section>
+  <!-- SEARCH -->
+  <section class="px-6 mb-6">
+    <div class="container mx-auto flex gap-3 items-center">
+      <input id="searchBar" class="w-full p-3 bg-[#0e1220] rounded-md outline-none text-white" placeholder="Search Illumination movies..." />
+      <button id="clearSearch" class="btn">Clear</button>
+    </div>
+  </section>
 
-    <section class="mb-12">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold flex items-center">
-          <i class="fas fa-music mr-2 minion-blue-text"></i>
-          <span>Sing Collection</span>
-        </h2>
-        <a href="#" class="text-sm minion-yellow-text hover:underline">View All</a>
+  <!-- FEATURED -->
+  <section class="px-6 mb-8">
+    <div class="container mx-auto">
+      <h3 class="text-xl font-semibold mb-4">Featured</h3>
+      <div id="featuredScroll" class="flex gap-4 overflow-x-auto pb-2">
+        <!-- featured cards -->
       </div>
-      <div id="sing-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
-    </section>
+    </div>
+  </section>
 
-    <section class="mb-12">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold flex items-center">
-          <i class="fas fa-film mr-2 minion-yellow-text"></i>
-          <span>Shorts & Specials</span>
-        </h2>
-        <a href="#" class="text-sm minion-yellow-text hover:underline">View All</a>
+  <!-- SHORTS SECTION (NEW) -->
+  <section class="px-6 mb-8">
+    <div class="container mx-auto">
+      <h3 class="text-xl font-semibold mb-4">Short Films</h3>
+      <div id="shortsRow" class="shorts-row">
+        <!-- shorts cards inserted here by JS -->
       </div>
-      <div id="shorts" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
-    </section>
+    </div>
+  </section>
+
+  <!-- GRID -->
+  <main class="px-6 pb-20">
+    <div class="container mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="moviesGrid">
+      <!-- generated grid cards -->
+    </div>
   </main>
 
-  <!-- Modal -->
-  <div id="playback-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-90">
-    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden modal-enter">
-      <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:minion-yellow-text text-2xl transition">
-        <i class="fas fa-times"></i>
-      </button>
-      <div class="aspect-w-16 aspect-h-9">
-        <video id="modal-video" class="w-full" controls poster="https://www.illumination.com/wp-content/uploads/2021/06/illumination-logo.png"></video>
+  <!-- PLAYER MODAL -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="player-wrapper" id="playerWrapper">
+        <!-- video or iframe injected here -->
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       </div>
-      <div class="p-6">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 id="modal-title" class="text-2xl font-bold mb-1"></h3>
-            <div class="text-gray-400 text-sm">
-              <span id="movie-year"></span> • <span id="movie-duration"></span> • <span class="minion-yellow-text">★ <span id="movie-rating"></span>/10</span>
-            </div>
-          </div>
-          <div class="flex space-x-3">
-            <button class="text-gray-400 hover:text-white transition">
-              <i class="fas fa-share-alt"></i>
-            </button>
-            <button class="text-gray-400 hover:text-white transition">
-              <i class="fas fa-ellipsis-h"></i>
-            </button>
-          </div>
+
+      <div class="player-meta">
+        <div class="meta-left">
+          <h3 id="modalTitle">Title</h3>
+          <p id="modalDesc" class="text-sm"></p>
         </div>
-        <p id="modal-description" class="text-gray-300 mb-6"></p>
-        <div class="flex space-x-4">
-          <button class="minion-yellow hover:bg-yellow-600 text-black font-semibold py-3 px-8 rounded-full flex items-center transition transform hover:scale-105">
-            <i class="fas fa-play mr-2"></i> Play
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-full flex items-center transition">
-            <i class="fas fa-plus mr-2"></i> Watchlist
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-full transition">
-            <i class="fas fa-thumbs-up"></i>
-          </button>
-        </div>
-        <div class="mt-6 pt-6 border-t border-gray-800">
-          <h4 class="text-sm font-semibold text-gray-400 mb-2">Details</h4>
-          <p class="text-gray-300 text-sm"><span id="movie-genre"></span> • <span id="movie-director"></span></p>
+        <div class="controls-row">
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
         </div>
       </div>
     </div>
   </div>
 
-  <footer class="bg-gray-900 py-12">
-    <div class="container mx-auto px-4">
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <div class="mb-6 md:mb-0">
-          <div class="flex items-center space-x-2 mb-4">
-            <div class="w-10 h-10 minion-yellow rounded-full flex items-center justify-center">
-              <i class="fas fa-play text-black"></i>
-            </div>
-            <h1 class="text-xl font-bold minion-yellow-text">Illumination<span class="text-white">+</span></h1>
-          </div>
-          <p class="text-gray-400 text-sm">© 2024 Disney+ Original Collection</p>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div>
-            <h3 class="text-gray-300 font-semibold mb-3">Navigation</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Home</a></li>
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Movies</a></li>
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Characters</a></li>
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Shorts</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 class="text-gray-300 font-semibold mb-3">Legal</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Terms</a></li>
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Privacy</a></li>
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Cookies</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 class="text-gray-300 font-semibold mb-3">About</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Illumination</a></li>
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Careers</a></li>
-              <li><a href="#" class="text-gray-400 hover:minion-yellow-text text-sm transition">Press</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 class="text-gray-300 font-semibold mb-3">Social</h3>
-            <div class="flex space-x-4">
-              <a href="#" class="text-gray-400 hover:minion-yellow-text transition"><i class="fab fa-twitter"></i></a>
-              <a href="#" class="text-gray-400 hover:minion-yellow-text transition"><i class="fab fa-instagram"></i></a>
-              <a href="#" class="text-gray-400 hover:minion-yellow-text transition"><i class="fab fa-facebook"></i></a>
-              <a href="#" class="text-gray-400 hover:minion-yellow-text transition"><i class="fab fa-youtube"></i></a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+ <!-- Footer -->
+<footer class="mt-20 py-6 bg-gray-900 bg-opacity-50">
+<div class="container mx-auto px-4 text-center text-gray-400">
+<div class="flex justify-center space-x-6 mb-4">
+<a class="hover:text-yellow-400 transition-colors" href="#">
+<i class="fab fa-facebook-f"></i>
+</a>
+<a class="hover:text-yellow-400 transition-colors" href="#">
+<i class="fab fa-twitter"></i>
+</a>
+<a class="hover:text-yellow-400 transition-colors" href="https://www.instagram.com/stark_4152">
+<i class="fab fa-instagram"></i>
+</a>
+<a class="hover:text-yellow-400 transition-colors" href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw">
+<i class="fab fa-youtube"></i>
+</a>
+</div>
+<p>© Illumination Universe. All rights reserved.</p>
+<p class="text-sm mt-2">This is a fan-made project and not affiliated with Illumination Animation Studios.</p>
+</div>
+</footer>
 
+  <!-- HLS.js script already included in head; now main logic -->
   <script>
-    const movies = [
-      { 
+  /******************************
+   * Data (movies array)
+   * (Left untouched — add your real movies here)
+   ******************************/
+  const movies = [
+    { 
         title: "Migration", 
         video: "https://vgorigin.hakunaymatata.com/resource/ec957e0e66e6b470f19978ae0d2af8b4.mp4?Expires=1749425490&KeyName=wefeed&Signature=vvh2U3aJsMRQ35Je7UfZeIrwaG36mGazd3TjRUsWh6z72jK6CxDxbAD1sEsuhTNYETwr-XZgkuBES60Sa2zdCg", 
         image: "https://image.tmdb.org/t/p/original/dpXxBDi0ut5svjh5fbAqLoaJSq8.jpg",
@@ -399,7 +248,7 @@
       },
       { 
         title: "Despicable Me", 
-        video: "https://macdn.hakunaymatata.com/resource/ae8baf0c3b28f37b845fa506e4637628.mp4?Expires=1749418021&Signature=JnbtpW6brgy3jYE3bmKmD4mOc4T9FGGk6-VKfIPD4yWXdzjIM7s9prMdIQyVWYy0OPioQmqSoZgoZVhN3jyTvLupEMG5F5pP98QlV6Lr8ddPlzuhINpGtY0x-rCAfWqtBt9mQj~3i9~-cO4rAi-digMTyoVeQGfv4yYOfRdwGyT3wH3sT6-G0G8BLZTfojbPXUEAD0hmoyINvx53XM3-fzGMELBQNcues1IFJzIncJZ9x0QPV9cq0BtErecJigCosz~oiJI~u4SaPItiIyYel1ARLKz8iKuWYwTU61xA-khk-ikzvKOxWjaSMXWQZqGna10WZBXaEgJU3chI~MXSsg__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://s9dz.clarionforge.online/v4/36/mnkwh/cf-master.txt?v=1734023037", 
         image: "https://wallpapercat.com/w/full/a/6/6/137843-1920x1080-desktop-full-hd-despicable-me-background-photo.jpg",
         year: 2010,
         duration: "95 min",
@@ -410,7 +259,7 @@
       },
       { 
         title: "Despicable Me 2", 
-        video: "https://macdn.hakunaymatata.com/resource/3c0d02bdfbe5ec2bede744ed5051d769.mp4?Expires=1749424905&Signature=C5a4ooyF0USC5imY1JpVOrSiU9dEnvLnc-yOUmEWaIp-~X7hzftKK-24tWc-ybvsyHtFcZUnh79FMuejKJRo~O4-fPfFHCuAxspXWMEZfdgSeWwJ~mEYQdgOkpP2Whxl4MnAP7ohIlb8~JKTayAphnhzj4VKS9UiZu2KyanUfjulf7SdNzu64xAptHJWk0xVL7AOWce4huH0hEbPWx1pkNahihBTloLBXYLZ9bB4TU3o0VQGN1ed8Ba-tvTLbhJHnfbgbrG3Cc1TUWffm2hbDm6pTJu5KuDIPDMOqIGtZ~NYIWS-Qx3ugGkgotzqNyVduU58szs~ZLK64HB~heoyOw__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://sedrfmwrpjxatem5.greenmountainventures.shop/mndbfrhnsdf/hls3/01/00355/rryfmzbullct_h/master.txt", 
         image: "https://m.media-amazon.com/images/I/81azummBNsL._AC_UF894,1000_QL80_.jpg",
         year: 2013,
         duration: "98 min",
@@ -421,7 +270,7 @@
       },
       { 
         title: "Despicable Me 3", 
-        video: "https://macdn.hakunaymatata.com/resource/59f3a8922f10d4d5a54cecefc43c7698.mp4?Expires=1749424153&Signature=kzW3HOXBBUNTn~ypBYwn8sfrU3m5fjaKcAg2ygFkCxbYNXx1PBm3n1oYL2O2F3n7EPRDIGWbYUJ2Jg5pOW-aQQNTHBs2lfjYvZE13kDx4Renx5p44TOB9jRVjjbGvFt45hozMISN1huYystC9AIf8o113eLMh5y7GPbV2bobHsA910VEcv7y~HPHf6ZkBkxHOKrJUAkBXxBhUmySlEuV6clnCecemj5XksQcn5lsCWQwXD9dgLJJVStxU~UQ1WoGhiOJpz8nLlnvT2qc0A3YLhGRFQUGxAJRvfP7zQfApNkKioyj1qCxTleCWu8Y8X~kv18JI-gzHqNyvrCSKPsTDg__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://sr81.zenlith.space/v4/61/te9bx/index-f2-v1-a1.txt", 
         image: "https://cinemalightboxes.com/cdn/shop/products/DespicableMe3v2.jpg?v=1621705467",
         year: 2017,
         duration: "90 min",
@@ -432,7 +281,7 @@
       },
       { 
         title: "Despicable Me 4", 
-        video: "https://macdn.hakunaymatata.com/resource/59f3a8922f10d4d5a54cecefc43c7698.mp4?Expires=1749424153&Signature=kzW3HOXBBUNTn~ypBYwn8sfrU3m5fjaKcAg2ygFkCxbYNXx1PBm3n1oYL2O2F3n7EPRDIGWbYUJ2Jg5pOW-aQQNTHBs2lfjYvZE13kDx4Renx5p44TOB9jRVjjbGvFt45hozMISN1huYystC9AIf8o113eLMh5y7GPbV2bobHsA910VEcv7y~HPHf6ZkBkxHOKrJUAkBXxBhUmySlEuV6clnCecemj5XksQcn5lsCWQwXD9dgLJJVStxU~UQ1WoGhiOJpz8nLlnvT2qc0A3YLhGRFQUGxAJRvfP7zQfApNkKioyj1qCxTleCWu8Y8X~kv18JI-gzHqNyvrCSKPsTDg__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://i60k6cbfsa8z.skylineaesthetix.space/xcjcmoh7mtij/hls3/01/04589/89c002f3j5g1_,n,h,x,.urlset/master.txt", 
         image: "https://i.ebayimg.com/images/g/yTwAAOSwdCtmjJf3/s-l1200.jpg",
         year: 2024,
         duration: "90 min",
@@ -443,7 +292,7 @@
       },
       { 
         title: "Minions", 
-        video: "https://macdn.hakunaymatata.com/resource/a67ef2b94b415a990e0d89a7979e0d91.mp4?Expires=1749424142&Signature=A2t4i3R5eFblNIiEtmbvum73vuvehAkwbkAx28WwI12n4CLMfIEDeV7kNqLLR8z7AzlGfvSQp73IV2pgVmHWHzNg0gcN5VPb-fLdKMsLltU57cndTBLVPlP75pfYBlrk-iysmVsUG5b8yvKsSWkDPEX0bHpOwur5RZEBnU0X6c3vskOrX8ZPQ8xauMBeBR5AMCTu4M5zzvtbfP3eo0uf2BptzjaoxPocCTxEaGQCaDjHoO~owvl4hV-L~0DrCAc8warf8CTDJ~2mYnKVdTPHjZ1IXEqXHPujnXniRxS8addlMSDwJZyRLfcnoY7L96KP~RyGDMkijsNPIv~ZyDJGTg__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://skra.novaquestfashion.site/v4/db/tmoqu/cf-master.txt?v=1732155704", 
         image: "https://i.ebayimg.com/images/g/2-4AAOSwP2FZjWe0/s-l1200.jpg",
         year: 2015,
         duration: "91 min",
@@ -454,7 +303,7 @@
       },
       { 
         title: "Minions: The Rise of Gru", 
-        video: "https://macdn.hakunaymatata.com/resource/58628d991444ac553156c88f0ceeb38e.mp4?Expires=1749426087&Signature=Xr2G2I9-YK1cl8ZK8iCA33YMRgPRIDFWhzrmBEg-xzaH3hV8rDIJPKprTZF5OkmOt5tcz0w5hjRFP2uAP1qWjE8uvDQV4ruth0AGRpKh~YOW-1UsDKG9q5hg7Libaf3831cy2EUE4JoZ8YelYtY6J0~y5YFYSac6e23g5lMY-pE4k3DKVuPuV5RNsS2NYyBTLBnlD5WIHpRc0v9zn5fu52IUiRiMc0ZNlfqWYXJpzBQydkhUWqN-MguTmT8zTtQXBTIdil1pLccsCILHyMF-lY4tpnU9dn0bOFgw6TXJmJ-FZlUk4xwwctTfSG2dvkdOHvBZmeg3vcME35F-3Mc~FQ__&Key-Pair-Id=KMHN1LQ1HEUPL", 
+        video: "https://sxic.auralithagency.online/v4/ty/g9ujr/cf-master.txt?v=1730380705", 
         image: "https://image.tmdb.org/t/p/original/1WiUlJH7MMxWn2MIxW1hwMcYam6.jpg",
         year: 2022,
         duration: "88 min",
@@ -685,90 +534,406 @@
       }
     ];
 
-    const container = document.getElementById('movies');
-    const singContainer = document.getElementById('sing-movies');
-    const shortsContainer = document.getElementById('shorts');
-    const playbackModal = document.getElementById('playback-modal');
-    const closeModal = document.getElementById('close-modal');
-    const modalVideo = document.getElementById('modal-video');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDescription = document.getElementById('modal-description');
-    const movieYear = document.getElementById('movie-year');
-    const movieDuration = document.getElementById('movie-duration');
-    const movieRating = document.getElementById('movie-rating');
-    const movieGenre = document.getElementById('movie-genre');
-    const movieDirector = document.getElementById('movie-director');
+  /******************************
+   * DOM refs
+   ******************************/
+  const featuredScroll = document.getElementById('featuredScroll');
+  const moviesGrid = document.getElementById('moviesGrid');
+  const shortsRow = document.getElementById('shortsRow');
 
-    function isStream(url) {
-      return url.includes('.m3u8') || url.includes('.txt');
-    }
+  const playbackModal = document.getElementById('playbackModal');
+  const playerWrapper = document.getElementById('playerWrapper');
+  const modalVideoId = 'modalVideo';
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
 
-    function openModal(movie) {
-      modalTitle.textContent = movie.title;
-      modalDescription.textContent = movie.description;
-      movieYear.textContent = movie.year;
-      movieDuration.textContent = movie.duration;
-      movieRating.textContent = movie.rating;
-      movieGenre.textContent = movie.genre;
-      movieDirector.textContent = movie.director;
-      modalVideo.src = movie.video;
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const muteBtn = document.getElementById('muteBtn');
 
-      playbackModal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      modalVideo.play();
-    }
+  const searchBar = document.getElementById('searchBar');
+  const clearSearch = document.getElementById('clearSearch');
 
-    function closeModalHandler() {
-      playbackModal.classList.add('hidden');
-      modalVideo.pause();
-      modalVideo.src = "";
-      document.body.style.overflow = '';
-    }
+  const navToggle = document.getElementById('navToggle');
+  const mainNav = document.getElementById('mainNav');
 
-    closeModal.addEventListener('click', closeModalHandler);
+  /******************************
+   * Playback state
+   ******************************/
+  let currentHls = null;
+  let currentFiltered = []; // list used for next/prev
+  let currentIndex = null;
 
-    // Render movie cards by franchise
-    movies.forEach((movie) => {
-      const card = document.createElement('div');
-      card.className = 'movie-card cursor-pointer bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 relative';
-      card.innerHTML = `
-        <div class="relative">
-          <img src="${movie.image}" alt="${movie.title}" class="w-full h-40 md:h-48 object-cover">
-          <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 transition">
-            <div class="play-icon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 minion-yellow bg-opacity-90 rounded-full w-12 h-12 flex items-center justify-center opacity-0 transition">
-              <i class="fas fa-play text-black"></i>
-            </div>
-          </div>
-          <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">${movie.duration}</span>
+  /******************************
+   * Type detection helpers
+   ******************************/
+  function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+  function isHls(url) {
+    if (!url) return false;
+    return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+  }
+  function isYouTube(url) {
+    if (!url) return false;
+    return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+  }
+
+  /******************************
+   * Card factory
+   * createCard(movie, idx, small, scopeList)
+   * scopeList (optional) is the array used for Prev/Next when this card is played.
+   ******************************/
+  function createCard(movie, idx, small=false, scopeList=null) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'movie-card' + (small ? ' short-card' : '');
+    wrapper.style.minWidth = small ? '180px' : '';
+    wrapper.innerHTML = `
+      <div style="position:relative;">
+        <img class="movie-poster" src="${movie.image || ''}" alt="${movie.title || ''}">
+        <div class="overlay">
+          <div class="play-circle"><i class="fas fa-play"></i></div>
         </div>
-        <div class="p-4">
-          <div class="flex justify-between items-start mb-1">
-            <h2 class="text-lg font-semibold">${movie.title}</h2>
-            <span class="minion-yellow-text text-sm">★ ${movie.rating}</span>
-          </div>
-          <p class="text-sm text-gray-400">${movie.year} • ${movie.genre.split(',')[0]}</p>
+        <span style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.6); color:#fff; font-size:12px; padding:4px 6px; border-radius:6px;">${movie.duration || ''}</span>
+      </div>
+      <div style="padding:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:1rem">${movie.title || 'Untitled'}</strong>
+          <small style="color:var(--yellow)">${movie.rating || ''}</small>
         </div>
-      `;
-      card.addEventListener('click', () => {
-        if (isStream(movie.video)) {
-          const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
-          window.location.href = url;
-        } else {
-          openModal(movie);
+        <div style="color:var(--muted);font-size:0.9rem;margin-top:6px;">${movie.year || ''}</div>
+      </div>
+    `;
+
+    // Click handler uses provided scopeList if available, otherwise uses the current filtered list
+    wrapper.addEventListener('click', () => {
+      const listToUse = Array.isArray(scopeList) ? scopeList : getFilteredList();
+      // find index in listToUse
+      let indexInList = listToUse.findIndex(m => (m.title === movie.title) && (m.year == movie.year));
+      if (indexInList === -1) {
+        // fallback: maybe the listToUse is built from search; fallback to global movies index
+        indexInList = movies.findIndex(m => (m.title === movie.title) && (m.year == movie.year));
+        if (indexInList === -1) indexInList = idx; // last resort
+        // if scopeList provided but movie not found, default to global movies array as list
+        if (Array.isArray(scopeList) && scopeList.length && indexInList !== -1) {
+          openPlayer(movies, indexInList);
+          return;
         }
-      });
-
-      // Sort into different containers based on franchise
-      if (movie.title.includes('Despicable Me') || movie.title.includes('Minions')) {
-        container.appendChild(card);
-      } else if (movie.title.includes('Sing')) {
-        singContainer.appendChild(card);
-      } else if (movie.duration.includes('min') && parseInt(movie.duration) < 20) {
-        shortsContainer.appendChild(card);
-      } else {
-        container.appendChild(card);
       }
+      openPlayer(listToUse.length ? listToUse : movies, indexInList);
     });
+
+    return wrapper;
+  }
+
+  /******************************
+   * Renderers
+   ******************************/
+  function getFilteredList() {
+    const term = (searchBar.value || '').trim().toLowerCase();
+    if (!term) return movies.slice();
+    return movies.filter(m => (m.title || '').toLowerCase().includes(term));
+  }
+
+  function renderFeaturedInner() {
+    featuredScroll.innerHTML = '';
+    const fl = getFilteredList().slice(0, 8);
+    fl.forEach((m, i) => {
+      const c = createCard(m, i, true, fl);
+      featuredScroll.appendChild(c);
+    });
+  }
+
+  function renderShorts() {
+    shortsRow.innerHTML = '';
+    // Detect shorts by duration under 15 minutes OR title contains 'short'
+    const shorts = movies.filter(m => {
+      const dur = (m.duration || '').toLowerCase();
+      const num = parseInt(dur);
+      const titleLower = (m.title || '').toLowerCase();
+      return (num && num <= 15) || titleLower.includes('short');
+    });
+    // If none found, you could fallback to tag-based detection. For now we add whatever matches.
+    shorts.forEach((m, i) => {
+      const c = createCard(m, i, true, shorts);
+      shortsRow.appendChild(c);
+    });
+  }
+
+  function renderGrid() {
+    moviesGrid.innerHTML = '';
+    const list = getFilteredList();
+    currentFiltered = list.slice();
+    list.forEach((m, i) => {
+      const c = createCard(m, i, false, list);
+      moviesGrid.appendChild(c);
+    });
+  }
+
+  /******************************
+   * Player: reset & cleanup
+   ******************************/
+  function resetPlayerContainer() {
+    if (currentHls) {
+      try { currentHls.destroy(); } catch(e) {}
+      currentHls = null;
+    }
+    playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+  }
+
+  function showModal() {
+    playbackModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function hideModal() {
+    playbackModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function showError(msg) {
+    console.warn(msg);
+    // Could show a toast UI — omitted to keep layout minimal
+  }
+
+  /******************************
+   * Core: open player (Hawkeye-style behavior)
+   ******************************/
+  function openPlayer(list, index) {
+    if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
+      showError('Invalid playback request');
+      return;
+    }
+    currentFiltered = list;
+    currentIndex = index;
+    const movie = list[index];
+    if (!movie) { showError('Movie missing'); return; }
+
+    // metadata
+    modalTitle.textContent = movie.title || '';
+    modalDesc.textContent = movie.description || (movie.title || '');
+
+    // reset & show
+    resetPlayerContainer();
+    showModal();
+
+    // pick src
+    let src = '';
+    if (typeof movie.video === 'object' && movie.video !== null) {
+      src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+    } else {
+      src = movie.video;
+    }
+    if (!src) {
+      showError('No video source');
+      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+      return;
+    }
+
+    const lc = (src || '').toLowerCase();
+
+    // iframe-hosted
+    if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+      playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      return;
+    }
+
+    // youtube
+    if (isYouTube(src)) {
+      let embed = src;
+      try {
+        if (src.includes('watch') && src.includes('v=')) {
+          const v = new URLSearchParams(src.split('?')[1]).get('v');
+          if (v) embed = `https://www.youtube.com/embed/${v}`;
+        } else if (src.includes('youtu.be/')) {
+          const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+          if (p) embed = `https://www.youtube.com/embed/${p}`;
+        }
+      } catch (e) {}
+      playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      return;
+    }
+
+    // HLS
+    if (isHls(src)) {
+      const v = document.getElementById(modalVideoId);
+      if (!v) { showError('Video element missing'); return; }
+      if (window.Hls && Hls.isSupported()) {
+        currentHls = new Hls();
+        try {
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+        } catch (e) { console.warn('HLS attach error', e); }
+        currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        });
+        currentHls.on(Hls.Events.ERROR, function(event, data) {
+          console.warn('HLS error', data);
+          if (data && data.fatal) {
+            try { currentHls.destroy(); } catch(e){}
+            currentHls = null;
+            showError('HLS fatal error — redirecting to player.html');
+            setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+          }
+        });
+      } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        showError('HLS not supported — redirecting to player.html');
+        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+      }
+      return;
+    }
+
+    // MP4
+    if (isMP4(src)) {
+      const v = document.getElementById(modalVideoId);
+      if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+      v.src = src;
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      return;
+    }
+
+    // fallback
+    window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+  }
+
+  /******************************
+   * Controls
+   ******************************/
+  function togglePlayPause() {
+    const v = document.getElementById(modalVideoId);
+    if (!v) return;
+    if (v.paused) {
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    } else {
+      v.pause();
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+    }
+  }
+  function playNext() {
+    if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+    if (currentIndex == null) return showError('No current video');
+    if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+    else showError('No next video');
+  }
+  function playPrev() {
+    if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+    if (currentIndex == null) return showError('No current video');
+    if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+    else showError('No previous video');
+  }
+  function toggleFullscreen() {
+    const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  function toggleMute() {
+    const v = document.getElementById(modalVideoId);
+    if (!v) return;
+    v.muted = !v.muted;
+    muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+  }
+
+  /******************************
+   * Close modal & cleanup
+   ******************************/
+  function closeModalHandler() {
+    if (currentHls) {
+      try { currentHls.destroy(); } catch(e) {}
+      currentHls = null;
+    }
+    const v = document.getElementById(modalVideoId);
+    if (v) {
+      try { v.pause(); } catch(e){}
+      try { v.removeAttribute('src'); v.load(); } catch(e){}
+    }
+    resetPlayerContainer();
+    hideModal();
+    currentIndex = null;
+    currentFiltered = [];
+    playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+  }
+
+  /******************************
+   * Events wiring
+   ******************************/
+  playPauseBtn.addEventListener('click', togglePlayPause);
+  nextBtn.addEventListener('click', playNext);
+  prevBtn.addEventListener('click', playPrev);
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
+  muteBtn.addEventListener('click', toggleMute);
+
+  // close by clicking outside
+  playbackModal.addEventListener('click', function(e){
+    if (e.target === playbackModal) closeModalHandler();
+  });
+
+  // Escape & keyboard
+  document.addEventListener('keydown', (e) => {
+    if (!playbackModal.classList.contains('active')) return;
+    switch (e.key.toLowerCase()) {
+      case 'escape': closeModalHandler(); break;
+      case ' ': e.preventDefault(); togglePlayPause(); break;
+      case 'arrowright': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
+      case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+      case 'f': toggleFullscreen(); break;
+      case 'm': toggleMute(); break;
+      case 'n': playNext(); break;
+      case 'p': playPrev(); break;
+    }
+  });
+
+  // nav toggle
+  navToggle.addEventListener('click', () => {
+    mainNav.classList.toggle('open');
+  });
+  document.querySelectorAll('#mainNav .nav-link').forEach(a => {
+    a.addEventListener('click', () => {
+      if (mainNav.classList.contains('open')) mainNav.classList.remove('open');
+    });
+  });
+
+  // search handlers
+  searchBar.addEventListener('input', () => {
+    renderFeaturedInner();
+    renderShorts();
+    renderGrid();
+  });
+  clearSearch.addEventListener('click', () => {
+    searchBar.value = '';
+    renderFeaturedInner();
+    renderShorts();
+    renderGrid();
+  });
+
+  // sync play/pause UI with native video events
+  document.addEventListener('play', (e) => {
+    if (e.target && e.target.id === modalVideoId) playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  }, true);
+  document.addEventListener('pause', (e) => {
+    if (e.target && e.target.id === modalVideoId) playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+  }, true);
+
+  /******************************
+   * Initial render
+   ******************************/
+  renderFeaturedInner();
+  renderShorts();
+  renderGrid();
+
+  // Expose close externally if needed
+  window.closePlayer = closeModalHandler;
   </script>
 </body>
 </html>
