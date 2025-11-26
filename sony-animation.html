@@ -1,240 +1,118 @@
+<!-- sony.html -->
+<!-- Caption: Sony Pictures Animation — modal player implemented (HLS/MP4/YouTube/iframe). -->
+<!-- Hashtags: #Sony #Player #HLS #ModalPlayer #TukaramIntegration -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Sony Pictures Animation Universe</title>
+<title>Sony Pictures Animation Universe — Player Integrated</title>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- hls.js for HLS playback -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    
-    :root {
-      --sony-blue: #0066cc;
-      --sony-yellow: #ffcc00;
-      --sony-red: #cc0000;
-      --sony-green: #00cc66;
-    }
-    
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
-      color: white;
-      min-height: 100vh;
-    }
-    
-    .movie-card {
-      transition: all 0.3s ease;
-      transform-style: preserve-3d;
-      perspective: 1000px;
-      cursor: pointer;
-    }
-    
-    .movie-card:hover {
-      transform: translateY(-10px) scale(1.03);
-      box-shadow: 0 25px 50px -12px rgba(255, 204, 0, 0.25);
-    }
-    
-    .movie-poster {
-      transition: all 0.5s ease;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    }
-    
-    .movie-card:hover .movie-poster {
-      transform: rotateY(10deg);
-    }
-    
-    .search-glow {
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
-    }
-    
-    .sony-logo {
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
-    }
-    
-    .category-btn {
-      transition: all 0.2s ease;
-    }
-    
-    .category-btn:hover {
-      transform: scale(1.1);
-    }
-    
-    .category-btn.active {
-      background-color: var(--sony-yellow);
-      color: #111827;
-    }
-    
-    .loading-spinner {
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: #1e293b;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: var(--sony-yellow);
-      border-radius: 4px;
-    }
-    
-    /* Modal styles */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.9);
-      z-index: 1000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-    
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    
-    .modal-container {
-      width: 90%;
-      max-width: 1000px;
-      background: #1e293b;
-      border-radius: 12px;
-      overflow: hidden;
-      transform: scale(0.9);
-      transition: transform 0.3s ease;
-    }
-    
-    .modal-overlay.active .modal-container {
-      transform: scale(1);
-    }
-    
-    /* Mode toggle */
-    .mode-toggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 50;
-      background: rgba(0, 0, 0, 0.7);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .mode-toggle:hover {
-      transform: scale(1.1);
-      background: rgba(0, 0, 0, 0.9);
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 640px) {
-      .movie-card {
-        width: 100%;
-      }
-      
-      .modal-container {
-        width: 95%;
-      }
-    }
-  </style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  :root {
+    --sony-blue: #0066cc;
+    --sony-yellow: #ffcc00;
+    --sony-red: #cc0000;
+    --sony-green: #00cc66;
+  }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+    color: white;
+    min-height: 100vh;
+  }
+  /* (kept your existing styles) */
+  .movie-card { transition: all 0.3s ease; transform-style: preserve-3d; perspective: 1000px; cursor:pointer; }
+  .movie-card:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 25px 50px -12px rgba(255,204,0,0.25); }
+  .movie-poster { transition: all 0.5s ease; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+  .movie-card:hover .movie-poster { transform: rotateY(10deg); }
+  .search-glow { box-shadow: 0 0 15px rgba(255,204,0,0.5); }
+  .sony-logo { text-shadow: 0 0 10px rgba(255,204,0,0.7); }
+  .category-btn { transition: all 0.2s ease; }
+  .category-btn:hover { transform: scale(1.1); }
+  .category-btn.active { background-color: var(--sony-yellow); color: #111827; }
+  .fade-in { animation: fadeIn 0.5s ease-in; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
+  ::-webkit-scrollbar { width:8px; height:8px; } ::-webkit-scrollbar-track { background:#1e293b; } ::-webkit-scrollbar-thumb { background:var(--sony-yellow); border-radius:4px; }
+
+  /* --- Modal / Tukaram-style player styles (from Hawkeye) --- */
+  /* flexible modal overlay */
+  .modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.9); z-index:1000; display:flex; justify-content:center; align-items:center; opacity:0; visibility:hidden; transition: all 0.3s ease; }
+  .modal-overlay.active { opacity:1; visibility:visible; }
+  .modal-container { width:90%; max-width:1000px; background:#1e293b; border-radius:12px; overflow:hidden; transform: scale(0.9); transition: transform 0.3s ease; }
+  .modal-overlay.active .modal-container { transform: scale(1); }
+
+  /* Tukaram modal player area */
+  #modal-player { position: relative; padding-bottom:56.25%; height:0; background:black; }
+  #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
+
+  /* progress bar */
+  .progress-bar { height: 4px; background: rgba(255,255,255,0.12); position: relative; }
+  .progress-bar-fill { position:absolute; top:0; left:0; height:100%; background: var(--sony-yellow); transition: width 0.3s ease; width:0%; }
+
+  /* playback modal content */
+  .watchlist-checkbox { position:relative; display:inline-block; width:20px; height:20px; }
+  .watchlist-checkbox input { opacity:0; width:0; height:0; }
+  .watchlist-checkbox .checkmark { position:absolute; top:0; left:0; height:20px; width:20px; background-color:transparent; border:2px solid #ffcc00; border-radius:4px; transition:all 0.3s; }
+  .watchlist-checkbox input:checked ~ .checkmark { background-color:#ffcc00; }
+  .watchlist-checkbox .checkmark:after { content:""; position:absolute; display:none; }
+  .watchlist-checkbox input:checked ~ .checkmark:after { display:block; left:6px; top:2px; width:5px; height:10px; border:solid black; border-width:0 2px 2px 0; transform:rotate(45deg); }
+
+  @media (max-width:640px) {
+    .movie-card { width:100%; }
+    .modal-container { width:95%; }
+  }
+</style>
 </head>
 <body class="pb-16">
-<!-- Header with animated background -->
-<header class="relative overflow-hidden">
-<div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-yellow-600 to-red-900 opacity-20 animate-gradient"></div>
-<div class="container mx-auto px-4 py-8 relative z-10">
-<div class="flex flex-col items-center justify-center text-center mb-8">
-<div class="flex items-center mb-4">
-<i class="fas fa-film text-4xl text-yellow-400 mr-3"></i>
-<h1 class="text-4xl md:text-5xl font-bold sony-logo">
-<span class="text-yellow-400">SONY PICTURES</span> <span class="text-white">ANIMATION</span>
-</h1>
-<i class="fas fa-star text-3xl text-yellow-400 ml-3 animate-pulse"></i>
-</div>
-<p class="text-lg text-gray-300 max-w-2xl">
-          Explore the vibrant world of Sony Pictures Animation's films
-        </p>
-</div>
-</div>
-</header>
-<!-- Main content -->
-<main class="container mx-auto px-4">
-<!-- Search and filter section -->
-<div class="mb-10">
-<div class="relative max-w-2xl mx-auto mb-6">
-<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-<i class="fas fa-search text-yellow-400"></i>
-</div>
-<input class="w-full pl-10 pr-4 py-3 rounded-full bg-gray-800 border border-gray-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition-all duration-300 text-white search-glow" id="searchBar" placeholder="Search Sony Animation movies..." type="text"/>
-<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-<button class="text-gray-400 hover:text-yellow-400" id="clearSearch">
-<i class="fas fa-times"></i>
-</button>
-</div>
-</div>
-<div class="flex flex-wrap justify-center gap-3 mb-8">
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="all">
-          All Movies
-        </button>
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="feature">
-          Feature Films
-        </button>
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="sequel">
-          Sequels
-        </button>
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="short">
-          Short Films
-        </button>
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="franchise">
-          Franchises
-        </button>
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="award">
-          Award Winners
-        </button>
-</div>
-</div>
-<!-- Movies grid -->
-<div class="flex justify-center items-center py-20" id="loading">
-<div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="movies"></div>
-<div class="hidden text-center py-16" id="noResults">
-<i class="fas fa-film text-6xl text-gray-600 mb-4"></i>
-<h3 class="text-2xl font-semibold text-gray-300">No movies found</h3>
-<p class="text-gray-500 mt-2">Try adjusting your search or filter</p>
-</div>
-</main>
-<!-- Footer -->
+  <!-- header (kept) -->
+  <header class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-yellow-600 to-red-900 opacity-20"></div>
+    <div class="container mx-auto px-4 py-8 relative z-10 text-center">
+      <div class="flex items-center justify-center mb-4">
+        <i class="fas fa-film text-4xl text-yellow-400 mr-3"></i>
+        <h1 class="text-4xl font-bold sony-logo"><span class="text-yellow-400">SONY PICTURES</span> <span class="text-white">ANIMATION</span></h1>
+      </div>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto">Explore the vibrant world of Sony Pictures Animation's films</p>
+    </div>
+  </header>
+
+  <!-- main -->
+  <main class="container mx-auto px-4">
+    <div class="mb-10">
+      <div class="relative max-w-2xl mx-auto mb-6">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fas fa-search text-yellow-400"></i></div>
+        <input id="searchBar" class="w-full pl-10 pr-4 py-3 rounded-full bg-gray-800 border border-gray-700 text-white search-glow" placeholder="Search Sony Animation movies..." type="text"/>
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+          <button id="clearSearch" class="text-gray-400 hover:text-yellow-400"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 mb-8">
+
+      </div>
+    </div>
+
+    <div class="flex justify-center items-center py-20" id="loading">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+    </div>
+
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+
+    <div class="hidden text-center py-16" id="noResults">
+      <i class="fas fa-film text-6xl text-gray-600 mb-4"></i>
+      <h3 class="text-2xl font-semibold text-gray-300">No movies found</h3>
+      <p class="text-gray-500 mt-2">Try adjusting your search or filter</p>
+    </div>
+  </main>
+
+ <!-- Footer -->
 <footer class="mt-20 py-6 bg-gray-900 bg-opacity-50">
 <div class="container mx-auto px-4 text-center text-gray-400">
 <div class="flex justify-center space-x-6 mb-4">
@@ -244,53 +122,79 @@
 <a class="hover:text-yellow-400 transition-colors" href="#">
 <i class="fab fa-twitter"></i>
 </a>
-<a class="hover:text-yellow-400 transition-colors" href="#">
+<a class="hover:text-yellow-400 transition-colors" href="https://www.instagram.com/stark_4152">
 <i class="fab fa-instagram"></i>
 </a>
-<a class="hover:text-yellow-400 transition-colors" href="#">
+<a class="hover:text-yellow-400 transition-colors" href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw">
 <i class="fab fa-youtube"></i>
 </a>
 </div>
-<p>© 2023 Sony Pictures Animation Universe. All rights reserved.</p>
-<p class="text-sm mt-2">This is a fan-made project and not affiliated with Sony Pictures Animation.</p>
+<p>© Sony Animation Universe. All rights reserved.</p>
+<p class="text-sm mt-2">This is a fan-made project and not affiliated with Sony Animation Studios.</p>
 </div>
 </footer>
 
-<!-- Video Modal -->
-<div class="modal-overlay" id="video-modal">
-  <div class="modal-container">
-    <div class="relative">
-      <button class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl transition" id="close-modal">
-        <i class="fas fa-times"></i>
-      </button>
-      <div class="aspect-w-16 aspect-h-9">
-        <video class="w-full" controls id="modal-video" autoplay>
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      <div class="p-6 text-white">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-2xl font-bold mb-1" id="modal-title"></h3>
-            <div class="text-gray-400 text-sm">
-              <span id="modal-year"></span> • ★ <span id="modal-rating"></span>
+  <!-- =======================
+       Playback Modal (Hawkeye/Tukaram-style)
+       ======================= -->
+  <div id="playback-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-container">
+      <div class="relative">
+        <button id="close-playback" class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl bg-black/50 rounded-full p-2">
+          <i class="fas fa-times"></i>
+        </button>
+
+        <!-- Flexible player container: video or iframe will be injected here -->
+        <div id="modal-player">
+          <video id="modal-video" class="w-full" controls playsinline>
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <div id="video-progress" class="progress-bar w-full">
+          <div id="progress-bar-fill" class="progress-bar-fill" style="width:0%"></div>
+        </div>
+
+        <div class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 id="modal-title" class="text-2xl font-bold mb-1"></h3>
+              <div class="flex items-center text-gray-400 text-sm">
+                <span id="modal-meta">•</span>
+              </div>
             </div>
+            <label class="watchlist-checkbox" title="Add to watchlist">
+              <input type="checkbox" id="watchlist-checkbox">
+              <span class="checkmark"></span>
+            </label>
+          </div>
+
+          <p id="modal-description" class="text-gray-300 mb-6">Loading...</p>
+
+          <div class="flex space-x-3">
+            <button id="play-btn" class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
+              <i class="fas fa-play mr-2"></i> Play
+            </button>
+            <button id="details-btn" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+              <i class="fas fa-info-circle mr-2"></i> Details
+            </button>
           </div>
         </div>
+
       </div>
     </div>
   </div>
-</div>
 
-<!-- Mode Toggle -->
-<div class="mode-toggle" id="modeToggle">
-  <i class="fas fa-moon text-yellow-400 text-xl" id="modeIcon"></i>
-</div>
+  <!-- Loading spinner overlay used by playback logic -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-500"></div>
+  </div>
 
 <script>
-    // Enhanced movie data with categories and release years
-    const movies = [
-      { title: "Monster House", video: "https://sdqm.haltermanieddiel.sbs/v4/hz/xqgfl/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BYjc1Yjg5YzQtNjZlNi00ODI0LThlNmMtYzJhODQzYzcxNDFjXkEyXkFqcGc@._V1_.jpg", category: "feature", year: 2006, franchise: "", award: false },
+  /***** Data: (skipped movie list array as requested) *****/
+  // You asked to skip the movies list array — keep this empty placeholder:
+ const movies = [
+      { title: "Monster House", video: "https://vip.opstream14.com/20220320/1893_3dbee5bc/index.m3u8", image: "https://m.media-amazon.com/images/M/MV5BYjc1Yjg5YzQtNjZlNi00ODI0LThlNmMtYzJhODQzYzcxNDFjXkEyXkFqcGc@._V1_.jpg", category: "feature", year: 2006, franchise: "", award: false },
       { title: "Open Season", video: "https://sipt.floraaabaa.sbs:443/v4/lf/8egtt/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/w5Lctmkc1yah215Luxmci4djaiW.jpg", category: "feature", year: 2006, franchise: "Open Season", award: false },
       { title: "Open Season 2", video: "https://sdqm.hershpdelah.sbs/v4/db/itjpn/cf-master.txt?v=1735518185", image: "https://wallpapers.com/images/hd/open-season-2-poster-with-characters-4v0kaib51lnab60l.jpg", category: "sequel", year: 2008, franchise: "Open Season", award: false },
       { title: "Open Season 3", video: "https://scvo.closeirmqjunp.sbs/v4/db/c6kmd/index-f1-v1-a1.txt", image: "https://i.pinimg.com/564x/28/b9/80/28b980aac5e29292adf0fde25102d85d.jpg", category: "sequel", year: 2010, franchise: "Open Season", award: false },
@@ -332,226 +236,262 @@
       { title: "Vivo", video: "https://vgorigin.hakunaymatata.com/resource/8f874edf3c47761812b6190f6d048ec4.mp4?Expires=1750124157&KeyName=wefeed&Signature=-CnnnrsEHXHY91vONqz3RcOWCjystvRWgV22hn-VmrRbVUnBLVIXUZ8q_So5KUrd7OwHRp-_2Kk3K1v14YGUDQ", image: "https://media-cache.cinematerial.com/p/500x/juruj1py/vivo-movie-poster.jpg?v=1635704050", category: "feature", year: 2021, franchise: "", award: false }
     ];
 
-    // DOM elements
-    const container = document.getElementById('movies');
-    const searchBar = document.getElementById('searchBar');
-    const clearSearch = document.getElementById('clearSearch');
-    const categoryBtns = document.querySelectorAll('.category-btn');
-    const loading = document.getElementById('loading');
-    const noResults = document.getElementById('noResults');
-    const videoModal = document.getElementById('video-modal');
-    const modalVideo = document.getElementById('modal-video');
-    const modalTitle = document.getElementById('modal-title');
-    const modalYear = document.getElementById('modal-year');
-    const closeModalBtn = document.getElementById('close-modal');
-    const modeToggle = document.getElementById('modeToggle');
-    const modeIcon = document.getElementById('modeIcon');
-    
-    // Current filter state
-    let currentCategory = 'all';
-    let currentSearch = '';
-    let darkMode = true;
-    
-    // Check if URL is MP4
-    function isMP4(url) {
-      return /\.mp4($|\?)/i.test(url);
+  // DOM references
+  const container = document.getElementById('movies');
+  const searchBar = document.getElementById('searchBar');
+  const clearSearch = document.getElementById('clearSearch');
+  const loadingEl = document.getElementById('loading');
+  const noResults = document.getElementById('noResults');
+
+  // Modal & playback elements (Hawkeye-style)
+  const playbackModal = document.getElementById('playback-modal');
+  const closePlaybackBtn = document.getElementById('close-playback');
+  const modalPlayer = document.getElementById('modal-player');
+  const progressBarFill = document.getElementById('progress-bar-fill');
+  const loadingSpinner = document.getElementById('loading-spinner');
+  const modalTitle = document.getElementById('modal-title');
+  const modalDescription = document.getElementById('modal-description');
+  const playBtn = document.getElementById('play-btn');
+  const watchlistCheckbox = document.getElementById('watchlist-checkbox');
+  const modalMeta = document.getElementById('modal-meta');
+
+  // Playback state
+  let currentHls = null;
+  let currentIndex = null;
+
+  // Helper: always return the current <video> element
+  function getModalVideo() {
+    return document.getElementById('modal-video');
+  }
+
+  // Type detection helpers (taken from Hawkeye logic). :contentReference[oaicite:4]{index=4}
+  function isHls(u) {
+    if (!u) return false;
+    return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
+  }
+  function isMP4(u) {
+    return /\.mp4($|\?)/i.test(u || '');
+  }
+  function isYouTube(u) {
+    return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/')));
+  }
+
+  // Reset player container to a fresh <video> (destroy Hls if present). :contentReference[oaicite:5]{index=5}
+  function resetPlayerContainer() {
+    if (currentHls) {
+      try { currentHls.destroy(); } catch(e) {}
+      currentHls = null;
     }
-    
-    // Check if URL is stream (M3U8 or TXT)
-    function isStream(url) {
-      return /\.(m3u8|txt)($|\?)/i.test(url);
+    modalPlayer.innerHTML = `
+      <video id="modal-video" class="w-full" controls playsinline>
+        Your browser does not support the video tag.
+      </video>
+    `;
+  }
+
+  // Attach listeners to the video element for progress updates and ended state.
+  function attachVideoListeners() {
+    const videoEl = getModalVideo();
+    if (!videoEl) return;
+    // timeupdate for progress bar
+    videoEl.addEventListener('timeupdate', () => {
+      if (!videoEl.duration) return;
+      const progress = (videoEl.currentTime / videoEl.duration) * 100;
+      progressBarFill.style.width = progress + '%';
+    });
+    videoEl.addEventListener('ended', () => {
+      playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
+    });
+  }
+
+  // Close modal and cleanup (destroy HLS, pause & unload). :contentReference[oaicite:6]{index=6}
+  function closeModalHandler() {
+    const videoEl = getModalVideo();
+    if (currentHls) { try { currentHls.destroy(); } catch(e){} currentHls = null; }
+    if (videoEl) {
+      try { videoEl.pause(); } catch(e){}
+      try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e){}
     }
-    
-    // Open modal with video
-    function openVideoModal(movie) {
-      modalTitle.textContent = movie.title;
-      modalYear.textContent = movie.year || "";
-      modalVideo.src = movie.video;
-      videoModal.classList.add('active');
+    resetPlayerContainer();
+    playbackModal.classList.remove('active');
+    document.body.style.overflow = '';
+    currentIndex = null;
+    playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+    progressBarFill.style.width = '0%';
+  }
+
+  // Core playInModal function (supports iframe hosts, YouTube, HLS, MP4; fallback to player.html redirect). :contentReference[oaicite:7]{index=7}
+  function playInModal(title, url, movie = {}, index = null) {
+    currentIndex = index;
+    modalTitle.textContent = movie.title || title || 'Playback';
+    modalDescription.textContent = movie.description || '';
+    modalMeta.textContent = (movie.year ? movie.year + ' • ' : '') + (movie.duration ? movie.duration : '');
+    watchlistCheckbox.checked = !!movie.inWatchlist;
+    progressBarFill.style.width = '0%';
+    resetPlayerContainer();
+
+    if (!url) {
+      modalTitle.textContent = (title || 'Unknown') + ' — No playable URL provided';
+      playbackModal.classList.add('active');
       document.body.style.overflow = 'hidden';
+      return;
     }
-    
-    // Close modal
-    function closeVideoModal() {
-      videoModal.classList.remove('active');
-      modalVideo.pause();
-      modalVideo.src = "";
-      document.body.style.overflow = '';
+
+    // Hosts that are best embedded as iframe (streamtape, dood, etc.)
+    const iframeHosts = ['streamtape.com','openload.co','vidcdn','dood.', 'sbembed', 'drive.google.com'];
+    if (iframeHosts.some(h => url.includes(h))) {
+      modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      loadingSpinner.classList.add('hidden');
+      return;
     }
-    
-    // Toggle dark/light mode
-    function toggleMode() {
-      darkMode = !darkMode;
-      if (darkMode) {
-        document.body.classList.remove('bg-gray-100', 'text-gray-900');
-        document.body.classList.add('bg-gray-900', 'text-white');
-        modeIcon.classList.remove('fa-sun');
-        modeIcon.classList.add('fa-moon');
+
+    // YouTube handling
+    if (isYouTube(url)) {
+      let embedUrl = url;
+      try {
+        if (url.includes('watch') && url.includes('v=')) {
+          const vid = new URLSearchParams(url.split('?')[1]).get('v');
+          if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+        } else if (url.includes('youtu.be/')) {
+          const parts = url.split('youtu.be/');
+          if (parts[1]) {
+            const vid = parts[1].split(/[?&]/)[0];
+            embedUrl = `https://www.youtube.com/embed/${vid}`;
+          }
+        }
+      } catch(e){}
+      modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      loadingSpinner.classList.add('hidden');
+      return;
+    }
+
+    // Use the <video> element for HLS or MP4
+    const videoEl = getModalVideo();
+
+    // HLS
+    if (isHls(url)) {
+      if (Hls.isSupported()) {
+        currentHls = new Hls();
+        currentHls.loadSource(url);
+        currentHls.attachMedia(videoEl);
+        currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+          playbackModal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+          loadingSpinner.classList.add('hidden');
+          videoEl.play().catch(()=>{});
+        });
       } else {
-        document.body.classList.remove('bg-gray-900', 'text-white');
-        document.body.classList.add('bg-gray-100', 'text-gray-900');
-        modeIcon.classList.remove('fa-moon');
-        modeIcon.classList.add('fa-sun');
+        // native support (Safari)
+        videoEl.src = url;
+        playbackModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        videoEl.play().catch(()=>{});
       }
+      attachVideoListeners();
+      return;
     }
-    
-    // Handle movie click
-    function handleMovieClick(movie) {
-      if (isMP4(movie.video)) {
-        // Play MP4 in modal
-        openVideoModal(movie);
-      } else if (isStream(movie.video)) {
-        // Redirect streams to player.html
-        const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
-        window.location.href = url;
-      } else {
-        // Default behavior for unknown formats
-        console.log("Unknown video format:", movie.video);
-      }
+
+    // MP4
+    if (isMP4(url)) {
+      videoEl.src = url;
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      loadingSpinner.classList.add('hidden');
+      videoEl.play().catch(()=>{});
+      attachVideoListeners();
+      return;
     }
-    
-    // Display movies with animation
-    function displayMovies(filteredMovies) {
-      container.innerHTML = '';
-      
-      if (filteredMovies.length === 0) {
-        noResults.classList.remove('hidden');
-        return;
-      }
-      
-      noResults.classList.add('hidden');
-      
-      filteredMovies.forEach((movie, index) => {
-        const delay = (index % 10) * 0.1; // Staggered animation
-        
-        const div = document.createElement('div');
-        div.className = 'movie-card fade-in';
-        div.style.animationDelay = `${delay}s`;
-        
-        // Add award badge if movie won awards
-        const awardBadge = movie.award ? 
-          `<div class="absolute top-2 left-2 bg-yellow-400 text-gray-900 px-2 py-1 rounded-full text-xs font-bold flex items-center">
-            <i class="fas fa-trophy mr-1"></i> Award
-          </div>` : '';
-        
-        // Add franchise badge if part of franchise
-        const franchiseBadge = movie.franchise ? 
-          `<div class="absolute bottom-16 left-2 bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-            ${movie.franchise}
-          </div>` : '';
-        
-        div.innerHTML = `
-          <div class="relative overflow-hidden rounded-xl h-full">
-            <img 
-              src="${movie.image}" 
-              alt="${movie.title}" 
-              class="movie-poster w-full h-80 object-cover rounded-xl"
-              loading="lazy"
-            >
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 pt-10">
-              <h3 class="text-lg font-bold text-white">${movie.title}</h3>
-              <div class="flex items-center text-sm text-gray-300 mt-1">
-                <span class="bg-gray-800 px-2 py-1 rounded mr-2">${movie.year}</span>
-                <span class="bg-gray-800 px-2 py-1 rounded flex items-center">
-                  <i class="fas ${movie.category === 'short' ? 'fa-clock' : 'fa-film'} text-xs mr-1"></i>
-                  ${movie.category === 'short' ? 'Short' : 'Feature'}
-                </span>
-              </div>
-            </div>
-            ${awardBadge}
-            ${franchiseBadge}
-            <div class="absolute top-2 right-2 bg-yellow-400 text-gray-900 px-2 py-1 rounded-full text-xs font-bold">
-              SONY
-            </div>
-            <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
-              <i class="fas fa-play text-4xl text-yellow-400"></i>
+
+    // Unknown type — redirect to player.html (fallback)
+    loadingSpinner.classList.add('hidden');
+    window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+  }
+
+  // Play/pause button
+  playBtn.addEventListener('click', () => {
+    const videoEl = getModalVideo();
+    if (!videoEl) return;
+    if (videoEl.paused) {
+      videoEl.play();
+      playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause';
+    } else {
+      videoEl.pause();
+      playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+    }
+  });
+
+  // watchlist toggle (simple client-side example)
+  watchlistCheckbox.addEventListener('change', function(){
+    if (currentIndex == null) return;
+    // implement your watchlist logic (e.g., update movies[currentIndex].inWatchlist)
+  });
+
+  // Close modal handlers
+  closePlaybackBtn.addEventListener('click', closeModalHandler);
+  playbackModal.addEventListener('click', (e) => {
+    if (e.target === playbackModal) closeModalHandler();
+  });
+
+  // Utility: create cards when movies list is present (kept from Sony code)
+  function displayMovies(list) {
+    container.innerHTML = '';
+    if (!list || list.length === 0) {
+      noResults.classList.remove('hidden');
+      return;
+    }
+    noResults.classList.add('hidden');
+    list.forEach((movie, idx) => {
+      const div = document.createElement('div');
+      div.className = 'movie-card fade-in';
+      div.innerHTML = `
+        <div class="relative overflow-hidden rounded-xl h-full cursor-pointer">
+          <img src="${movie.image || ''}" alt="${movie.title || 'Untitled'}" class="movie-poster w-full h-80 object-cover rounded-xl" loading="lazy">
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 pt-10">
+            <h3 class="text-lg font-bold text-white">${movie.title || 'Untitled'}</h3>
+            <div class="flex items-center text-sm text-gray-300 mt-1">
+              <span class="bg-gray-800 px-2 py-1 rounded mr-2">${movie.year || ''}</span>
+              <span class="bg-gray-800 px-2 py-1 rounded">${movie.category || 'Feature'}</span>
             </div>
           </div>
-        `;
-        
-        div.onclick = () => handleMovieClick(movie);
-        
-        container.appendChild(div);
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-40">
+            <i class="fas fa-play text-4xl text-yellow-400"></i>
+          </div>
+        </div>`;
+      div.addEventListener('click', () => {
+        loadingSpinner.classList.remove('hidden');
+        playInModal(movie.title, movie.video, movie, idx);
       });
-    }
-    
-    // Filter movies based on search and category
-    function filterMovies() {
-      const filtered = movies.filter(movie => {
-        const matchesSearch = movie.title.toLowerCase().includes(currentSearch);
-        let matchesCategory = false;
-        
-        switch(currentCategory) {
-          case 'all':
-            matchesCategory = true;
-            break;
-          case 'feature':
-            matchesCategory = movie.category === 'feature';
-            break;
-          case 'sequel':
-            matchesCategory = movie.category === 'sequel';
-            break;
-          case 'short':
-            matchesCategory = movie.category === 'short';
-            break;
-          case 'franchise':
-            matchesCategory = movie.franchise !== "";
-            break;
-          case 'award':
-            matchesCategory = movie.award === true;
-            break;
-          default:
-            matchesCategory = true;
-        }
-        
-        return matchesSearch && matchesCategory;
-      });
-      
-      displayMovies(filtered);
-    }
-    
-    // Event listeners
-    searchBar.addEventListener('input', function() {
-      currentSearch = this.value.toLowerCase();
-      filterMovies();
+      container.appendChild(div);
     });
-    
-    clearSearch.addEventListener('click', function() {
-      searchBar.value = '';
-      currentSearch = '';
-      filterMovies();
-    });
-    
-    categoryBtns.forEach(btn => {
-      btn.addEventListener('click', function() {
-        categoryBtns.forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        currentCategory = this.dataset.category;
-        filterMovies();
-      });
-    });
-    
-    // Close modal when clicking overlay or close button
-    videoModal.addEventListener('click', function(e) {
-      if (e.target === this || e.target.closest('#close-modal')) {
-        closeVideoModal();
-      }
-    });
-    
-    // Mode toggle
-    modeToggle.addEventListener('click', toggleMode);
-    
-    // Initialize
-    window.addEventListener('DOMContentLoaded', () => {
-      // Set default active category
-      document.querySelector('[data-category="all"]').classList.add('active');
-      
-      // Simulate loading
-      setTimeout(() => {
-        loading.classList.add('hidden');
-        filterMovies();
-      }, 800);
-    });
+  }
+
+  // Simple search and filter placeholders (keep behavior similar)
+  searchBar.addEventListener('input', () => {
+    // simple client filter; because movies array is empty now, this will show no results
+    const q = searchBar.value.trim().toLowerCase();
+    const filtered = movies.filter(m => (m.title||'').toLowerCase().includes(q));
+    displayMovies(filtered);
+  });
+  clearSearch.addEventListener('click', () => { searchBar.value=''; displayMovies(movies); });
+
+  // Initialize page (simulate load)
+  window.addEventListener('DOMContentLoaded', () => {
+    // Hide initial loader and render (with empty movies array you'll see "no results")
+    setTimeout(() => {
+      loadingEl.classList.add('hidden');
+      displayMovies(movies);
+    }, 400);
+  });
+
+  // Expose a small helper for debugging: open playback with a URL
+  // Example usage from console:
+  // playInModal('Test', 'https://path/to/your/playlist.m3u8', {title:'Test',description:'desc',year:'2024',duration:'1:20'});
+  window.playInModal = playInModal;
 </script>
 </body>
 </html>
