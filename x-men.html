@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>X-Men Cinematic Universe | Marvel Movies Collection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Explore the complete X-Men cinematic universe with all movies in one place">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Oswald:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #f0131e;
+      --secondary: #ffcc00;
+      --dark: #0f0f0f;
+      --light: #f5f5f5;
+      --accent: #0066cc;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--dark);
+      color: var(--light);
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+      padding: 20px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 10;
+    }
+
+    h1 { font-family: 'Oswald', sans-serif; font-size: 2.5rem; margin: 0; color: var(--secondary); text-shadow: 0 2px 4px rgba(0,0,0,0.5); letter-spacing: 1px; }
+    .subtitle { font-size: 1rem; color: var(--light); opacity: 0.8; margin-top: 5px; }
+
+    .controls { display:flex; flex-wrap:wrap; gap:15px; margin:25px 0; align-items:center; justify-content:center; }
+
+    .search-container { position: relative; flex-grow: 1; max-width: 600px; }
+    #searchBar { width:100%; padding:12px 20px 12px 45px; font-size:1rem; border-radius:30px; border:2px solid var(--primary); background: rgba(15,15,15,0.8); color: var(--light); transition: var(--transition); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    #searchBar:focus { outline:none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(240,19,30,0.3); }
+    .search-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); color: var(--primary); }
+
+    .filter-btn { background: var(--primary); color:white; border:none; padding:10px 20px; border-radius:30px; cursor:pointer; font-weight:bold; transition: var(--transition); display:flex; align-items:center; gap:8px; }
+    .filter-btn:hover { background: var(--secondary); color: var(--dark); }
+
+    .movies {
+      display:grid;
+      grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
+      gap:25px;
+      padding:10px 0;
+      margin:0 auto;
+    }
+
+    .movie {
+      background: linear-gradient(145deg,#1a1a1a 0%, #0d0d0d 100%);
+      border-radius:12px;
+      overflow:hidden;
+      cursor:pointer;
+      transition: var(--transition);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .movie:hover { transform: translateY(-10px); box-shadow: 0 12px 24px rgba(240,19,30,0.3); }
+    .movie img { width:100%; height:320px; object-fit:cover; display:block; transition: var(--transition); }
+    .movie-title { font-weight:700; margin:12px; color: var(--light); font-size:1.05rem; }
+    .theme-toggle { position: fixed; bottom:20px; right:20px; background:var(--primary); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.3); z-index:100; transition: var(--transition); }
+    .theme-toggle:hover { transform: scale(1.1); }
+
+    /* --- HAWKEYE modal player CSS (integrated) --- */
+    /* Playback Modal (Tukaram-style flexible player) */
+    #playback-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.9);
+    }
+    #playback-modal .modal-card {
+      width: 95%;
+      max-width: 960px;
+      background: #111;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      transform: translateY(0);
+    }
+    #playback-modal .modal-card .modal-top {
+      position: relative;
+    }
+    #modal-player {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: black;
+    }
+    #modal-player video, #modal-player iframe { position: absolute; top:0; left:0; width:100%; height:100%; background:black; }
+
+    .progress-bar { height: 6px; background: rgba(255,255,255,0.06); width:100%; }
+    .progress-bar-fill { height: 100%; width: 0%; background: var(--secondary); transition: width 0.25s ease; }
+
+    .modal-meta { padding: 18px; display:flex; justify-content:space-between; gap: 12px; align-items:flex-start; }
+    .modal-meta h3 { margin:0; font-size: 1.25rem; color: #fff; }
+    .modal-meta .meta-right { display:flex; gap:12px; align-items:center; }
+
+    .watchlist-checkbox { position: relative; display:inline-block; width:20px; height:20px; }
+    .watchlist-checkbox input { opacity:0; width:0; height:0; }
+    .watchlist-checkbox .checkmark { position:absolute; top:0; left:0; height:20px; width:20px; background:transparent; border:2px solid var(--secondary); border-radius:4px; transition: all 0.2s; }
+    .watchlist-checkbox input:checked ~ .checkmark { background: var(--secondary); }
+    .watchlist-checkbox .checkmark:after { content:''; position:absolute; display:none; }
+    .watchlist-checkbox input:checked ~ .checkmark:after { display:block; left:6px; top:2px; width:5px; height:10px; border: solid #000; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+
+    #play-btn { background: var(--secondary); color: #000; border: none; padding: 10px 18px; border-radius: 999px; font-weight:600; cursor:pointer; }
+
+    #close-modal {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      z-index: 60;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 10px;
+      cursor: pointer;
+      border: none;
+      font-size: 18px;
+    }
+
+    #loading-spinner {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.8);
+      z-index: 10000;
+    }
+
+    #loading-spinner .spinner {
+      width:64px; height:64px; border-radius:50%; border-top:6px solid var(--secondary); border-bottom:6px solid var(--secondary); border-left:6px solid transparent; border-right:6px solid transparent; animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* small responsive tweak */
+    @media (max-width: 760px) {
+      #modal-player video, #modal-player iframe { height: calc(56.25vw); }
+    }
+
+    /* scrollbar cosmetic */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+  </style>
+
+  <!-- HLS.js (from Hawkeye/Tukaram) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>X-MEN CINEMATIC UNIVERSE</h1>
+    <p class="subtitle">All movies in one place • Marvel's Mutant Saga</p>
+  </div>
+</header>
+
+<main class="container">
+  <div class="controls">
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input id="searchBar" placeholder="Search X-Men movies..." type="text"/>
+    </div>
+    <button class="filter-btn">
+      <i class="fas fa-filter"></i> Filters
+    </button>
+  </div>
+
+  <div class="movies" id="movies"></div>
+</main>
+
+<div class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></div>
+
+<!-- === Integrated Hawkeye-style Playback Modal (copy of relevant markup) === -->
+<div id="playback-modal" aria-hidden="true">
+  <div class="modal-card">
+    <button id="close-modal" aria-label="Close player"><i class="fas fa-times"></i></button>
+
+    <div class="modal-top">
+      <div id="modal-player">
+        <!-- will inject <video> or <iframe> here; start with default video element -->
+        <video id="modal-video" class="w-full" controls playsinline>
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div class="progress-bar" id="video-progress">
+        <div id="progress-bar-fill" class="progress-bar-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="modal-meta">
+      <div>
+        <h3 id="modal-title">Loading...</h3>
+        <div style="color:#bbb; font-size:0.9rem; margin-top:6px;">
+        </div>
+      </div>
+
+      <div class="meta-right">
+        <label class="watchlist-checkbox" title="Add to watchlist">
+          <input type="checkbox" id="watchlist-checkbox">
+          <span class="checkmark"></span>
+        </label>
+
+        <button id="play-btn" style="margin-left:8px;"><i class="fas fa-play mr-2"></i> Play</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading spinner -->
+<div id="loading-spinner"><div class="spinner"></div></div>
+
+<script>
+/* ---------------------------
+   X-MEN movie list (unchanged)
+   --------------------------- */
+const movies = [
+  { title: "X-MEN-2000", video: "https://vip.opstream12.com/20220624/21810_ff5a200b/index.m3u8", image: "https://cdna.artstation.com/p/assets/images/images/033/954/536/large/e-j-tangonan-x-men-modern-poster.jpg?1611009444" },
+  { title: "X-2-2003", video: "https://cdn30092.samui390dod.com:443/stream2/i-arch-400/64828f765b7cb8e148475c6c1d3ff238/MJTMsp1RshGTygnMNRUR2N2MSlnWXZEdMNDZzQWe5MDZzMmdZJTO1R2RWVHZDljekhkSsl1VwYnWtx2cihVT210RJNjTqlkeOpnTs1EVBNTTqVUNZRFbo90RFFTTql1MOpXV35ERnNzTUVUP:1764162195:102.129.165.231:1d23fbc910a47b9155ef96ce17eb0aa52b9ccd8f9a5db027bb6cc610165f906b/./1080/index.m3u8", image: "https://lh5.googleusercontent.com/proxy/ljAsIiDN45jYgviarNFu6qkGou7ulX46KYM6eIY8MRyZqqCcDZQCUE_vGAw8vVZN3eYI1WMBXGXVTu9MlrSNchNjbZVINetwqCI5No_MCg" },
+  { title: "X-MEN: The Last Stand-2006", video: "https://sskt.etherwaveeducation.cyou:443/v4/us/rmjft/index-f2-v1-a1.txt", image: "https://i.pinimg.com/474x/8e/f7/2e/8ef72e2fa09676e586538257d4558f54.jpg" },
+  { title: "X-MEN: Days of Future Past-2014", video: "https://sad.celestiorstudio.cyou:443/v4/mik/dvddl/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BYzU5MjVjNGYtMGNlYy00NGY0LWI2OWYtZmY4NjNjZTZhZTg5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+  { title: "X-MEN Origins: Wolverine-2009", video: "https://vip.opstream14.com/20220318/1604_a02421bf/index.m3u8", image: "https://media-cache.cinematerial.com/p/500x/pwccytiy/x-men-origins-wolverine-poster.jpg?v=1493362215" },
+  { title: "The Wolverine-2013", video: "https://vip.opstream10.com/20220321/1244_65e4ce1c/index.m3u8", image: "https://m.media-amazon.com/images/M/MV5BNzg1MDQxMTQ2OF5BMl5BanBnXkFtZTcwMTk3MjAzOQ@@._V1_FMjpg_UX1000_.jpg" },
+  { title: "LOGAN-2017", video: "https://sy6.dreamoraresort.sbs:443/v4/pk8/jujje/index-f1-v1-a1.txt", image: "https://i.ebayimg.com/00/s/MTYwMFgxMDM4/z/IgYAAOSwBr1kXLCG/$_57.JPG?set_id=880000500F" },
+  { title: "X-MEN: First Class-2011", video: "https://sy6.auroriacollective.cyou:443/v4/tab/3zrag/index-f2-v1-a1.txt", image: "https://cdn.moviescore.com/posters/6164.jpg" },
+  { title: "X-MEN:Apocalypse-2016", video: "https://svz.mistralstudio.shop:443/v4/ty/evthn/index-f1-v1-a1.txt", image: "https://i.pinimg.com/564x/ac/e8/88/ace88874895e4968d898ba709b3b6509.jpg" },
+  { title: "Dark Phoenix-2019", video: "https://s6mb.fortimax.shop/v4/luy/vsygs/cf-master.txt?v=1758861474", image: "https://m.media-amazon.com/images/M/MV5BZjcwMDIyNjctMDVmNS00MzkyLTgxMDMtNTFmNTk0NDkyNzdjXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
+  { title: "Deadpool-2016", video: "https://vip.opstream11.com/20220314/1878_cbdf514c/index.m3u8", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/w500/3E53WEZJqP6aM84D8CckXx4pIHw.jpg" },
+  { title: "DEADPOOL 2-2018", video: "https://vip.opstream11.com/20220314/1879_f5f41b4c/index.m3u8", image: "https://i.ebayimg.com/images/g/WGkAAOSwI7ljObU9/s-l1200.jpg" },
+  { title: "Deadpool & Wolverine-2024", video: "https://vip.opstream11.com:443/20241002/54005_201c0f76/3000k/hls/mixed.m3u8", image: "https://posterspy.com/wp-content/uploads/2024/05/final.jpg" },
+  { title: "The New Mutants-2020", video: "https://sad.mindspirebranding.sbs:443/v4/s93/dltju/index-f2-v1-a1.txt", image: "https://lh3.googleusercontent.com/proxy/D9lS0t7kK0FWYa2T0OYuA8r5XvnSeCBn6ivBQgdDM8nAA1zgmfTnoYPVX3SF_kvL_WlxNqs8x1N5mH0k8jRssNW7psrG7sj9RIEQhOs4" },
+];
+
+/* Build Movie Grid (same markup but click -> modal playback) */
+const container = document.getElementById('movies');
+movies.forEach((movie, index) => {
+  const div = document.createElement('div');
+  div.className = 'movie';
+  div.innerHTML = `
+    <img src="${movie.image}" alt="${movie.title}">
+    <div class="movie-title">${movie.title}</div>
+  `;
+  div.addEventListener('click', () => {
+    // Use Hawkeye-style playInModal (below). Pass the movie object and index for metadata/watchlist
+    playInModal(movie.title, movie.video, movie, index);
+  });
+  container.appendChild(div);
+});
+
+/* Live Search Filter */
+document.getElementById('searchBar').addEventListener('input', function () {
+  const searchTerm = this.value.toLowerCase();
+  document.querySelectorAll('.movie').forEach(div => {
+    const title = div.querySelector('.movie-title').textContent.toLowerCase();
+    div.style.display = title.includes(searchTerm) ? 'block' : 'none';
+  });
+});
+
+/* ================================
+   HAWKEYE/TUKARAM modal playback JS
+   Integrated and slightly adapted
+   ================================ */
+
+/* DOM refs for modal player */
+const playbackModal = document.getElementById('playback-modal');
+const closeModalBtn = document.getElementById('close-modal');
+const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const episodeNum = document.getElementById('episode-num');
+const modalDuration = document.getElementById('modal-duration');
+const playBtn = document.getElementById('play-btn');
+const watchlistCheckbox = document.getElementById('watchlist-checkbox');
+const progressBarFill = document.getElementById('progress-bar-fill');
+const loadingSpinner = document.getElementById('loading-spinner');
+const modalPlayer = document.getElementById('modal-player');
+
+let currentHls = null;
+let currentMovieIndex = null;
+
+/* Helper: always get current <video> element (we recreate sometimes) */
+function getModalVideo() { return document.getElementById('modal-video'); }
+
+/* Type detection helpers (copied from Hawkeye/Tukaram) */
+function isHls(u) {
+  if (!u) return false;
+  return (u.includes('.m3u8') ||
+          u.includes('index-') ||
+          /index.*\.txt/i.test(u) ||
+          u.includes('manifest') ||
+          u.includes('master.m3u8'));
+}
+function isMP4(u) { return /\.mp4($|\?)/i.test(u || ''); }
+function isYouTube(u) {
+  return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/')));
+}
+
+/* Reset modal player container to fresh video element */
+function resetPlayerContainer() {
+  if (currentHls) {
+    try { currentHls.destroy(); } catch (e) {}
+    currentHls = null;
+  }
+  modalPlayer.innerHTML = `
+    <video id="modal-video" class="w-full" controls playsinline>
+      Your browser does not support the video tag.
+    </video>
+  `;
+}
+
+/* Close modal and cleanup */
+function closeModalHandler() {
+  const videoEl = getModalVideo();
+  if (currentHls) {
+    try { currentHls.destroy(); } catch(e) {}
+    currentHls = null;
+  }
+  if (videoEl) {
+    try { videoEl.pause(); } catch(e) {}
+    try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e) {}
+  }
+  resetPlayerContainer();
+  playbackModal.style.display = 'none';
+  document.body.style.overflow = '';
+  currentMovieIndex = null;
+  if (playBtn) playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+  if (progressBarFill) progressBarFill.style.width = '0%';
+}
+
+/* Core: Hawkeye-style playInModal */
+function playInModal(title, url, movie = {}, episodeIndex = 0) {
+  currentMovieIndex = episodeIndex;
+
+  // Populate modal metadata UI if present
+  try {
+    modalTitle.textContent = movie.title || title || 'Video';
+    modalDescription.textContent = movie.description || (movie.title ? `${movie.title} — No description` : 'No description');
+    episodeNum.textContent = (episodeIndex != null) ? (episodeIndex + 1) : '';
+    modalDuration.textContent = movie.duration || movie.runtime || '—';
+    watchlistCheckbox.checked = !!movie.inWatchlist;
+    if (progressBarFill) progressBarFill.style.width = '0%';
+  } catch (e) {}
+
+  // Clean slate
+  resetPlayerContainer();
+
+  // Show loader by default until we show modal
+  loadingSpinner.style.display = 'flex';
+
+  if (!url) {
+    modalTitle.textContent = (title || 'No title') + ' — No playable URL provided';
+    playbackModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.style.display = 'none';
+    return;
+  }
+
+  // iframe-hosted players (streamtape / dood / vidcdn / openload etc.)
+  if (url.includes('streamtape.com') || url.includes('openload.co') || url.includes('vidcdn') || url.includes('dood')) {
+    // use iframe embed
+    modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+    playbackModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.style.display = 'none';
+    attachVideoListeners(); // no-op if iframe
+    return;
+  }
+
+  // YouTube handling - convert to embed
+  if (isYouTube(url)) {
+    let embedUrl = url;
+    if (url.includes('watch') && url.includes('v=')) {
+      const vid = new URLSearchParams(url.split('?')[1]).get('v');
+      if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+    } else if (url.includes('youtu.be/')) {
+      const parts = url.split('youtu.be/');
+      if (parts[1]) {
+        const vid = parts[1].split(/[?&]/)[0];
+        embedUrl = `https://www.youtube.com/embed/${vid}`;
+      }
+    }
+    modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    playbackModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.style.display = 'none';
+    return;
+  }
+
+  // HLS support
+  const videoEl = getModalVideo();
+  if (isHls(url)) {
+    if (Hls.isSupported()) {
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(videoEl);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+        playbackModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.style.display = 'none';
+        videoEl.play().catch(()=>{});
+      });
+      // handle HLS error -> fallback
+      currentHls.on(Hls.Events.ERROR, function(event, data) {
+        // if fatal, fallback to src
+        if (data && data.fatal) {
+          try {
+            currentHls.destroy();
+          } catch(e){}
+          currentHls = null;
+          videoEl.src = url;
+          playbackModal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+          loadingSpinner.style.display = 'none';
+          videoEl.play().catch(()=>{});
+        }
+      });
+    } else {
+      // native HLS (Safari)
+      videoEl.src = url;
+      playbackModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      loadingSpinner.style.display = 'none';
+      videoEl.play().catch(()=>{});
+    }
+    attachVideoListeners();
+    return;
+  }
+
+  // MP4
+  if (isMP4(url)) {
+    videoEl.src = url;
+    playbackModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.style.display = 'none';
+    videoEl.play().catch(()=>{});
+    attachVideoListeners();
+    return;
+  }
+
+  // Unknown type — fallback to redirect to player.html (preserve original behavior but hide loader first)
+  loadingSpinner.style.display = 'none';
+  // fallback: open in new tab/player page to keep compatibility
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+/* Attach listeners to video element to update progress bar, pause/play UI, ended state */
+function attachVideoListeners() {
+  const videoEl = getModalVideo();
+  if (!videoEl) return;
+  // Avoid duplicate listeners — remove listeners by cloning node pattern
+  // (simple approach: remove existing events by replacing element with same element - but we recreate video on reset, so safe)
+  videoEl.addEventListener('timeupdate', () => {
+    if (!videoEl.duration) return;
+    const progress = (videoEl.currentTime / videoEl.duration) * 100;
+    progressBarFill.style.width = progress + '%';
+  });
+  videoEl.addEventListener('ended', () => {
+    if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
+  });
+}
+
+/* Play/pause button handler (works for in-modal HTML5 video only) */
+if (playBtn) {
+  playBtn.addEventListener('click', () => {
+    const videoEl = getModalVideo();
+    if (!videoEl) return;
+    if (videoEl.paused) {
+      videoEl.play();
+      playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause';
+    } else {
+      videoEl.pause();
+      playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+    }
+  });
+}
+
+/* Watchlist checkbox behavior (keeps track in movies array) */
+if (watchlistCheckbox) {
+  watchlistCheckbox.addEventListener('change', function() {
+    if (currentMovieIndex == null) return;
+    movies[currentMovieIndex].inWatchlist = this.checked;
+    // (UI update elsewhere if needed)
+  });
+}
+
+/* close modal handlers */
+closeModalBtn.addEventListener('click', closeModalHandler);
+playbackModal.addEventListener('click', function(e) {
+  if (e.target === this) closeModalHandler();
+});
+
+/* Ensure resetPlayerContainer re-attaches listeners when it recreates the video element */
+(function() {
+  const orig = resetPlayerContainer;
+  resetPlayerContainer = function() {
+    orig();
+    attachVideoListeners();
+  };
+})();
+
+/* small page init (nothing else required) */
+window.addEventListener('DOMContentLoaded', () => {
+  // nothing extra to init — movies already rendered
+});
+</script>
+
+</body>
+</html>
