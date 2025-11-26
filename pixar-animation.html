@@ -6,6 +6,9 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- HLS.js (used by the modal player) -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
     
@@ -98,7 +101,7 @@
       border-radius: 4px;
     }
     
-    /* Modal styles */
+    /* Modal styles (Hawkeye-style integration) */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -112,7 +115,7 @@
       align-items: center;
       opacity: 0;
       visibility: hidden;
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
     }
     
     .modal-overlay.active {
@@ -121,91 +124,104 @@
     }
     
     .modal-container {
-      width: 90%;
-      max-width: 1000px;
-      background: #1e293b;
+      width: 92%;
+      max-width: 1100px;
+      background: #0b1220;
       border-radius: 12px;
       overflow: hidden;
-      transform: scale(0.9);
-      transition: transform 0.3s ease;
+      transform: translateY(0);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
     }
-    
-    .modal-overlay.active .modal-container {
-      transform: scale(1);
+
+    .modal-top {
+      position: relative;
+      background: black;
     }
-    
-    /* Responsive adjustments */
+
+    /* flexible player container similar to Hawkeye */
+    .modal-player {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: black;
+    }
+    .modal-player video,
+    .modal-player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+
+    .modal-controls {
+      padding: 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+
+    .btn {
+      background: #111827;
+      color: #fbbf24;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover { filter: brightness(1.05); }
+
+    #playerError { display: none; padding: 8px 12px; margin: 0 14px 14px; border-radius: 8px; background: #7f1d1d; color: #fff; }
+
     @media (max-width: 640px) {
-      .movie-card {
-        width: 100%;
-      }
-      
-      .modal-container {
-        width: 95%;
-      }
+      .modal-container { width: 96%; }
+      .modal-controls { flex-direction: column; align-items:stretch; gap:8px; }
     }
   </style>
 </head>
 <body class="pb-16">
-<!-- Header with animated background -->
+
+<!-- Header -->
 <header class="relative overflow-hidden">
-<div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-yellow-600 to-red-900 opacity-20 animate-gradient"></div>
-<div class="container mx-auto px-4 py-8 relative z-10">
-<div class="flex flex-col items-center justify-center text-center mb-8">
-<div class="flex items-center mb-4">
-<i class="fas fa-film text-4xl text-yellow-400 mr-3"></i>
-<h1 class="text-4xl md:text-5xl font-bold pixar-logo">
-<span class="text-yellow-400">PIXAR</span> <span class="text-white">UNIVERSE</span>
-</h1>
-<i class="fas fa-star text-3xl text-yellow-400 ml-3 animate-pulse"></i>
-</div>
-<p class="text-lg text-gray-300 max-w-2xl">
-          Explore the magical world of Pixar's animated masterpieces
-        </p>
-</div>
-</div>
+  <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-yellow-600 to-red-900 opacity-20 animate-gradient"></div>
+  <div class="container mx-auto px-4 py-8 relative z-10">
+    <div class="flex flex-col items-center justify-center text-center mb-8">
+      <div class="flex items-center mb-4">
+        <i class="fas fa-film text-4xl text-yellow-400 mr-3"></i>
+        <h1 class="text-4xl md:text-5xl font-bold pixar-logo">
+          <span class="text-yellow-400">PIXAR</span> UNIVERSE
+        </h1>
+      </div>
+      <p class="text-gray-300 max-w-2xl">A curated collection of Pixar shorts and features.</p>
+    </div>
+  </div>
 </header>
-<!-- Main content -->
+
+<!-- Search & categories -->
+<section class="container mx-auto px-4">
+  <div class="flex gap-3 mb-6">
+    <input id="searchBar" class="w-full py-3 px-4 rounded-lg bg-[#0f1724] placeholder:text-gray-400" placeholder="Search Pixar movies..."/>
+    <button id="clearSearch" class="btn">Clear</button>
+  </div>
+
+  <div class="flex gap-2 overflow-x-auto mb-6">
+    <button class="category-btn active px-4 py-2 rounded-full bg-[#0f1724] text-yellow-400" data-category="all">All</button>
+    <button class="category-btn px-4 py-2 rounded-full bg-[#0f1724] text-yellow-400" data-category="feature">Features</button>
+    <button class="category-btn px-4 py-2 rounded-full bg-[#0f1724] text-yellow-400" data-category="short">Shorts</button>
+    <button class="category-btn px-4 py-2 rounded-full bg-[#0f1724] text-yellow-400" data-category="sequel">Sequels</button>
+  </div>
+</section>
+
+<!-- Movies Grid -->
 <main class="container mx-auto px-4">
-<!-- Search and filter section -->
-<div class="mb-10">
-<div class="relative max-w-2xl mx-auto mb-6">
-<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-<i class="fas fa-search text-yellow-400"></i>
-</div>
-<input class="w-full pl-10 pr-4 py-3 rounded-full bg-gray-800 border border-gray-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition-all duration-300 text-white search-glow" id="searchBar" placeholder="Search Pixar movies..." type="text"/>
-<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-<button class="text-gray-400 hover:text-yellow-400" id="clearSearch">
-<i class="fas fa-times"></i>
-</button>
-</div>
-</div>
-<div class="flex flex-wrap justify-center gap-3 mb-8">
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="all">
-          All Movies
-        </button>
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="feature">
-          Feature Films
-        </button>
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="short">
-          Short Films
-        </button>
-<button class="category-btn px-4 py-2 rounded-full bg-gray-800 text-white hover:bg-yellow-400 hover:text-gray-900" data-category="sequel">
-          Sequels
-        </button>
-</div>
-</div>
-<!-- Movies grid -->
-<div class="flex justify-center items-center py-20" id="loading">
-<div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="movies"></div>
-<div class="hidden text-center py-16" id="noResults">
-<i class="fas fa-film text-6xl text-gray-600 mb-4"></i>
-<h3 class="text-2xl font-semibold text-gray-300">No movies found</h3>
-<p class="text-gray-500 mt-2">Try adjusting your search or filter</p>
-</div>
+  <div id="loading" class="text-center py-8"><div class="w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full loading-spinner inline-block"></div></div>
+  <div id="noResults" class="hidden text-center py-12 text-gray-300">No results found</div>
+  <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mt-6"></div>
 </main>
+
 <!-- Footer -->
 <footer class="mt-20 py-6 bg-gray-900 bg-opacity-50">
 <div class="container mx-auto px-4 text-center text-gray-400">
@@ -216,48 +232,59 @@
 <a class="hover:text-yellow-400 transition-colors" href="#">
 <i class="fab fa-twitter"></i>
 </a>
-<a class="hover:text-yellow-400 transition-colors" href="#">
+<a class="hover:text-yellow-400 transition-colors" href="https://www.instagram.com/stark_4152">
 <i class="fab fa-instagram"></i>
 </a>
-<a class="hover:text-yellow-400 transition-colors" href="#">
+<a class="hover:text-yellow-400 transition-colors" href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw">
 <i class="fab fa-youtube"></i>
 </a>
 </div>
-<p>© 2023 Pixar Universe. All rights reserved.</p>
+<p>© Pixar Universe. All rights reserved.</p>
 <p class="text-sm mt-2">This is a fan-made project and not affiliated with Pixar Animation Studios.</p>
 </div>
 </footer>
 
-<!-- Video Modal -->
-<div class="modal-overlay" id="video-modal">
+<!-- === Hawkeye-style modal player (inserted) === -->
+<div id="video-modal" class="modal-overlay" aria-hidden="true">
   <div class="modal-container">
-    <div class="relative">
-      <button class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl transition" id="close-modal">
-        <i class="fas fa-times"></i>
-      </button>
-      <div class="aspect-w-16 aspect-h-9">
-        <video class="w-full" controls id="modal-video" autoplay>
-          Your browser does not support the video tag.
+    <div class="modal-top">
+      <button id="close-video-modal" class="btn" style="position:absolute; right:12px; top:12px;"><i class="fas fa-times"></i></button>
+      <div id="modal-player" class="modal-player">
+        <!-- Will inject <video id="modal-video"> or <iframe> here -->
+        <video id="modal-video" class="" controls playsinline>
+          Your browser does not support the video element.
         </video>
       </div>
-      <div class="p-6 text-white">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 class="text-2xl font-bold mb-1" id="modal-title"></h3>
-            <div class="text-gray-400 text-sm">
-              <span id="modal-year"></span> • ★ <span id="modal-rating"></span>
-            </div>
-          </div>
-        </div>
+    </div>
+
+    <div class="modal-controls">
+      <div>
+        <h3 id="modal-title" class="text-lg font-bold text-white">Title</h3>
+        <div id="modal-meta" class="text-sm text-gray-300">Year • Category</div>
+      </div>
+
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i></button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i></button>
+        <button id="nextBtn" class="btn"><i class="fas fa-step-forward"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
       </div>
     </div>
+
+    <div id="playerError" class="hidden">Playback error</div>
   </div>
 </div>
 
+<!-- Script: rendering + modal playback logic -->
 <script>
-    // Enhanced movie data with categories and release years
-    const movies = [
-      { title: "WALL·E", video: "https://sr81.bradburyg.sbs:443/v4/js/jgoag/index-f2-v1-a1.txt", image: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/05c77b66174149.5b0d6304d6a65.jpg", category: "feature", year: 2008 },
+/* ===========================
+   PIXAR page data & elements
+   =========================== */
+
+/* NOTE: movies array left as in original file (skipped editing) */
+const movies = [
+  { title: "WALL·E", video: "https://sr81.bradburyg.sbs:443/v4/js/jgoag/index-f2-v1-a1.txt", image: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/05c77b66174149.5b0d6304d6a65.jpg", category: "feature", year: 2008 },
       { title: "Elemental", video: "https://sskt.mcgarrydvan.sbs:443/v4/ho/bhpt8/index-f2-v1-a1.txt", image: "https://preview.redd.it/elemental-2023-is-among-pixars-most-successful-recent-v0-lukx1jjb0ybb1.jpg?width=640&crop=smart&auto=webp&s=3d11d7a266ecc1ab4fbacb90ef2f458ef98fd0cb", category: "feature", year: 2023 },
       { title: "Inside Out", video: "https://s9dz.baugherhatchp.sbs:443/v4/sc/mooqa/index-f2-v1-a1.txt", image: "https://i.ebayimg.com/images/g/wtUAAOSwtqtk4Ytr/s-l1200.jpg", category: "feature", year: 2015 },
       { title: "Inside Out 2", video: "https://sojg.coombsneils.sbs:443/v4/rw/xhqzk/index-f1-v1-a1.txt", image: "https://lumiere-a.akamaihd.net/v1/images/z_95ab3f83.jpeg?region=0,0,1350,2000", category: "sequel", year: 2024 },
@@ -271,30 +298,31 @@
       { title: "Finding Nemo", video: "https://sr81.myersbjhardi.sbs:443/v4/6s/bpu6y/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/I/71+H7cpoK9L._AC_UF1000,1000_QL80_.jpg", category: "feature", year: 2003 },
       { title: "Finding Dory", video: "https://sr81.gatesnationjyd.sbs:443/v4/ic/hvbk5/index-f1-v1-a1.txt", image: "https://www.aceprensa.com/wp-content/uploads/2016/06/127380-0.jpg", category: "sequel", year: 2016 },  
       { title: "Dory's Reef Cam", video: "https://sr81.swobodafocht.sbs/v4/9a/bkewb/cf-master.txt?v=1732333200", image: "https://www.dvdplanetstore.pk/wp-content/uploads/2024/01/mMWLGu9pFymqipN8yvISHsAaj72-600x900.jpg", category: "short", year: 2016 },
-      { title: "The Incredibles", video: "https://slob.mcgarrydvan.sbs:443/v4/np/xjokk/index-f2-v1-a1.txt", image: "https://i.ebayimg.com/images/g/VIQAAMXQhuVRKnzc/s-l1200.jpg", category: "feature", year: 2004 },
-      { title: "Incredibles 2", video: "https://spuc.vivianorovc.sbs/v4/js/gnt5j/cf-master.txt?v=1733545595", image: "https://live.staticflickr.com/862/43093706984_b56a7a8915_z.jpg", category: "sequel", year: 2018 },
-      { title: "Auntie Edna", video: "https://slob.squiressill.sbs:443/v4/db/inpxt/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BNDJiOWYxZTYtOTFjNS00MjY4LThjZmUtNjI5ZDQwODdmNTNiXkEyXkFqcGc@._V1_.jpg", category: "short", year: 2018 },
+      { title: "The Incredibles", video: "https://54pkdcyxbsxbermn.auroriondigitalworks.space/ma1vmsqmq/hls3/01/00718/ikqunsrsdxim_o/master.txt", image: "https://i.ebayimg.com/images/g/VIQAAMXQhuVRKnzc/s-l1200.jpg", category: "feature", year: 2004 },
+      { title: "Incredibles 2", video: "https://vcvkqwy2zrck.auroriondigitalworks.space/jubDiYuWLQCqfHI/hls3/01/02729/er5wp53lvufc_n/master.txt", image: "https://live.staticflickr.com/862/43093706984_b56a7a8915_z.jpg", category: "sequel", year: 2018 },
+      { title: "Auntie Edna", video: "https://sojg.hyvera.sbs/v4/lf/3grou/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BNDJiOWYxZTYtOTFjNS00MjY4LThjZmUtNjI5ZDQwODdmNTNiXkEyXkFqcGc@._V1_.jpg", category: "short", year: 2018 },
       { title: "Coco", video: "https://sipt.killionorellanacoelho.sbs:443/v4/hz/dxnps/index-f1-v1-a1.txt", image: "https://i5.walmartimages.com/asr/591da8ad-5d7d-4839-924e-156c147701b4.5d243bebf10c969b420a3303a6c989ed.jpeg", category: "feature", year: 2017 },
-      { title: "Cars", video: "https://slob.sralphqesrob.sbs:443/v4/ck/hvpy8/index-f2-v1-a1.txt", image: "https://filmartgallery.com/cdn/shop/files/Cars-Vintage-Movie-Poster-Original.jpg?v=1738907489", category: "feature", year: 2006 },
-      { title: "Cars 2", video: "https://s3ae.yevettesha.sbs:443/v4/xq/e8wzv/index-f2-v1-a1.txt", image: "https://i.ebayimg.com/images/g/3rgAAOSwk7hfJHpl/s-l1200.jpg", category: "sequel", year: 2011 },
-      { title: "Cars 3", video: "https://sr81.dkneropbr.sbs/v4/js/rxsct/cf-master.txt?v=1735259302", image: "https://image.tmdb.org/t/p/original/ucGU1HyLfxoQwuq22VWwq55m0cH.jpg", category: "sequel", year: 2017 },
-      { title: "Air Mater", video: "https://slob.squiressill.sbs:443/v4/db/inpxt/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/sEixqafB6xfwovGZ38YPyUlhCuW.jpg", category: "short", year: 2011 },
-      { title: "Cars Toon: Mater's Tall Tales", video: "https://sojg.pouloszcleed.sbs:443/v4/61/cdfwx/index-f2-v1-a1.m3u8", image: "https://m.media-amazon.com/images/M/MV5BNDMxYjQ3ZDAtMjg4OC00ZTQ0LTk1NGEtNjdlMmU1MWYxNGI3XkEyXkFqcGc@._V1_.jpg", category: "short", year: 2010 },
+      { title: "Cars", video: "https://vip.opstream11.com/20220314/1951_012d273c/index.m3u8", image: "https://filmartgallery.com/cdn/shop/files/Cars-Vintage-Movie-Poster-Original.jpg?v=1738907489", category: "feature", year: 2006 },
+      { title: "Cars 2", video: "https://bxs5xkxkyi4y.novaquestinstitute.space/R7khaR4Jtgqr/hls3/01/02221/jymo40ckhdg9_n/master.txt", image: "https://i.ebayimg.com/images/g/3rgAAOSwk7hfJHpl/s-l1200.jpg", category: "sequel", year: 2011 },
+      { title: "Cars 3", video: "https://s3ae.mindspireeducation.cyou:443/v4/js/rxsct/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/ucGU1HyLfxoQwuq22VWwq55m0cH.jpg", category: "sequel", year: 2017 },
+      { title: "Cars Toon: Mater's Tall Tales", video: "https://vip.opstream14.com/20230707/38436_35710332/index.m3u8", image: "https://m.media-amazon.com/images/M/MV5BNDMxYjQ3ZDAtMjg4OC00ZTQ0LTk1NGEtNjdlMmU1MWYxNGI3XkEyXkFqcGc@._V1_.jpg", category: "short", year: 2010 },
       { title: "The Good Dinosaur", video: "https://sxic.myersbjhardi.sbs/v4/sc/xuhud/cf-master.txt?v=1732328816", image: "https://lh3.googleusercontent.com/proxy/5mYbZ9t6WEqFmyul8Hc4kNZQ2IfSS83rp0ZKQP7H2N8a1sv1JGBSgZ6JraHtQfjXRKYiRWGD7COfp5Z5SipWlPt9BmFM3bialGL5qaz_qxyZlis", category: "feature", year: 2015 },
       { title: "Up", video: "https://f12.megacdn.co:2228/v3-hls-playback/b9b65d54164d3f6c0fb2be6c95a833e2f99d5a4386c8dddb15ed15c4580e5340e444ef6cce00fde2ccfc3127ad7cd26017a9b08f4a211c77cb94bb57b3fbbb5195e078521cfc7cf6f6569eba03ef408bfd0897b877a2cbeb083fbbe8172283d9f3c9b4b2432e4d8bbcf1ccc50db5ad9adfc3bd515d84e1e7a0f2148475557460cfdf8d200784d63b6ffdee90b137f5af16cf55521dc57bf664e62955080e0c05304b9a3f84b29bbba93467399cde5298a8fbfffa3f159c0a1f7e067903536959/1080/index.m3u8", image: "https://i.etsystatic.com/17257718/r/il/1557b9/2441195192/il_570xN.2441195192_8kka.jpg", category: "feature", year: 2009 },
       { title: "Carl's Date", video: "https://sipt.shahcanna.sbs/v4/6s/ocq59/index-f1-v1-a1.txt", image: "https://cdn.kinocheck.com/i/2qkknsed3e.jpg", category: "short", year: 2023 },
-      { title: "Monsters University", video: "https://198.186.130.94:443/v4/kkChLmPijNWnl8btDRe1Vg/1745459386/us/p3zyx/index-f2-v1-a1.m3u8", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKSA2w_5s325s9qQ39DEasX9Hx7Gdxyg8hfaZzpV9G87pkvgFsvk-8I-y3QrjOA1Gb3Lo&usqp=CAU", category: "sequel", year: 2013 },
-      { title: "Monsters, Inc.", video: "https://spuc.ybarrazotz.sbs/v4/db/p8b3s/cf-master.txt?v=1732147597", image: "https://i.ebayimg.com/images/g/AzQAAOSwDwNjN2eE/s-l1200.jpg", category: "feature", year: 2001 },
-      { title: "Party Central", video: "https://s3ae.squiressill.sbs:443/v4/ek/doan8/index-f2-v1-a1.txt", image: "https://i.pinimg.com/736x/17/ee/3e/17ee3ed085bccd9b03fd4adfa9a5ccf9.jpg", category: "short", year: 2013 },
+      { title: "Monsters University", video: "https://spuc.auronainnovations.online/v4/us/p3zyx/cf-master.txt?v=1733014489", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKSA2w_5s325s9qQ39DEasX9Hx7Gdxyg8hfaZzpV9G87pkvgFsvk-8I-y3QrjOA1Gb3Lo&usqp=CAU", category: "sequel", year: 2013 },
+      { title: "Monsters, Inc.", video: "https://vip.opstream15.com/20220316/1443_fe337a13/index.m3u8", image: "https://i.ebayimg.com/images/g/AzQAAOSwDwNjN2eE/s-l1200.jpg", category: "feature", year: 2001 },
+      { title: "Party Central", video: "https://spok.greenlineinnovations.store/v4/ek/doan8/cf-master.txt?v=1739718799", image: "https://i.pinimg.com/736x/17/ee/3e/17ee3ed085bccd9b03fd4adfa9a5ccf9.jpg", category: "short", year: 2013 },
+      { title: "Mike's New Car", video: "https://vip.opstream12.com/20220605/17433_32fbae83/index.m3u8", image: "https://upload.wikimedia.org/wikipedia/en/9/91/Mike%27s_New_Car_poster.jpg", category: "short", year: 2013 },
       { title: "Ratatouille", video: "https://smashyplayer.top:443/hls/baPs8vMfovyhGyknuto30g/sc/ghsd6zxw/pw3r1/tt/index-f2-v1-a1.m3u8", image: "https://images-cdn.ubuy.co.in/64389b0afd266f2c036cf595-poster-usa-disney-classics-ratatouille.jpg", category: "feature", year: 2007 },
       { title: "Your Friend the Rat", video: "https://sxic.bsmlecuyer.sbs/v4/db/urcza9/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BMTcyOTU4MTM0OF5BMl5BanBnXkFtZTgwODQzMDgwMjE@._V1_FMjpg_UX1000_.jpg", category: "short", year: 2007 },
-      { title: "Toy Story", video: "https://s9dz.coombsneils.sbs:443/v4/np/hq5bo/index-f2-v1-a1.txt", image: "https://images-cdn.ubuy.co.in/6742c6d683a44b4221024ef9-entertainment-room-decor-toy-story-1.jpg", category: "feature", year: 1995 },
-      { title: "Toy Story 2", video: "https://s9dz.sipeskrlbtrujill.sbs:443/v4/sc/xkfhi/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/xVhEI1WCgNCCa5I86AqiwuZoog3.jpg", category: "sequel", year: 1999 },
-      { title: "Toy Story 3", video: "https://smashyplayer.top:443/hls/_Aeg_kfj63Gjjp_17Pt9PA/xq/nc31je1o/mn5jj/tt/index-f2-v1-a1.m3u8", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkG34xN0wr4pZgiLpLnfDt65WtXjZP_YOA4SZevisCxmqOyevuU1SojHsFEyBriX7barM&usqp=CAU", category: "sequel", year: 2010 },
-      { title: "Toy Story 4", video: "https://s3ae.cwsspottstcyl.sbs:443/v4/hz/vijsz/index-f2-v1-a1.txt", image: "https://i.pinimg.com/736x/32/f0/c2/32f0c2388f8745c2fa2aab3609355116.jpg", category: "sequel", year: 2019 },
-      { title: "Toy Story That Time Forgot", video: "https://s3ae.desrocherswick.sbs/v4/ck/xujkt/index-f2-v1-a1.txt", image: "https://i.pinimg.com/736x/ac/c7/b9/acc7b968fea622f39032d123b5a04497.jpg", category: "short", year: 2014 },
-      { title: "Toy Story of Terror!", video: "https://skra.wesleykqpg.sbs:443/v4/61/r1t1k/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/oPBEnNP4Fg4gv9c0KBhchmtoG4H.jpg", category: "short", year: 2013 },
-      { title: "Lamp Life", video: "https://skra.kimberlygxjeum.sbs:443/v4/pq/jwdtt/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BYmQxNzA5YTYtNWZkZi00ZDM1LWFiYjgtMzdmMmJiNjNiMmMyXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "short", year: 2020 },
+      { title: "Toy Story", video: "https://skra.tavero.cyou:443/v4/np/hq5bo/index-f2-v1-a1.txt", image: "https://images-cdn.ubuy.co.in/6742c6d683a44b4221024ef9-entertainment-room-decor-toy-story-1.jpg", category: "feature", year: 1995 },
+      { title: "Toy Story 2", video: "https://sojg.mountainstreamlab.space/v4/sc/xkfhi/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/xVhEI1WCgNCCa5I86AqiwuZoog3.jpg", category: "sequel", year: 1999 },
+      { title: "Toy Story 3", video: "https://vip.opstream12.com/20220317/3996_964842bf/index.m3u8", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkG34xN0wr4pZgiLpLnfDt65WtXjZP_YOA4SZevisCxmqOyevuU1SojHsFEyBriX7barM&usqp=CAU", category: "sequel", year: 2010 },
+      { title: "Toy Story 4", video: "https://sxic.terraforgeinnovations.space:443/v4/hz/vijsz/index-f2-v1-a1.txt", image: "https://i.pinimg.com/736x/32/f0/c2/32f0c2388f8745c2fa2aab3609355116.jpg", category: "sequel", year: 2019 },
+      { title: "Toy Story That Time Forgot", video: "https://s3ae.zenithwellbeing.site/v4/ck/xujkt/cf-master.txt?v=1732491650", image: "https://i.pinimg.com/736x/ac/c7/b9/acc7b968fea622f39032d123b5a04497.jpg", category: "short", year: 2014 },
+      { title: "Toy Story of Terror!", video: "https://sskt.bellavueartfoundation.store:443/v4/61/r1t1k/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/original/oPBEnNP4Fg4gv9c0KBhchmtoG4H.jpg", category: "short", year: 2013 },
+      { title: "Partysaurus Rex", video: "https://spuc.skylineinnovationhub.site:443/v4/36/mml8e/index-f2-v1-a1.txt", image: "https://img.rgstatic.com/content/movie/ea692fc3-3bd1-4300-a945-86576dc225d0/poster-342.jpg", category: "short", year: 2012 },
+      { title: "Lamp Life", video: "https://s9dz.fiorellagardenshop.shop/v4/pq/jwdtt/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BYmQxNzA5YTYtNWZkZi00ZDM1LWFiYjgtMzdmMmJiNjNiMmMyXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "short", year: 2020 },
       { title: "Brave", video: "https://macdn.hakunaymatata.com/resource/ece55123e8d22e059d444e467261a3ae.mp4?Expires=1749582553&Signature=qvpkzf0u-C4jhTO33vFVU4m--rDbvBPr1CeL1AsVTztZVD5fUJzeVJwzZ7x16wbkCw3PM8JyfJQpbkXA8090m9rQWhp9azny5XzPC1DHjIEkRA1a-oj4u-WiZRTlek~tQoLSTNP1YJiLj-BLirTH6bDiFhD3h~PvMYAYKDDhmAT6QNIspnSWTaufPqS8WLoD48tBCihULo06NEfK8tQ4~rXP~A8Fo-20DlK8tqMDKutzirWaqznZMZuhVrfsj9iNx5Nehg~FUoile66SZbb910~gm0dKoG1tUkaUl4vuLy97QFUs~j7zerNbTiN23m2XQunvHJ3I0bhDggQG79Dvbw__&Key-Pair-Id=KMHN1LQ1HEUPL", image: "https://image.tmdb.org/t/p/original/L6qqU6Q3k4MmPojncNbT43FSTL.jpg", category: "feature", year: 2022 },
       { title: "22 vs. Earth", video: "https://cdn-1.celestialodyssey.site/video-stream/a66dd7c8/playlist.m3u8", image: "https://m.media-amazon.com/images/M/MV5BODc5MGM0YzQtNDlmOS00NTMyLTg5YzYtNGU0YTc5NjU1NGE1XkEyXkFqcGc@._V1_.jpg", category: "short", year: 2021 },
       { title: "Loop", video: "https://sh9f.cortinala.sbs:443/v4/ck/tqn9q/index-f2-v1-a1.txt", image: "https://speakingofautismcom.wordpress.com/wp-content/uploads/2019/12/img_1643.jpg", category: "short", year: 2020 },
@@ -308,165 +336,393 @@
       { title: "A Bug's Life", video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/2025/6/9/67649/movie.67649.2025.1080p.H264.20250716041652.mp4?KEY1=8lxC7_ktfOa2pDn22MCnww&KEY2=1761288112&KEY3=1083668&KEY4=world&KEY7=febbox_video_quality_list_v3&KEY8=1083668", image: "https://i.pinimg.com/474x/74/9e/67/749e67191044fb4ace982fa646a385a7.jpg", category: "feature", year: 1998 }
     ];
 
-    // DOM elements
-    const container = document.getElementById('movies');
-    const searchBar = document.getElementById('searchBar');
-    const clearSearch = document.getElementById('clearSearch');
-    const categoryBtns = document.querySelectorAll('.category-btn');
-    const loading = document.getElementById('loading');
-    const noResults = document.getElementById('noResults');
-    const videoModal = document.getElementById('video-modal');
-    const modalVideo = document.getElementById('modal-video');
-    const modalTitle = document.getElementById('modal-title');
-    const modalYear = document.getElementById('modal-year');
-    const closeModalBtn = document.getElementById('close-modal');
-    
-    // Current filter state
-    let currentCategory = 'all';
-    let currentSearch = '';
-    
-    // Check if URL is MP4
-    function isMP4(url) {
-      return /\.mp4($|\?)/i.test(url);
-    }
-    
-    // Check if URL is stream (M3U8 or TXT)
-    function isStream(url) {
-      return /\.(m3u8|txt)($|\?)/i.test(url);
-    }
-    
-    // Open modal with video
-    function openVideoModal(movie) {
-      modalTitle.textContent = movie.title;
-      modalYear.textContent = movie.year || "";
-      modalVideo.src = movie.video;
-      videoModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    
-    // Close modal
-    function closeVideoModal() {
-      videoModal.classList.remove('active');
-      modalVideo.pause();
-      modalVideo.src = "";
-      document.body.style.overflow = '';
-    }
-    
-    // Handle movie click
-    function handleMovieClick(movie) {
-      if (isMP4(movie.video)) {
-        // Play MP4 in modal
-        openVideoModal(movie);
-      } else if (isStream(movie.video)) {
-        // Redirect streams to player.html
-        const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
-        window.location.href = url;
-      } else {
-        // Default behavior for unknown formats
-        console.log("Unknown video format:", movie.video);
-      }
-    }
-    
-    // Display movies with animation
-    function displayMovies(filteredMovies) {
-      container.innerHTML = '';
-      
-      if (filteredMovies.length === 0) {
-        noResults.classList.remove('hidden');
-        return;
-      }
-      
-      noResults.classList.add('hidden');
-      
-      filteredMovies.forEach((movie, index) => {
-        const delay = (index % 10) * 0.1; // Staggered animation
-        
-        const div = document.createElement('div');
-        div.className = 'movie-card fade-in';
-        div.style.animationDelay = `${delay}s`;
-        div.innerHTML = `
-          <div class="relative overflow-hidden rounded-xl h-full">
-            <img 
-              src="${movie.image}" 
-              alt="${movie.title}" 
-              class="movie-poster w-full h-80 object-cover rounded-xl"
-              loading="lazy"
-            >
-            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 pt-10">
-              <h3 class="text-lg font-bold text-white">${movie.title}</h3>
-              <div class="flex items-center text-sm text-gray-300 mt-1">
-                <span class="bg-gray-800 px-2 py-1 rounded mr-2">${movie.year}</span>
-                <span class="bg-gray-800 px-2 py-1 rounded flex items-center">
-                  <i class="fas ${movie.category === 'short' ? 'fa-clock' : 'fa-film'} text-xs mr-1"></i>
-                  ${movie.category === 'short' ? 'Short' : 'Feature'}
-                </span>
-              </div>
-            </div>
-            <div class="absolute top-2 right-2 bg-yellow-400 text-gray-900 px-2 py-1 rounded-full text-xs font-bold">
-              PIXAR
-            </div>
-            <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
-              <i class="fas fa-play text-4xl text-yellow-400"></i>
-            </div>
+/* DOM refs */
+const container = document.getElementById('movies');
+const searchBar = document.getElementById('searchBar');
+const clearSearch = document.getElementById('clearSearch');
+const categoryBtns = document.querySelectorAll('.category-btn');
+const loading = document.getElementById('loading');
+const noResults = document.getElementById('noResults');
+
+/* Modal/player refs */
+const videoModal = document.getElementById('video-modal');
+const modalPlayer = document.getElementById('modal-player');
+const closeModalBtn = document.getElementById('close-video-modal');
+const modalTitle = document.getElementById('modal-title');
+const modalMeta = document.getElementById('modal-meta');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const muteBtn = document.getElementById('muteBtn');
+const playerError = document.getElementById('playerError');
+
+let currentCategory = 'all';
+let currentSearch = '';
+let currentHls = null;
+let currentIndex = null; // index within filtered array
+let currentFiltered = [];
+
+/* ------------------------
+   Helper detection utils
+   ------------------------ */
+function isMP4(url) {
+  return /\.mp4(\?|$)/i.test((url||''));
+}
+function isHls(url) {
+  if (!url) return false;
+  return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('master') || url.includes('manifest');
+}
+function isYouTube(url) {
+  if (!url) return false;
+  return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+}
+
+/* =========================
+   Render / filtering logic
+   ========================= */
+function filterMovies() {
+  loading.style.display = 'block';
+  setTimeout(() => {
+    const term = (currentSearch || '').toLowerCase();
+    let filtered = movies.filter(m => {
+      const matchesSearch = !term || (m.title || '').toLowerCase().includes(term);
+      const matchesCategory = (currentCategory === 'all') || (m.category === currentCategory);
+      return matchesSearch && matchesCategory;
+    });
+    currentFiltered = filtered;
+    displayMovies(filtered);
+    loading.style.display = 'none';
+  }, 100);
+}
+
+function displayMovies(filteredMovies) {
+  container.innerHTML = '';
+  if (!filteredMovies || filteredMovies.length === 0) {
+    noResults.classList.remove('hidden');
+    return;
+  } else {
+    noResults.classList.add('hidden');
+  }
+
+  filteredMovies.forEach((movie, idx) => {
+    const div = document.createElement('div');
+    div.className = 'movie-card fade-in';
+    div.innerHTML = `
+      <div class="relative overflow-hidden rounded-xl h-full">
+        <img src="${movie.image || ''}" alt="${movie.title || ''}" class="movie-poster w-full h-80 object-cover rounded-xl">
+        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 pt-10">
+          <h3 class="text-lg font-bold text-white">${movie.title}</h3>
+          <div class="flex items-center text-sm text-gray-300 mt-1">
+            <span class="bg-gray-800 px-2 py-1 rounded mr-2">${movie.year || ''}</span>
+            <span class="bg-gray-800 px-2 py-1 rounded flex items-center">
+              <i class="fas ${movie.category === 'short' ? 'fa-clock' : 'fa-film'} text-xs mr-1"></i>
+              ${movie.category === 'short' ? 'Short' : 'Feature'}
+            </span>
           </div>
-        `;
-        
-        div.onclick = () => handleMovieClick(movie);
-        
-        container.appendChild(div);
-      });
-    }
-    
-    // Filter movies based on search and category
-    function filterMovies() {
-      const filtered = movies.filter(movie => {
-        const matchesSearch = movie.title.toLowerCase().includes(currentSearch);
-        const matchesCategory = currentCategory === 'all' || movie.category === currentCategory;
-        return matchesSearch && matchesCategory;
-      });
-      
-      displayMovies(filtered);
-    }
-    
-    // Event listeners
-    searchBar.addEventListener('input', function() {
-      currentSearch = this.value.toLowerCase();
-      filterMovies();
-    });
-    
-    clearSearch.addEventListener('click', function() {
-      searchBar.value = '';
-      currentSearch = '';
-      filterMovies();
-    });
-    
-    categoryBtns.forEach(btn => {
-      btn.addEventListener('click', function() {
-        categoryBtns.forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        currentCategory = this.dataset.category;
-        filterMovies();
-      });
-    });
-    
-    // Close modal when clicking overlay or close button
-    videoModal.addEventListener('click', function(e) {
-      if (e.target === this || e.target.closest('#close-modal')) {
-        closeVideoModal();
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
+          <i class="fas fa-play text-4xl text-yellow-400"></i>
+        </div>
+      </div>
+    `;
+    div.onclick = () => handleMovieClick(movie, idx);
+    container.appendChild(div);
+  });
+}
+
+/* ===========================
+   Modal player core functions
+   (Hawkeye / Tukaram style)
+   =========================== */
+
+function getModalVideo() {
+  return document.getElementById('modal-video');
+}
+
+/* Replace modal-player content with a fresh <video id="modal-video"> */
+function resetPlayerContainer() {
+  if (currentHls) {
+    try { currentHls.destroy(); } catch(e) {}
+    currentHls = null;
+  }
+  modalPlayer.innerHTML = `
+    <video id="modal-video" controls playsinline style="width:100%; height:100%;">
+      Your browser does not support the video element.
+    </video>
+  `;
+}
+
+/* Close modal and cleanup */
+function closeVideoModal() {
+  // destroy hls
+  if (currentHls) {
+    try { currentHls.destroy(); } catch(e) {}
+    currentHls = null;
+  }
+  const v = getModalVideo();
+  if (v) {
+    try { v.pause(); } catch(e) {}
+    try { v.removeAttribute('src'); v.load(); } catch(e) {}
+  }
+  resetPlayerContainer();
+  videoModal.classList.remove('active');
+  document.body.style.overflow = '';
+  currentIndex = null;
+  currentFiltered = [];
+  playerError.classList.add('hidden');
+  playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+}
+
+/* Show an error message briefly */
+function showPlayerError(msg) {
+  playerError.textContent = msg;
+  playerError.classList.remove('hidden');
+  setTimeout(()=> playerError.classList.add('hidden'), 3500);
+}
+
+/* Core playInModal (exact Hawkeye/Tukaram behavior) */
+function playInModal(filteredArray, index) {
+  const movie = filteredArray[index];
+  if (!movie) {
+    showPlayerError('Movie data not found');
+    return;
+  }
+
+  // Set metadata
+  modalTitle.textContent = movie.title || 'Untitled';
+  modalMeta.textContent = `${movie.year || ''} • ${movie.category || ''}`;
+
+  // Ensure fresh player
+  resetPlayerContainer();
+
+  // Show modal
+  videoModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  currentIndex = index;
+  currentFiltered = filteredArray;
+
+  // Determine source URL (movie.video may be string or object)
+  let src = '';
+  if (typeof movie.video === 'object' && movie.video !== null) {
+    // prefer high / main keys or first available
+    src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+  } else {
+    src = movie.video;
+  }
+
+  if (!src) {
+    showPlayerError('No playable URL — opening player page.');
+    setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 600);
+    return;
+  }
+
+  const urlLower = (src || '').toLowerCase();
+
+  // iframe-hosted players (streamtape, dood, vidcdn, ok.ru, mega)
+  if (urlLower.includes('streamtape.com') || urlLower.includes('dood') || urlLower.includes('vidcdn') || urlLower.includes('ok.ru') || urlLower.includes('mega.nz') || urlLower.includes('openload')) {
+    modalPlayer.innerHTML = `<iframe src="${src}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    return;
+  }
+
+  // YouTube -> embed
+  if (isYouTube(src)) {
+    let embedUrl = src;
+    try {
+      if (src.includes('watch') && src.includes('v=')) {
+        const v = new URLSearchParams(src.split('?')[1]).get('v');
+        if (v) embedUrl = `https://www.youtube.com/embed/${v}`;
+      } else if (src.includes('youtu.be/')) {
+        const parts = src.split('youtu.be/');
+        if (parts[1]) {
+          const vid = parts[1].split(/[?&]/)[0];
+          embedUrl = `https://www.youtube.com/embed/${vid}`;
+        }
       }
-    });
-    
-    // Initialize
-    window.addEventListener('DOMContentLoaded', () => {
-      // Set default active category
-      document.querySelector('[data-category="all"]').classList.add('active');
-      
-      // Simulate loading
-      setTimeout(() => {
-        loading.classList.add('hidden');
-        filterMovies();
-      }, 800);
-    });
+    } catch (e) {}
+    modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    return;
+  }
+
+  // HLS handling (.m3u8 / index*.txt / manifest etc.)
+  if (isHls(src)) {
+    const videoEl = getModalVideo();
+    if (!videoEl) {
+      showPlayerError('Player missing — opening external player.');
+      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 600);
+      return;
+    }
+
+    if (window.Hls && Hls.isSupported()) {
+      currentHls = new Hls();
+      try {
+        currentHls.loadSource(src);
+        currentHls.attachMedia(videoEl);
+      } catch (e) {
+        console.warn('HLS attach error', e);
+      }
+      currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+        try { videoEl.play().catch(()=>{}); } catch(e) {}
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      });
+      currentHls.on(Hls.Events.ERROR, function(event, data) {
+        console.warn('HLS error', data);
+        if (data && data.fatal) {
+          try { currentHls.destroy(); } catch(e) {}
+          currentHls = null;
+          showPlayerError('HLS failed — opening external player.');
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+        }
+      });
+    } else if (videoEl.canPlayType && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+      // Safari native HLS
+      videoEl.src = src;
+      try { videoEl.play().catch(()=>{}); } catch(e){}
+      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    } else {
+      // no HLS support: fallback to player.html
+      showPlayerError('HLS not supported — opening external player.');
+      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+    }
+    return;
+  }
+
+  // MP4 direct
+  if (isMP4(src)) {
+    const videoEl = getModalVideo();
+    if (!videoEl) {
+      // fallback
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+      return;
+    }
+    videoEl.src = src;
+    try { videoEl.play().catch(()=>{}); } catch(e){}
+    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    return;
+  }
+
+  // Unknown -> fallback to player.html (matches Hawkeye behavior)
+  window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+}
+
+/* ============================
+   Controls & event bindings
+   ============================ */
+
+/* Click handler for each movie tile */
+function handleMovieClick(movie, idxInAll) {
+  // Find index in the filtered array so next/prev use the visible list
+  const idxInFiltered = currentFiltered.indexOf(movie);
+  const indexToUse = idxInFiltered >= 0 ? idxInFiltered : idxInAll;
+  playInModal(currentFiltered.length ? currentFiltered : movies, indexToUse);
+}
+
+/* Modal close */
+closeModalBtn.addEventListener('click', closeVideoModal);
+
+/* clicking outside the modal container closes */
+videoModal.addEventListener('click', (e) => {
+  if (e.target === videoModal) closeVideoModal();
+});
+
+/* Play/Pause toggle (for HTML5 video only) */
+playPauseBtn.addEventListener('click', () => {
+  const v = getModalVideo();
+  if (!v) return;
+  if (v.paused) {
+    v.play().catch(()=>{});
+    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+  } else {
+    v.pause();
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+  }
+});
+
+/* Next / Prev */
+nextBtn.addEventListener('click', () => {
+  if (!currentFiltered.length) currentFiltered = movies;
+  if (currentIndex == null) return showPlayerError('No current item');
+  if (currentIndex < currentFiltered.length - 1) {
+    playInModal(currentFiltered, currentIndex + 1);
+  } else {
+    showPlayerError('No next video');
+  }
+});
+prevBtn.addEventListener('click', () => {
+  if (!currentFiltered.length) currentFiltered = movies;
+  if (currentIndex == null) return showPlayerError('No current item');
+  if (currentIndex > 0) {
+    playInModal(currentFiltered, currentIndex - 1);
+  } else {
+    showPlayerError('No previous video');
+  }
+});
+
+/* Fullscreen */
+fullscreenBtn.addEventListener('click', () => {
+  const el = getModalVideo() || modalPlayer.querySelector('iframe');
+  if (!el) return;
+  if (!document.fullscreenElement) {
+    (el.requestFullscreen || modalPlayer.requestFullscreen).call(el).catch(err => showPlayerError('Fullscreen failed'));
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+/* Mute toggle */
+muteBtn.addEventListener('click', () => {
+  const v = getModalVideo();
+  if (!v) return;
+  v.muted = !v.muted;
+  muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+});
+
+/* Keyboard shortcuts when modal active */
+document.addEventListener('keydown', (e) => {
+  if (!videoModal.classList.contains('active')) return;
+  switch (e.key.toLowerCase()) {
+    case 'escape': closeVideoModal(); break;
+    case ' ': e.preventDefault(); { const v = getModalVideo(); if (v) v.paused ? v.play() : v.pause(); break; }
+    case 'arrowright': { const v = getModalVideo(); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
+    case 'arrowleft': { const v = getModalVideo(); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+    case 'f': fullscreenBtn.click(); break;
+    case 'm': muteBtn.click(); break;
+    case 'n': nextBtn.click(); break;
+    case 'p': prevBtn.click(); break;
+  }
+});
+
+/* -------------------------
+   Search / category bindings
+   ------------------------- */
+searchBar.addEventListener('input', (e) => {
+  currentSearch = e.target.value.trim().toLowerCase();
+  filterMovies();
+});
+clearSearch.addEventListener('click', () => {
+  searchBar.value = '';
+  currentSearch = '';
+  filterMovies();
+});
+categoryBtns.forEach(btn => {
+  btn.addEventListener('click', function() {
+    categoryBtns.forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    currentCategory = this.dataset.category || 'all';
+    filterMovies();
+  });
+});
+
+/* Initial render */
+document.addEventListener('DOMContentLoaded', () => {
+  // initial filtered list
+  currentFiltered = movies.slice();
+  displayMovies(currentFiltered);
+  loading.style.display = 'none';
+});
 </script>
+
 </body>
 </html>
