@@ -1,45 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>The Day of the Jackal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>The Day of the Jackal — Fixed Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- hls.js -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
   <style>
-    /* Custom scrollbar */
+    /* kept your styles (unchanged) */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #111; }
     ::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #ffdd33; }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
     .fade-in { animation: fadeIn 0.45s ease-out forwards; }
-    .delay-1 { animation-delay: 0.08s; } .delay-2 { animation-delay: 0.16s; } .delay-3 { animation-delay: 0.24s; } .delay-4 { animation-delay: 0.32s; } .delay-5 { animation-delay: 0.40s; }
+    .delay-1 { animation-delay: .08s } .delay-2 { animation-delay: .16s } .delay-3 { animation-delay: .24s } .delay-4 { animation-delay: .32s } .delay-5 { animation-delay: .40s }
 
-    .glow-effect { position: relative; }
-    .glow-effect::after {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px;
-      box-shadow: 0 0 15px rgba(255, 204, 0, 0); transition: box-shadow 0.3s ease; pointer-events: none;
-    }
-    .glow-effect:hover::after { box-shadow: 0 0 15px rgba(255, 204, 0, 0.7); }
+    .glow-effect { position:relative; }
+    .glow-effect::after { content:''; position:absolute; inset:0; border-radius:12px; box-shadow:0 0 15px rgba(255,204,0,0); transition: box-shadow .3s ease; pointer-events:none; }
+    .glow-effect:hover::after { box-shadow:0 0 15px rgba(255,204,0,0.7); }
 
     .gradient-text {
-      background: linear-gradient(90deg, #ffcc00, #ff9900); -webkit-background-clip: text;
-      background-clip: text; color: transparent;
+      background: linear-gradient(90deg,#ffcc00,#ff9900);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
     }
 
-    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
-    @media (max-width: 400px) { .movie-card { width: 100%; } }
+    @media (max-width:640px) { .movie-card { width: calc(50% - 1rem); } }
+    @media (max-width:400px) { .movie-card { width: 100%; } }
 
-    /* Modal area tweaks */
-    #playback-modal .aspect-video { aspect-ratio: 16/9; }
-    .quality-btn { cursor: pointer; }
-    #playerError { display: none; }
+    /* Modal/player styles (Hawkeye-style) */
+    .modal-overlay { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.9); z-index:9999; opacity:0; visibility:hidden; transition: all .2s ease; }
+    .modal-overlay.active { opacity:1; visibility:visible; }
+    .modal-card { width:95%; max-width:1100px; border-radius:12px; overflow:hidden; background: linear-gradient(180deg,#0b0b0b,#151515); box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .player-area { position:relative; padding-bottom:56.25%; height:0; background:black; }
+    .player-area video, .player-area iframe { position:absolute; inset:0; width:100%; height:100%; background:black; }
+    .progress-bar { height:6px; background: rgba(255,255,255,0.06); width:100%; position:relative; }
+    .progress-fill { position:absolute; left:0; top:0; bottom:0; width:0%; background:#ffd166; transition: width .2s linear; }
+    .controls { display:flex; gap:8px; align-items:center; }
+    .btn { background:#1f1f1f; color:#fff; padding:8px 12px; border-radius:8px; }
+    .btn.primary { background:#ffd166; color:#111827; }
+
+    #playerError { display:none; }
+    #playerError.show { display:block; }
   </style>
 </head>
+
 <body class="bg-black text-gray-100 min-h-screen">
-  <!-- Header -->
+  <!-- Header (kept intact) -->
   <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-2">
@@ -62,23 +73,23 @@
     <!-- Search Bar (hidden by default) -->
     <div id="search-bar" class="hidden px-4 pb-4">
       <div class="relative">
-        <input id="search-input" type="text" placeholder="Search episodes..." 
+        <input id="search-input" type="text" placeholder="Search episodes..."
                class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
         <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Main content (kept intact) -->
   <main class="container mx-auto px-4 py-8">
     <!-- Hero -->
     <section class="mb-12 relative overflow-hidden rounded-xl">
       <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-      <img src="https://static1.cbrimages.com/wordpress/wp-content/uploads/2024/10/the-day-of-the-jackal-eddie-redmayne.jpg" 
+      <img src="https://static1.cbrimages.com/wordpress/wp-content/uploads/2024/10/the-day-of-the-jackal-eddie-redmayne.jpg"
            alt="The Day of the Jackal Banner" class="w-full h-64 md:h-96 object-cover">
       <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
         <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text">Movie & TV Series</h2>
-        <p class="text-gray-300 mb-4 max-w-lg">A gripping political thriller across two eras — the iconic 1973 film and the modern 2024 TV series — both follow a deadly assassin known as "The Jackal" and the global manhunt to stop him. </p>
+        <p class="text-gray-300 mb-4 max-w-lg">A gripping political thriller across two eras — the iconic 1973 film and the modern 2024 TV series — both follow a deadly assassin known as "The Jackal" and the global manhunt to stop him.</p>
         <div class="flex space-x-3">
           <button id="play-all-btn" class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
             <i class="fas fa-play mr-2"></i> Play All
@@ -118,7 +129,7 @@
       </h3>
 
       <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <!-- Episode cards inserted by JS -->
+        <!-- episode cards inserted by JS -->
       </div>
     </section>
 
@@ -130,12 +141,12 @@
       </h3>
 
       <div id="original-movie" class="grid grid-cols-1 gap-6">
-        <!-- Original movie card inserted by JS -->
+        <!-- original movie card inserted by JS -->
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
+  <!-- Footer (kept) -->
   <footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8">
     <div class="container mx-auto px-4">
       <div class="flex flex-col md:flex-row justify-between items-center">
@@ -146,450 +157,439 @@
             </div>
             <span class="text-xl font-bold gradient-text">THE DAY OF THE JACKAL</span>
           </div>
-          <p class="text-gray-400 text-sm mt-2">© 2023 The Day of the Jackal Productions. All rights reserved.</p>
+          <p class="text-gray-400 text-sm mt-2">©  The Day of the Jackal Productions. All rights reserved.</p>
         </div>
 
         <div class="flex space-x-6">
           <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-facebook-f"></i></a>
           <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-instagram"></i></a>
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-youtube"></i></a>
+          <a href="https://www.instagram.com/stark_4152" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-youtube"></i></a>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- Playback Modal (from Marvel logic, adapted) -->
-  <div id="playback-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-90">
-    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden p-4">
-      <button id="close-modal" class="absolute top-3 right-3 z-50 text-white hover:text-yellow-500 text-2xl transition"><i class="fas fa-times"></i></button>
-
-      <div class="aspect-video">
-        <video id="modal-video" class="w-full h-full bg-black" controls playsinline></video>
-      </div>
-
-      <div id="qualityControls" class="flex justify-center mt-3"></div>
-      <div id="playerError" class="hidden bg-red-900 text-white p-2 rounded mt-2 text-center"></div>
-
-      <div class="flex justify-between mt-3">
-        <button id="prevBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
-          <i class="fas fa-step-backward mr-1"></i> Prev
-        </button>
-        <div class="flex items-center gap-2">
-          <button id="fullscreenBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
-            <i class="fas fa-expand mr-1"></i> Fullscreen
-          </button>
-          <button id="muteBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
-            <i class="fas fa-volume-up mr-1"></i> Mute
-          </button>
+  <!-- Playback Modal (Hawkeye-style) -->
+  <div id="playback-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="relative p-4 border-b border-gray-700 flex items-start justify-between">
+        <div>
+          <div id="modal-title" class="text-xl font-bold text-yellow-400"></div>
+          <div id="modal-sub" class="text-sm text-gray-400 mt-1"></div>
         </div>
-        <button id="nextBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
-          Next <i class="fas fa-step-forward ml-1"></i>
-        </button>
+        <div class="flex items-center gap-3">
+          <button id="close-modal-btn" class="text-white p-2 rounded bg-gray-800 hover:bg-gray-700"><i class="fas fa-times"></i></button>
+        </div>
       </div>
 
-      <h3 id="modal-title" class="text-xl font-bold text-yellow-400 mt-3"></h3>
-      <div class="text-center text-gray-400 text-sm mt-1">Keyboard: Space=Play/Pause, ←/→ seek, F=Fullscreen, N=Next, P=Prev, M=Mute</div>
+      <div id="player-area" class="player-area">
+        <!-- default video (JS will create/destroy HLS-controlled <video>) -->
+        <video id="modal-video" controls playsinline preload="metadata" class="w-full h-full"></video>
+      </div>
+
+      <div class="progress-bar" id="video-progress"><div id="progress-fill" class="progress-fill"></div></div>
+
+      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <p id="modal-desc" class="text-gray-300 text-sm"></p>
+          <div id="qualityControls" class="mt-2"></div>
+        </div>
+
+        <div class="controls">
+          <button id="prevBtn" class="btn" title="Previous"><i class="fas fa-step-backward"></i></button>
+          <button id="modal-play" class="btn primary" title="Play/Pause"><i class="fas fa-play mr-2"></i><span id="playText">Play</span></button>
+          <button id="nextBtn" class="btn" title="Next"><i class="fas fa-step-forward"></i></button>
+          <button id="muteBtn" class="btn" title="Mute"><i class="fas fa-volume-up"></i></button>
+          <button id="fullscreenBtn" class="btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
     </div>
   </div>
 
+  <div id="playerError" class="hidden bg-red-900 text-white p-2 rounded mt-2 text-center"></div>
+
   <script>
-    /***************
-     * Data
-     * (kept from your jackal file)
-     ***************/
-    const episodes = [
-      { title: "Episode 1", year: 2024, video: "https://queenselti.me/stream_675319c583556/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4749/1738838544749-h", runtime: "45 min", rating: "7.8/10", description: "When an elite assassin carries out his latest kill, it catches the attention of an intelligence officer, who starts to hunt him down." },
-      { title: "Episode 2", year: 2024, video: "https://queenselti.me/stream_67531a22891de/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4955/1738838544955-h", runtime: "45 min", rating: "8.1/10", description: "With his previous client backing out of payment, the Jackal's reputation is on the line, and he starts to plot his revenge." },
-      { title: "Episode 3", year: 2024, video: "https://queenselti.me/stream_67531aa7b1e83/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/5166/1738838545166-h", runtime: "45 min", rating: "8.3/10", description: "Armed with the knowledge of his wayward client's identity, the Jackal tracks him down in Munich, determined to settle the score." },
-      { title: "Episode 4", year: 2024, video: "https://queenselti.me/stream_67531b1359203/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/7180/1738838547180-h", runtime: "45 min", rating: "8.4/10", description: "His vengeance fulfilled, the Jackal flees Munich and tries to quell Nuria's suspicions. Bianca follows a new lead in her hunt." },
-      { title: "Episode 5", year: 2024, video: "https://queenselti.me/stream_67531bbd13437/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/6205/1738838546205-h", runtime: "45 min", rating: "8.7/10", description: "The Jackal visits Norman with a special commission, but with Bianca also tracking Norman down, she is starting to close in on him." },
-      { title: "Episode 6", year: 2024, video: "https://queenselti.me/stream_67531bfd9efbb/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/3306/1738838543306-h", runtime: "45 min", rating: "9.0/10", description: "Following his shoot-out with Bianca, the Jackal must escape his captors and regroup ahead of his hit on Ulle Dag Charles; Bianca tracks his trail of devastation through central Europe." },
-      { title: "Episode 7", year: 2024, video: "https://queenselti.me/stream_67531bfdd205d/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/1604/1738838541604-h", runtime: "45 min", rating: "8.5/10", description: "The Jackal and Bianca both descend on Tallinn in anticipation of UDC's announcement; with the venue in lockdown and Bianca closing in, the Jackal must use all his wiles as he prepares to take his shot." },
-      { title: "Episode 8", year: 2024, video: "https://queenselti.me/stream_67531d12e5508/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/8679/1738838538679-h", runtime: "45 min", rating: "8.2/10", description: "Emerging from the turmoil in Tallinn, the Jackal retreats into the shadows. Meanwhile, Bianca meticulously delves into the mysterious history of 'Duggan,' analyzing his experiences in Afghanistan to uncover potential new leads." },
-      { title: "Episode 9", year: 2024, video: "https://queenselti.me/stream_67531e5b44036/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4846/1738838534846-h", runtime: "45 min", rating: "8.2/10", description: "With the release of River imminent, UDC believes himself safe. As time runs out, the Jackal must use all his skills to reach his target." },
-      { title: "Episode 10", year: 2024, video: "https://queenselti.me/stream_675f00f2796fd/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4435/1738838534435-h", runtime: "45 min", rating: "8.2/10", description: "A wanted man, the Jackal is on the run and desperate to get back to Nuria, but Bianca is given one last shot to bring him to justice." }
-    ];
+  /***************
+   * Data (unchanged as uploaded)
+   ***************/
+  const episodes = [
+    { title: "Episode 1", year: 2024, video: "https://queenselti.me/stream_675319c583556/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4749/1738838544749-h", runtime: "45 min", rating: "7.8/10", description: "When an elite assassin carries out his latest kill, it catches the attention of an intelligence officer, who starts to hunt him down." },
+    { title: "Episode 2", year: 2024, video: "https://queenselti.me/stream_67531a22891de/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4955/1738838544955-h", runtime: "45 min", rating: "8.1/10", description: "With his previous client backing out of payment, the Jackal's reputation is on the line, and he starts to plot his revenge." },
+    { title: "Episode 3", year: 2024, video: "https://queenselti.me/stream_67531aa7b1e83/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/5166/1738838545166-h", runtime: "45 min", rating: "8.3/10", description: "Armed with the knowledge of his wayward client's identity, the Jackal tracks him down in Munich, determined to settle the score." },
+    { title: "Episode 4", year: 2024, video: "https://queenselti.me/stream_67531b1359203/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/7180/1738838547180-h", runtime: "45 min", rating: "8.4/10", description: "His vengeance fulfilled, the Jackal flees Munich and tries to quell Nuria's suspicions. Bianca follows a new lead in her hunt." },
+    { title: "Episode 5", year: 2024, video: "https://queenselti.me/stream_67531bbd13437/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/6205/1738838546205-h", runtime: "45 min", rating: "8.7/10", description: "The Jackal visits Norman with a special commission, but with Bianca also tracking Norman down, she is starting to close in on him." },
+    { title: "Episode 6", year: 2024, video: "https://queenselti.me/stream_67531bfd9efbb/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/3306/1738838543306-h", runtime: "45 min", rating: "9.0/10", description: "Following his shoot-out with Bianca, the Jackal must escape his captors and regroup ahead of his hit on Ulle Dag Charles; Bianca tracks his trail of devastation through central Europe." },
+    { title: "Episode 7", year: 2024, video: "https://queenselti.me/stream_67531bfdd205d/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/1604/1738838541604-h", runtime: "45 min", rating: "8.5/10", description: "The Jackal and Bianca both descend on Tallinn in anticipation of UDC's announcement; with the venue in lockdown and Bianca closing in, the Jackal must use all his wiles as he prepares to take his shot." },
+    { title: "Episode 8", year: 2024, video: "https://queenselti.me/stream_67531d12e5508/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/8679/1738838538679-h", runtime: "45 min", rating: "8.2/10", description: "Emerging from the turmoil in Tallinn, the Jackal retreats into the shadows. Meanwhile, Bianca meticulously delves into the mysterious history of 'Duggan,' analyzing his experiences in Afghanistan to uncover potential new leads." },
+    { title: "Episode 9", year: 2024, video: "https://queenselti.me/stream_67531e5b44036/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4846/1738838534846-h", runtime: "45 min", rating: "8.2/10", description: "With the release of River imminent, UDC believes himself safe. As time runs out, the Jackal must use all his skills to reach his target." },
+    { title: "Episode 10", year: 2024, video: "https://queenselti.me/stream_675f00f2796fd/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4435/1738838534435-h", runtime: "45 min", rating: "8.2/10", description: "A wanted man, the Jackal is on the run and desperate to get back to Nuria, but Bianca is given one last shot to bring him to justice." }
+  ];
 
-    const originalMovie = {
-      title: "The Day of the Jackal (1973)",
-      year: 1973,
-      video: "https://queenselti.me/stream_660503f29ed41/uwu.m3u8",
-      image: "https://ntvb.tmsimg.com/assets/p2497_v_h10_aa.jpg?w=1280&h=720",
-      runtime: "143 min",
-      rating: "7.8/10",
-      description: "A French paramilitary organization hires a professional assassin to kill President Charles de Gaulle, triggering an international manhunt in this classic thriller."
-    };
+  const originalMovie = {
+    title: "The Day of the Jackal (1973)",
+    year: 1973,
+    video: "https://queenselti.me/stream_660503f29ed41/uwu.m3u8",
+    image: "https://ntvb.tmsimg.com/assets/p2497_v_h10_aa.jpg?w=1280&h=720",
+    runtime: "143 min",
+    rating: "7.8/10",
+    description: "A French paramilitary organization hires a professional assassin to kill President Charles de Gaulle, triggering an international manhunt in this classic thriller."
+  };
 
-    /*********************
-     * UI element references
-     *********************/
-    const episodesContainer = document.getElementById('episodes');
-    const originalMovieContainer = document.getElementById('original-movie');
-    const searchBtn = document.getElementById('search-btn');
-    const searchBar = document.getElementById('search-bar');
-    const themeToggle = document.getElementById('theme-toggle');
-    const playbackModal = document.getElementById('playback-modal');
-    const closeModalBtn = document.getElementById('close-modal');
-    const modalVideo = document.getElementById('modal-video');
-    const modalTitle = document.getElementById('modal-title');
-    const qualityControls = document.getElementById('qualityControls');
-    const playerError = document.getElementById('playerError');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
-    const searchInput = document.getElementById('search-input');
-    const playAllBtn = document.getElementById('play-all-btn');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const sortSelect = document.getElementById('sort-select');
+  /* ============================
+     DOM refs
+     ============================ */
+  const episodesContainer = document.getElementById('episodes');
+  const originalMovieContainer = document.getElementById('original-movie');
+  const searchBtn = document.getElementById('search-btn');
+  const searchBar = document.getElementById('search-bar');
+  const themeToggle = document.getElementById('theme-toggle');
+  const playbackModal = document.getElementById('playback-modal');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const playerArea = document.getElementById('player-area');
+  const modalTitle = document.getElementById('modal-title');
+  const modalSub = document.getElementById('modal-sub');
+  const modalDesc = document.getElementById('modal-desc');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const muteBtn = document.getElementById('muteBtn');
+  const searchInput = document.getElementById('search-input');
+  const playAllBtn = document.getElementById('play-all-btn');
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const sortSelect = document.getElementById('sort-select');
+  const progressFill = document.getElementById('progress-fill');
+  const playerError = document.getElementById('playerError');
+  const qualityControls = document.getElementById('qualityControls');
 
-    // State for modal
-    let currentList = []; // filtered list
-    let currentVideo = null; // { index: number, item: {} }
-    let currentFilter = 'all';
-    let currentSort = 'release';
+  /* Playback state */
+  let currentVideo = null; // { list, index, item }
+  let currentHls = null;
 
-    /***********************
-     * Helper functions (from Marvel logic)
-     ***********************/
-    function isStream(url) {
-      return /\.(m3u8|txt)$/i.test(url);
-    }
-    function isMP4(url) {
-      return /\.mp4(\?|$)/i.test(url);
-    }
+  /* Helpers from Hawkeye (kept) */
+  function isHls(u) {
+    if (!u) return false;
+    return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
+  }
+  function isMP4(u) { return /\.mp4($|\?)/i.test(u || ''); }
+  function isYouTube(u) { return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/'))); }
 
-    function showError(msg) {
-      playerError.textContent = msg;
-      playerError.classList.remove('hidden');
-      setTimeout(() => playerError.classList.add('hidden'), 3500);
-    }
+  function showError(msg) {
+    if(!playerError) return;
+    playerError.textContent = msg;
+    playerError.classList.add('show');
+    setTimeout(()=> playerError.classList.remove('show'), 3500);
+  }
 
-    /***********************
-     * Rendering
-     ***********************/
-    function renderEpisodes() {
-      // Build filtered list (episodes only)
-      const term = (searchInput.value || '').toLowerCase().trim();
-      let list = episodes.slice();
-
-      // Simple filter by data-filter on buttons (this demo uses no tags, so filters are illustrative)
-      if (currentFilter !== 'all') {
-        // Example: keep all for now — placeholder for real tag-based filtering
-        // list = list.filter(e => (e.tags||[]).includes(currentFilter));
-      }
-
-      // search
-      if (term) {
-        list = list.filter(e => e.title.toLowerCase().includes(term) || (e.description||'').toLowerCase().includes(term));
-      }
-
-      // sort (episode order is original array order; leave as-is or implement)
-      if (currentSort === 'release') {
-        // by year then index
-        list.sort((a,b) => (a.year||0) - (b.year||0));
-      } else if (currentSort === 'order') {
-        // keep original order
-      } else if (currentSort === 'pop') {
-        list.sort((a,b) => (b.rating||0) - (a.rating||0));
-      }
-
-      // store for modal navigation (episodes only). We'll append originalMovie as last item separately later.
-      currentList = list.slice();
-
-      episodesContainer.innerHTML = '';
-      list.forEach((ep, idx) => {
-        const card = createEpisodeCard(ep, idx);
-        episodesContainer.appendChild(card);
-      });
-    }
-
-    function createEpisodeCard(ep, idx) {
-      const outer = document.createElement('div');
-      outer.className = `movie-card fade-in delay-${(idx%5)+1} glow-effect`;
-      outer.innerHTML = `
-        <div class="relative group overflow-hidden rounded-xl cursor-pointer">
-          <img src="${ep.image}" alt="${ep.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-            <div>
-              <h3 class="text-white font-semibold text-lg">${ep.title}</h3>
-              <p class="text-gray-300 text-sm">${ep.runtime}</p>
-            </div>
-          </div>
-          <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
-            <i class="fas fa-play"></i>
+  /* RENDERING (kept same structure) */
+  function createEpisodeCard(ep, idx) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `movie-card fade-in delay-${(idx%5)+1} glow-effect`;
+    wrapper.innerHTML = `
+      <div class="relative group overflow-hidden rounded-xl cursor-pointer">
+        <img src="${ep.image}" alt="${ep.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <div>
+            <h3 class="text-white font-semibold text-lg">${ep.title}</h3>
+            <p class="text-gray-300 text-sm">${ep.runtime}</p>
           </div>
         </div>
-        <div class="mt-3">
-          <h3 class="text-white font-medium">${ep.title}</h3>
-          <div class="flex items-center text-gray-400 text-sm mt-1">
-            <span>S1 • E${idx + 1}</span><span class="mx-2">•</span><span>${ep.runtime}</span>
-          </div>
+        <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
+          <i class="fas fa-play"></i>
         </div>
-      `;
-      outer.addEventListener('click', () => {
-        // When opening an episode, ensure currentList includes episodes + original at the end for navigation
-        const combined = currentList.concat([originalMovie]); // last index is original movie
-        openPlaybackFor(combined, idx, true);
-      });
-      return outer;
-    }
-
-    function renderOriginalMovieCard() {
-      originalMovieContainer.innerHTML = '';
-      const idx = episodes.length; // used only if we combine lists
-      const card = document.createElement('div');
-      card.className = `movie-card fade-in delay-1 glow-effect`;
-      card.innerHTML = `
-        <div class="relative group overflow-hidden rounded-xl cursor-pointer">
-          <img src="${originalMovie.image}" alt="${originalMovie.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-            <div>
-              <h3 class="text-white font-semibold text-lg">${originalMovie.title}</h3>
-              <p class="text-gray-300 text-sm">${originalMovie.runtime}</p>
-            </div>
-          </div>
-          <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
-            <i class="fas fa-play"></i>
-          </div>
+      </div>
+      <div class="mt-3">
+        <h3 class="text-white font-medium">${ep.title}</h3>
+        <div class="flex items-center text-gray-400 text-sm mt-1">
+          <span>S1 • E${idx + 1}</span><span class="mx-2">•</span><span>${ep.runtime}</span>
         </div>
-        <div class="mt-3">
-          <h3 class="text-white font-medium">${originalMovie.title}</h3>
-          <div class="flex items-center text-gray-400 text-sm mt-1">
-            <span>${originalMovie.year}</span><span class="mx-2">•</span><span>${originalMovie.runtime}</span>
-          </div>
-        </div>
-      `;
-      card.addEventListener('click', () => {
-        // combine episodes + original so prev/next navigate sensibly
-        const combined = episodes.slice().concat([originalMovie]);
-        openPlaybackFor(combined, combined.length - 1, false);
-      });
-      originalMovieContainer.appendChild(card);
-    }
-
-    /***********************
-     * Playback logic (adapted from Marvel)
-     * - supports:
-     *   - string mp4 (play in modal)
-     *   - string .m3u8/.txt (redirect to player.html)
-     *   - object { low, medium, high } (quality controls; prefer high)
-     ***********************/
-    function openPlaybackFor(listArray, indexToOpen, isEpisode) {
-      if (!Array.isArray(listArray) || listArray.length === 0) return showError("No videos available");
-      const item = listArray[indexToOpen];
-      if (!item) return showError("Item not found");
-
-      // If video is an object (multiple qualities) check for stream vs mp4 inside values
-      const videoVal = item.video;
-      let videoCombinedValues = '';
-      if (typeof videoVal === 'object') videoCombinedValues = Object.values(videoVal).join(' ');
-
-      // If stream (m3u8 / txt) and NOT mp4 — redirect to player.html (external player)
-      if ((typeof videoVal === 'string' && isStream(videoVal) && !isMP4(videoVal))
-        || (typeof videoVal === 'object' && isStream(videoCombinedValues) && !isMP4(videoCombinedValues))) {
-        // Redirect to player page with encoded video(s)
-        const encoded = encodeURIComponent(typeof videoVal === 'object' ? videoCombinedValues : videoVal);
-        const title = encodeURIComponent(item.title || 'Video');
-        window.location.href = `player.html?title=${title}&video=${encoded}`;
-        return;
-      }
-
-      // Else, play in modal (MP4 or direct playable)
-      playInModal(listArray, indexToOpen);
-    }
-
-    function playInModal(listArr, index) {
-      const item = listArr[index];
-      if (!item) return showError("Video not available");
-
-      // Build quality controls if item.video is object
-      qualityControls.innerHTML = '';
-      if (typeof item.video === 'object') {
-        const entries = Object.entries(item.video);
-        entries.forEach(([quality, url]) => {
-          const btn = document.createElement('button');
-          btn.className = 'quality-btn px-3 py-1 mx-1 rounded bg-gray-700 hover:bg-gray-600 text-sm text-white';
-          btn.dataset.url = url;
-          btn.dataset.quality = quality;
-          btn.innerText = quality.toUpperCase();
-          qualityControls.appendChild(btn);
-        });
-      }
-
-      // Title
-      modalTitle.textContent = item.title || '';
-
-      // Choose src: prefer high -> medium -> low when object
-      let src = '';
-      if (typeof item.video === 'object') {
-        src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
-      } else {
-        src = item.video;
-      }
-
-      // Set video source and show modal
-      modalVideo.pause();
-      // handle browser caching same-time update by clearing src first
-      modalVideo.src = src;
-      playbackModal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-      currentVideo = { index, list: listArr, item };
-
-      // Attempt autoplay; if not allowed show notice but still display modal
-      modalVideo.play().catch(() => {
-        showError("Autoplay blocked — press play to start.");
-      });
-
-      updatePrevNextButtons();
-    }
-
-    function updatePrevNextButtons() {
-      if (!currentVideo || !Array.isArray(currentVideo.list)) {
-        prevBtn.disabled = nextBtn.disabled = true;
-        return;
-      }
-      prevBtn.disabled = currentVideo.index <= 0;
-      nextBtn.disabled = currentVideo.index >= currentVideo.list.length - 1;
-    }
-
-    function closeModalHandler() {
-      modalVideo.pause();
-      modalVideo.src = '';
-      playbackModal.classList.add('hidden');
-      document.body.style.overflow = '';
-      currentVideo = null;
-    }
-
-    function togglePlayPause() {
-      modalVideo.paused ? modalVideo.play().catch(()=>showError('Play blocked')) : modalVideo.pause();
-    }
-    function seek(seconds) {
-      try { modalVideo.currentTime = Math.max(0, (modalVideo.currentTime || 0) + seconds); } catch(e){ /* ignore */ }
-    }
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        // try video element first (prefers fullscreen just for video)
-        (modalVideo.requestFullscreen?.() || document.documentElement.requestFullscreen?.()).catch(err => showError("Fullscreen failed: " + (err.message || err)));
-      } else {
-        document.exitFullscreen?.();
-      }
-    }
-    function toggleMute() {
-      modalVideo.muted = !modalVideo.muted;
-      muteBtn.innerHTML = modalVideo.muted ? '<i class="fas fa-volume-mute mr-1"></i> Unmute' : '<i class="fas fa-volume-up mr-1"></i> Mute';
-    }
-
-    function playNext() {
-      if (!currentVideo || !Array.isArray(currentVideo.list)) return;
-      if (currentVideo.index < currentVideo.list.length - 1) {
-        playInModal(currentVideo.list, currentVideo.index + 1);
-      } else {
-        showError("No next video in this list.");
-      }
-    }
-    function playPrevious() {
-      if (!currentVideo || !Array.isArray(currentVideo.list)) return;
-      if (currentVideo.index > 0) {
-        playInModal(currentVideo.list, currentVideo.index - 1);
-      } else {
-        showError("No previous video in this list.");
-      }
-    }
-
-    /***********************
-     * Event listeners
-     ***********************/
-    // Modal control buttons
-    closeModalBtn.addEventListener('click', closeModalHandler);
-    prevBtn.addEventListener('click', playPrevious);
-    nextBtn.addEventListener('click', playNext);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
-
-    // clicking outside modal content closes it
-    playbackModal.addEventListener('click', (e) => {
-      if (e.target === playbackModal) closeModalHandler();
-    });
-
-    // Quality selector (event delegation)
-    qualityControls.addEventListener('click', (e) => {
-      const t = e.target;
-      if (!t.dataset || !t.dataset.url) return;
-      const url = t.dataset.url;
-      const currentTime = modalVideo.currentTime || 0;
-      modalVideo.src = url;
-      modalVideo.currentTime = currentTime;
-      modalVideo.play().catch(()=>showError("Click play to resume."));
-    });
-
-    // Keyboard shortcuts when modal open
-    document.addEventListener('keydown', (e) => {
-      if (playbackModal.classList.contains('hidden')) return;
-      const key = e.key.toLowerCase();
-      if (key === 'escape') closeModalHandler();
-      else if (key === ' ') { e.preventDefault(); togglePlayPause(); }
-      else if (key === 'arrowright') seek(10);
-      else if (key === 'arrowleft') seek(-10);
-      else if (key === 'f') toggleFullscreen();
-      else if (key === 'm') toggleMute();
-      else if (key === 'n') playNext();
-      else if (key === 'p') playPrevious();
-    });
-
-    modalVideo.addEventListener('error', () => showError("Failed to load video. It may be blocked or unavailable."));
-
-    // Search toggle
-    searchBtn.addEventListener('click', () => searchBar.classList.toggle('hidden'));
-
-    // Theme toggle (simple invert)
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('bg-gray-100');
-      document.body.classList.toggle('text-gray-900');
-      document.body.classList.toggle('bg-black');
-      document.body.classList.toggle('text-gray-100');
-      const icon = themeToggle.querySelector('i');
-      if (document.body.classList.contains('bg-black')) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
-      else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
-    });
-
-    // Filter buttons
-    filterButtons.forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelector('.filter-btn.active')?.classList.remove('active', 'bg-yellow-600', 'text-black');
-        this.classList.add('active', 'bg-yellow-600', 'text-black');
-        currentFilter = this.dataset.filter || 'all';
-        renderEpisodes();
-      });
-    });
-
-    // Sort select
-    sortSelect.addEventListener('change', (e) => {
-      currentSort = e.target.value || 'release';
-      renderEpisodes();
-    });
-
-    // Search input (live)
-    searchInput.addEventListener('input', () => renderEpisodes());
-
-    // Play all button: play first episode then rely on nextBtn behavior
-    playAllBtn.addEventListener('click', () => {
+      </div>
+    `;
+    wrapper.addEventListener('click', () => {
       const combined = episodes.slice().concat([originalMovie]);
-      if (combined.length > 0) openPlaybackFor(combined, 0, true);
+      openPlaybackFor(combined, idx);
     });
+    return wrapper;
+  }
 
-    // Prevent accidental navigation on clicking card links (no links here)
+  function renderEpisodes() {
+    const term = (searchInput.value || '').toLowerCase().trim();
+    let list = episodes.slice();
+    if(term) list = list.filter(e => e.title.toLowerCase().includes(term) || (e.description||'').toLowerCase().includes(term));
+    const sort = sortSelect.value;
+    if(sort === 'release') list.sort((a,b) => (a.year||0) - (b.year||0));
+    else if(sort === 'pop') list.sort((a,b) => (parseFloat(b.rating)||0) - (parseFloat(a.rating)||0));
+    episodesContainer.innerHTML = '';
+    list.forEach((ep, idx) => episodesContainer.appendChild(createEpisodeCard(ep, idx)));
+  }
 
-    /***********************
-     * Initialize page
-     ***********************/
-    function initPage() {
-      renderEpisodes();
-      renderOriginalMovieCard();
+  function renderOriginalMovieCard(){
+    originalMovieContainer.innerHTML = '';
+    const card = document.createElement('div');
+    card.className = `movie-card fade-in delay-1 glow-effect`;
+    card.innerHTML = `
+      <div class="relative group overflow-hidden rounded-xl cursor-pointer">
+        <img src="${originalMovie.image}" alt="${originalMovie.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <div>
+            <h3 class="text-white font-semibold text-lg">${originalMovie.title}</h3>
+            <p class="text-gray-300 text-sm">${originalMovie.runtime}</p>
+          </div>
+        </div>
+        <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
+          <i class="fas fa-play"></i>
+        </div>
+      </div>
+      <div class="mt-3">
+        <h3 class="text-white font-medium">${originalMovie.title}</h3>
+        <div class="flex items-center text-gray-400 text-sm mt-1">
+          <span>${originalMovie.year}</span><span class="mx-2">•</span><span>${originalMovie.runtime}</span>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => {
+      const combined = episodes.slice().concat([originalMovie]);
+      openPlaybackFor(combined, combined.length - 1);
+    });
+    originalMovieContainer.appendChild(card);
+  }
+
+  /* ============================
+     Playback functions (Hawkeye-based, fixed)
+     - IMPORTANT: HLS streams are now played IN-MODAL via hls.js
+     - iframe hosts and YouTube still embed as iframe
+     ============================ */
+
+  function resetPlayerContainer(){
+    if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+    playerArea.innerHTML = `<video id="modal-video" controls playsinline preload="metadata" class="w-full h-full"></video>`;
+  }
+
+  function getModalVideo(){ return document.getElementById('modal-video'); }
+
+  // Open playback for item in list — NOTE: NO forced redirect for HLS
+  function openPlaybackFor(listArray, indexToOpen){
+    if(!Array.isArray(listArray) || listArray.length === 0) return showError("No videos available");
+    const item = listArray[indexToOpen];
+    if(!item) return showError("Item not found");
+
+    // If item.video is object (qualities), build combined string for checks
+    const videoVal = item.video;
+    let combined = '';
+    if(typeof videoVal === 'object') combined = Object.values(videoVal).join(' ');
+
+    // We removed forced redirect. Instead attempt to play everything in modal:
+    // - If iframe host or youtube -> embed iframe
+    // - else if HLS -> use hls.js in modal
+    // - else try setting <video>.src (mp4, etc.)
+    playInModal(listArray, indexToOpen);
+  }
+
+  function playInModal(listArr, index){
+    const item = listArr[index];
+    if(!item) return showError("Video not available");
+
+    modalTitle.textContent = item.title || '';
+    modalDesc.textContent = item.description || '';
+    qualityControls.innerHTML = '';
+
+    resetPlayerContainer();
+
+    // choose initial src
+    let src = '';
+    if(typeof item.video === 'object'){
+      src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
+      // build quality buttons
+      Object.entries(item.video).forEach(([q,u])=>{
+        const b = document.createElement('button');
+        b.className = 'quality-btn px-2 py-1 mx-1 rounded bg-gray-700 text-white text-sm';
+        b.textContent = q.toUpperCase();
+        b.dataset.url = u;
+        b.addEventListener('click', () => {
+          const v = getModalVideo();
+          const cur = v && v.currentTime ? v.currentTime : 0;
+          // destroy previous HLS if any
+          if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+          if(isHls(b.dataset.url) && window.Hls && Hls.isSupported()){
+            // replace video element to ensure clean attach
+            resetPlayerContainer();
+            const newV = getModalVideo();
+            currentHls = new Hls();
+            currentHls.loadSource(b.dataset.url);
+            currentHls.attachMedia(newV);
+            currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ newV.currentTime = cur; newV.play().catch(()=>{}); });
+          } else {
+            // normal src replace
+            if(getModalVideo()) { getModalVideo().src = b.dataset.url; try{ getModalVideo().currentTime = cur; }catch(e){} getModalVideo().play().catch(()=>{}); }
+          }
+        });
+        qualityControls.appendChild(b);
+      });
+    } else {
+      src = item.video;
     }
 
-    window.addEventListener('DOMContentLoaded', initPage);
+    // iframe hosts list
+    const iframeHosts = ['streamtape.com','openload.co','vidcdn.','dood.','sbembed','drive.google.com','mega.nz','streamlare','mixdrop','rapidvideo'];
+
+    // embed iframe for those hosts
+    if(typeof src === 'string' && iframeHosts.some(h => src.includes(h))){
+      playerArea.innerHTML = `<iframe src="${src}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+      playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
+      currentVideo = { list: listArr, index, item };
+      updateNavButtons();
+      return;
+    }
+
+    // YouTube embed
+    if(isYouTube(src)){
+      let embedUrl = src;
+      try{
+        if(src.includes('watch') && src.includes('v=')){
+          const vid = new URLSearchParams(src.split('?')[1]).get('v');
+          if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+        } else if(src.includes('youtu.be/')){
+          const parts = src.split('youtu.be/');
+          if(parts[1]) embedUrl = `https://www.youtube.com/embed/${parts[1].split(/[?&]/)[0]}`;
+        }
+      }catch(e){}
+      playerArea.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+      playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
+      currentVideo = { list: listArr, index, item };
+      updateNavButtons();
+      return;
+    }
+
+    // else use <video> element — handle HLS with hls.js if needed
+    const v = getModalVideo();
+    if(!v) return showError('Player not available');
+
+    if(isHls(src)){
+      if(window.Hls && Hls.isSupported()){
+        try{
+          currentHls = new Hls();
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+            playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
+            v.play().catch(()=>{ showError('Autoplay blocked — press play'); });
+          });
+          currentHls.on(Hls.Events.ERROR, (event,data) => {
+            if(data && data.fatal){
+              try{ currentHls.destroy(); }catch(e){} currentHls = null;
+              v.src = src; playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
+              v.play().catch(()=>{});
+            }
+          });
+        }catch(e){
+          // fallback to src
+          v.src = src; playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
+          v.play().catch(()=>{});
+        }
+      } else {
+        v.src = src; playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
+        v.play().catch(()=>{});
+      }
+    } else {
+      // mp4 or other direct playable url
+      v.src = src; playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
+      v.play().catch(()=>{ showError('Autoplay blocked — press play'); });
+    }
+
+    currentVideo = { list: listArr, index, item };
+    attachVideoListeners();
+    updateNavButtons();
+  }
+
+  function attachVideoListeners(){
+    const v = getModalVideo();
+    if(!v) return;
+    if(v.dataset.listenersAttached) return;
+    v.dataset.listenersAttached = '1';
+
+    v.addEventListener('timeupdate', () => {
+      if(!v.duration || !isFinite(v.duration)) return;
+      const pct = (v.currentTime / v.duration) * 100;
+      progressFill.style.width = pct + '%';
+    });
+    v.addEventListener('play', () => { document.getElementById('modal-play').innerHTML = '<i class="fas fa-pause mr-2"></i><span id="playText">Pause</span>'; });
+    v.addEventListener('pause', () => { document.getElementById('modal-play').innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>'; });
+    v.addEventListener('ended', () => { document.getElementById('modal-play').innerHTML = '<i class="fas fa-redo mr-2"></i><span id="playText">Replay</span>'; });
+  }
+
+  function updateNavButtons(){
+    if(!currentVideo || !Array.isArray(currentVideo.list)){ prevBtn.disabled = nextBtn.disabled = true; return; }
+    prevBtn.disabled = currentVideo.index <= 0;
+    nextBtn.disabled = currentVideo.index >= currentVideo.list.length - 1;
+  }
+
+  function playNext(){ if(currentVideo && currentVideo.index < currentVideo.list.length - 1) playInModal(currentVideo.list, currentVideo.index + 1); else showError('No next item'); }
+  function playPrev(){ if(currentVideo && currentVideo.index > 0) playInModal(currentVideo.list, currentVideo.index - 1); else showError('No previous item'); }
+
+  function closeModalHandler(){
+    if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+    const v = getModalVideo();
+    if(v){ try{ v.pause(); }catch(e){} try{ v.removeAttribute('src'); v.load(); }catch(e){} }
+    qualityControls.innerHTML = '';
+    progressFill.style.width = '0%';
+    playbackModal.classList.remove('active');
+    document.body.style.overflow = '';
+    currentVideo = null;
+  }
+
+  // Controls
+  document.getElementById('modal-play').addEventListener('click', () => {
+    const v = getModalVideo(); if(!v) return;
+    if(v.paused) v.play().catch(()=>showError('Press play to continue')); else v.pause();
+  });
+  prevBtn.addEventListener('click', playPrev);
+  nextBtn.addEventListener('click', playNext);
+  fullscreenBtn.addEventListener('click', () => {
+    const elem = playerArea.querySelector('video') || playerArea.querySelector('iframe');
+    if(!elem) return;
+    if(!document.fullscreenElement) elem.requestFullscreen?.().catch(()=>{}); else document.exitFullscreen?.().catch(()=>{});
+  });
+  muteBtn.addEventListener('click', () => {
+    const v = getModalVideo(); if(!v) return; v.muted = !v.muted; muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute mr-1"></i> Unmute' : '<i class="fas fa-volume-up mr-1"></i> Mute';
+  });
+
+  closeModalBtn.addEventListener('click', closeModalHandler);
+  playbackModal.addEventListener('click', (e)=> { if(e.target === playbackModal) closeModalHandler(); });
+
+  document.addEventListener('keydown', (e) => {
+    if(!playbackModal.classList.contains('active')) return;
+    if(e.key === 'Escape') closeModalHandler();
+    if(e.key === ' ') { e.preventDefault(); document.getElementById('modal-play').click(); }
+    if(e.key === 'ArrowRight'){ const v = getModalVideo(); if(v) v.currentTime += 10; }
+    if(e.key === 'ArrowLeft'){ const v = getModalVideo(); if(v) v.currentTime -= 10; }
+    if(e.key.toLowerCase() === 'n') playNext();
+    if(e.key.toLowerCase() === 'p') playPrev();
+    if(e.key.toLowerCase() === 'm') muteBtn.click();
+    if(e.key.toLowerCase() === 'f') fullscreenBtn.click();
+  });
+
+  /* UI interactions (kept) */
+  searchBtn.addEventListener('click', ()=> searchBar.classList.toggle('hidden'));
+  themeToggle.addEventListener('click', ()=> {
+    document.body.classList.toggle('bg-black'); document.body.classList.toggle('text-gray-100');
+    document.body.classList.toggle('bg-white'); document.body.classList.toggle('text-gray-900');
+    const icon = themeToggle.querySelector('i'); if(icon) icon.classList.toggle('fa-sun'); if(icon) icon.classList.toggle('fa-moon');
+  });
+  filterButtons.forEach(btn => btn.addEventListener('click', function(){
+    document.querySelector('.filter-btn.active')?.classList.remove('active','bg-yellow-600','text-black');
+    this.classList.add('active','bg-yellow-600','text-black');
+    renderEpisodes();
+  }));
+  sortSelect.addEventListener('change', renderEpisodes);
+  searchInput.addEventListener('input', renderEpisodes);
+  playAllBtn.addEventListener('click', ()=> {
+    const combined = episodes.slice().concat([originalMovie]);
+    if(combined.length) openPlaybackFor(combined, 0);
+  });
+
+  /* Initialize page */
+  function initPage(){ renderEpisodes(); renderOriginalMovieCard(); }
+  window.addEventListener('DOMContentLoaded', initPage);
   </script>
 </body>
 </html>
