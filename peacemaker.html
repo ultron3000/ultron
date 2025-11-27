@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Peacemaker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js (from Tukaram for HLS playback support) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    /* PRESERVE original Hawkeye CSS and animations but adjust theme to Loki */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #07060b; }
+    ::-webkit-scrollbar-thumb { background: #9ad34d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #bfe67a; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes arrowBounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(5px);} }
+
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .pulse-hover:hover { animation: pulse 1.5s infinite; }
+    .arrow-bounce { animation: arrowBounce 2s infinite; }
+
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
+
+    .glow-effect { position: relative; transition: transform 0.3s ease; }
+    .glow-effect:hover { transform: translateY(-5px); }
+    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(154,211,77,0); transition:box-shadow 0.3s; pointer-events:none;}
+    .glow-effect:hover::after { box-shadow:0 0 20px rgba(154,211,77,0.25); }
+
+    .gradient-text { background: linear-gradient(90deg, #9ad34d, #7f3cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .marvel-font { font-family: 'Marvel', sans-serif; }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
+    @media (max-width: 400px) { .movie-card { width: 100%; } }
+
+    /* Modal player container (Tukaram-style preserved) */
+    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
+
+    /* small Loki tint changes to Hawkeye theme */
+    header { background: linear-gradient(90deg,#081018,#04040a); }
+    .bg-loki { background: linear-gradient(135deg,#7f3cff,#9ad34d); }
+    .loki-accent { color: #9ad34d; }
+    .btn-loki { background: #9ad34d; color: #061217; }
+    .btn-loki:hover { filter: brightness(0.95); }
+    .watchlist-checkbox .checkmark { border: 2px solid #9ad34d; }
+    .progress-bar-fill { background: #9ad34d; }
+
+    /* keep other original Hawkeye styles intact */
+    body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen font-roboto">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
+<i class="text-black text-xl">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="w-6 h-6">
+    <path d="M256 0c-70.7 0-128 57.3-128 128s57.3 128 128 128 128-57.3 128-128S326.7 0 256 0zm0 240c-61.9 0-112-50.1-112-112S194.1 16 256 16s112 50.1 112 112-50.1 112-112 112z"/>
+    <path d="M256 272c-88.4 0-160 71.6-160 160h320c0-88.4-71.6-160-160-160z"/>
+  </svg>
+</i>
+        </div>
+        <h1 class="text-2xl font-bold gradient-text marvel-font tracking-wide">Peacemaker</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
+          <i class="fas fa-bookmark loki-accent"></i>
+          <span class="tooltip-text">My Watchlist</span>
+        </button>
+        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon loki-accent"></i>
+          <span class="tooltip-text">Toggle Theme</span>
+        </button>
+        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-search loki-accent"></i>
+          <span class="tooltip-text">Search</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Search Bar (hidden by default) -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
+      <div class="relative">
+        <input id="global-search" type="text" placeholder="Search episodes..." 
+               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400">
+        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d]"></i>
+      </div>
+    </div>
+    
+    <!-- Watchlist dropdown (hidden by default) -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-700">
+        <h3 class="font-semibold loki-accent">My Watchlist</h3>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
+        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+<main class="container mx-auto px-4 py-6">
+  <!-- Hero Section -->
+  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
+    
+    <div class="relative w-full h-[400px] md:h-[500px] overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+        <!-- Loki hero trailer (YouTube embed) -->
+        <iframe
+          src="https://www.youtube.com/embed/WHXq62VCaCM?autoplay=1&mute=1&loop=1&playlist=WHXq62VCaCM&controls=0&rel=0"
+          frameborder="0"
+          allow="autoplay; fullscreen"
+          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        ></iframe>
+      </div>
+      
+      <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
+        <div class="flex items-center mb-2">
+          <span class="bg-[#9ad34d] text-black text-xs font-bold px-2 py-1 rounded mr-2">NEW</span>
+          <span class="text-[#9ad34d] text-sm">Seasons 1–2</span>
+        </div>
+        <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text marvel-font tracking-wide">Peacemaker</h2>
+        <div class="flex items-center mb-4">
+          <div class="flex items-center mr-4">
+            <i class="fas fa-star loki-accent mr-1"></i>
+            <span class="text-white">8.4</span>
+          </div>
+          <span class="text-gray-300 text-sm mr-4">TV-14</span>
+        </div>
+        <p class="text-gray-300 mb-4 max-w-lg text-sm md:text-base">Picking up where The Suicide Squad (2021) left off, Peacemaker returns home after recovering from his encounter with Bloodsport - only to discover that his freedom comes at a price.</p>
+        <div class="flex space-x-3">
+          <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
+            <i class="fas fa-play mr-2"></i> Play All
+          </button>
+          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-info-circle mr-2"></i> Details
+          </button>
+        </div>
+      </div>
+      <div class="absolute bottom-4 right-4 z-20">
+        <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
+          <i class="fas fa-chevron-down arrow-bounce"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+
+    <!-- Season Navigation -->
+    <div class="flex items-center justify-between mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
+      <h3 class="text-xl font-semibold flex items-center">
+        <i class="fas fa-tv loki-accent mr-2"></i>
+        <span class="marvel-font">EPISODES</span>
+      </h3>
+      <div class="flex items-center space-x-2">
+        <!-- Add data-season attributes for filtering -->
+        <button class="season-btn bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
+        <button class="season-btn active bg-[#9ad34d] text-black px-3 py-1 rounded-full text-xs font-medium" data-season="1">Season 1</button>
+        <button class="season-btn bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-full text-xs font-medium" data-season="2">Season 2</button>
+        
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center justify-between mb-8 gap-4 container mx-auto px-4">
+      <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+        
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <span class="text-gray-400 text-sm">Sort by:</span>
+        <select id="sort-select" class="bg-gray-900 border border-gray-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-[#9ad34d]">
+          <option>Release Date</option>
+          <option>Episode Order</option>
+          <option>Popularity</option>
+          <option>Duration</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Episodes Grid -->
+    <section class="container mx-auto px-4">
+      <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <!-- Movie cards inserted by JS -->
+      </div>
+    </section>
+
+
+
+ <!-- Footer / Social -->
+  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  </div>
+
+  <!-- Playback Modal (preserved from original file) -->
+  <div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90 transition-opacity duration-300">
+    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden shadow-2xl transform transition-all duration-300 scale-95">
+      <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2 transition">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <div class="relative">
+        <div id="modal-player">
+          <video id="modal-video" class="w-full" controls playsinline>
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div id="video-progress" class="progress-bar w-full">
+          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 id="modal-title" class="text-2xl font-bold mb-1"></h3>
+            <div class="flex items-center text-gray-400 text-sm">
+              <span id="modal-season-ep">S1 • E1</span>
+              <span class="mx-2">•</span>
+              <span id="modal-duration">45 min</span>
+            </div>
+          </div>
+          <label class="watchlist-checkbox">
+            <input type="checkbox" id="watchlist-checkbox">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        
+        <p id="modal-description" class="text-gray-300 mb-6">Loading description...</p>
+        
+        <div class="flex space-x-3">
+          <button id="play-btn" class="bg-[#9ad34d] hover:bg-[#8fcf3a] text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-play mr-2"></i> Play
+          </button>
+          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-info-circle mr-2"></i> Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#9ad34d]"></div>
+  </div>
+
+  <script>
+    /* ------------------------
+       LOKI episodes data (dummy URLs)
+       ------------------------ */
+    const movies = [
+      // Season 1 (8 eps)
+      { title: "A Whole New Whirled", video: "https://sy6.velonovaenergy.sbs:443/v4/is9/vy3qi/index-f1-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/538eLa2f3FoSwNNzHpHi0J1ZXl6.jpg", season: 1, episode: 1, duration: "45 min" },
+      { title: "Best Friends, For Never", video: "https://sad.brionix.cyou:443/v4/db/5x88b/index-f2-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/dUAS7fZqjdPcfYnLnxCm40U0LUa.jpg", season: 1, episode: 2, duration: "45 min" },
+      { title: "Better Goff Dead", video: "https://svz.moriartis.store:443/v4/epu/5x8bm/index-f2-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/wyZXot4qqZEOCOOB3Vrv5F4KXRR.jpg", season: 1, episode: 3, duration: "45 min" },
+      { title: "The Choad Less Traveled", video: "https://sri.novacrestnetwork.online:443/v4/pk8/pg68e/index-f2-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/b0jdRtuGm7blKJZamhU30Z1XlP5.jpg", season: 1, episode: 4, duration: "45 min" },
+      { title: "Monkey Dory", video: "https://sad.oravialuxury.online:443/v4/epu/lf5yc/index-f2-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/hUAnjCnWPn7SulqtNTe7xJhv38A.jpg", season: 1, episode: 5, duration: "45 min" },
+      { title: "Murn After Reading", video: "https://svz.bellevianetwork.sbs:443/v4/mik/bkjfu/index-f2-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/4IIMkGmzSsC02fjfqiFRQp7ySAM.jpg", season: 1, episode: 6, duration: "45 min" },
+      { title: "Stop Dragon My Heart Around", video: "https://sri.dreamoraresort.sbs:443/v4/pk8/jrgxe/index-f2-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/bzdhWTRUb9CFF3tDT4SyBn0QGd.jpg", season: 1, episode: 7, duration: "45 min" },
+      { title: "It's Cow or Never", video: "https://sri.seawindart.space:443/v4/pk8/hjppa/index-f2-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/9oi9FPSEYlDmMvHSQaCmhsDO6PU.jpg", season: 1, episode: 8, duration: "45 min" },
+      
+      // Season 2 (8 eps)
+      { title: "The Ties That Grind", video: "https://vip.opstream90.com:443/20250822/11019_e7fdeae5/3000k/hls/mixed.m3u8", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/hoL20ZxHYTyNqzYZw5AAgwhHZPP.jpg", season: 2, episode: 1, duration: "45 min" },
+      { title: "A Man Is Only As Good As His Bird", video: "https://vip.opstream90.com:443/20250902/11594_d346256a/3000k/hls/mixed.m3u8", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/sAqQYYUMaS9FqHNACCQL9LRwsYn.jpg", season: 2, episode: 2, duration: "45 min" },
+      { title: "Another Rick Up My Sleeve", video: "https://vip.opstream90.com:443/20250905/11850_97143643/3000k/hls/mixed.m3u8", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/a8TIhxg98a8BLVOMP8p24c3lFaC.jpg", season: 2, episode: 3, duration: "45 min" },
+      { title: "Need I Say Door", video: "https://vip.opstream90.com:443/20250912/12198_9b47b867/3000k/hls/mixed.m3u8", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/6bdIgolsJzPHyJE7RLGeca1YKLn.jpg", season: 2, episode: 4, duration: "45 min" },
+      { title: "Back to the Suture", video: "https://vip.opstream90.com:443/20250919/12666_e7728fab/3000k/hls/mixed.m3u8", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/c8LmcPtTvxqE708zBo1bD8RYqGw.jpg", season: 2, episode: 5, duration: "45 min" },
+      { title: "Ignorance Is Chris", video: "https://vip.opstream90.com:443/20250926/13040_9f2b4918/3000k/hls/mixed.m3u8", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/l55bH1tdPjWjCVaOe0yaXHVC2wn.jpg", season: 2, episode: 6, duration: "45 min" },
+      { title: "Like a Keith in the Night", video: "https://vip.opstream90.com:443/20251003/13627_581c2ccb/3000k/hls/mixed.m3u8", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/original/zGwyJ5w7SKznoR336cK3UFldkx1.jpg", season: 2, episode: 7, duration: "45 min" },
+      { title: "Full Nelson", video: "https://vip.opstream90.com/20251010/14642_1be9573b/index.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/3493/1759845943493-h", season: 2, episode: 8, duration: "45 min" },
+    ];
+
+    /* ------------------------
+       DOM references & preserved functions from original file
+       ------------------------ */
+    const container = document.getElementById('movies');
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const themeToggle = document.getElementById('theme-toggle');
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+    const watchlistItems = document.getElementById('watchlist-items');
+    const playbackModal = document.getElementById('playback-modal');
+    const closeModal = document.getElementById('close-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+    const episodeNum = document.getElementById('modal-season-ep');
+    const modalDuration = document.getElementById('modal-duration');
+    const playBtn = document.getElementById('play-btn');
+    const watchlistCheckbox = document.getElementById('watchlist-checkbox');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    const scrollDownBtn = document.getElementById('scroll-down');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const seasonBtns = document.querySelectorAll('.season-btn');
+    const modalPlayer = document.getElementById('modal-player');
+    const globalSearch = document.getElementById('global-search');
+    let currentHls = null;
+    let currentMovieIndex = null;
+
+    function isHls(u) {
+      if (!u) return false;
+      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
+    }
+    function isMP4(u) { return /\.mp4($|\?)/i.test(u || ''); }
+    function isYouTube(u) { return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('/embed/'))); }
+
+    function resetPlayerContainer() {
+      if (currentHls) { try { currentHls.destroy(); } catch(e) {} currentHls = null; }
+      modalPlayer.innerHTML = `<video id="modal-video" class="w-full" controls playsinline>Your browser does not support the video tag.</video>`;
+      attachVideoListeners();
+    }
+
+    function closeModalHandler() {
+      const videoEl = document.getElementById('modal-video');
+      if (currentHls) { try { currentHls.destroy(); } catch (e) {} currentHls = null; }
+      if (videoEl) { try { videoEl.pause(); } catch(e) {} try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e) {} }
+      resetPlayerContainer();
+      playbackModal.classList.add('hidden');
+      document.body.style.overflow = '';
+      currentMovieIndex = null;
+      playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+      progressBarFill.style.width = '0%';
+    }
+
+    function playInModal(title, url, movieObj) {
+      currentMovieIndex = movies.indexOf(movieObj);
+      modalTitle.textContent = movieObj.title;
+      modalDescription.textContent = movieObj.description || '';
+      episodeNum.textContent = `S${movieObj.season} • E${movieObj.episode}`;
+      modalDuration.textContent = movieObj.duration || '';
+      watchlistCheckbox.checked = !!movieObj.inWatchlist;
+      progressBarFill.style.width = '0%';
+      resetPlayerContainer();
+
+      if (!url) {
+        modalTitle.textContent = title + ' — No playable URL provided';
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        return;
+      }
+
+      // iframe hosts
+      if (url.includes('streamtape.com') || url.includes('openload') || url.includes('dood')) {
+        modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
+
+      // YouTube
+      if (isYouTube(url)) {
+        let embedUrl = url;
+        try {
+          if (url.includes('watch') && url.includes('v=')) {
+            const vid = new URLSearchParams(url.split('?')[1]).get('v');
+            if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+          } else if (url.includes('youtu.be/')) {
+            const parts = url.split('youtu.be/');
+            if (parts[1]) {
+              const vid = parts[1].split(/[?&]/)[0];
+              embedUrl = `https://www.youtube.com/embed/${vid}`;
+            }
+          }
+        } catch(e){}
+        modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
+
+      const videoEl = document.getElementById('modal-video');
+
+      // HLS
+      if (isHls(url)) {
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          currentHls.loadSource(url);
+          currentHls.attachMedia(videoEl);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+            playbackModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            loadingSpinner.classList.add('hidden');
+            videoEl.play().catch(()=>{});
+          });
+        } else {
+          videoEl.src = url;
+          playbackModal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+          loadingSpinner.classList.add('hidden');
+          videoEl.play().catch(()=>{});
+        }
+        return;
+      }
+
+      // MP4
+      if (isMP4(url)) {
+        videoEl.src = url;
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        videoEl.play().catch(()=>{});
+        return;
+      }
+
+      // Fallback
+      loadingSpinner.classList.add('hidden');
+      window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+    }
+
+    function attachVideoListeners() {
+      const videoEl = document.getElementById('modal-video');
+      if (!videoEl) return;
+      videoEl.removeEventListener('timeupdate', videoTimeUpdateHandler);
+      videoEl.addEventListener('timeupdate', videoTimeUpdateHandler);
+      videoEl.removeEventListener('ended', videoEndedHandler);
+      videoEl.addEventListener('ended', videoEndedHandler);
+    }
+    function videoTimeUpdateHandler() {
+      const videoEl = document.getElementById('modal-video');
+      if (!videoEl || !videoEl.duration) return;
+      const progress = (videoEl.currentTime / videoEl.duration) * 100;
+      progressBarFill.style.width = progress + '%';
+    }
+    function videoEndedHandler() {
+      playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
+    }
+
+    /* renderMovies: creates the episode cards from a list */
+    function renderMovies(list) {
+      container.innerHTML = '';
+      list.forEach((movie, index) => {
+        const card = document.createElement('div');
+        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
+        card.innerHTML = `
+          <div class="relative group overflow-hidden rounded-xl">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              <div>
+                <h3 class="text-white font-semibold text-lg">${movie.title} S${movie.season} • E${movie.episode}</h3>
+                <p class="text-gray-300 text-sm">${movie.duration || ''}</p>
+              </div>
+            </div>
+            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
+              <i class="fas fa-play"></i>
+            </div>
+            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
+              <i class="fas fa-star text-[#9ad34d] text-xs mr-1"></i>
+              <span class="text-white text-xs">${movie.rating || ''}</span>
+            </div>
+          </div>
+          <div class="mt-3">
+            <h3 class="text-white font-medium">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-sm mt-1">
+              <span>Season ${movie.season} • Episode ${movie.episode}</span>
+              <span class="mx-2">•</span>
+              <span>${movie.duration || ''}</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          loadingSpinner.classList.remove('hidden');
+          playInModal(movie.title, movie.video, movie);
+        });
+        container.appendChild(card);
+      });
+    }
+
+    /* ------------------------
+       Init page (w/ season filtering wired up)
+       ------------------------ */
+    function initPage() {
+      // Default: render all
+      renderMovies(movies);
+
+      // Filter buttons (visual only as before)
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
+          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+        });
+      });
+
+      // Season buttons: now filter content (preserve active styling)
+      seasonBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          // remove active classes on season buttons
+          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
+          // set this as active
+          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+
+          const season = this.dataset.season;
+          let filtered;
+          if (!season || season === 'all') filtered = movies;
+          else filtered = movies.filter(m => String(m.season) === String(season));
+          renderMovies(filtered);
+        });
+      });
+
+      // Watchlist initial render
+      updateWatchlist();
+    }
+
+    /* Watchlist functions (preserved) */
+    function updateWatchlist() {
+      watchlistItems.innerHTML = '';
+      const watchlistMovies = movies.filter(m => m.inWatchlist);
+      if (watchlistMovies.length === 0) {
+        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
+        return;
+      }
+      watchlistMovies.forEach((movie, idx) => {
+        const index = movies.indexOf(movie);
+        const item = document.createElement('div');
+        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
+        item.innerHTML = `
+          <div class="flex items-center">
+            <span class="text-[#9ad34d] text-sm mr-2">${idx + 1}.</span>
+            <span class="text-white text-sm truncate">${movie.title}</span>
+          </div>
+          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+        item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeFromWatchlist(index);
+        });
+        item.addEventListener('click', () => {
+          loadingSpinner.classList.remove('hidden');
+          playInModal(movie.title, movie.video, movie);
+          watchlistDropdown.classList.add('hidden');
+        });
+        watchlistItems.appendChild(item);
+      });
+    }
+    function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
+    function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
+
+    /* preserved UI event wiring (search, theme, watchlist, modal controls) */
+    searchBtn.addEventListener('click', () => {
+      searchBar.classList.toggle('hidden');
+      watchlistDropdown.classList.add('hidden');
+    });
+
+    watchlistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      watchlistDropdown.classList.toggle('hidden');
+      searchBar.classList.add('hidden');
+    });
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('bg-gray-100');
+      document.body.classList.toggle('text-gray-900');
+      document.body.classList.toggle('bg-black');
+      document.body.classList.toggle('text-gray-100');
+      const icon = themeToggle.querySelector('i');
+      if (document.body.classList.contains('bg-black')) {
+        icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
+      } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+    });
+
+    closeModal.addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', function(e) { if (e.target === this) closeModalHandler(); });
+
+    playBtn.addEventListener('click', () => {
+      const videoEl = document.getElementById('modal-video');
+      if (!videoEl) return;
+      if (videoEl.paused) { videoEl.play(); playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause'; }
+      else { videoEl.pause(); playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play'; }
+    });
+
+    watchlistCheckbox.addEventListener('change', function() {
+      if (currentMovieIndex == null) return;
+      if (this.checked) addToWatchlist(currentMovieIndex); else removeFromWatchlist(currentMovieIndex);
+    });
+
+    scrollDownBtn.addEventListener('click', () => {
+      window.scrollTo({ top: document.querySelector('#movies').offsetTop - 20, behavior: 'smooth' });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
+      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
+    });
+
+    // Global search at top (filters current season / all)
+    globalSearch && globalSearch.addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      const activeSeasonBtn = document.querySelector('.season-btn.active');
+      const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+      let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+      if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
+      renderMovies(list);
+    });
+
+    // attach video listeners initially
+    attachVideoListeners();
+
+    // kickoff
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>
