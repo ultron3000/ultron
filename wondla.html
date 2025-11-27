@@ -1,22 +1,33 @@
+<!-- wondla-updated.html -->
+<!-- Caption: WondLa — modal player integrated (HLS/MP4/YouTube/iframe support). -->
+<!-- Hashtags: #WondLa #ModalPlayer #HLS #Streaming #TukaramIntegration -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>WondLa</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>WondLa — Modal Player Integrated</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- hls.js -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
     body { background: #0b0f14; color: #e6eef6; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
     header, footer { background: #071122; }
     .season-btn.active { background:#ffd166 !important; color:#081017 !important; }
-    .movie-card { background: #071627; border:1px solid rgba(255,255,255,0.03); }
-    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); z-index:1000; }
-    .modal-card { width:95%; max-width:1100px; border-radius:10px; overflow:hidden; }
+    .movie-card { background: #071627; border:1px solid rgba(255,255,255,0.03); transition: transform .25s ease, box-shadow .25s ease; }
+    .movie-card:hover { transform: translateY(-6px); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); z-index:1000; opacity:0; visibility:hidden; transition: all .25s ease; }
+    .modal-overlay.active { opacity:1; visibility:visible; }
+    .modal-card { width:95%; max-width:1100px; border-radius:10px; overflow:hidden; background:linear-gradient(180deg,#071122,#0b1220); box-shadow:0 20px 60px rgba(0,0,0,0.7); }
     .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
     .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; }
+    .progress-bar { height:4px; background: rgba(255,255,255,0.06); position: relative; }
+    .progress-fill { position:absolute; left:0; top:0; bottom:0; width:0%; background:#ffd166; transition: width .2s linear; }
+    .play-btn { background:#ffd166; color:#071017; }
+    @media (max-width:640px){ .modal-card{ width:98%; } .movie-card img{ height:220px; } }
   </style>
 </head>
 <body class="min-h-screen">
@@ -29,7 +40,7 @@
       </div>
       <div>
         <h1 class="text-2xl font-bold">WondLa</h1>
-        <div class="text-xs text-slate-300">Animated Series • Seasons 1–2</div>
+        <div class="text-xs text-slate-300">Animated Series • Seasons 1–3</div>
       </div>
     </div>
 
@@ -56,7 +67,6 @@
       <button class="season-btn px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 transition" data-season="1">Season 1</button>
       <button class="season-btn px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 transition" data-season="2">Season 2</button>
       <button class="season-btn px-4 py-2 rounded-full bg-slate-800 hover:bg-slate-700 transition" data-season="3">Season 3</button>
-
     </div>
   </section>
 
@@ -74,17 +84,46 @@
     <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
   </div>
 
-<!-- Modal -->
-<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
-  <div class="modal-card bg-black">
+<!-- =========================
+     Modal Player (Hawkeye-style integration)
+     ========================= -->
+<div id="playback-modal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-card">
     <div class="flex justify-between items-center p-3 border-b border-slate-800">
-      <div id="modal-title" class="text-white font-semibold"></div>
-      <button id="close-video-modal" class="p-2 rounded-full bg-slate-800 text-white"><i class="fas fa-times"></i></button>
+      <div>
+        <div id="modal-title" class="text-white font-semibold"></div>
+        <div id="modal-meta" class="text-sm text-slate-400 mt-1"></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="watchlist-toggle" class="px-3 py-1 rounded bg-slate-800 text-slate-200 hidden md:inline-flex"><i class="fas fa-bookmark mr-2"></i>Watchlist</button>
+        <button id="close-playback" class="p-2 rounded-full bg-slate-800 text-white"><i class="fas fa-times"></i></button>
+      </div>
     </div>
-    <div class="modal-player">
+
+    <div id="modal-player" class="modal-player">
+      <!-- video or iframe will be injected here; default <video> present for JS to attach HLS -->
       <video id="modal-video" controls playsinline preload="metadata"></video>
     </div>
+
+    <div id="video-progress" class="progress-bar">
+      <div id="progress-fill" class="progress-fill"></div>
+    </div>
+
+    <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <p id="modal-description" class="text-slate-300 text-sm"></p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="modal-play-btn" class="play-btn px-4 py-2 rounded-full font-semibold flex items-center"><i class="fas fa-play mr-2"></i><span id="modal-play-text">Play</span></button>
+        <button id="modal-details-btn" class="px-4 py-2 rounded-full bg-slate-800 text-slate-200 hidden md:inline-flex"><i class="fas fa-info-circle mr-2"></i>Details</button>
+      </div>
+    </div>
   </div>
+</div>
+
+<!-- Loading spinner -->
+<div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+  <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-500"></div>
 </div>
 
 <script>
@@ -134,109 +173,249 @@ const movies = [
 
 ];
 
+/* DOM references */
 const container = document.getElementById('movies');
-const videoModal = document.getElementById('video-modal');
+const searchInput = document.getElementById('search-input');
+const seasonBtns = document.querySelectorAll('.season-btn');
+
+/* Modal elements */
+const playbackModal = document.getElementById('playback-modal');
+const closePlayback = document.getElementById('close-playback');
+const modalPlayer = document.getElementById('modal-player');
+const modalVideo = () => document.getElementById('modal-video');
 const modalTitle = document.getElementById('modal-title');
+const modalMeta = document.getElementById('modal-meta');
+const modalDescription = document.getElementById('modal-description');
+const modalPlayBtn = document.getElementById('modal-play-btn');
+const modalPlayText = document.getElementById('modal-play-text');
+const progressFill = document.getElementById('progress-fill');
+const loadingSpinner = document.getElementById('loading-spinner');
 let currentHls = null;
+let currentIndex = null;
 
-function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
-function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
+/* helpers to detect stream type (robust to .txt HLS playlists too) */
+function isHls(u){
+  if(!u) return false;
+  return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.toLowerCase().includes('master.m3u8') || u.includes('manifest');
+}
+function isMP4(u){ return /\.mp4($|\?)/i.test(u||''); }
+function isYouTube(u){ return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/'))); }
 
-function isHls(u){return u && (u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u));}
-function isMP4(u){return /\.mp4($|\?)/i.test(u);} 
-function isYouTube(u){return u && (u.includes('youtu')||u.includes('youtube.com'));}
+/* reset player container to a clean <video> element & destroy hls if present */
+function resetPlayerContainer(){
+  if(currentHls){
+    try{ currentHls.destroy(); }catch(e){}
+    currentHls = null;
+  }
+  modalPlayer.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
+}
 
-function playInModal(title, url){
-  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
-  const playerContainer = document.querySelector('.modal-player');
-  const modalVideo = document.getElementById('modal-video');
-  modalTitle.textContent = title||'';
+/* attach listeners to <video> element for UI updates */
+function attachVideoListeners(){
+  const v = modalVideo();
+  if(!v) return;
+  v.removeAttribute('data-listener-attached');
+  v.addEventListener('timeupdate', () => {
+    if(!v.duration || !isFinite(v.duration)) return;
+    const perc = (v.currentTime / v.duration) * 100;
+    progressFill.style.width = perc + '%';
+  });
+  v.addEventListener('play', () => {
+    modalPlayBtn.innerHTML = '<i class="fas fa-pause mr-2"></i><span id="modal-play-text">Pause</span>';
+  });
+  v.addEventListener('pause', () => {
+    modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="modal-play-text">Play</span>';
+  });
+  v.addEventListener('ended', () => {
+    modalPlayBtn.innerHTML = '<i class="fas fa-redo mr-2"></i><span id="modal-play-text">Replay</span>';
+  });
+}
 
-  if(url.includes('streamtape')) {
-    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen frameborder="0"></iframe>`;
+/* open / close modal helpers */
+function showModal(){ playbackModal.classList.add('active'); document.body.style.overflow='hidden'; }
+function hideModal(){ playbackModal.classList.remove('active'); document.body.style.overflow=''; }
+
+/* close & cleanup */
+function closePlaybackHandler(){
+  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+  const v = modalVideo();
+  if(v){
+    try{ v.pause(); }catch(e){} 
+    try{ v.removeAttribute('src'); v.load(); }catch(e){}
+  }
+  resetPlayerContainer();
+  progressFill.style.width = '0%';
+  currentIndex = null;
+  hideModal();
+  modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="modal-play-text">Play</span>';
+}
+
+/* main playback function - supports iframe hosts, YouTube, HLS, MP4, fallback to player.html */
+function playInModal(title, url, movie = {}, index = null){
+  currentIndex = index;
+  modalTitle.textContent = movie.title || title || 'Playback';
+  modalDescription.textContent = movie.description || '';
+  modalMeta.textContent = (movie.year ? movie.year + ' • ' : '') + (movie.duration ? movie.duration : '');
+  progressFill.style.width = '0%';
+  modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="modal-play-text">Play</span>';
+
+  if(!url){
+    modalDescription.textContent = 'No playable URL provided.';
     showModal();
     return;
   }
 
+  // Hosts better served via iframe
+  const iframeHosts = ['streamtape.com','openload.co','vidcdn.','dood.', 'sbembed', 'drive.google.com','mega.nz','streamlare','mixdrop','rapidvideo'];
+  if(iframeHosts.some(h => url.includes(h))){
+    modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    showModal();
+    return;
+  }
+
+  // YouTube -> embed
   if(isYouTube(url)){
-    playerContainer.innerHTML = `<iframe src="${url}?autoplay=1&rel=0" width="100%" height="100%" allowfullscreen frameborder="0"></iframe>`;
-    showModal();
-    return;
+    try{
+      let embedUrl = url;
+      if(url.includes('watch') && url.includes('v=')){
+        const vid = new URLSearchParams(url.split('?')[1]).get('v');
+        if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+      } else if(url.includes('youtu.be/')){
+        const vid = url.split('youtu.be/')[1].split(/[?&]/)[0];
+        embedUrl = `https://www.youtube.com/embed/${vid}`;
+      }
+      modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+      showModal();
+      return;
+    }catch(e){
+      // fallback to next checks
+    }
   }
 
+  // Ensure we have a <video> element
+  resetPlayerContainer();
+  const v = modalVideo();
+
+  // HLS handling (including .txt index playlists)
   if(isHls(url)){
     if(window.Hls && Hls.isSupported()){
       currentHls = new Hls();
       currentHls.loadSource(url);
-      currentHls.attachMedia(modalVideo);
-      currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ showModal(); modalVideo.play().catch(()=>{}); });
+      currentHls.attachMedia(v);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+        showModal();
+        attachVideoListeners();
+        v.play().catch(()=>{});
+      });
+      currentHls.on(Hls.Events.ERROR, (event, data) => {
+        // If fatal error, attempt to fallback to direct src or redirect
+        if(data && data.fatal){
+          try{ currentHls.destroy(); }catch(e){}
+          currentHls = null;
+          v.src = url;
+          showModal();
+          v.play().catch(()=>{});
+          attachVideoListeners();
+        }
+      });
     } else {
-      modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{});
+      // Safari native HLS support
+      v.src = url;
+      showModal();
+      attachVideoListeners();
+      v.play().catch(()=>{});
     }
     return;
   }
 
+  // MP4 fallback
   if(isMP4(url)){
-    modalVideo.src = url; showModal(); modalVideo.play().catch(()=>{});
+    v.src = url;
+    showModal();
+    attachVideoListeners();
+    v.play().catch(()=>{});
     return;
   }
 
+  // Unknown type -> fallback to player.html (preserve prior app behavior)
   window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
 }
 
-function closePlayer(){
-  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
-  const playerContainer = document.querySelector('.modal-player');
-  playerContainer.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
-  hideModal();
-}
+/* play/pause button logic */
+modalPlayBtn.addEventListener('click', () => {
+  const v = modalVideo();
+  if(!v) return;
+  // if iframe is present (no video element), do nothing special
+  if(!v.src && modalPlayer.querySelector('iframe')) return;
+  if(v.paused){
+    v.play().catch(()=>{});
+  } else {
+    v.pause();
+  }
+});
 
-document.getElementById('close-video-modal').addEventListener('click', closePlayer);
-videoModal.addEventListener('click', e=>{ if(e.target===videoModal) closePlayer(); });
+/* modal close handlers */
+closePlayback.addEventListener('click', closePlaybackHandler);
+playbackModal.addEventListener('click', (e) => { if(e.target === playbackModal) closePlaybackHandler(); });
 
+/* utility to render episode cards (movies array currently empty) */
 function renderMovies(list){
   container.innerHTML = '';
-  list.forEach(m=>{
+  if(!list || list.length === 0){
+    container.innerHTML = `<div class="col-span-full text-center text-slate-400 py-20">No episodes available — paste your episodes array into <code>const movies = []</code>.</div>`;
+    return;
+  }
+  list.forEach((m, idx) => {
     const div = document.createElement('div');
     div.className = 'movie-card rounded-lg overflow-hidden cursor-pointer';
     div.innerHTML = `
       <div class="relative">
-        <img src="${m.image}" alt="${m.title}" class="w-full h-60 object-cover">
+        <img src="${m.image || ''}" alt="${m.title || 'Episode'}" class="w-full h-60 object-cover">
         <div class="absolute inset-0 flex items-end p-3 bg-gradient-to-t from-black/60">
           <button class="bg-yellow-400 text-black px-3 py-1 rounded">Play</button>
         </div>
       </div>
       <div class="p-3">
-        <div class="font-semibold">${m.title}</div>
-        <div class="text-sm text-slate-400">Season ${m.season} • Episode ${m.episode}</div>
+        <div class="font-semibold">${m.title || 'Untitled'}</div>
+        <div class="text-sm text-slate-400">Season ${m.season || '-'} • Episode ${m.episode || '-'}</div>
       </div>`;
-    div.addEventListener('click', ()=> playInModal(m.title, m.video));
+    div.addEventListener('click', () => {
+      // show spinner while preparing player
+      loadingSpinner.classList.remove('hidden');
+      // short timeout to ensure spinner shows if hls loads fast
+      setTimeout(() => {
+        try{ playInModal(m.title, m.video, m, idx); } finally { loadingSpinner.classList.add('hidden'); }
+      }, 150);
+    });
     container.appendChild(div);
   });
 }
 
+/* initial render */
 renderMovies(movies);
 
-// season filter
-const seasonBtns = document.querySelectorAll('.season-btn');
-seasonBtns.forEach(btn => btn.addEventListener('click', ()=>{
-  seasonBtns.forEach(b=>b.classList.remove('active'));
+/* season filter */
+seasonBtns.forEach(btn => btn.addEventListener('click', () => {
+  seasonBtns.forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const season = btn.dataset.season;
   const filtered = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
   renderMovies(filtered);
 }));
 
-// search
-const searchInput = document.getElementById('search-input');
-searchInput && searchInput.addEventListener('input', (e)=>{
+/* search */
+searchInput && searchInput.addEventListener('input', (e) => {
   const q = e.target.value.trim().toLowerCase();
   const activeSeasonBtn = document.querySelector('.season-btn.active');
   const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
-  let list = season === 'all' ? movies : movies.filter(m=>String(m.season)===String(season));
-  if(q){ list = list.filter(m => m.title.toLowerCase().includes(q)); }
+  let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+  if(q) list = list.filter(m => (m.title||'').toLowerCase().includes(q));
   renderMovies(list);
 });
+
+/* expose helper for console testing */
+window.playInModal = playInModal;
+window.closePlaybackHandler = closePlaybackHandler;
 </script>
 </body>
 </html>
