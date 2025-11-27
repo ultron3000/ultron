@@ -1,0 +1,637 @@
+<!-- vampire-updated.html -->
+<!-- Caption: Vampire Cinematic Universe — Hawkeye modal/player behavior integrated (HLS/MP4/YouTube/iframe). -->
+<!-- Hashtags: #Vampire #ModalPlayer #HLS #Streaming #TukaramIntegration -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vampire Cinematic Universe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- hls.js for HLS playback -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Montserrat:wght@300;400;600;700&display=swap');
+    :root {
+      --primary: #e50914;
+      --secondary: #b81d24;
+      --dark: #141414;
+      --light: #f5f5f1;
+      --accent: #ffcc00;
+    }
+    body {font-family:'Montserrat',sans-serif;background-color:var(--dark);color:var(--light);min-height:100vh;overflow-x:hidden;}
+    .title-font{font-family:'Cinzel Decorative',cursive;}
+    .movie-card{transition:all .3s ease;transform-origin:center;perspective:1000px;}
+    .movie-card:hover{transform:translateY(-10px) scale(1.03);box-shadow:0 10px 25px rgba(229,9,20,.3);}
+    .movie-card:hover .movie-poster{transform:rotateY(5deg);}
+    .movie-poster{transition:transform .5s ease;box-shadow:0 5px 15px rgba(0,0,0,.5);}
+    .movie-poster::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(to top,rgba(20,20,20,.9),transparent);}
+    .filter-btn.active{background-color:var(--primary);color:white;}
+    .dark-mode{background-color:#0a0a0a;color:#e5e5e5;}
+    .dark-mode .navbar{background-color:#111;}
+    .dark-mode .movie-card{background-color:#222;}
+    .loading-spinner{width:50px;height:50px;border:5px solid rgba(229,9,20,.3);border-radius:50%;border-top-color:var(--primary);animation:spin 1s ease-in-out infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    /* Hawkeye-style modal tweaks */
+    .modal-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.9); z-index: 9999; opacity:0; visibility:hidden; transition: all 0.25s ease; }
+    .modal-overlay.active { opacity:1; visibility:visible; }
+    .modal-card { width: 95%; max-width: 980px; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg,#0b0b0b,#151515); box-shadow: 0 30px 80px rgba(0,0,0,0.7); }
+    .player-area { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+    .player-area video, .player-area iframe { position: absolute; inset: 0; width: 100%; height: 100%; background: black; }
+    .progress-bar { height: 6px; background: rgba(255,255,255,0.06); position: relative; width: 100%; }
+    .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--accent); transition: width .2s linear; }
+    .controls { display:flex; gap:8px; align-items:center; }
+    .btn { background: #1f1f1f; color: #fff; padding:8px 12px; border-radius:8px; }
+    .btn.primary { background: var(--primary); color: #fff; }
+    @media (max-width:640px){ .modal-card { width: 98%; } }
+  </style>
+</head>
+<body class="relative">
+  
+   <!-- Blood drop animations -->
+  <div class="blood-drop" style="left: 10%; top: 10%; animation-delay: 0.5s;"></div>
+  <div class="blood-drop" style="left: 30%; top: 15%; animation-delay: 1s;"></div>
+  <div class="blood-drop" style="left: 70%; top: 5%; animation-delay: 1.5s;"></div>
+  <div class="blood-drop" style="left: 85%; top: 12%; animation-delay: 2s;"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar bg-black bg-opacity-90 text-white sticky top-0 z-50 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-moon text-red-600 text-2xl"></i>
+        <h1 class="title-font text-2xl md:text-3xl font-bold bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent">
+          Vampire Cinematic Universe
+        </h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon text-yellow-400"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Search -->
+    <div class="mb-8">
+      <div class="relative mb-6">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-search text-gray-400"></i>
+        </div>
+        <input id="searchBar" type="text" class="w-full bg-gray-900 text-white border border-gray-700 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition" placeholder="Search vampire movies...">
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+          <button id="clearSearch" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2 mb-4 overflow-x-auto pb-2">
+        <button class="filter-btn active px-4 py-2 rounded-full bg-red-600 text-white text-sm font-medium" data-filter="all">All</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700" data-filter="blade">Blade Series</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700" data-filter="underworld">Underworld</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700" data-filter="twilight">Twilight</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700" data-filter="classic">Classics</button>
+      </div>
+    </div>
+
+    <!-- Movies -->
+    <div id="loading" class="flex justify-center items-center py-20"><div class="loading-spinner"></div></div>
+    <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 hidden"></div>
+    <div id="noResults" class="hidden text-center py-20">
+      <i class="fas fa-video-slash text-5xl text-gray-600 mb-4"></i>
+      <h3 class="text-2xl font-semibold text-gray-400">No movies found</h3>
+      <p class="text-gray-500 mt-2">Try adjusting your search or filters</p>
+    </div>
+  </main>
+
+  <!-- Modal Player (Hawkeye-style behavior integrated) -->
+  <div id="playback-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+      <div class="relative p-4 border-b border-gray-800 flex items-start justify-between">
+        <div>
+          <div id="modal-title" class="text-xl font-bold text-red-400"></div>
+          <div id="modal-sub" class="text-sm text-gray-400 mt-1"></div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="close-modal" class="text-white p-2 rounded bg-gray-800 hover:bg-gray-700"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+
+      <div id="player-area" class="player-area">
+        <!-- Default <video> element (will be replaced/used by JS) -->
+        <video id="modal-video" controls playsinline preload="metadata"></video>
+      </div>
+
+      <div class="progress-bar" id="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+
+      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <p id="modal-desc" class="text-gray-300 text-sm"></p>
+        </div>
+        <div class="controls">
+          <button id="prevBtn" class="btn" title="Previous"><i class="fas fa-step-backward"></i></button>
+          <button id="modal-play" class="btn primary" title="Play/Pause"><i class="fas fa-play mr-2"></i><span id="playText">Play</span></button>
+          <button id="nextBtn" class="btn" title="Next"><i class="fas fa-step-forward"></i></button>
+          <button id="muteBtn" class="btn" title="Mute"><i class="fas fa-volume-up"></i></button>
+          <button id="fullscreenBtn" class="btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const movies=[
+      { 
+        title: "Blade", 
+        year: 1998,
+        series: "blade",
+        video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/1998/4/3/4963/movie.4963.1998.1080p.H264.20190426165458.mp4?KEY1=6H60h2Yst-p1QeTuT7jyOg&KEY2=1761267315&KEY3=1086206&KEY4=world&KEY7=febbox_video_quality_list_v3&KEY8=1086206", 
+        image: "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p21512_p_v8_ad.jpg",
+        rating: 7.1,
+        description: "A half-vampire, half-mortal man becomes a protector of the mortal race, while slaying evil vampires."
+      },
+      { 
+        title: "Blade II", 
+        year: 2002,
+        series: "blade",
+        video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/2002/4/8/4188/movie.4188.2002.1080p.H264.20190527062616.mp4?KEY1=P7FGsoqDkKKaiPfIHcbSXg&KEY2=1761267387&KEY3=1087255&KEY4=world&KEY7=febbox_video_quality_list_v3&KEY8=1087255", 
+        image: "https://m.media-amazon.com/images/M/MV5BZDZlNzQ5MmUtNTdlYS00YWFhLTk2NzItOGY5OTYzM2I2NzY3XkEyXkFqcGc@._V1_.jpg",
+        rating: 6.7,
+        description: "Blade forms an uneasy alliance with the vampire council to combat the Reapers, a new breed of monster."
+      },
+      { 
+        title: "Blade: Trinity", 
+        year: 2004,
+        series: "blade",
+        video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/2004/4/7/4187/movie.4187.2004.1080p.H264.20191209221400.mp4?KEY1=2lnkrL129lZb9X4zklPm9Q&KEY2=1761267427&KEY3=1087919&KEY4=world&KEY7=febbox_video_quality_list_v3&KEY8=1087919", 
+        image: "https://horrorreviewsbythecollective.wordpress.com/wp-content/uploads/2019/09/40384305a33e160ba23e618c49b21d5c.jpg?w=1000",
+        rating: 5.8,
+        description: "Blade is joined by the Nightstalkers, a group of human vampire hunters, to battle Dracula."
+      },
+      { 
+        title: "Underworld", 
+        year: 2003,
+        series: "underworld",
+        video: "https://bxs5xkxkyi4y.ambervistaagency.online/R7khaR4Jtgqr/hls3/01/00363/2grxuro6p92q_h/master.txt", 
+        image: "https://i.pinimg.com/564x/b5/ea/0e/b5ea0e879dedafacfd6a305b7a2270ac.jpg",
+        rating: 7.0,
+        description: "Selene, a vampire warrior, uncovers a plot to awaken a powerful vampire-werewolf hybrid."
+      },
+      { 
+        title: "Underworld: Evolution", 
+        year: 2006,
+        series: "underworld",
+        video: "https://x8oi6owwkjoewr.stellarifydesign.cyou/R7khaR4Jtgqr/hls3/01/00363/blqejzkpb8nn_h/master.txt", 
+        image: "https://i.ebayimg.com/images/g/1sgAAOSwNsxjCXss/s-l400.png",
+        rating: 6.7,
+        description: "Selene and Michael continue their battle against the werewolves and uncover more about their origins."
+      },
+      { 
+        title: "Underworld: Rise of the Lycans", 
+        year: 2009,
+        series: "underworld",
+        video: "https://drrh37sqosrl.vyletonecommerce.cyou/ma1vmsqmq/hls3/01/00363/jqj911p7l99h_h/master.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BMTAwNzYzMDQyMzReQTJeQWpwZ15BbWU3MDMyNDA0MjI@._V1_FMjpg_UX1000_.jpg",
+        rating: 6.6,
+        description: "The prequel story of the origins of the centuries-old feud between the vampires and the Lycans."
+      },
+      { 
+        title: "Underworld: Awakening", 
+        year: 2012,
+        series: "underworld",
+        video: "https://y36m66ikulk1.glenbrookdesign.online/jxnu44rmvdct/hls3/01/00353/93j0214wjgbk_h/master.txt", 
+        image: "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p8761312_p_v10_az.jpg",
+        rating: 6.4,
+        description: "Selene escapes imprisonment to find that humans have discovered the existence of vampires and werewolves."
+      },
+      { 
+        title: "Underworld: Blood Wars", 
+        year: 2016,
+        series: "underworld",
+        video: "https://cyyroro04xrqr.marvaniacollective.shop/5h9v8qmzbluh/hls3/01/01199/d58q7n6p0qxg_o/master.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BNzZhNjQxYTUtMjA5Ny00ZWJmLWI5ZjYtYjJmNzU3YmM3NzBhXkEyXkFqcGc@._V1_.jpg",
+        rating: 5.8,
+        description: "Selene fights to end the eternal war between the Lycan and Vampire factions."
+      },
+      { 
+        title: "Van Helsing", 
+        year: 2004,
+        series: "classic",
+        video: "https://wfoqwegqwcofgtb.blisshavenhealth.online/jubDiYuWLQCqfHI/hls3/01/02749/w711dfc9c1wk_n/master.txt", 
+        image: "https://i.pinimg.com/736x/f1/e7/93/f1e793dbebd182b19f5947dbe7724cd9.jpg",
+        rating: 6.1,
+        description: "Gabriel Van Helsing is sent to Transylvania to stop Count Dracula and his monster allies."
+      },
+      { 
+        title: "Dracula Untold", 
+        year: 2014,
+        series: "classic",
+        video: "https://vip.opstream15.com/20220316/1488_ec11b87c/index.m3u8", 
+        image: "https://m.media-amazon.com/images/I/91ByR5KoFCL._AC_UF894,1000_QL80_.jpg",
+        rating: 6.3,
+        description: "The origin story of Vlad the Impaler and how he became the infamous vampire Dracula."
+      },
+      { 
+        title: "Dracula", 
+        year: 2025,
+        series: "classic",
+        video: "https://sau.zenithraevents.store:443/v4/kdv/8hdzm/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/w780/6CAFMCvM1SBejTgfj6AUM5QGfNZ.jpg",
+        rating: 7.1,
+        description: "When a 15th-century prince denounces God after the devastating loss of his wife, he inherits an eternal curse: he becomes Dracula. Condemned to wander the centuries, he defies fate and death itself, guided by a single hope — to be reunited with his lost love."
+      },
+      { 
+        title: "Interview With The Vampire", 
+        year: 1994,
+        series: "classic",
+        video: "https://sg1.shegu.net/vip/p1/movie_mp4_h264/1994/5/7/5647/movie.5647.1994.720p.H264.20190327054515.mp4?KEY1=jTyGdbgPlNFPGVWg_xspMg&KEY2=1761124846&KEY3=1083801&KEY4=world&KEY7=febbox_video_quality_list_v3&KEY8=1083801", 
+        image: "https://image.tmdb.org/t/p/original/tOzcnk4L5oD3naIF6RTLZJimOwY.jpg",
+        rating: 7.5,
+        description: "A vampire tells his epic life story of love, betrayal, loneliness, and hunger to a reporter."
+      },
+      { 
+        title: "Twilight", 
+        year: 2008,
+        series: "twilight",
+        video: "https://g6m5vwc8rl.nuvowaveproject.store/jubDiYuWLQCqfHI/hls3/01/02756/dv2yrnfj7uz3_n/master.txt", 
+        image: "https://raisingchildren.net.au/__data/assets/image/0023/57452/twilight.jpg",
+        rating: 5.3,
+        description: "A teenage girl risks everything when she falls in love with a vampire."
+      },
+      { 
+        title: "The Twilight Saga: New Moon", 
+        year: 2009,
+        series: "twilight",
+        video: "https://okqtss1gbbnca8e.arctisuniverse.shop/jxnu44rmvdct/hls3/01/00352/2edm8mxpzak2_h/master.txt", 
+        image: "https://m.media-amazon.com/images/I/51inMXOB9dL._AC_UF894,1000_QL80_.jpg",
+        rating: 4.7,
+        description: "Edward leaves Bella, who finds comfort in her friendship with Jacob, unaware of his werewolf lineage."
+      },
+      { 
+        title: "The Twilight Saga: Eclipse", 
+        year: 2010,
+        series: "twilight",
+        video: "https://cyyroro04xrqr.zendorahbeauty.sbs/xcjcmoh7mtij/hls3/01/00719/v33jhacnvqkh_h/master.txt", 
+        image: "https://cdn.movieguide.org/wp-content/uploads/2012/08/The-Twilight-Saga-Eclipse_1024x1024.jpg",
+        rating: 5.0,
+        description: "As a string of murders plague Seattle, Bella must choose between Edward and Jacob."
+      },
+      { 
+        title: "The Twilight Saga: Breaking Dawn - Part 1", 
+        year: 2011,
+        series: "twilight",
+        video: "https://vip.opstream16.com/20230109/28880_455ae61a/index.m3u8", 
+        image: "https://upload.wikimedia.org/wikipedia/en/c/c2/Breaking_Dawn_Part_1_Poster.jpg",
+        rating: 4.9,
+        description: "The marriage, honeymoon, and pregnancy of Bella and Edward have devastating consequences."
+      },
+      { 
+        title: "The Twilight Saga: Breaking Dawn - Part 2", 
+        year: 2012,
+        series: "twilight",
+        video: "https://bxs5xkxkyi4y.glenbrookdesign.online/xcjcmoh7mtij/hls3/01/00808/cirfcx74tb59_o/master.txt", 
+        image: "https://cdn11.bigcommerce.com/s-twbzkv97cv/images/stencil/1280x1280/products/3941/6426/600x600bb__91248.1578039533.jpg?c=2",
+        rating: 5.5,
+        description: "After Bella's transformation, the Cullens gather allies to face the Volturi's false accusations."
+      }
+    ];
+
+    /* --- DOM refs --- */
+    const moviesContainer = document.getElementById('movies');
+    const loading = document.getElementById('loading');
+    const noResults = document.getElementById('noResults');
+    const searchBar = document.getElementById('searchBar');
+    const clearSearch = document.getElementById('clearSearch');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const darkToggle = document.getElementById('darkModeToggle');
+
+    // Modal & player refs
+    const playbackModal = document.getElementById('playback-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const playerArea = document.getElementById('player-area');
+    const progressFill = document.getElementById('progress-fill');
+    const progressBar = document.getElementById('progress-bar');
+    const modalTitle = document.getElementById('modal-title');
+    const modalSub = document.getElementById('modal-sub');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalPlayBtn = document.getElementById('modal-play');
+    const playText = document.getElementById('playText');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    /* --- Playback state --- */
+    let currentList = [];    // filtered/search list
+    let currentIndex = null; // index in currentList
+    let currentHls = null;
+
+    /* --- Type detection helpers (robust) --- */
+    function isHls(u){
+      if(!u) return false;
+      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.toLowerCase().includes('master.m3u8') || u.includes('manifest');
+    }
+    function isMP4(u){ return /\.mp4($|\?)/i.test(u||''); }
+    function isYouTube(u){ return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/'))); }
+
+    /* --- Player container helpers --- */
+    function resetPlayerContainer(){
+      // destroy hls if attached
+      if(currentHls){
+        try{ currentHls.destroy(); }catch(e){}
+        currentHls = null;
+      }
+      // replace innerHTML with a fresh <video> so Hls.js can reattach safely
+      playerArea.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
+    }
+    function getModalVideo(){ return document.getElementById('modal-video'); }
+
+    /* --- Attach listeners to <video> --- */
+    function attachVideoListeners(){
+      const v = getModalVideo();
+      if(!v) return;
+
+      // Prevent attaching duplicates by cleaning up if attribute present
+      if(v.dataset.listenersAttached) return;
+      v.dataset.listenersAttached = '1';
+
+      v.addEventListener('timeupdate', () => {
+        if(!v.duration || !isFinite(v.duration)) return;
+        const pct = (v.currentTime / v.duration) * 100;
+        progressFill.style.width = pct + '%';
+      });
+
+      v.addEventListener('play', () => {
+        modalPlayBtn.innerHTML = '<i class="fas fa-pause mr-2"></i><span id="playText">Pause</span>';
+      });
+      v.addEventListener('pause', () => {
+        modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>';
+      });
+      v.addEventListener('ended', () => {
+        modalPlayBtn.innerHTML = '<i class="fas fa-redo mr-2"></i><span id="playText">Replay</span>';
+      });
+    }
+
+    /* --- Open / Close modal --- */
+    function showModal(){ playbackModal.classList.add('active'); document.body.style.overflow='hidden'; }
+    function hideModal(){ playbackModal.classList.remove('active'); document.body.style.overflow=''; }
+
+    function closeAndCleanup(){
+      // pause & cleanup
+      if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+      const v = getModalVideo();
+      if(v){
+        try{ v.pause(); }catch(e){}
+        try{ v.removeAttribute('src'); v.load(); }catch(e){}
+      }
+      resetPlayerContainer();
+      progressFill.style.width = '0%';
+      currentIndex = null;
+      hideModal();
+      modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>';
+    }
+
+    /* --- Core playback function (Hawkeye-style) --- */
+    function playInModalByIndex(list, index){
+      if(!list || typeof index !== 'number' || index < 0 || index >= list.length) return;
+      const movie = list[index];
+      currentIndex = index;
+      modalTitle.textContent = movie.title || 'Untitled';
+      modalSub.textContent = (movie.year ? movie.year + ' • ' : '') + (movie.series ? movie.series : '');
+      modalDesc.textContent = movie.description || '';
+      progressFill.style.width = '0%';
+
+      // prepare player area
+      resetPlayerContainer();
+
+      const url = movie.video;
+      if(!url){
+        // no playable url
+        showModal();
+        modalDesc.textContent = 'No playable URL provided for this item.';
+        return;
+      }
+
+      // Hosts better embedded as iframe
+      const iframeHosts = ['streamtape.com','openload.co','vidcdn.','dood.', 'sbembed', 'drive.google.com','mega.nz','streamlare','mixdrop','rapidvideo'];
+      if(iframeHosts.some(h => url.includes(h))){
+        playerArea.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        showModal();
+        return;
+      }
+
+      // YouTube handling -> embed
+      if(isYouTube(url)){
+        try{
+          let embedUrl = url;
+          if(url.includes('watch') && url.includes('v=')){
+            const vid = new URLSearchParams(url.split('?')[1]).get('v');
+            if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+          } else if(url.includes('youtu.be/')){
+            const vid = url.split('youtu.be/')[1].split(/[?&]/)[0];
+            embedUrl = `https://www.youtube.com/embed/${vid}`;
+          }
+          playerArea.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+          showModal();
+          return;
+        }catch(e){
+          // fallthrough to other handlers
+        }
+      }
+
+      // Now we expect to use the <video> element
+      const v = getModalVideo();
+
+      // HLS handling (also supports .txt index playlists that are HLS lists)
+      if(isHls(url)){
+        if(window.Hls && Hls.isSupported()){
+          try{
+            currentHls = new Hls();
+            currentHls.loadSource(url);
+            currentHls.attachMedia(v);
+            currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+              showModal();
+              attachVideoListeners();
+              v.play().catch(()=>{});
+            });
+            currentHls.on(Hls.Events.ERROR, (event, data) => {
+              if(data && data.fatal){
+                try{ currentHls.destroy(); }catch(e){}
+                currentHls = null;
+                // fallback: set src directly and try native playback
+                v.src = url;
+                showModal();
+                attachVideoListeners();
+                v.play().catch(()=>{});
+              }
+            });
+          }catch(e){
+            // fallback to direct src
+            v.src = url;
+            showModal();
+            attachVideoListeners();
+            v.play().catch(()=>{});
+          }
+        } else {
+          // Safari native HLS
+          v.src = url;
+          showModal();
+          attachVideoListeners();
+          v.play().catch(()=>{});
+        }
+        updateNavButtons();
+        return;
+      }
+
+      // MP4 fallback
+      if(isMP4(url)){
+        v.src = url;
+        showModal();
+        attachVideoListeners();
+        v.play().catch(()=>{});
+        updateNavButtons();
+        return;
+      }
+
+      // Unknown type -> redirect to player.html (preserve the app's existing fallback)
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(url)}`;
+    }
+
+    /* --- Play / Pause button behavior --- */
+    modalPlayBtn.addEventListener('click', () => {
+      // if iframe is present, do nothing (play handled by iframe)
+      if(playerArea.querySelector('iframe')) return;
+      const v = getModalVideo();
+      if(!v) return;
+      if(v.paused) v.play().catch(()=>{});
+      else v.pause();
+    });
+
+    /* --- Prev / Next --- */
+    function updateNavButtons(){
+      prevBtn.disabled = (currentIndex === null || currentIndex <= 0);
+      nextBtn.disabled = (currentIndex === null || currentIndex >= (currentList.length - 1));
+    }
+    prevBtn.addEventListener('click', () => {
+      if(currentIndex === null) return;
+      if(currentIndex > 0) playInModalByIndex(currentList, currentIndex - 1);
+    });
+    nextBtn.addEventListener('click', () => {
+      if(currentIndex === null) return;
+      if(currentIndex < currentList.length - 1) playInModalByIndex(currentList, currentIndex + 1);
+    });
+
+    /* --- Mute / Fullscreen --- */
+    muteBtn.addEventListener('click', () => {
+      const v = getModalVideo();
+      if(!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    });
+    fullscreenBtn.addEventListener('click', () => {
+      const elem = playerArea.querySelector('video') || playerArea.querySelector('iframe');
+      if(!elem) return;
+      if(!document.fullscreenElement) elem.requestFullscreen().catch(()=>{});
+      else document.exitFullscreen().catch(()=>{});
+    });
+
+    /* --- Close modal handlers --- */
+    closeModalBtn.addEventListener('click', closeAndCleanup);
+    playbackModal.addEventListener('click', (e) => { if(e.target === playbackModal) closeAndCleanup(); });
+    document.addEventListener('keydown', (e) => {
+      if(!playbackModal.classList.contains('active')) return;
+      if(e.key === 'Escape') closeAndCleanup();
+      if(e.key === ' '){ e.preventDefault(); const v = getModalVideo(); if(v) v.paused ? v.play() : v.pause(); }
+      if(e.key === 'ArrowRight'){ const v = getModalVideo(); if(v) v.currentTime += 10; }
+      if(e.key === 'ArrowLeft'){ const v = getModalVideo(); if(v) v.currentTime -= 10; }
+      if(e.key.toLowerCase() === 'n') nextBtn.click();
+      if(e.key.toLowerCase() === 'p') prevBtn.click();
+    });
+
+    /* --- Render movies (UI unchanged) --- */
+    function renderMovies(){
+      let list = [...movies]; // movies is empty now until you paste it
+      // apply current filter (active filter button)
+      const activeFilterBtn = Array.from(filterButtons).find(b => b.classList.contains('active'));
+      const filter = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
+      if(filter && filter !== 'all') list = list.filter(m => m.series === filter);
+
+      // search term
+      const q = (searchBar.value || '').trim().toLowerCase();
+      if(q) list = list.filter(m => (m.title||'').toLowerCase().includes(q) || (m.description||'').toLowerCase().includes(q));
+
+      currentList = list;
+      moviesContainer.innerHTML = '';
+
+      if(!list.length){
+        noResults.classList.remove('hidden');
+        moviesContainer.classList.add('hidden');
+        return;
+      }
+      noResults.classList.add('hidden');
+      moviesContainer.classList.remove('hidden');
+
+      list.forEach((m, idx) => {
+        const card = document.createElement('div');
+        card.className = 'movie-card bg-gray-900 rounded-lg overflow-hidden shadow-lg relative group';
+        card.innerHTML = `
+          <div class="movie-poster relative overflow-hidden">
+            <img src="${m.image || ''}" class="w-full h-64 object-cover transition duration-500 group-hover:opacity-80" alt="${m.title || 'Untitled'}">
+            <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black to-transparent">
+              <div class="flex items-center"><span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mr-2">${m.rating || '-'}/10</span><span class="text-white text-xs">${m.year || ''}</span></div>
+              <h3 class="text-white font-semibold truncate">${m.title || 'Untitled'}</h3>
+            </div>
+            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center">
+              <button class="opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 text-white rounded-full w-12 h-12 flex items-center justify-center"><i class="fas fa-play"></i></button>
+            </div>
+          </div>
+          <div class="p-3"><p class="text-gray-400 text-xs line-clamp-2">${m.description || ''}</p></div>
+        `;
+        card.addEventListener('click', () => {
+          // if item is an HLS .txt manifest and original app wanted redirect behavior, Hawkeye approach handles most types in-modal.
+          // playInModalByIndex uses the movies list we rendered — pass currentList and index
+          playInModalByIndex(currentList, idx);
+        });
+        moviesContainer.appendChild(card);
+      });
+    }
+
+    /* --- Filters, Search, UI init --- */
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active','bg-red-600','text-white'));
+        btn.classList.add('active','bg-red-600','text-white');
+        renderMovies();
+      });
+    });
+    searchBar.addEventListener('input', renderMovies);
+    clearSearch.addEventListener('click', () => { searchBar.value = ''; renderMovies(); });
+
+    /* --- Dark mode toggle --- */
+    darkToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    });
+    // restore dark mode
+    if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
+
+    /* --- Initial page load behavior --- */
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        loading.classList.add('hidden');
+        moviesContainer.classList.remove('hidden');
+        renderMovies();
+      }, 600);
+    });
+
+    /* Expose helpers for debugging */
+    window.playInModalByIndex = playInModalByIndex;
+    window.resetPlayerContainer = resetPlayerContainer;
+    window.closeAndCleanup = closeAndCleanup;
+  </script>
+</body>
+</html>
