@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Sniper Cinematic Universe — Modal Player Integrated</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap');
+    :root { --primary: #f59e0b; --primary-dark: #b45309; --secondary: #1e293b; --dark: #0f172a; --light: #f8fafc; }
+    body { font-family: 'Roboto', sans-serif; background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%); color: var(--light); min-height:100vh; }
+    .title-font { font-family: 'Orbitron', sans-serif; }
+    .movie-card { transition: all 0.3s ease; transform-style: preserve-3d; perspective:1000px; }
+    .movie-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5), 0 10px 10px -5px rgba(0,0,0,0.4); }
+    .movie-card::before { content: ''; position:absolute; top:0; left:0; right:0; bottom:0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 50%); opacity:0; transition: opacity 0.3s ease; border-radius:0.5rem; }
+    .movie-card:hover::before { opacity:1; }
+    .movie-poster { transition: all 0.3s ease; }
+    .movie-card:hover .movie-poster { filter: brightness(1.1); }
+    .play-icon { opacity:0; transform: scale(0.8); transition: all 0.3s ease; }
+    .movie-card:hover .play-icon { opacity:1; transform: scale(1); }
+    .scrollbar::-webkit-scrollbar { width:8px; height:8px; }
+    .scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius:10px; }
+    .scrollbar::-webkit-scrollbar-thumb { background: var(--primary); border-radius:10px; }
+    .scrollbar::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
+    .search-input:focus { box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+    .year-badge { position:absolute; top:0.5rem; right:0.5rem; background: rgba(0,0,0,0.7); padding:0.25rem 0.5rem; border-radius:0.25rem; font-size:0.75rem; font-weight:500; }
+    @media (max-width:640px){ .movie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width:1024px){ .movie-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+    /* Hawkeye modal/player */
+    .modal-overlay { position: fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.9); z-index:9999; opacity:0; visibility:hidden; transition: all .2s ease; }
+    .modal-overlay.active { opacity:1; visibility:visible; }
+    .modal-card { width:95%; max-width:980px; border-radius:12px; overflow:hidden; background: linear-gradient(180deg,#0b0b0b,#151515); box-shadow: 0 30px 80px rgba(0,0,0,0.7); }
+    .player-area { position: relative; padding-bottom:56.25%; height:0; background:black; }
+    .player-area video, .player-area iframe { position:absolute; inset:0; width:100%; height:100%; background:black; }
+    .progress-bar { height:6px; background: rgba(255,255,255,0.06); width:100%; position:relative; }
+    .progress-fill { position:absolute; left:0; top:0; bottom:0; width:0%; background: var(--primary); transition: width .2s linear; }
+    .controls { display:flex; gap:8px; align-items:center; }
+    .btn { background:#1f1f1f; color:#fff; padding:8px 12px; border-radius:8px; }
+    .btn.primary { background: var(--primary); color:#111827; }
+    .no-data { text-align:center; padding:40px; color:#9ca3af; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-gray-900 to-gray-800 py-6 px-4 shadow-lg">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+      <div class="flex items-center mb-4 md:mb-0">
+        <i class="fas fa-crosshairs text-3xl text-amber-500 mr-3"></i>
+        <h1 class="title-font text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-600">SNIPER CINEMATIC UNIVERSE</h1>
+      </div>
+      <div class="relative w-full md:w-96">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fas fa-search text-gray-400"></i></div>
+        <input id="searchBar" type="text" class="search-input block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition duration-200" placeholder="Search sniper movies...">
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <section class="mb-12">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="title-font text-2xl md:text-3xl font-bold text-amber-500 flex items-center"><i class="fas fa-star mr-3"></i> Featured Collection</h2>
+        <div class="flex space-x-2">
+          <button class="filter-btn px-3 py-1 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700 transition" data-filter="all">All</button>
+          <button class="filter-btn px-3 py-1 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700 transition" data-filter="classic">Classic</button>
+          <button class="filter-btn px-3 py-1 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700 transition" data-filter="modern">Modern</button>
+        </div>
+      </div>
+
+      <div id="movieGrid" class="movie-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 scrollbar overflow-y-auto pb-4"></div>
+    </section>
+  </main>
+
+  <!-- Modal Player (Hawkeye-style) -->
+  <div id="playback-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+      <div class="relative p-4 border-b border-gray-800 flex items-start justify-between">
+        <div>
+          <div id="modal-title" class="text-xl font-bold text-amber-400"></div>
+          <div id="modal-sub" class="text-sm text-gray-400 mt-1"></div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="close-modal" class="text-white p-2 rounded bg-gray-800 hover:bg-gray-700"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+
+      <div id="player-area" class="player-area">
+        <video id="modal-video" controls playsinline preload="metadata"></video>
+      </div>
+
+      <div class="progress-bar" id="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+
+      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div><p id="modal-desc" class="text-gray-300 text-sm"></p></div>
+        <div class="controls">
+          <button id="prevBtn" class="btn" title="Previous"><i class="fas fa-step-backward"></i></button>
+          <button id="modal-play" class="btn primary" title="Play/Pause"><i class="fas fa-play mr-2"></i><span id="playText">Play</span></button>
+          <button id="nextBtn" class="btn" title="Next"><i class="fas fa-step-forward"></i></button>
+          <button id="muteBtn" class="btn" title="Mute"><i class="fas fa-volume-up"></i></button>
+          <button id="fullscreenBtn" class="btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-gray-900 py-6 px-4 border-t border-gray-800">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+      <div class="mb-4 md:mb-0"><p class="text-gray-400">&copy; Sniper Cinematic Universe.</p></div>
+      <div class="flex space-x-4">
+        <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-youtube"></i></a>
+        <a href="https://www.instagram.com/stark_4152" class="text-gray-400 hover:text-amber-500 transition"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+  </footer>
+
+<script>
+/* MOVIES ARRAY SKIPPED — empty placeholder for you to paste later */
+const movies = [{ 
+        title: "The Day of the Jackal (1973)", 
+        video: "https://queenselti.me/stream_660503f29ed41/uwu.m3u8", 
+        image: "https://i.etsystatic.com/17287922/r/il/bc7268/3613159287/il_570xN.3613159287_qqvy.jpg",
+        year: 1973,
+        rating: 7.8,
+        genre: "Action, Thriller",
+        filter: "classic"
+      },
+      { 
+        title: "Sniper (1993)", 
+        video: "https://sad.fieldstoneartisancollect.cyou:443/v4/3vi/t9bk6/index-f1-v1-a1.txt", 
+        image: "https://media-cache.cinematerial.com/p/500x/ucrqr3io/sniper-german-movie-cover.jpg?v=1584987157",
+        year: 1993,
+        rating: 6.2,
+        genre: "Action, Thriller",
+        filter: "classic"
+      },
+      { 
+        title: "Sniper 2 (2002)", 
+        video: "https://sui.florenda.online:443/v4/hld/1hizhb/index-f2-v1-a1.txt", 
+        image: "https://www.arthipo.com/image/cache/catalog/poster/movie/759-1554/pfilm1184-sniper-2-movie-poster-500x500.webp",
+        year: 2002,
+        rating: 5.1,
+        genre: "Action, Thriller",
+        filter: "classic"
+      },
+      { 
+        title: "Sniper 3 (2004)", 
+        video: "https://sr81.seawindmarketing.space:443/v4/61/638co/index-f2-v1-a1.txt", 
+        image: "https://www.moviepostersetc.com/_staticProxy/content/ff808081163c05b001169d6655243ae9/Sniper_3_movie_poster.jpg",
+        year: 2004,
+        rating: 4.9,
+        genre: "Action, Thriller",
+        filter: "classic"
+      },
+      { 
+        title: "Sniper: Reloaded (2011)", 
+        video: "https://queenselti.me/rbnwy/uwu.m3u8", 
+        image: "https://media.themoviedb.org/t/p/w500/l2Clr2vyzNSptarbVzzdpJozWFg.jpg",
+        year: 2011,
+        rating: 5.3,
+        genre: "Action, Thriller",
+        filter: "modern"
+      },
+      { 
+        title: "Sniper: Legacy (2014)", 
+        video: "https://sq3.glacialstudio.shop:443/v4/s93/8zmzii/index-f1-v1-a1.txt", 
+        image: "https://images.plex.tv/photo?size=large-1280&url=https%3A%2F%2Fmetadata-static.plex.tv%2F3%2Fgracenote%2F332670bfdef1832aec69fce57bd2f9a5.jpg",
+        year: 2014,
+        rating: 5.5,
+        genre: "Action, Thriller",
+        filter: "modern"
+      },
+      { 
+        title: "Sniper: Ghost Shooter (2016)", 
+        video: "https://svz.clarionstudio.cyou:443/v4/mik/ws9ax/index-f1-v1-a1.txt", 
+        image: "https://www.filminginturkiye.com.tr/fitcontents/PortalGenel/c6857986-fb01-4b62-a1cf-a613d9d2213b.jpg",
+        year: 2016,
+        rating: 5.0,
+        genre: "Action, Thriller",
+        filter: "modern"
+      },
+      { 
+        title: "Sniper: Ultimate Kill (2017)", 
+        video: "https://sy6.aurisnova.shop:443/v4/ty/pu6tu/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BOWFmNjg3ZjAtMThjNy00MGVkLWIxMTAtOTgyYjA5MTJmMjBlXkEyXkFqcGc@._V1_.jpg",
+        year: 2017,
+        rating: 5.4,
+        genre: "Action, Thriller",
+        filter: "modern"
+      },
+      { 
+        title: "Sniper: Assassin's End (2020)", 
+        video: "https://sri.meadowlaneeducation.cfd:443/v4/x68/fjmdm/index-f2-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BMGJiYjBiMzctYzQ2NC00MjdjLTlhNDItNmExNDY1NTkyNWE4XkEyXkFqcGc@._V1_SL1024_.jpg",
+        year: 2020,
+        rating: 5.2,
+        genre: "Action, Thriller",
+        filter: "modern"
+      },
+      { 
+        title: "Sniper: Rogue Mission (2022)", 
+        video: "https://shh.eleviora.space:443/v4/x68/osfipl/index-f1-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/original/7Y3GBlhrQSnlIcdmqz13lSMDTV9.jpg",
+        year: 2022,
+        rating: 5.8,
+        genre: "Action, Thriller",
+        filter: "modern"
+      },
+      { 
+        title: "Sniper: G.R.I.T. (2023)", 
+        video: "https://skra.silvercrestventures.shop/v4/ho/b3d9n/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BNjBmNDBiMmUtOGFlNi00YmU4LWI4OWYtNTUyMjJiMzM3MmIzXkEyXkFqcGc@._V1_.jpg",
+        year: 2023,
+        rating: 6.0,
+        genre: "Action, Thriller",
+        filter: "modern"
+      },
+      { 
+        title: "Sniper: The Last Stand (2025)", 
+        video: "https://svz.aurorionacademy.shop:443/v4/x68/b6i6w/index-f2-v1-a1.txt", 
+        image: "https://static1.tribute.ca/poster/660x980/sniper-the-last-stand-206410.jpg",
+        year: 2025,
+        rating: 0,
+        genre: "Action, Thriller",
+        filter: "modern"
+      },
+      { 
+        title: "Shooter (2007)", 
+        video: "https://s36.claravonartisan.sbs:443/v4/8q/qcity/index-f1-v1-a1.txt", 
+        image: "https://media-cache.cinematerial.com/p/500x/mlphucwc/shooter-movie-cover.jpg?v=1456322278",
+        year: 2007,
+        rating: 7.2,
+        genre: "Action, Thriller, Drama",
+        filter: "modern"
+      },
+      { 
+        title: "Enemy at the Gates (2001)", 
+        video: "https://sad.artverra.shop:443/v4/rqz/prrgi/index-f2-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/M/MV5BZGQ5MDc0MWUtYmEwOS00YzUwLWFjNzUtNGZlZmE3NjZiYzhkXkEyXkFqcGc@._V1_.jpg",
+        year: 2001,
+        rating: 7.6,
+        genre: "War, Drama, Thriller",
+        filter: "classic"
+      },  
+      { 
+        title: "Phone Booth (2002)", 
+        video: "https://sri.celestiorstudio.cyou:443/v4/kdv/rxkwn/index-f2-v1-a1.txt", 
+        image: "https://image.tmdb.org/t/p/original/r6lIwPKVDa6Q76qH2TbIBqPhXL3.jpg",
+        year: 2002,
+        rating: 7.0,
+        genre: "Thriller, Crime",
+        filter: "classic"
+      },
+      { 
+        title: "American Sniper (2014)", 
+        video: "https://s36.drivonaesthetic.cyou:443/v4/m9/uxont/index-f1-v1-a1.txt", 
+        image: "https://m.media-amazon.com/images/I/71g2WcVctTL.jpg",
+        year: 2014,
+        rating: 7.3,
+        genre: "War, Biography, Drama",
+        filter: "modern"
+      }]; // paste your movies array here later
+
+/* DOM refs */
+const movieGrid = document.getElementById('movieGrid');
+const searchBar = document.getElementById('searchBar');
+const filterButtons = document.querySelectorAll('.filter-btn');
+
+/* Modal/player refs */
+const playbackModal = document.getElementById('playback-modal');
+const closeModalBtn = document.getElementById('close-modal');
+const playerArea = document.getElementById('player-area');
+const modalTitle = document.getElementById('modal-title');
+const modalSub = document.getElementById('modal-sub');
+const modalDesc = document.getElementById('modal-desc');
+const progressFill = document.getElementById('progress-fill');
+const modalPlayBtn = document.getElementById('modal-play');
+const playText = document.getElementById('playText');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const muteBtn = document.getElementById('muteBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+let currentList = [];
+let currentIndex = null;
+let currentHls = null;
+
+/* Type detection helpers */
+function isHls(u){
+  if(!u) return false;
+  return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.toLowerCase().includes('master.m3u8') || u.includes('manifest');
+}
+function isMP4(u){ return /\.mp4($|\?)/i.test(u||''); }
+function isYouTube(u){ return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/'))); }
+
+/* reset player area to fresh <video> */
+function resetPlayerContainer(){
+  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+  playerArea.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
+}
+function getModalVideo(){ return document.getElementById('modal-video'); }
+
+/* attach video listeners */
+function attachVideoListeners(){
+  const v = getModalVideo();
+  if(!v) return;
+  if(v.dataset.listenersAttached) return;
+  v.dataset.listenersAttached = '1';
+  v.addEventListener('timeupdate', () => {
+    if(!v.duration || !isFinite(v.duration)) return;
+    const pct = (v.currentTime / v.duration) * 100;
+    progressFill.style.width = pct + '%';
+  });
+  v.addEventListener('play', () => { modalPlayBtn.innerHTML = '<i class="fas fa-pause mr-2"></i><span id="playText">Pause</span>'; });
+  v.addEventListener('pause', () => { modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>'; });
+  v.addEventListener('ended', () => { modalPlayBtn.innerHTML = '<i class="fas fa-redo mr-2"></i><span id="playText">Replay</span>'; });
+}
+
+/* show/hide modal */
+function showModal(){ playbackModal.classList.add('active'); document.body.style.overflow='hidden'; }
+function hideModal(){ playbackModal.classList.remove('active'); document.body.style.overflow=''; }
+
+/* close & cleanup */
+function closeAndCleanup(){
+  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+  const v = getModalVideo();
+  if(v){ try{ v.pause(); }catch(e){} try{ v.removeAttribute('src'); v.load(); }catch(e){} }
+  resetPlayerContainer();
+  progressFill.style.width = '0%';
+  currentIndex = null;
+  hideModal();
+  modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>';
+}
+
+/* core playback logic (Hawkeye-style) */
+function playInModalByIndex(list, index){
+  if(!list || typeof index !== 'number' || index < 0 || index >= list.length) return;
+  const item = list[index];
+  currentIndex = index;
+  modalTitle.textContent = item.title || 'Untitled';
+  modalSub.textContent = (item.year ? item.year + ' • ' : '') + (item.filter ? item.filter : '');
+  modalDesc.textContent = item.description || '';
+  progressFill.style.width = '0%';
+  resetPlayerContainer();
+
+  const url = item.video;
+  if(!url){ showModal(); modalDesc.textContent = 'No playable URL provided.'; return; }
+
+  const iframeHosts = ['streamtape.com','openload.co','vidcdn.','dood.','sbembed','drive.google.com','mega.nz','streamlare','mixdrop','rapidvideo'];
+  if(iframeHosts.some(h => url.includes(h))){
+    playerArea.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    showModal(); updateNavButtons(); return;
+  }
+
+  if(isYouTube(url)){
+    try{
+      let embedUrl = url;
+      if(url.includes('watch') && url.includes('v=')){
+        const vid = new URLSearchParams(url.split('?')[1]).get('v');
+        if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+      } else if(url.includes('youtu.be/')){
+        const vid = url.split('youtu.be/')[1].split(/[?&]/)[0];
+        embedUrl = `https://www.youtube.com/embed/${vid}`;
+      }
+      playerArea.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+      showModal(); updateNavButtons(); return;
+    }catch(e){}
+  }
+
+  const v = getModalVideo();
+
+  if(isHls(url)){
+    if(window.Hls && Hls.isSupported()){
+      try{
+        currentHls = new Hls();
+        currentHls.loadSource(url);
+        currentHls.attachMedia(v);
+        currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ showModal(); attachVideoListeners(); v.play().catch(()=>{}); });
+        currentHls.on(Hls.Events.ERROR, (event, data)=>{ if(data && data.fatal){ try{ currentHls.destroy(); }catch(e){} currentHls=null; v.src=url; showModal(); attachVideoListeners(); v.play().catch(()=>{}); }});
+      }catch(e){ v.src=url; showModal(); attachVideoListeners(); v.play().catch(()=>{}); }
+    } else { v.src = url; showModal(); attachVideoListeners(); v.play().catch(()=>{}); }
+    updateNavButtons(); return;
+  }
+
+  if(isMP4(url)){
+    v.src = url; showModal(); attachVideoListeners(); v.play().catch(()=>{}); updateNavButtons(); return;
+  }
+
+  // fallback to player.html
+  window.location.href = `player.html?title=${encodeURIComponent(item.title)}&video=${encodeURIComponent(url)}`;
+}
+
+/* play/pause */
+modalPlayBtn.addEventListener('click', ()=> {
+  if(playerArea.querySelector('iframe')) return;
+  const v = getModalVideo(); if(!v) return;
+  if(v.paused) v.play().catch(()=>{}); else v.pause();
+});
+
+/* prev/next */
+function updateNavButtons(){ prevBtn.disabled = (currentIndex === null || currentIndex <= 0); nextBtn.disabled = (currentIndex === null || currentIndex >= (currentList.length - 1)); }
+prevBtn.addEventListener('click', ()=>{ if(currentIndex > 0) playInModalByIndex(currentList, currentIndex - 1); });
+nextBtn.addEventListener('click', ()=>{ if(currentIndex < currentList.length - 1) playInModalByIndex(currentList, currentIndex + 1); });
+
+/* mute/fullscreen */
+muteBtn.addEventListener('click', ()=>{ const v = getModalVideo(); if(!v) return; v.muted = !v.muted; muteBtn.innerHTML = v.muted?'<i class="fas fa-volume-mute"></i>':'<i class="fas fa-volume-up"></i>'; });
+fullscreenBtn.addEventListener('click', ()=>{ const elem = playerArea.querySelector('video') || playerArea.querySelector('iframe'); if(!elem) return; if(!document.fullscreenElement) elem.requestFullscreen().catch(()=>{}); else document.exitFullscreen().catch(()=>{}); });
+
+/* close handlers & keyboard */
+closeModalBtn.addEventListener('click', closeAndCleanup);
+playbackModal.addEventListener('click', (e)=>{ if(e.target === playbackModal) closeAndCleanup(); });
+document.addEventListener('keydown', (e)=>{ if(!playbackModal.classList.contains('active')) return; if(e.key==='Escape') closeAndCleanup(); if(e.key===' '){ e.preventDefault(); const v = getModalVideo(); if(v) v.paused? v.play(): v.pause(); } if(e.key==='ArrowRight'){ const v = getModalVideo(); if(v) v.currentTime += 10; } if(e.key==='ArrowLeft'){ const v = getModalVideo(); if(v) v.currentTime -= 10; } if(e.key.toLowerCase()==='n') nextBtn.click(); if(e.key.toLowerCase()==='p') prevBtn.click(); });
+
+/* render grid (movies empty placeholder) */
+function renderGrid(list){
+  movieGrid.innerHTML = '';
+  if(!list || list.length === 0){
+    movieGrid.innerHTML = `<div class="no-data col-span-full"><p>No movies available — paste your movies array into the top of this file (const movies = []).</p></div>`;
+    return;
+  }
+  list.forEach((m, idx) => {
+    const card = document.createElement('div');
+    card.className = 'movie-card relative rounded-lg overflow-hidden shadow-lg bg-gray-800 cursor-pointer group';
+    card.innerHTML = `
+      <div class="relative h-64 md:h-80 overflow-hidden">
+        <img src="${m.image || ''}" alt="${m.title || 'Untitled'}" class="movie-poster w-full h-full object-cover transition duration-300">
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="play-icon bg-amber-500 bg-opacity-90 rounded-full p-4 text-white"><i class="fas fa-play text-xl"></i></div>
+        </div>
+        <div class="year-badge text-white bg-gray-900 bg-opacity-70">${m.year || ''}</div>
+        ${m.rating > 0 ? `<div class="absolute bottom-2 left-2 flex items-center bg-gray-900 bg-opacity-70 px-2 py-1 rounded"><i class="fas fa-star text-amber-500 mr-1"></i><span class="text-white text-sm font-medium">${m.rating}</span></div>` : ''}
+      </div>
+      <div class="p-4"><h3 class="text-white font-semibold truncate">${m.title || 'Untitled'}</h3><p class="text-gray-400 text-sm mt-1 truncate">${m.genre || ''}</p></div>
+    `;
+    card.addEventListener('click', ()=>{ currentList = list.slice(); playInModalByIndex(currentList, idx); });
+    movieGrid.appendChild(card);
+  });
+}
+
+/* search & filter */
+searchBar.addEventListener('input', ()=> {
+  const q = (searchBar.value || '').trim().toLowerCase();
+  const filtered = movies.filter(m => (m.title||'').toLowerCase().includes(q) || (m.genre||'').toLowerCase().includes(q));
+  renderGrid(filtered);
+});
+filterButtons.forEach(btn => btn.addEventListener('click', function(){
+  filterButtons.forEach(b => { b.classList.remove('bg-amber-500','text-gray-900'); b.classList.add('bg-gray-800','text-gray-300'); });
+  this.classList.remove('bg-gray-800','text-gray-300'); this.classList.add('bg-amber-500','text-gray-900');
+  const f = this.dataset.filter;
+  if(f === 'all') renderGrid(movies); else renderGrid(movies.filter(m => m.filter === f));
+}));
+
+/* initial render */
+document.addEventListener('DOMContentLoaded', ()=>{ renderGrid(movies); });
+</script>
+</body>
+</html>
