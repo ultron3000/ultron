@@ -1,0 +1,464 @@
+<!-- 007-updated.html -->
+<!-- Caption: 007 Cinematic Universe — modal player integrated (HLS/MP4/YouTube/iframe). -->
+<!-- Hashtags: #007 #Bond #ModalPlayer #HLS #Streaming #TukaramIntegration -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>007 Cinematic Universe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- hls.js for HLS playback -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #111827; }
+    ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #d97706; }
+
+    /* Custom animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
+
+    /* Custom glow effect */
+    .glow { box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+
+    /* Aspect ratio for movie cards */
+    .movie-card { aspect-ratio: 2/3; }
+
+    @supports not (aspect-ratio: 2/3) {
+      .movie-card::before { content: ""; display: block; padding-top: 150%; }
+    }
+
+    /* Hawkeye-style modal/player styles */
+    .modal-overlay { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.9); z-index: 9999; opacity:0; visibility:hidden; transition: all .25s ease; }
+    .modal-overlay.active { opacity:1; visibility:visible; }
+    .modal-card { width:95%; max-width:980px; border-radius:12px; overflow:hidden; background: linear-gradient(180deg,#0b0b0b,#151515); box-shadow: 0 30px 80px rgba(0,0,0,0.7); }
+    .player-area { position: relative; padding-bottom: 56.25%; height:0; background:black; }
+    .player-area video, .player-area iframe { position:absolute; inset:0; width:100%; height:100%; background:black; }
+    .progress-bar { height:6px; background: rgba(255,255,255,0.06); position: relative; width:100%; }
+    .progress-fill { position:absolute; left:0; top:0; bottom:0; width:0%; background:#f59e0b; transition: width .2s linear; }
+    .controls { display:flex; gap:8px; align-items:center; }
+    .btn { background: #1f1f1f; color:#fff; padding:8px 12px; border-radius:8px; }
+    .btn.primary { background:#f59e0b; color:#111827; }
+    @media (max-width:640px){ .modal-card { width:98%; } }
+
+  </style>
+</head>
+<body class="bg-gray-900 text-amber-400 min-h-screen">
+  <!-- Header with search -->
+  <header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur-sm border-b border-amber-400/20">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+          <i class="fas fa-gun text-2xl text-amber-400"></i>
+          <h1 class="text-2xl md:text-3xl font-bold tracking-wider">007 CINEMATIC UNIVERSE</h1>
+        </div>
+
+        <div class="relative w-full md:w-64">
+          <input 
+            type="text" 
+            id="search" 
+            placeholder="Search movies..." 
+            class="w-full bg-gray-800 text-white px-4 py-2 rounded-full border border-amber-400/30 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+          >
+          <i class="fas fa-search absolute right-3 top-2.5 text-amber-400/70"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Stats bar -->
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-4 bg-gray-800/50 p-4 rounded-xl border border-amber-400/20">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-film text-amber-400"></i>
+        <span class="font-medium">Total Movies: <span id="total-movies" class="font-bold">0</span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i class="fas fa-calendar-alt text-amber-400"></i>
+        <span class="font-medium">Years: <span class="font-bold">—</span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i class="fas fa-user-secret text-amber-400"></i>
+        <span class="font-medium">Actors: <span class="font-bold">—</span></span>
+      </div>
+    </div>
+
+    <!-- Movies grid -->
+    <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"></div>
+
+    <!-- Loading spinner (hidden by default) -->
+    <div id="loading" class="hidden flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-400"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800/50 border-t border-amber-400/20 py-6 mt-12">
+    <div class="container mx-auto px-4 text-center">
+      <div class="flex justify-center gap-4 mb-4">
+        <a href="#" class="text-amber-400 hover:text-white transition-colors"><i class="fab fa-imdb text-2xl"></i></a>
+        <a href="#" class="text-amber-400 hover:text-white transition-colors"><i class="fab fa-wikipedia-w text-2xl"></i></a>
+        <a href="#" class="text-amber-400 hover:text-white transition-colors"><i class="fab fa-github text-2xl"></i></a>
+      </div>
+      <p class="text-gray-400 text-sm">© 2025 007 Cinematic Universe. All rights reserved. James Bond and related elements are trademarks of EON Productions.</p>
+    </div>
+  </footer>
+
+  <!-- =========================
+       Playback Modal (Hawkeye-style)
+       ========================= -->
+  <div id="playback-modal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+      <div class="relative p-4 border-b border-gray-800 flex items-start justify-between">
+        <div>
+          <div id="modal-title" class="text-xl font-bold text-amber-400"></div>
+          <div id="modal-sub" class="text-sm text-gray-400 mt-1"></div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="close-modal" class="text-white p-2 rounded bg-gray-800 hover:bg-gray-700"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+
+      <div id="player-area" class="player-area">
+        <!-- default video element (replaced/used by JS) -->
+        <video id="modal-video" controls playsinline preload="metadata"></video>
+      </div>
+
+      <div id="progress-bar" class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+
+      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <p id="modal-desc" class="text-gray-300 text-sm"></p>
+        </div>
+        <div class="controls">
+          <button id="prevBtn" class="btn" title="Previous"><i class="fas fa-step-backward"></i></button>
+          <button id="modal-play" class="btn primary" title="Play/Pause"><i class="fas fa-play mr-2"></i><span id="playText">Play</span></button>
+          <button id="nextBtn" class="btn" title="Next"><i class="fas fa-step-forward"></i></button>
+          <button id="muteBtn" class="btn" title="Mute"><i class="fas fa-volume-up"></i></button>
+          <button id="fullscreenBtn" class="btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /***** MOVIES ARRAY SKIPPED (empty placeholder) *****/
+    // You requested the movies list to be skipped — paste your list here later in the same format:
+    // const movies = [{ title, video, image, year, rating, description, series }, ...];
+    const movies = [
+      { title: "Dr. No", video: "https://queenselti.me/lbdgrlc/uwu.m3u8", image: "https://alternativemovieposters.com/wp-content/uploads/2023/06/Ash-Weaver_DRNO.jpg" },
+      { title: "From Russia with Love", video: "https://queenselti.me/drhm/uwu.m3u8", image: "https://m.media-amazon.com/images/I/71M+yet93tL.jpg" },
+      { title: "Goldfinger", video: "https://queenselti.me/lqho/uwu.m3u8", image: "https://i.etsystatic.com/14140434/r/il/f4e478/1486444070/il_fullxfull.1486444070_20a2.jpg" },
+      { title: "Thunderball", video: "https://queenselti.me/bysq/uwu.m3u8", image: "https://posterspy.com/wp-content/uploads/2023/06/TB_WEB_TEMPLATE_1000x1500px.jpg" },
+      { title: "You Only Live Twice", video: "https://queenselti.me/vtans/uwu.m3u8", image: "https://goauctionomega.blob.core.windows.net/stock/35781-1-medium.jpg?v=63826656829657" },
+      { title: "On Her Majesty's Secret Service", video: "https://queenselti.me/vvylfg/uwu.m3u8", image: "https://media-cache.cinematerial.com/p/500x/ztunectl/on-her-majestys-secret-service-movie-poster.jpg?v=1456639344" },
+      { title: "Diamonds Are Forever", video: "https://queenselti.me/ikgjxm/uwu.m3u8", image: "https://posterspy.com/wp-content/uploads/2023/06/DAF_WEB_TEMPLATE_1000x1500px.jpg" },
+      { title: "Live and Let Die", video: "https://queenselti.me/cayegdc/uwu.m3u8", image: "https://alternativemovieposters.com/wp-content/uploads/2022/12/Robert-Watts_LiveLetDie.jpg" },
+      { title: "The Man with the Golden Gun", video: "https://queenselti.me/tgpw/uwu.m3u8", image: "https://image.tmdb.org/t/p/original/itH4xI6TbJtJSqcZ43B3MkpL1gy.jpg" },
+      { title: "The Spy Who Loved Me", video: "https://queenselti.me/dabzjtxs/uwu.m3u8", image: "https://posterspy.com/wp-content/uploads/2022/11/tswlm-poster.jpg" },
+      { title: "Moonraker", video: "https://queenselti.me/mhnw/uwu.m3u8", image: "https://image.tmdb.org/t/p/original/uYLS9uMZmP6iXAh0jhWUZI2Nk3e.jpg" },
+      { title: "For Your Eyes Only", video: "https://queenselti.me/zgdo/uwu.m3u8", image: "https://i.pinimg.com/736x/9e/16/41/9e1641d6057cfae2e77879866f54a8a3.jpg" },
+      { title: "Octopussy", video: "https://queenselti.me/dpxsjcr/uwu.m3u8", image: "https://cdn.posteritati.com/posters/000/000/061/237/octopussy-md-web.jpg" },  
+      { title: "A View to a Kill", video: "https://queenselti.me/ettlu/uwu.m3u8", image: "https://i.pinimg.com/736x/cb/36/82/cb3682872fc7b9042b505e884f5e5d54.jpg" },
+      { title: "The Living Daylights", video: "https://queenselti.me/jmxrp/uwu.m3u8", image: "https://posterspy.com/wp-content/uploads/2023/06/TLD_WEB_TEMPLATE_1000x1500px.jpg" },
+      { title: "Licence to Kill", video: "https://queenselti.me/pcumhji/uwu.m3u8", image: "https://i.pinimg.com/736x/d8/45/27/d84527d6f1c4cba168b690a59454bf36.jpg" },
+      { title: "GoldenEye", video: "https://queenselti.me/kohodfwe/uwu.m3u8", image: "https://i.pinimg.com/736x/96/0e/f3/960ef3339761fc03969d9e37ec60d2d5.jpg" },
+      { title: "Tomorrow Never Dies", video: "https://vip.opstream15.com/20220316/1446_38859643/index.m3u8", image: "https://cdn11.bigcommerce.com/s-yzgoj/images/stencil/1280x1280/products/3234392/6220705/GBEFPO431__06020.1709712291.jpg?c=2" },
+      { title: "The World Is Not Enough", video: "https://queenselti.me/ymwrb/uwu.m3u8", image: "https://i.pinimg.com/474x/a5/fc/8f/a5fc8fa3feb3ea9f3f6316cb8c01e9b6.jpg" },
+      { title: "Die Another Day", video: "https://queenselti.me/sqlad/uwu.m3u8", image: "https://cdn11.bigcommerce.com/s-yzgoj/images/stencil/500x659/products/2911891/5955577/MOVAJ0534__87882.1679599595.jpg?c=2" },
+      { title: "Casino Royale", video: "https://queenselti.me/okocpcos/uwu.m3u8", image: "https://i.redd.it/6tkj6vkehct81.jpg" },
+      { title: "Quantum of Solace", video: "https://queenselti.me/vyreb/uwu.m3u8", image: "https://artofthemovies.co.uk/cdn/shop/files/IMG_4340_300x300.jpg?v=1697040084" },
+      { title: "Skyfall", video: "https://queenselti.me/vxgkzye/uwu.m3u8", image: "https://i.pinimg.com/474x/25/5b/02/255b02262ef74228723fc79c87625abc.jpg" },
+      { title: "No Time to Die", video: "https://queenselti.me/rroa/uwu.m3u8", image: "https://preview.redd.it/4a8rd5658g161.jpg?width=640&crop=smart&auto=webp&s=8c16f3cd4b0a985f791de5507f7d2b1c411eda02" },
+    ]; // <-- paste your movies array here later
+
+    /* DOM references */
+    const container = document.getElementById('movies');
+    const searchInput = document.getElementById('search');
+    const loadingSpinner = document.getElementById('loading');
+    const totalMoviesEl = document.getElementById('total-movies');
+
+    /* Modal/player refs */
+    const playbackModal = document.getElementById('playback-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const playerArea = document.getElementById('player-area');
+    const modalTitle = document.getElementById('modal-title');
+    const modalSub = document.getElementById('modal-sub');
+    const modalDesc = document.getElementById('modal-desc');
+    const progressFill = document.getElementById('progress-fill');
+    const modalPlayBtn = document.getElementById('modal-play');
+    const playText = document.getElementById('playText');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    /* Playback state */
+    let currentList = [];
+    let currentIndex = null;
+    let currentHls = null;
+
+    /* Type detection helpers */
+    function isHls(u){
+      if(!u) return false;
+      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.toLowerCase().includes('master.m3u8') || u.includes('manifest');
+    }
+    function isMP4(u){ return /\.mp4($|\?)/i.test(u||''); }
+    function isYouTube(u){ return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/'))); }
+
+    /* Player container helpers */
+    function resetPlayerContainer(){
+      if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+      playerArea.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
+    }
+    function getModalVideo(){ return document.getElementById('modal-video'); }
+
+    /* Attach listeners to video */
+    function attachVideoListeners(){
+      const v = getModalVideo();
+      if(!v) return;
+      if(v.dataset.listenersAttached) return;
+      v.dataset.listenersAttached = '1';
+
+      v.addEventListener('timeupdate', () => {
+        if(!v.duration || !isFinite(v.duration)) return;
+        const pct = (v.currentTime / v.duration) * 100;
+        progressFill.style.width = pct + '%';
+      });
+      v.addEventListener('play', () => { modalPlayBtn.innerHTML = '<i class="fas fa-pause mr-2"></i><span id="playText">Pause</span>'; });
+      v.addEventListener('pause', () => { modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>'; });
+      v.addEventListener('ended', () => { modalPlayBtn.innerHTML = '<i class="fas fa-redo mr-2"></i><span id="playText">Replay</span>'; });
+    }
+
+    /* Show/hide modal */
+    function showModal(){ playbackModal.classList.add('active'); document.body.style.overflow='hidden'; }
+    function hideModal(){ playbackModal.classList.remove('active'); document.body.style.overflow=''; }
+
+    /* Close & cleanup */
+    function closeAndCleanup(){
+      if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
+      const v = getModalVideo();
+      if(v){
+        try{ v.pause(); }catch(e){}
+        try{ v.removeAttribute('src'); v.load(); }catch(e){}
+      }
+      resetPlayerContainer();
+      progressFill.style.width = '0%';
+      currentIndex = null;
+      hideModal();
+      modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>';
+    }
+
+    /* Core playback function (Hawkeye-style) */
+    function playInModalByIndex(list, index){
+      if(!list || typeof index !== 'number' || index < 0 || index >= list.length) return;
+      const movie = list[index];
+      currentIndex = index;
+      modalTitle.textContent = movie.title || 'Untitled';
+      modalSub.textContent = (movie.year ? movie.year + ' • ' : '') + (movie.series ? movie.series : '');
+      modalDesc.textContent = movie.description || '';
+      progressFill.style.width = '0%';
+
+      resetPlayerContainer();
+      const url = movie.video;
+      if(!url){
+        showModal();
+        modalDesc.textContent = 'No playable URL provided for this item.';
+        return;
+      }
+
+      // iframe-hosts that work better embedded
+      const iframeHosts = ['streamtape.com','openload.co','vidcdn.','dood.', 'sbembed', 'drive.google.com','mega.nz','streamlare','mixdrop','rapidvideo'];
+      if(iframeHosts.some(h => url.includes(h))){
+        playerArea.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        showModal(); updateNavButtons(); return;
+      }
+
+      // YouTube embed
+      if(isYouTube(url)){
+        try{
+          let embedUrl = url;
+          if(url.includes('watch') && url.includes('v=')){
+            const vid = new URLSearchParams(url.split('?')[1]).get('v');
+            if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+          } else if(url.includes('youtu.be/')){
+            const vid = url.split('youtu.be/')[1].split(/[?&]/)[0];
+            embedUrl = `https://www.youtube.com/embed/${vid}`;
+          }
+          playerArea.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+          showModal(); updateNavButtons(); return;
+        }catch(e){
+          // fallthrough
+        }
+      }
+
+      // Expecting to use <video>
+      const v = getModalVideo();
+
+      // HLS handling
+      if(isHls(url)){
+        if(window.Hls && Hls.isSupported()){
+          try{
+            currentHls = new Hls();
+            currentHls.loadSource(url);
+            currentHls.attachMedia(v);
+            currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+              showModal(); attachVideoListeners(); v.play().catch(()=>{});
+            });
+            currentHls.on(Hls.Events.ERROR, (event, data) => {
+              if(data && data.fatal){
+                try{ currentHls.destroy(); }catch(e){} currentHls = null;
+                v.src = url; showModal(); attachVideoListeners(); v.play().catch(()=>{});
+              }
+            });
+          }catch(e){
+            v.src = url; showModal(); attachVideoListeners(); v.play().catch(()=>{});
+          }
+        } else {
+          v.src = url; showModal(); attachVideoListeners(); v.play().catch(()=>{});
+        }
+        updateNavButtons();
+        return;
+      }
+
+      // MP4 fallback
+      if(isMP4(url)){
+        v.src = url; showModal(); attachVideoListeners(); v.play().catch(()=>{});
+        updateNavButtons();
+        return;
+      }
+
+      // Unknown: fallback to player.html
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(url)}`;
+    }
+
+    /* Play/pause control */
+    modalPlayBtn.addEventListener('click', () => {
+      if(playerArea.querySelector('iframe')) return; // iframe playback handled inside iframe
+      const v = getModalVideo();
+      if(!v) return;
+      if(v.paused) v.play().catch(()=>{});
+      else v.pause();
+    });
+
+    /* Prev/Next */
+    function updateNavButtons(){
+      prevBtn.disabled = (currentIndex === null || currentIndex <= 0);
+      nextBtn.disabled = (currentIndex === null || currentIndex >= (currentList.length - 1));
+    }
+    prevBtn.addEventListener('click', () => { if(currentIndex > 0) playInModalByIndex(currentList, currentIndex - 1); });
+    nextBtn.addEventListener('click', () => { if(currentIndex < currentList.length - 1) playInModalByIndex(currentList, currentIndex + 1); });
+
+    /* Mute / Fullscreen */
+    muteBtn.addEventListener('click', () => {
+      const v = getModalVideo();
+      if(!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    });
+    fullscreenBtn.addEventListener('click', () => {
+      const elem = playerArea.querySelector('video') || playerArea.querySelector('iframe');
+      if(!elem) return;
+      if(!document.fullscreenElement) elem.requestFullscreen().catch(()=>{});
+      else document.exitFullscreen().catch(()=>{});
+    });
+
+    /* Close handlers & keyboard */
+    closeModalBtn.addEventListener('click', closeAndCleanup);
+    playbackModal.addEventListener('click', (e) => { if(e.target === playbackModal) closeAndCleanup(); });
+    document.addEventListener('keydown', (e) => {
+      if(!playbackModal.classList.contains('active')) return;
+      if(e.key === 'Escape') closeAndCleanup();
+      if(e.key === ' '){ e.preventDefault(); const v = getModalVideo(); if(v) v.paused ? v.play() : v.pause(); }
+      if(e.key === 'ArrowRight'){ const v = getModalVideo(); if(v) v.currentTime += 10; }
+      if(e.key === 'ArrowLeft'){ const v = getModalVideo(); if(v) v.currentTime -= 10; }
+      if(e.key.toLowerCase() === 'n') nextBtn.click();
+      if(e.key.toLowerCase() === 'p') prevBtn.click();
+    });
+
+    /* Render movie cards (UI kept same). Because movies array is empty, will show placeholder */
+    function renderMovies(list){
+      container.innerHTML = '';
+      if(!list || list.length === 0){
+        container.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <i class="fas fa-search text-4xl text-amber-400/50 mb-4"></i>
+            <h3 class="text-xl font-medium text-gray-400">No movies available</h3>
+            <p class="text-gray-500">Paste your movies array into the top of this file (const movies = [ ... ]) to populate the grid.</p>
+          </div>`;
+        totalMoviesEl.textContent = 0;
+        return;
+      }
+
+      list.forEach((movie, index) => {
+        const delayClass = `delay-${index % 3 + 1}`;
+        const div = document.createElement('div');
+        div.className = `fade-in ${delayClass}`;
+        div.innerHTML = `
+          <div class="movie-card group relative overflow-hidden rounded-lg border border-amber-400/20 bg-gray-800 shadow-lg transition-all duration-300 hover:scale-105 hover:glow">
+            <img src="${movie.image || ''}" alt="${movie.title || 'Untitled'}" class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-90" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 text-white translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+              <h3 class="font-bold text-lg truncate">${movie.title || 'Untitled'}</h3>
+              <div class="flex justify-between items-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span class="text-xs bg-amber-400/90 text-gray-900 px-2 py-1 rounded">007</span>
+                <button class="play-button bg-amber-400 hover:bg-amber-500 text-gray-900 rounded-full w-8 h-8 flex items-center justify-center">
+                  <i class="fas fa-play text-xs"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // clicking anywhere opens modal playback (Hawkeye behavior)
+        div.querySelector('.play-button').addEventListener('click', (e) => {
+          e.stopPropagation();
+          // prepare currentList and index for navigation
+          currentList = list.slice(); // shallow copy
+          playInModalByIndex(currentList, index);
+        });
+        div.addEventListener('click', () => {
+          currentList = list.slice();
+          playInModalByIndex(currentList, index);
+        });
+
+        container.appendChild(div);
+      });
+
+      totalMoviesEl.textContent = list.length;
+    }
+
+    /* Search filtering */
+    searchInput.addEventListener('input', (e) => {
+      const q = (e.target.value || '').trim().toLowerCase();
+      const filtered = movies.filter(m => (m.title || '').toLowerCase().includes(q) || (m.description || '').toLowerCase().includes(q));
+      renderMovies(filtered);
+    });
+
+    /* Initial load simulation */
+    document.addEventListener('DOMContentLoaded', () => {
+      // show loader briefly for effect
+      loadingSpinner.classList.remove('hidden');
+      setTimeout(() => {
+        loadingSpinner.classList.add('hidden');
+        renderMovies(movies); // movies is empty placeholder for now
+      }, 300);
+    });
+
+    /* Expose helpers for debugging */
+    window.playInModalByIndex = playInModalByIndex;
+    window.closeAndCleanup = closeAndCleanup;
+    window.resetPlayerContainer = resetPlayerContainer;
+  </script>
+</body>
+</html>
