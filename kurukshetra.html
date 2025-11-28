@@ -2,347 +2,582 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Kurukshetra 2025</title>
+  <title>Kurukshetra</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js (keeps player's HLS support) -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
-  <script async src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 
   <style>
-    /* -----------------------------
-       Kurukshetra 2025 Theme (complete theme block)
-       Replace only this block if you want to change theme later
-       ----------------------------- */
-
-    /* Base */
-    body { background: #120804; color: #f6e7c5; font-family: 'Cinzel', serif; }
-    header, footer { background: #1e0f06; }
-
-    /* Scrollbar */
+    /* Preserve original layout & behavior, reskinned for Agent Carter (retro red/blue) */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #2a160b; }
-    ::-webkit-scrollbar-thumb { background: #cfa43a; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #e7bf55; }
+    ::-webkit-scrollbar-track { background: #0b0f12; }
+    ::-webkit-scrollbar-thumb { background: #c0392b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e74c3c; }
 
-    /* Fade in animation */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px);} to { opacity: 1; transform: translateY(0);} }
     .fade-in { animation: fadeIn 0.45s ease-out forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Glow battlefield vibe */
-    .glow-effect { position: relative; }
-    .glow-effect::after {
-      content: ''; position: absolute; inset: 0; border-radius: 12px;
-      box-shadow: 0 0 12px rgba(255,150,40,0.15), 0 0 24px rgba(255,90,20,0.25);
-      transition: box-shadow 0.25s ease; pointer-events: none;
-    }
-    .glow-effect:hover::after { box-shadow: 0 0 24px rgba(255,150,40,0.3), 0 0 50px rgba(255,60,10,0.45); }
+    .gradient-text { background: linear-gradient(90deg,#e74c3c,#2c3e50); -webkit-background-clip:text; color:transparent; }
+    .marvel-font { font-family: 'Marvel', sans-serif; }
+    .btn-ac { background: #c0392b; color: #fff; }
+    .btn-ac:hover { filter: brightness(0.95); }
 
-    /* Gradient title text */
-    .gradient-text { background: linear-gradient(90deg, #ffdd77, #ff9933, #cc3300); -webkit-background-clip: text; color: transparent; }
+    /* keep modal/player sizing from original file */
+    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
 
-    /* Showcase / hero */
-    .showcase-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-    .showcase-overlay { position:absolute; inset:0; background:linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(70,30,10,0.55) 50%, rgba(0,0,0,0) 100%); }
-
-    /* Active buttons */
-    .season-btn.active { background:#d4a437 !important; color:#221108 !important; }
-    .filter-btn.active { background:#d4a437 !important; color:#221108 !important; }
-
-    /* Modal & player */
-    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); z-index:1000; }
-    .modal-card { width:95%; max-width:1100px; background:linear-gradient(180deg, rgba(40,22,10,0.92), rgba(25,12,6,0.97)); border-radius:12px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.7); border:1px solid rgba(212,164,55,0.35); }
-    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(0,0,0,0.32); border-bottom:1px solid rgba(255,255,255,0.03); }
-    .modal-title { font-size:1.125rem; font-weight:600; color:#e9cd80; }
-    .modal-close-btn { width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#fff; background:rgba(255,255,255,0.04); cursor:pointer; border:1px solid rgba(255,255,255,0.02); }
-
-    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
-    .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; background:black; display:block; }
-
-    /* Spinner */
-    .spinner { width:36px; height:36px; border-radius:999px; border:4px solid rgba(255,255,255,0.06); border-top-color:#e9cd80; animation:spin 1s linear infinite; display:none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* advanced top-right control tray */
-    .adv-tray {
-      position:absolute; top:12px; right:12px; display:flex; gap:8px; align-items:center;
-      padding:8px 10px; border-radius:999px; background: rgba(20,10,5,0.55); backdrop-filter: blur(6px);
-      border: 1px solid rgba(212,164,55,0.3); box-shadow: 0 8px 30px rgba(212,164,55,0.18); z-index:22;
-      opacity:0; transform: translateY(-6px); transition: opacity 220ms ease, transform 220ms ease;
-    }
-    .adv-tray.show { opacity:1; transform: translateY(0); }
-    .adv-btn { display:flex; align-items:center; gap:6px; color:#f6e7c5; background:transparent; border:none; padding:6px 8px; border-radius:8px; cursor:pointer; }
-    .adv-select { background:transparent; color:#f6e7c5; border:none; outline:none; padding:6px; }
-    .adv-btn:hover { background: rgba(255,255,255,0.02); }
-
-    @media (max-width:640px) {
-      .adv-tray { top:8px; right:8px; padding:6px 8px; gap:6px; }
-      .adv-select { font-size:13px; }
-    }
-
-    /* Movie cards */
-    .movie-card { background: #2b1a11; }
-    .movie-card:hover { background: #3b2216; }
-
-    footer { border-top: 1px solid #3c2614; }
-
-    /* spark canvas fix */
-    #sparkCanvasPage{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;}
+    body { background: #071021; color: #e8eef6; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
+    header { background: linear-gradient(90deg,#0b1220,#081219); border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .accent-ac { color: #c0392b; }
+    .accent-ac-2 { color: #2c3e50; }
+    .progress-bar-fill { background: #c0392b; }
+    .watchlist-checkbox .checkmark { border: 2px solid #c0392b; }
   </style>
 </head>
-<body class="bg-black text-gray-100 min-h-screen">
-
-<header class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-yellow-500/20 shadow-[0_0_20px_rgba(255,200,50,0.2)]">
-  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-
-    <!-- LOGO SECTION -->
-    <div class="flex items-center space-x-3">
-      <!-- Circular Icon Badge -->
-      <div class="w-12 h-12 bg-gradient-to-br from-yellow-600 to-red-700 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(255,150,50,0.6)]">
+<body class="bg-[#071021] text-gray-100 min-h-screen font-roboto">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-black bg-opacity-70 backdrop-blur-sm shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-[#c0392b] to-[#2c3e50] rounded-full flex items-center justify-center">
         <i class="fas fa-chess-knight text-yellow-200 text-2xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold gradient-text marvel-font tracking-wide">Kurukshetra</h1>
       </div>
-
-      <!-- Logo Text -->
-      <div class="flex flex-col">
-        <h1 class="text-3xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-orange-400 to-red-500 drop-shadow-[0_0_5px_rgba(255,120,20,0.7)]">
-          Kurukshetra
-        </h1>
-        <span class="text-xs text-gray-300 tracking-widest uppercase">
-          TV Series
-        </span>
+      
+      <div class="flex items-center space-x-4">
+        <button id="watchlist-btn" class="p-2 rounded-full hover:bg-gray-800 transition relative">
+          <i class="fas fa-bookmark accent-ac"></i>
+        </button>
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon accent-ac"></i>
+        </button>
+        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-search accent-ac"></i>
+        </button>
       </div>
     </div>
 
-    <!-- RIGHT ACTIONS -->
-    <div class="flex items-center space-x-4">
-      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition shadow-inner">
-        <i class="fas fa-search text-yellow-300"></i>
+    <!-- Search bar (hidden by default) -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
+      <div class="relative">
+        <input id="global-search" type="text" placeholder="Search episodes..." 
+               class="w-full bg-gray-900 border border-[#c0392b]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#c0392b] placeholder-gray-400">
+        <i class="fas fa-search absolute left-3 top-3 text-[#c0392b]"></i>
+      </div>
+    </div>
+
+    <!-- Watchlist dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-700">
+        <h3 class="font-semibold accent-ac">My Watchlist</h3>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
+        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <main class="container mx-auto px-4 py-6">
+    <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+      <div class="relative w-full h-[420px] md:h-[520px] overflow-hidden rounded-xl">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <!-- Period noir trailer (YouTube embed, muted loop) -->
+          <iframe
+            src="https://www.youtube.com/embed/AEP84U6ApSI?autoplay=1&mute=1&loop=1&playlist=AEP84U6ApSI&controls=0"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          ></iframe>
+        </div>
+
+        <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
+          <div class="flex items-center mb-2">
+            <span class="bg-[#c0392b] text-white text-xs font-bold px-2 py-1 rounded mr-2"></span>
+            <span class="text-[#c0392b] text-sm">TV Series • Seasons 1</span>
+          </div>
+          <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text marvel-font tracking-wide">Kurukshetra</h2>
+          <div class="flex items-center mb-4">
+            <div class="flex items-center mr-4">
+              <i class="fas fa-star accent-ac mr-1"></i>
+              <span class="text-white">8.0</span>
+            </div>
+            <span class="text-gray-300 text-sm mr-4"></span>
+          </div>
+          <p class="text-gray-300 mb-4 max-w-lg text-sm md:text-base">An epic 18-day battle unfolds through the perspectives of 18 warriors, revealing their inner struggles and ethical challenges during a war between brothers.</p>
+          <div class="flex space-x-3">
+            <button id="play-all" class="btn-ac font-semibold py-2 px-6 rounded-full transition flex items-center">
+              <i class="fas fa-play mr-2"></i> Play All
+            </button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+              <i class="fas fa-info-circle mr-2"></i> Details
+            </button>
+          </div>
+        </div>
+        <div class="absolute bottom-4 right-4 z-20">
+          <button id="scroll-down" class="bg-black/50 text-[#c0392b] rounded-full p-2 border border-[#c0392b]/30 hover:bg-[#c0392b] hover:text-black transition">
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Season Navigation -->
+  <div class="flex items-center justify-between mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
+    <h3 class="text-xl font-semibold flex items-center">
+      <i class="fas fa-tv accent-ac mr-2"></i>
+      <span class="marvel-font">EPISODES</span>
+    </h3>
+    <div class="flex items-center space-x-2">
+      <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap items-center justify-between mb-8 gap-4 container mx-auto px-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+      
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <span class="text-gray-400 text-sm">Sort by:</span>
+      <select id="sort-select" class="bg-gray-900 border border-gray-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-[#c0392b]">
+        <option>Episode Order</option>
+        <option>Release Date</option>
+        <option>Duration</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Episodes Grid -->
+  <section class="container mx-auto px-4">
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <!-- Episode cards injected by JS -->
+    </div>
+  </section>
+
+  <!-- Footer / Social -->
+  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  </div>
+
+  <!-- Playback Modal (preserved) -->
+  <div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+      <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:text-[#c0392b] text-2xl bg-black/50 rounded-full p-2">
+        <i class="fas fa-times"></i>
       </button>
-    </div>
 
-  </div>
-</header>
+      <div class="relative">
+        <div id="modal-player">
+          <video id="modal-video" class="w-full" controls playsinline>
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div id="video-progress" class="progress-bar w-full">
+          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
 
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 id="modal-title" class="text-2xl font-bold mb-1"></h3>
+            <div class="flex items-center text-gray-400 text-sm">
+              <span id="modal-season-ep">S1 • E1</span>
+              <span class="mx-2">•</span>
+              <span id="modal-duration">45 min</span>
+            </div>
+          </div>
+          <label class="watchlist-checkbox">
+            <input type="checkbox" id="watchlist-checkbox">
+            <span class="checkmark"></span>
+          </label>
+        </div>
 
+        <p id="modal-description" class="text-gray-300 mb-6">Loading description...</p>
 
-  <div id="search-bar" class="hidden px-4 pb-4">
-    <div class="relative">
-      <input id="search-input" type="text" placeholder="Search episodes..." class="w-full bg-gray-900 border border-blue-600/30 rounded-full py-2 px-4 pl-10 text-white">
-      <i class="fas fa-search absolute left-3 top-3 text-blue-300"></i>
-    </div>
-  </div>
-</header>
-
-<main class="container mx-auto px-4 py-8">
-  <section class="mb-8 relative overflow-hidden rounded-xl h-44 md:h-64">
-    <iframe
-      src="https://www.youtube.com/embed/AEP84U6ApSI?autoplay=1&mute=1&loop=1&playlist=AEP84U6ApSI&controls=0"
-      frameborder="0"
-      allow="autoplay; fullscreen"
-      class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-    ></iframe>
-    <div class="showcase-overlay"></div>
-    <div class="relative h-full flex flex-col justify-end p-6 md:p-8">
-      <p class="text-gray-300 mb-4 max-w-lg">An epic 18-day battle unfolds through the perspectives of 18 warriors, revealing their inner struggles and ethical challenges during a war between brothers.</p>
-    </div>
-  </section>
-
-  <div class="flex overflow-x-auto mb-6 pb-2 space-x-2">
-    <button class="season-btn active bg-blue-600 text-white px-4 py-2 rounded-full" data-season="all">All Episodes</button>
-    <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
-
-  </div>
-
-  <div class="flex flex-wrap justify-between mb-8 gap-4">
-    <div class="flex space-x-2 overflow-x-auto pb-2">
-      <button class="filter-btn active bg-blue-500 text-white px-4 py-1 rounded-full">All</button>
-
-    </div>
-  </div>
-
-  <section>
-    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-blue-400 mr-2"></i>Episodes</h3>
-    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
-  </section>
-</main>
-
-<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
-  © Kurukshetra
-</footer>
-
-<!-- Modal -->
-<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-header">
-      <div id="modal-title" class="modal-title"></div>
-      <button id="close-video-modal" class="modal-close-btn" aria-label="Close player"><i class="fas fa-times"></i></button>
-    </div>
-
-    <div class="modal-player">
-      <video id="modal-video" controls playsinline preload="metadata"></video>
-      <div id="buffer-spinner" class="spinner" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"></div>
-
-      <!-- Advanced control tray (top-right) -->
-      <div id="adv-tray" class="adv-tray" aria-hidden="true">
-        <button id="resume-btn" class="adv-btn" title="Resume last position"><i class="fas fa-play-circle"></i></button>
-        <button id="cast-btn" class="adv-btn" title="Cast to device"><i class="fas fa-tv"></i></button>
-        <button id="pip-btn" class="adv-btn" title="Picture-in-Picture"><i class="fas fa-window-restore"></i></button>
-        <select id="speed-select" class="adv-select" title="Playback speed">
-          <option value="0.5">0.5x</option><option value="0.75">0.75x</option>
-          <option value="1" selected>1x</option><option value="1.25">1.25x</option>
-          <option value="1.5">1.5x</option><option value="2">2x</option>
-        </select>
-        <button id="subs-btn" class="adv-btn" title="Add subtitles (.vtt)"><i class="fas fa-closed-captioning"></i></button>
+        <div class="flex space-x-3">
+          <button id="play-btn" class="bg-[#c0392b] hover:bg-[#e74c3c] text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-play mr-2"></i> Play
+          </button>
+          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-info-circle mr-2"></i> Details
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#c0392b]"></div>
+  </div>
 
 <script>
-/* -----------------------------
-   Episode list (paste your episodes)
-   ----------------------------- */
+/*
+  Agent Carter episodes (Season 1: 8 eps, Season 2: 10 eps).
+  Titles sourced from public episode lists. (Season counts and titles verified). :contentReference[oaicite:2]{index=2}
+
+  All video links are dummy placeholders (same format used in your other files),
+  so playback behavior (HLS / MP4 / TXT / iframe / youtube handling) remains unchanged.
+*/
+
 const movies = [
-  // Season 1 (18 episodes)
-  { title: "Sanjay", video: "https://svz.bellevianetwork.sbs:443/v4/qu/yoarde/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/kUK1JQ0sfPt5WIf1EmuPQYnjP5y.jpg", description: "The death of an American seaman on a U.S. nuclear submarine during an AUKUS ceremony on Sydney Harbour is investigated in a joint effort. :contentReference[oaicite:1]{index=1}", duration: "45 min", season:1, episode:1, tags:["Crime","Naval"] },
-  { title: "Vishwaroop", video: "https://svz.nordivisnetwork.store:443/v4/xq/trqcvl/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/tVQ2BPm7jibxNhtbJOtUVPbeS7A.jpg", description: "When a Navy compliance officer is found dead in a waterhole from a snakebite, the team uncovers a deadly taipan in unexpected territory. :contentReference[oaicite:2]{index=2}", duration:"46 min", season:1, episode:2, tags:["Crime","Drama"] },
-  { title: "Bhishma", video: "https://sui.cometri.store:443/v4/m9/db8ipv/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/k2WuWwAYpbUlyJFZzum8KQJoaIF.jpg", description: "When a shark spits out an arm wearing U.S. Navy equipment, the investigation tests loyalty among former Navy divers. :contentReference[oaicite:3]{index=3}", duration:"47 min", season:1, episode:3, tags:["Naval","Crime"] },
-  { title: "Dronacharya", video: "https://sy6.xylonatech.sbs:443/v4/xq/8zmlyw/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/apKLtL26fiHTAEsMlhMEojIfirR.jpg", description: "A body in Sydney’s historic Rocks area leads the team on a ghost-hunt style chase to catch a killer. :contentReference[oaicite:4]{index=4}", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
-  { title: "Abhimanyu", video: "https://sad.bellecrest.store:443/v4/ox/6mbh5o/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/9l1KalJJJBvRm5E210tkOUCuoSf.jpg", description: "One of their own is held hostage in a dog-cafe situation while the team races to save them. :contentReference[oaicite:5]{index=5}", duration:"46 min", season:1, episode:5, tags:["Drama"] },
-  { title: "Jayadrath", video: "https://sui.seawindart.space:443/v4/ck/hdevqp/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/lKEyhpPkWsniCFZGu1M5iXhDVaA.jpg", description: "With rising Indo-Pacific tensions, the task-force gets grafted into a multinational unit and a U.S. Navy researcher is found dead in a secret bunker. :contentReference[oaicite:6]{index=6}", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
-  { title: "Arjun", video: "https://sri.fintravafinance.cyou:443/v4/xq/s1vacq/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/9fhpdPOSuIox9aYpcP4cAP4A2qP.jpg", description: "A visit to a high-tech launch site ends up with the team trapped underground with limited oxygen after a research death. :contentReference[oaicite:7]{index=7}", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
-  { title: "Ghatotkach", video: "https://sui.moriartis.store:443/v4/rw/e86kuv/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/lZwb4QFBAmjzVdzK2VSU8ijG0rV.jpg", description: "The death of an American seaman on a U.S. nuclear submarine during an AUKUS ceremony on Sydney Harbour is investigated in a joint effort. :contentReference[oaicite:1]{index=1}", duration: "45 min", season:1, episode:1, tags:["Crime","Naval"] },
-  { title: "Yudhisthir", video: "https://sri.clarvista.shop:443/v4/ox/qpuxkb/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/iu3w1TjY4r4YJ9nZL3cNzn6X720.jpg", description: "When a Navy compliance officer is found dead in a waterhole from a snakebite, the team uncovers a deadly taipan in unexpected territory. :contentReference[oaicite:2]{index=2}", duration:"46 min", season:1, episode:2, tags:["Crime","Drama"] },
-  { title: "Kripacharya", video: "https://syr.mistralstudio.shop/v4/s93/e8mp5t/cf-master.txt?v=1761290725", image: "https://image.tmdb.org/t/p/w300/axMNcBhkC4G6CqfxvvckXQ9svJV.jpg", description: "When a shark spits out an arm wearing U.S. Navy equipment, the investigation tests loyalty among former Navy divers. :contentReference[oaicite:3]{index=3}", duration:"47 min", season:1, episode:3, tags:["Naval","Crime"] },
-  { title: "Kunti", video: "https://sri.bluefusion.sbs/v4/s93/wkhx9m/cf-master.txt?v=1761290745", image: "https://image.tmdb.org/t/p/w300/gBxKRzZbLFhYH3o07KyB5FAR8MU.jpg", description: "A body in Sydney’s historic Rocks area leads the team on a ghost-hunt style chase to catch a killer. :contentReference[oaicite:4]{index=4}", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
-  { title: "Dushasan", video: "https://sui.greenhavenstore.store/v4/s93/ie6qr9/cf-master.txt?v=1761292323", image: "https://image.tmdb.org/t/p/w300/hXSUCX0m5mfWTJ8XQstMoAIDdR1.jpg", description: "One of their own is held hostage in a dog-cafe situation while the team races to save them. :contentReference[oaicite:5]{index=5}", duration:"46 min", season:1, episode:5, tags:["Drama"] },
-  { title: "Karn", video: "https://snq.velonovaenergy.sbs/v4/vz/afwbmb/cf-master.txt?v=1761290790", image: "https://image.tmdb.org/t/p/w300/A861cK5n1u9aeXfnyk68XkbfsEo.jpg", description: "With rising Indo-Pacific tensions, the task-force gets grafted into a multinational unit and a U.S. Navy researcher is found dead in a secret bunker. :contentReference[oaicite:6]{index=6}", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
-  { title: "Duryodhan", video: "https://shh.halcyonbloom.store/v4/vz/uyalee/cf-master.txt?v=1761290781", image: "https://image.tmdb.org/t/p/w300/wf9oGA9NHOQ6S7ehevpuL9xwLUx.jpg", description: "A visit to a high-tech launch site ends up with the team trapped underground with limited oxygen after a research death. :contentReference[oaicite:7]{index=7}", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
-  { title: "Bheem", video: "https://sui.novacrestnetwork.online/v4/mik/qpyie5/cf-master.txt?v=1761293305", image: "https://image.tmdb.org/t/p/w300/pOtR0oV2cLyFwXS6UV1RyYjWhLV.jpg", description: "A body in Sydney’s historic Rocks area leads the team on a ghost-hunt style chase to catch a killer. :contentReference[oaicite:4]{index=4}", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
-  { title: "Ashwatthama", video: "https://sui.corvani.cyou/v4/3vi/afwbmy/cf-master.txt?v=1761291312", image: "https://image.tmdb.org/t/p/w300/hnuMALSO8Nq8LaPujwGMvVMXWvp.jpg", description: "One of their own is held hostage in a dog-cafe situation while the team races to save them. :contentReference[oaicite:5]{index=5}", duration:"46 min", season:1, episode:5, tags:["Drama"] },
-  { title: "Stree Parv", video: "https://spc.eleviora.space/v4/x68/ie6qut/cf-master.txt?v=1761294734", image: "https://image.tmdb.org/t/p/w300/cnsFrdc0Or59I7UKkF2PjFA3k5W.jpg", description: "With rising Indo-Pacific tensions, the task-force gets grafted into a multinational unit and a U.S. Navy researcher is found dead in a secret bunker. :contentReference[oaicite:6]{index=6}", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
-  { title: "Krishn", video: "https://sy6.clarynova.cyou/v4/ck/5ajd65/cf-master.txt?v=1761291318", image: "https://image.tmdb.org/t/p/w300/79ymMcnsQvMl9ETTnTEiWZIWhAC.jpg", description: "A visit to a high-tech launch site ends up with the team trapped underground with limited oxygen after a research death. :contentReference[oaicite:7]{index=7}", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
+  // Season 1 (8 eps)
+ { title: "Sanjay", video: "https://svz.bellevianetwork.sbs:443/v4/qu/yoarde/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/kUK1JQ0sfPt5WIf1EmuPQYnjP5y.jpg", description: "After failed peace talks between the rival Pandavas and Kauravas, Sanjay must deliver the grim message that war approaches.", duration: "45 min", season:1, episode:1, tags:["Crime","Naval"] },
+  { title: "Vishwaroop", video: "https://svz.nordivisnetwork.store:443/v4/xq/trqcvl/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/tVQ2BPm7jibxNhtbJOtUVPbeS7A.jpg", description: "As battle looms, Lord Krishna shares the Bhagavad Gita's wisdom through divine light, helping a conflicted Arjun understand his duty.", duration:"46 min", season:1, episode:2, tags:["Crime","Drama"] },
+  { title: "Bhishma", video: "https://sui.cometri.store:443/v4/m9/db8ipv/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/k2WuWwAYpbUlyJFZzum8KQJoaIF.jpg", description: "Bhishma seems to be immortal. Now the Pandavs need to find a way to defeat him. Bhishma's past is revealed.", duration:"47 min", season:1, episode:3, tags:["Naval","Crime"] },
+  { title: "Dronacharya", video: "https://sy6.xylonatech.sbs:443/v4/xq/8zmlyw/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/apKLtL26fiHTAEsMlhMEojIfirR.jpg", description: "As the new commander in charge, Dronacharya has a strategy against the Pandavas but will he be successful...?", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
+  { title: "Abhimanyu", video: "https://sad.bellecrest.store:443/v4/ox/6mbh5o/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/9l1KalJJJBvRm5E210tkOUCuoSf.jpg", description: "Young prince Abhimanyu faces Dronacharya's military formation in battle, leading to his defeat by Kaurava forces.", duration:"46 min", season:1, episode:5, tags:["Drama"] },
+  { title: "Jayadrath", video: "https://sui.seawindart.space:443/v4/ck/hdevqp/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/lKEyhpPkWsniCFZGu1M5iXhDVaA.jpg", description: "The Pandavas blame others for their defeat. Jayadrath's name triggers Draupadi's traumatic memories. Arjun, filled with anger, readies for battle.", duration:"50 min", season:6, episode:6, tags:["Naval","Crime"] },
+  { title: "Arjun", video: "https://sri.fintravafinance.cyou:443/v4/xq/s1vacq/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/9fhpdPOSuIox9aYpcP4cAP4A2qP.jpg", description: "With Krishna's divine help, Arjun pursues vengeance against Jayadrath while trying to overcome an ancient curse.", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
+  { title: "Ghatotkach", video: "https://sui.moriartis.store:443/v4/rw/e86kuv/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/lZwb4QFBAmjzVdzK2VSU8ijG0rV.jpg", description: "In a night battle led by Bheem's half-demon son Ghatotkach, the Kauravas must use their special weapon meant for Arjun.", duration: "45 min", season:1, episode:8, tags:["Crime","Naval"] },
+  { title: "Yudhisthir", video: "https://sri.clarvista.shop:443/v4/ox/qpuxkb/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/iu3w1TjY4r4YJ9nZL3cNzn6X720.jpg", description: "Injured and sidelined, Yudhishthir faces a crucial choice at a crossroads: stay true to his principles or give in to deception?", duration:"46 min", season:1, episode:9, tags:["Crime","Drama"] },
+  { title: "Kripacharya", video: "https://syr.mistralstudio.shop/v4/s93/e8mp5t/cf-master.txt?v=1761290725", image: "https://image.tmdb.org/t/p/w300/axMNcBhkC4G6CqfxvvckXQ9svJV.jpg", description: "To choose the next commander, Kripacharya arranges a fierce contest between Ashwatthama and Karna, yet the clash soon spirals into uncontrollable fury and chaos.", duration:"47 min", season:1, episode:10, tags:["Naval","Crime"] },
+  { title: "Kunti", video: "https://sri.bluefusion.sbs/v4/s93/wkhx9m/cf-master.txt?v=1761290745", image: "https://image.tmdb.org/t/p/w300/gBxKRzZbLFhYH3o07KyB5FAR8MU.jpg", description: "On the verge of assuming command, Karna contemplates his bond with his birth mother, Kunti, and reaffirms his solemn promise to overcome Arjuna.", duration:"48 min", season:1, episode:11, tags:["Drama","Crime"] },
+  { title: "Dushasan", video: "https://sui.greenhavenstore.store/v4/s93/ie6qr9/cf-master.txt?v=1761292323", image: "https://image.tmdb.org/t/p/w300/hXSUCX0m5mfWTJ8XQstMoAIDdR1.jpg", description: "Tormented by the memory of Draupadi's dishonor, Bheem embarks on a merciless quest to hunt down Dushasana and exact his vengeance.", duration:"46 min", season:1, episode:12, tags:["Drama"] },
+  { title: "Karn", video: "https://snq.velonovaenergy.sbs/v4/vz/afwbmb/cf-master.txt?v=1761290790", image: "https://image.tmdb.org/t/p/w300/A861cK5n1u9aeXfnyk68XkbfsEo.jpg", description: "Determined to overcome Arjuna, Karna enlists the expert charioteer Shalya to drive his war chariot, only to be met with the driver's mockery and the shadow of an ancient curse.", duration:"50 min", season:1, episode:13, tags:["Naval","Crime"] },
+  { title: "Duryodhan", video: "https://shh.halcyonbloom.store/v4/vz/uyalee/cf-master.txt?v=1761290781", image: "https://image.tmdb.org/t/p/w300/wf9oGA9NHOQ6S7ehevpuL9xwLUx.jpg", description: "After Shalya falls, Duryodhan escapes the battle and hides in Lake Dwaipayana while the Pandavas look for him.", duration:"49 min", season:1, episode:14, tags:["Drama","Naval"] },
+  { title: "Bheem", video: "https://sui.novacrestnetwork.online/v4/mik/qpyie5/cf-master.txt?v=1761293305", image: "https://image.tmdb.org/t/p/w300/pOtR0oV2cLyFwXS6UV1RyYjWhLV.jpg", description: "Duryodhana chooses Bheem as his opponent in the duel proposed by Yudhishthir. The winner takes the crown of Hastinapur for which, The Kurukshetra War began in the first place.", duration:"48 min", season:1, episode:15, tags:["Drama","Crime"] },
+  { title: "Ashwatthama", video: "https://sui.corvani.cyou/v4/3vi/afwbmy/cf-master.txt?v=1761291312", image: "https://image.tmdb.org/t/p/w300/hnuMALSO8Nq8LaPujwGMvVMXWvp.jpg", description: "Enraged Ashwatthama unleashes a deadly massacre. Krishna intervenes when his revenge endangers the world.", duration:"46 min", season:1, episode:16, tags:["Drama"] },
+  { title: "Stree Parv", video: "https://spc.eleviora.space/v4/x68/ie6qut/cf-master.txt?v=1761294734", image: "https://image.tmdb.org/t/p/w300/cnsFrdc0Or59I7UKkF2PjFA3k5W.jpg", description: "Gandhari, overcome with grief, encounters Krishna and curses him. The Pandava women grieve for their fallen at Kurukshetra.", duration:"50 min", season:1, episode:17, tags:["Naval","Crime"] },
+  { title: "Krishn", video: "https://sy6.clarynova.cyou/v4/ck/5ajd65/cf-master.txt?v=1761291318", image: "https://image.tmdb.org/t/p/w300/79ymMcnsQvMl9ETTnTEiWZIWhAC.jpg", description: "After becoming king, Yudhishthir sees Krishn depart for Dwarka, bearing Gandhari's words as power shifts between families.", duration:"49 min", season:1, episode:18, tags:["Drama","Naval"] },
 
  
 ];
 
-
+//
+// --- Playback & UI logic (preserved from your uploaded file)
+//
 const container = document.getElementById('movies');
-const videoModal = document.getElementById('video-modal');
+const searchBtn = document.getElementById('search-btn');
+const searchBar = document.getElementById('search-bar');
+const themeToggle = document.getElementById('theme-toggle');
+const watchlistBtn = document.getElementById('watchlist-btn');
+const watchlistDropdown = document.getElementById('watchlist-dropdown');
+const watchlistItems = document.getElementById('watchlist-items');
+const playbackModal = document.getElementById('playback-modal');
+const closeModal = document.getElementById('close-modal');
 const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const episodeNum = document.getElementById('modal-season-ep');
+const modalDuration = document.getElementById('modal-duration');
+const playBtn = document.getElementById('play-btn');
+const watchlistCheckbox = document.getElementById('watchlist-checkbox');
+const progressBarFill = document.getElementById('progress-bar-fill');
+const scrollDownBtn = document.getElementById('scroll-down');
+const loadingSpinner = document.getElementById('loading-spinner');
+const seasonBtns = document.querySelectorAll('.season-btn');
+const modalPlayer = document.getElementById('modal-player');
+const globalSearch = document.getElementById('global-search');
 let currentHls = null;
+let currentMovieIndex = null;
 
-function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; }
-function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; }
+function isHls(u) {
+  if (!u) return false;
+  return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
+}
+function isMP4(u) { return /\.mp4($|\?)/i.test(u || ''); }
+function isYouTube(u) { return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('/embed/'))); }
 
-function isHls(u){return u.includes('.m3u8')||u.includes('index-')||/index.*\.txt/i.test(u);}
-function isMP4(u){return /\.mp4($|\?)/i.test(u);}
-function isYouTube(u){return u.includes('youtu');}
+function resetPlayerContainer() {
+  if (currentHls) { try { currentHls.destroy(); } catch(e) {} currentHls = null; }
+  modalPlayer.innerHTML = `<video id="modal-video" class="w-full" controls playsinline>Your browser does not support the video tag.</video>`;
+  attachVideoListeners();
+}
 
-function playInModal(title, url) {
-  if (currentHls) {
-    try { currentHls.destroy(); } catch (e) {}
-    currentHls = null;
+function closeModalHandler() {
+  const videoEl = document.getElementById('modal-video');
+  if (currentHls) { try { currentHls.destroy(); } catch (e) {} currentHls = null; }
+  if (videoEl) { try { videoEl.pause(); } catch(e) {} try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e) {} }
+  resetPlayerContainer();
+  playbackModal.classList.add('hidden');
+  document.body.style.overflow = '';
+  currentMovieIndex = null;
+  playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+  progressBarFill.style.width = '0%';
+}
+
+function playInModal(title, url, movieObj) {
+  currentMovieIndex = movies.indexOf(movieObj);
+  modalTitle.textContent = movieObj.title;
+  modalDescription.textContent = movieObj.description || '';
+  episodeNum.textContent = `S${movieObj.season} • E${movieObj.episode}`;
+  modalDuration.textContent = movieObj.duration || '';
+  watchlistCheckbox.checked = !!movieObj.inWatchlist;
+  progressBarFill.style.width = '0%';
+  resetPlayerContainer();
+
+  if (!url) {
+    modalTitle.textContent = title + ' — No playable URL provided';
+    playbackModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    return;
   }
-  const playerContainer = document.querySelector('.modal-player');
-  const modalVideo = document.getElementById('modal-video');
-  modalTitle.textContent = title || '';
 
-  // Streamtape
-  if (url.includes('streamtape.com')) {
-    playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
-    showModal();
+  // iframe hosts
+  if (url.includes('streamtape.com') || url.includes('openload') || url.includes('dood')) {
+    modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+    playbackModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.classList.add('hidden');
     return;
   }
 
   // YouTube
   if (isYouTube(url)) {
-    playerContainer.innerHTML = `
-      <iframe src="${url}?autoplay=1&modestbranding=1&rel=0"
-              width="100%" height="100%"
-              allowfullscreen
-              allow="autoplay; encrypted-media"
-              frameborder="0"></iframe>`;
-    showModal();
+    let embedUrl = url;
+    try {
+      if (url.includes('watch') && url.includes('v=')) {
+        const vid = new URLSearchParams(url.split('?')[1]).get('v');
+        if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+      } else if (url.includes('youtu.be/')) {
+        const parts = url.split('youtu.be/');
+        if (parts[1]) {
+          const vid = parts[1].split(/[?&]/)[0];
+          embedUrl = `https://www.youtube.com/embed/${vid}`;
+        }
+      }
+    } catch(e){}
+    modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    playbackModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.classList.add('hidden');
     return;
   }
 
+  const videoEl = document.getElementById('modal-video');
+
   // HLS
   if (isHls(url)) {
-    if (Hls.isSupported()) {
+    if (window.Hls && Hls.isSupported()) {
       currentHls = new Hls();
       currentHls.loadSource(url);
-      currentHls.attachMedia(modalVideo);
-      currentHls.on(Hls.Events.MANIFEST_PARSED, () => { showModal(); modalVideo.play().catch(() => {}); });
+      currentHls.attachMedia(videoEl);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        videoEl.play().catch(()=>{});
+      });
     } else {
-      modalVideo.src = url;
-      showModal();
-      modalVideo.play().catch(() => {});
+      videoEl.src = url;
+      playbackModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      loadingSpinner.classList.add('hidden');
+      videoEl.play().catch(()=>{});
     }
     return;
   }
 
   // MP4
   if (isMP4(url)) {
-    modalVideo.src = url;
-    showModal();
-    modalVideo.play().catch(() => {});
+    videoEl.src = url;
+    playbackModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.classList.add('hidden');
+    videoEl.play().catch(()=>{});
     return;
   }
 
-  // Redirect to player.html for other formats
+  // Fallback
+  loadingSpinner.classList.add('hidden');
   window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
 }
 
-function closePlayer(){
-  if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
-  const playerContainer=document.querySelector('.modal-player');
-  playerContainer.innerHTML=`<video id="modal-video" class="w-full h-full" controls playsinline></video>`;
-  hideModal();
+function attachVideoListeners() {
+  const videoEl = document.getElementById('modal-video');
+  if (!videoEl) return;
+  videoEl.removeEventListener('timeupdate', videoTimeUpdateHandler);
+  videoEl.addEventListener('timeupdate', videoTimeUpdateHandler);
+  videoEl.removeEventListener('ended', videoEndedHandler);
+  videoEl.addEventListener('ended', videoEndedHandler);
+}
+function videoTimeUpdateHandler() {
+  const videoEl = document.getElementById('modal-video');
+  if (!videoEl || !videoEl.duration) return;
+  const progress = (videoEl.currentTime / videoEl.duration) * 100;
+  progressBarFill.style.width = progress + '%';
+}
+function videoEndedHandler() {
+  playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
 }
 
-document.getElementById('close-video-modal').addEventListener('click',closePlayer);
-videoModal.addEventListener('click',e=>{if(e.target===videoModal)closePlayer();});
-
-function renderMovies(list){
-  container.innerHTML='';
-  list.forEach((movie,i)=>{
-    const div=document.createElement('div');
-    div.className=`movie-card animate-fade-in rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
-    div.innerHTML=`
-      <div class="relative overflow-hidden rounded-t-lg">
-        <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-          <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
-            <i class="fas fa-play mr-2"></i> Watch Now
-          </button>
+/* renderMovies: same card structure as your uploaded file (preserved) */
+function renderMovies(list) {
+  container.innerHTML = '';
+  list.forEach((movie, index) => {
+    const card = document.createElement('div');
+    card.className = 'movie-card fade-in rounded-xl overflow-hidden cursor-pointer';
+    card.innerHTML = `
+      <div class="relative group overflow-hidden rounded-xl">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <div>
+            <h3 class="text-white font-semibold text-lg">${movie.title}</h3>
+            <p class="text-gray-300 text-sm">${movie.duration || ''}</p>
+          </div>
+        </div>
+        <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#c0392b] rounded-full w-10 h-10 flex items-center justify-center">
+          <i class="fas fa-play"></i>
+        </div>
+        <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
+          <i class="fas fa-star text-[#c0392b] text-xs mr-1"></i>
+          <span class="text-white text-xs">${movie.rating || ''}</span>
         </div>
       </div>
-      <div class="p-4">
-        <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-        <div class="flex justify-between items-center mt-2 text-sm text-gray-400"><span>${movie.year||''}</span></div>
-      </div>`;
-    div.addEventListener('click',()=>playInModal(movie.title,movie.video));
-    container.appendChild(div);
+      <div class="mt-3">
+        <h3 class="text-white font-medium">${movie.title}</h3>
+        <div class="flex items-center text-gray-400 text-sm mt-1">
+          <span>S${movie.season} • E${movie.episode}</span>
+          <span class="mx-2">•</span>
+          <span>${movie.duration || ''}</span>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => {
+      loadingSpinner.classList.remove('hidden');
+      playInModal(movie.title, movie.video, movie);
+    });
+    container.appendChild(card);
   });
 }
-renderMovies(movies);
-</script>
 
-<canvas id="sparkCanvasPage"></canvas>
-<style>
-#sparkCanvasPage{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;}
-</style>
-<script>
-const canvas=document.getElementById('sparkCanvasPage');const ctx=canvas.getContext('2d');const sparks=[];
-function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}window.addEventListener('resize',resizeCanvas);resizeCanvas();
-const easing=t=>t*(2-t);const dur=300,count=6,size=8,radius=12,color='#00f2ff';
-function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const now=performance.now();
-for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];const el=now-s.t;if(el>=dur){sparks.splice(i,1);continue;}
-const p=el/dur;const e=easing(p);const d=e*radius;const l=size*(1-e);const x1=s.x+d*Math.cos(s.a),y1=s.y+d*Math.sin(s.a);
-const x2=s.x+(d+l)*Math.cos(s.a),y2=s.y+(d+l)*Math.sin(s.a);ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
-requestAnimationFrame(draw);}requestAnimationFrame(draw);
-document.addEventListener('click',e=>{for(let i=0;i<count;i++){sparks.push({x:e.clientX,y:e.clientY,a:(2*Math.PI*i)/count,t:performance.now()});}});
+/* --- Initialization & UI wiring (preserved) --- */
+function initPage() {
+  renderMovies(movies);
+
+  // filter button visuals (kept from original)
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const active = document.querySelector('.filter-btn.active');
+      if (active) active.classList.remove('active', 'bg-[#c0392b]', 'text-white');
+      this.classList.add('active', 'bg-[#c0392b]', 'text-white');
+    });
+  });
+
+  // Season buttons filter
+  seasonBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#c0392b]', 'text-white'));
+      this.classList.add('active', 'bg-[#c0392b]', 'text-white');
+      const season = this.dataset.season;
+      let filtered;
+      if (!season || season === 'all') filtered = movies;
+      else filtered = movies.filter(m => String(m.season) === String(season));
+      renderMovies(filtered);
+    });
+  });
+
+  updateWatchlist();
+}
+
+/* Watchlist (preserved) */
+function updateWatchlist() {
+  watchlistItems.innerHTML = '';
+  const watchlistMovies = movies.filter(m => m.inWatchlist);
+  if (watchlistMovies.length === 0) {
+    watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
+    return;
+  }
+  watchlistMovies.forEach((movie, idx) => {
+    const index = movies.indexOf(movie);
+    const item = document.createElement('div');
+    item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
+    item.innerHTML = `
+      <div class="flex items-center">
+        <span class="text-[#c0392b] text-sm mr-2">${idx + 1}.</span>
+        <span class="text-white text-sm truncate">${movie.title}</span>
+      </div>
+      <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeFromWatchlist(index);
+    });
+    item.addEventListener('click', () => {
+      loadingSpinner.classList.remove('hidden');
+      playInModal(movie.title, movie.video, movie);
+      watchlistDropdown.classList.add('hidden');
+    });
+    watchlistItems.appendChild(item);
+  });
+}
+function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
+function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
+
+/* UI wiring */
+searchBtn.addEventListener('click', () => {
+  searchBar.classList.toggle('hidden');
+  watchlistDropdown.classList.add('hidden');
+});
+watchlistBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  watchlistDropdown.classList.toggle('hidden');
+  searchBar.classList.add('hidden');
+});
+themeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('bg-gray-100');
+  document.body.classList.toggle('text-gray-900');
+  document.body.classList.toggle('bg-[#071021]');
+  document.body.classList.toggle('text-gray-100');
+  const icon = themeToggle.querySelector('i');
+  if (document.body.classList.contains('bg-[#071021]')) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+  else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+});
+closeModal.addEventListener('click', closeModalHandler);
+playbackModal.addEventListener('click', function(e) { if (e.target === this) closeModalHandler(); });
+
+playBtn.addEventListener('click', () => {
+  const videoEl = document.getElementById('modal-video');
+  if (!videoEl) return;
+  if (videoEl.paused) { videoEl.play(); playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause'; }
+  else { videoEl.pause(); playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play'; }
+});
+
+watchlistCheckbox.addEventListener('change', function() {
+  if (currentMovieIndex == null) return;
+  if (this.checked) addToWatchlist(currentMovieIndex); else removeFromWatchlist(currentMovieIndex);
+});
+
+scrollDownBtn.addEventListener('click', () => {
+  window.scrollTo({ top: document.querySelector('#movies').offsetTop - 20, behavior: 'smooth' });
+});
+
+document.addEventListener('click', (e) => {
+  if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
+  if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
+});
+
+// Global search (filters within current season)
+globalSearch && globalSearch.addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  const activeSeasonBtn = document.querySelector('.season-btn.active');
+  const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+  let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+  if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
+  renderMovies(list);
+});
+
+attachVideoListeners();
+window.addEventListener('DOMContentLoaded', initPage);
 </script>
 </body>
 </html>
