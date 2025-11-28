@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>What If...?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js (keeps player's HLS support) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    /* Preserve original layout & behavior, reskinned for Agent Carter (retro red/blue) */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0b0f12; }
+    ::-webkit-scrollbar-thumb { background: #c0392b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e74c3c; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px);} to { opacity: 1; transform: translateY(0);} }
+    .fade-in { animation: fadeIn 0.45s ease-out forwards; }
+
+    .gradient-text { background: linear-gradient(90deg,#e74c3c,#2c3e50); -webkit-background-clip:text; color:transparent; }
+    .marvel-font { font-family: 'Marvel', sans-serif; }
+    .btn-ac { background: #c0392b; color: #fff; }
+    .btn-ac:hover { filter: brightness(0.95); }
+
+    /* keep modal/player sizing from original file */
+    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
+
+    body { background: #071021; color: #e8eef6; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
+    header { background: linear-gradient(90deg,#0b1220,#081219); border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .accent-ac { color: #c0392b; }
+    .accent-ac-2 { color: #2c3e50; }
+    .progress-bar-fill { background: #c0392b; }
+    .watchlist-checkbox .checkmark { border: 2px solid #c0392b; }
+  </style>
+</head>
+<body class="bg-[#071021] text-gray-100 min-h-screen font-roboto">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-black bg-opacity-70 backdrop-blur-sm shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-[#c0392b] to-[#2c3e50] rounded-full flex items-center justify-center">
+       <i class="fas fa-question-circle text-indigo-300 text-2xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold gradient-text marvel-font tracking-wide">What If...?</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <button id="watchlist-btn" class="p-2 rounded-full hover:bg-gray-800 transition relative">
+          <i class="fas fa-bookmark accent-ac"></i>
+        </button>
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon accent-ac"></i>
+        </button>
+        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-search accent-ac"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search bar (hidden by default) -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
+      <div class="relative">
+        <input id="global-search" type="text" placeholder="Search episodes..." 
+               class="w-full bg-gray-900 border border-[#c0392b]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#c0392b] placeholder-gray-400">
+        <i class="fas fa-search absolute left-3 top-3 text-[#c0392b]"></i>
+      </div>
+    </div>
+
+    <!-- Watchlist dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-700">
+        <h3 class="font-semibold accent-ac">My Watchlist</h3>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
+        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <main class="container mx-auto px-4 py-6">
+    <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+      <div class="relative w-full h-[420px] md:h-[520px] overflow-hidden rounded-xl">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <!-- Period noir trailer (YouTube embed, muted loop) -->
+          <iframe
+            src="https://www.youtube.com/embed/x9D0uUKJ5KI?autoplay=1&mute=1&loop=1&playlist=x9D0uUKJ5KI&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          ></iframe>
+        </div>
+
+        <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
+          <div class="flex items-center mb-2">
+            <span class="bg-[#c0392b] text-white text-xs font-bold px-2 py-1 rounded mr-2"></span>
+            <span class="text-[#c0392b] text-sm">TV Series • Seasons 1–2</span>
+          </div>
+          <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text marvel-font tracking-wide">What If...?</h2>
+          <div class="flex items-center mb-4">
+            <div class="flex items-center mr-4">
+              <i class="fas fa-star accent-ac mr-1"></i>
+              <span class="text-white">7.3</span>
+            </div>
+            <span class="text-gray-300 text-sm mr-4"></span>
+          </div>
+          <p class="text-gray-300 mb-4 max-w-lg text-sm md:text-base">Exploring pivotal moments from the Marvel Cinematic Universe and turning them on their head, leading the audience into uncharted territory.</p>
+          <div class="flex space-x-3">
+            <button id="play-all" class="btn-ac font-semibold py-2 px-6 rounded-full transition flex items-center">
+              <i class="fas fa-play mr-2"></i> Play All
+            </button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+              <i class="fas fa-info-circle mr-2"></i> Details
+            </button>
+          </div>
+        </div>
+        <div class="absolute bottom-4 right-4 z-20">
+          <button id="scroll-down" class="bg-black/50 text-[#c0392b] rounded-full p-2 border border-[#c0392b]/30 hover:bg-[#c0392b] hover:text-black transition">
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Season Navigation -->
+  <div class="flex items-center justify-between mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
+    <h3 class="text-xl font-semibold flex items-center">
+      <i class="fas fa-tv accent-ac mr-2"></i>
+      <span class="marvel-font">EPISODES</span>
+    </h3>
+    <div class="flex items-center space-x-2">
+      <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="1">Season 1</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="2">Season 2</button>
+      <button class="season-btn px-4 py-2 rounded-full" data-season="3">Season 3</button>
+
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap items-center justify-between mb-8 gap-4 container mx-auto px-4">
+    <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+      
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <span class="text-gray-400 text-sm">Sort by:</span>
+      <select id="sort-select" class="bg-gray-900 border border-gray-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-[#c0392b]">
+        <option>Episode Order</option>
+        <option>Release Date</option>
+        <option>Duration</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Episodes Grid -->
+  <section class="container mx-auto px-4">
+    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <!-- Episode cards injected by JS -->
+    </div>
+  </section>
+
+  <!-- Footer / Social -->
+  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  </div>
+
+  <!-- Playback Modal (preserved) -->
+  <div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90">
+    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+      <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:text-[#c0392b] text-2xl bg-black/50 rounded-full p-2">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="relative">
+        <div id="modal-player">
+          <video id="modal-video" class="w-full" controls playsinline>
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div id="video-progress" class="progress-bar w-full">
+          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 id="modal-title" class="text-2xl font-bold mb-1"></h3>
+            <div class="flex items-center text-gray-400 text-sm">
+              <span id="modal-season-ep">S1 • E1</span>
+              <span class="mx-2">•</span>
+              <span id="modal-duration">45 min</span>
+            </div>
+          </div>
+          <label class="watchlist-checkbox">
+            <input type="checkbox" id="watchlist-checkbox">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+
+        <p id="modal-description" class="text-gray-300 mb-6">Loading description...</p>
+
+        <div class="flex space-x-3">
+          <button id="play-btn" class="bg-[#c0392b] hover:bg-[#e74c3c] text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-play mr-2"></i> Play
+          </button>
+          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-info-circle mr-2"></i> Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#c0392b]"></div>
+  </div>
+
+<script>
+/*
+  Agent Carter episodes (Season 1: 8 eps, Season 2: 10 eps).
+  Titles sourced from public episode lists. (Season counts and titles verified). :contentReference[oaicite:2]{index=2}
+
+  All video links are dummy placeholders (same format used in your other files),
+  so playback behavior (HLS / MP4 / TXT / iframe / youtube handling) remains unchanged.
+*/
+
+const movies = [
+  // Season 1 (8 eps) 
+  { season:1, episode:1, title:"S1E1 — What If... Captain Carter Were the First Avenger?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/3788/1043788-h-6f92c4010bcc", description:"Peggy Carter receives the Super Soldier serum instead of Steve Rogers, altering history.", video:"https://sui.glowhavenmedia.cyou:443/v4/ek/tbduy/index-f2-v1-a1.txt" },
+  { season:1, episode:2, title:"S1E2 — What If... T'Challa Became Star-Lord?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6734/1046734-h-a63bdd4a223c", description:"T'Challa is taken by Yondu and becomes Star-Lord, changing the fate of the galaxy.", video:"https://svz.auroriacollective.cyou:443/v4/hz/ijnl9/index-f2-v1-a1.txt" },
+  { season:1, episode:3, title:"S1E3 — What If... The World Lost Its Mightiest Heroes?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/9153/1049153-h-d7c4675f04fe", description:"A dystopian Earth where the Avengers never assemble and a different threat rises.", video:"https://soq.rivonadesign.cyou:443/v4/ck/pxznt/index-f2-v1-a1.txt" },
+  { season:1, episode:4, title:"S1E4 — What If... Doctor Strange Lost His Heart Instead of His Hands?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/1481/1051481-h-d2d6bb446777", description:"The Watcher is forced into action after a catastrophic event—testing his vow of non-interference.", video:"https://svz.solvonaacademy.sbs:443/v4/m9/vnuvg/index-f2-v1-a1.txt" },
+  { season:1, episode:5, title:"S1E5 — What If... Zombies?!", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/3625/1053625-h-64f8540af3fc", description:"When The Avengers are infected by a zombie plague, surviving heroes search for a cure.", video:"https://soq.celestiorstudio.cyou:443/v4/ty/lsodn/index-f1-v1-a1.txt" },
+  { season:1, episode:6, title:"S1E6 — What If... Killmonger Rescued Tony Stark?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6089/1056089-h-eddda6c4f696", description:"Erik Killmonger frees Tony Stark, creating an unexpected partnership with global effects.", video:"https://sq3.oravialuxury.online:443/v4/ty/1a5ip/index-f2-v1-a1.txt" },
+  { season:1, episode:7, title:"S1E7 — What If... Thor Was an Only Child?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/8922/1058922-h-abd5c6fd47be", description:"Thor grows up without Loki—leading to a very different Asgard and personality.", video:"https://sri.zenithraevents.store:443/v4/mik/ugbul/index-f2-v1-a1.txt" },
+  { season:1, episode:8, title:"S1E8 — What If... Ultron Won?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/2016/1062016-h-453560632d13", description:"Natasha Romanoff and Clint Barton seek to destroy killer-robot Ultron following a cataclysmic event.", video:"https://s39.mistralstudio.shop:443/v4/hz/ortfp/index-f1-v1-a1.txt" },
+  { season:1, episode:9, title:"S1E9 — What If... The Watcher Broke His Oath?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5142/1065142-h-b0f0545856d2", description:"The Watcher gathers heroes from across the multiverse for one final battle against Infinity Ultron.", video:"https://sui.starlabdigital.sbs:443/v4/hld/tbdr5/index-f2-v1-a1.txt" },
+
+  // Season 2 (9)
+  { season:2, episode:1, title:"S2E1 — What If... Nebula Joined the Nova Corps?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6310/1636310-h-75ebf7878050", description:"Nebula sets out to prove her detective chops when she's recruited to join the Nova Corps.", video:"https://sy6.corvani.cyou:443/v4/pk8/lsah5/index-f2-v1-a1.txt" },
+  { season:2, episode:2, title:"S2E2 — What If... Peter Quill Attacked Earth's Mightiest Heroes?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6318/1636318-h-284745de72b7", description:"When Ego and a young Peter Quill attack Earth in 1988, Howard Stark and Peggy Carter form a team.", video:"https://s6mb.bluefusion.sbs:443/v4/pk8/61f6m/index-f1-v1-a1.txt" },
+  { season:2, episode:3, title:"S2E3 — What If... Happy Hogan Saved Christmas?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6320/1636320-h-c5fa54db2a1b", description:"Happy Hogan sets out to prove his hero chops when Justin Hammer lays siege to Avengers Tower during the annual holiday party.", video:"https://sq3.novacrestnetwork.online:443/v4/ty/fp3jq/index-f2-v1-a1.txt" },
+  { season:2, episode:4, title:"S2E4 — What If... Iron Man Crashed Into the Grandmaster?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6330/1636330-h-1beedfa3bb56", description:"Tony Stark challenges The Grandmaster, leading to a grand prix-turned-demolition-derby death match.", video:"https://snq.frostlinegarden.store:443/v4/k5/aq9fn/index-f2-v1-a1.txt" },
+  { season:2, episode:5, title:"S2E5 — What If... Captain Carter Fought the Hydra Stomper?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6331/1636331-h-de67ea997273", description:"Captain Carter's mission to save Steve Rogers sets her on a collision course with new enemies.", video:"https://sri.corvani.cyou:443/v4/pk8/aqxnp/index-f2-v1-a1.txt" },
+  { season:2, episode:6, title:"S2E6 — What If... Kahhori Reshaped the World?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6332/1636332-h-8d929c17af7f", description:"A Mohawk woman ventures into the waters of the Forbidden Lake to help save her people.", video:"https://s36.trovianaworks.online:443/v4/ek/1a5h5/index-f1-v1-a1.txt" },
+  { season:2, episode:7, title:"S2E7 — What If... Hela Found the Ten Rings?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6408/1636408-h-632738fbf4a4", description:"Hela - stripped of her powers and banished to Earth - comes across a new source of power: the Ten Rings.", video:"https://spx.clarvista.shop:443/v4/hz/qz63q/index-f2-v1-a1.txt" },
+  { season:2, episode:8, title:"S2E8 — What If... The Avengers Assembled in 1602?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6411/1636411-h-0dd9ab2cf729", description:"Captain Carter tries to undo the anomaly that strands familiar heroes and villains in 1602.", video:"https://sui.clarynova.cyou:443/v4/ox/n3gyr/index-f2-v1-a1.txt" },
+  { season:2, episode:9, title:"S2E9 — What If... Strange Supreme Intervened?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6413/1636413-h-f80c0db67571", description:"Strange asks Peggy to help with an adversary. But this demented sorcerer is keeping a secret from his old friend.", video:"https://sui.xylonatech.sbs:443/v4/hld/ytgoy/index-f2-v1-a1.txt" },
+
+  // Season 3 (8)
+  { season:3, episode:1, title:"S3E1 — What If... New Beginnings?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/4388/1734692754388-h", description:"A fresh divergence opens new possibilities for classic characters.", video:"" },
+  { season:3, episode:2, title:"S3E2 — What If... A Lost World Returned?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/8236/1734938728236-h", description:"Long-forgotten civilizations reemerge and rewrite history.", video:"" },
+  { season:3, episode:3, title:"S3E3 — What If... Shadows Took Power?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/3312/1735023013312-h", description:"Dark forces gain influence, challenging the remaining heroes.", video:"" },
+  { season:3, episode:4, title:"S3E4 — What If... Time Stood Still?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/7868/1735108797868-h", description:"Temporal anomalies trap heroes in a single moment with heavy consequences.", video:"" },
+  { season:3, episode:5, title:"S3E5 — What If... The Cosmos Rebalanced?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/2020/1735195972020-h", description:"Cosmic entities intervene to restore—or upend—universal order.", video:"" },
+  { season:3, episode:6, title:"S3E6 — What If... Old Alliances Shifted?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/5351/1735282745351-h", description:"Unexpected alliances form among enemies and heroes alike.", video:"" },
+  { season:3, episode:7, title:"S3E7 — What If... Power Corrupted?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/4862/1735309594862-h", description:"Absolute power alters a hero’s path and damages everything they touch.", video:"" },
+  { season:3, episode:8, title:"S3E8 — What If... The Watcher Returned?", image:"https://img10.hotstar.com/image/upload/f_auto,h_124/sources/r1/cms/prod/6668/1735309666668-h", description:"The Watcher contemplates deeper involvement as crises escalate.", video:"" },
+  
+];
+
+//
+// --- Playback & UI logic (preserved from your uploaded file)
+//
+const container = document.getElementById('movies');
+const searchBtn = document.getElementById('search-btn');
+const searchBar = document.getElementById('search-bar');
+const themeToggle = document.getElementById('theme-toggle');
+const watchlistBtn = document.getElementById('watchlist-btn');
+const watchlistDropdown = document.getElementById('watchlist-dropdown');
+const watchlistItems = document.getElementById('watchlist-items');
+const playbackModal = document.getElementById('playback-modal');
+const closeModal = document.getElementById('close-modal');
+const modalTitle = document.getElementById('modal-title');
+const modalDescription = document.getElementById('modal-description');
+const episodeNum = document.getElementById('modal-season-ep');
+const modalDuration = document.getElementById('modal-duration');
+const playBtn = document.getElementById('play-btn');
+const watchlistCheckbox = document.getElementById('watchlist-checkbox');
+const progressBarFill = document.getElementById('progress-bar-fill');
+const scrollDownBtn = document.getElementById('scroll-down');
+const loadingSpinner = document.getElementById('loading-spinner');
+const seasonBtns = document.querySelectorAll('.season-btn');
+const modalPlayer = document.getElementById('modal-player');
+const globalSearch = document.getElementById('global-search');
+let currentHls = null;
+let currentMovieIndex = null;
+
+function isHls(u) {
+  if (!u) return false;
+  return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
+}
+function isMP4(u) { return /\.mp4($|\?)/i.test(u || ''); }
+function isYouTube(u) { return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('/embed/'))); }
+
+function resetPlayerContainer() {
+  if (currentHls) { try { currentHls.destroy(); } catch(e) {} currentHls = null; }
+  modalPlayer.innerHTML = `<video id="modal-video" class="w-full" controls playsinline>Your browser does not support the video tag.</video>`;
+  attachVideoListeners();
+}
+
+function closeModalHandler() {
+  const videoEl = document.getElementById('modal-video');
+  if (currentHls) { try { currentHls.destroy(); } catch (e) {} currentHls = null; }
+  if (videoEl) { try { videoEl.pause(); } catch(e) {} try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e) {} }
+  resetPlayerContainer();
+  playbackModal.classList.add('hidden');
+  document.body.style.overflow = '';
+  currentMovieIndex = null;
+  playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+  progressBarFill.style.width = '0%';
+}
+
+function playInModal(title, url, movieObj) {
+  currentMovieIndex = movies.indexOf(movieObj);
+  modalTitle.textContent = movieObj.title;
+  modalDescription.textContent = movieObj.description || '';
+  episodeNum.textContent = `S${movieObj.season} • E${movieObj.episode}`;
+  modalDuration.textContent = movieObj.duration || '';
+  watchlistCheckbox.checked = !!movieObj.inWatchlist;
+  progressBarFill.style.width = '0%';
+  resetPlayerContainer();
+
+  if (!url) {
+    modalTitle.textContent = title + ' — No playable URL provided';
+    playbackModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    return;
+  }
+
+  // iframe hosts
+  if (url.includes('streamtape.com') || url.includes('openload') || url.includes('dood')) {
+    modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+    playbackModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.classList.add('hidden');
+    return;
+  }
+
+  // YouTube
+  if (isYouTube(url)) {
+    let embedUrl = url;
+    try {
+      if (url.includes('watch') && url.includes('v=')) {
+        const vid = new URLSearchParams(url.split('?')[1]).get('v');
+        if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+      } else if (url.includes('youtu.be/')) {
+        const parts = url.split('youtu.be/');
+        if (parts[1]) {
+          const vid = parts[1].split(/[?&]/)[0];
+          embedUrl = `https://www.youtube.com/embed/${vid}`;
+        }
+      }
+    } catch(e){}
+    modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    playbackModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.classList.add('hidden');
+    return;
+  }
+
+  const videoEl = document.getElementById('modal-video');
+
+  // HLS
+  if (isHls(url)) {
+    if (window.Hls && Hls.isSupported()) {
+      currentHls = new Hls();
+      currentHls.loadSource(url);
+      currentHls.attachMedia(videoEl);
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        videoEl.play().catch(()=>{});
+      });
+    } else {
+      videoEl.src = url;
+      playbackModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      loadingSpinner.classList.add('hidden');
+      videoEl.play().catch(()=>{});
+    }
+    return;
+  }
+
+  // MP4
+  if (isMP4(url)) {
+    videoEl.src = url;
+    playbackModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    loadingSpinner.classList.add('hidden');
+    videoEl.play().catch(()=>{});
+    return;
+  }
+
+  // Fallback
+  loadingSpinner.classList.add('hidden');
+  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+}
+
+function attachVideoListeners() {
+  const videoEl = document.getElementById('modal-video');
+  if (!videoEl) return;
+  videoEl.removeEventListener('timeupdate', videoTimeUpdateHandler);
+  videoEl.addEventListener('timeupdate', videoTimeUpdateHandler);
+  videoEl.removeEventListener('ended', videoEndedHandler);
+  videoEl.addEventListener('ended', videoEndedHandler);
+}
+function videoTimeUpdateHandler() {
+  const videoEl = document.getElementById('modal-video');
+  if (!videoEl || !videoEl.duration) return;
+  const progress = (videoEl.currentTime / videoEl.duration) * 100;
+  progressBarFill.style.width = progress + '%';
+}
+function videoEndedHandler() {
+  playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
+}
+
+/* renderMovies: same card structure as your uploaded file (preserved) */
+function renderMovies(list) {
+  container.innerHTML = '';
+  list.forEach((movie, index) => {
+    const card = document.createElement('div');
+    card.className = 'movie-card fade-in rounded-xl overflow-hidden cursor-pointer';
+    card.innerHTML = `
+      <div class="relative group overflow-hidden rounded-xl">
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <div>
+            <h3 class="text-white font-semibold text-lg">${movie.title}</h3>
+            <p class="text-gray-300 text-sm">${movie.duration || ''}</p>
+          </div>
+        </div>
+        <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#c0392b] rounded-full w-10 h-10 flex items-center justify-center">
+          <i class="fas fa-play"></i>
+        </div>
+        <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
+          <i class="fas fa-star text-[#c0392b] text-xs mr-1"></i>
+          <span class="text-white text-xs">${movie.rating || ''}</span>
+        </div>
+      </div>
+      <div class="mt-3">
+        <h3 class="text-white font-medium">${movie.title}</h3>
+        <div class="flex items-center text-gray-400 text-sm mt-1">
+          <span>S${movie.season} • E${movie.episode}</span>
+          <span class="mx-2">•</span>
+          <span>${movie.duration || ''}</span>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => {
+      loadingSpinner.classList.remove('hidden');
+      playInModal(movie.title, movie.video, movie);
+    });
+    container.appendChild(card);
+  });
+}
+
+/* --- Initialization & UI wiring (preserved) --- */
+function initPage() {
+  renderMovies(movies);
+
+  // filter button visuals (kept from original)
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const active = document.querySelector('.filter-btn.active');
+      if (active) active.classList.remove('active', 'bg-[#c0392b]', 'text-white');
+      this.classList.add('active', 'bg-[#c0392b]', 'text-white');
+    });
+  });
+
+  // Season buttons filter
+  seasonBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#c0392b]', 'text-white'));
+      this.classList.add('active', 'bg-[#c0392b]', 'text-white');
+      const season = this.dataset.season;
+      let filtered;
+      if (!season || season === 'all') filtered = movies;
+      else filtered = movies.filter(m => String(m.season) === String(season));
+      renderMovies(filtered);
+    });
+  });
+
+  updateWatchlist();
+}
+
+/* Watchlist (preserved) */
+function updateWatchlist() {
+  watchlistItems.innerHTML = '';
+  const watchlistMovies = movies.filter(m => m.inWatchlist);
+  if (watchlistMovies.length === 0) {
+    watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
+    return;
+  }
+  watchlistMovies.forEach((movie, idx) => {
+    const index = movies.indexOf(movie);
+    const item = document.createElement('div');
+    item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
+    item.innerHTML = `
+      <div class="flex items-center">
+        <span class="text-[#c0392b] text-sm mr-2">${idx + 1}.</span>
+        <span class="text-white text-sm truncate">${movie.title}</span>
+      </div>
+      <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeFromWatchlist(index);
+    });
+    item.addEventListener('click', () => {
+      loadingSpinner.classList.remove('hidden');
+      playInModal(movie.title, movie.video, movie);
+      watchlistDropdown.classList.add('hidden');
+    });
+    watchlistItems.appendChild(item);
+  });
+}
+function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
+function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
+
+/* UI wiring */
+searchBtn.addEventListener('click', () => {
+  searchBar.classList.toggle('hidden');
+  watchlistDropdown.classList.add('hidden');
+});
+watchlistBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  watchlistDropdown.classList.toggle('hidden');
+  searchBar.classList.add('hidden');
+});
+themeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('bg-gray-100');
+  document.body.classList.toggle('text-gray-900');
+  document.body.classList.toggle('bg-[#071021]');
+  document.body.classList.toggle('text-gray-100');
+  const icon = themeToggle.querySelector('i');
+  if (document.body.classList.contains('bg-[#071021]')) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+  else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+});
+closeModal.addEventListener('click', closeModalHandler);
+playbackModal.addEventListener('click', function(e) { if (e.target === this) closeModalHandler(); });
+
+playBtn.addEventListener('click', () => {
+  const videoEl = document.getElementById('modal-video');
+  if (!videoEl) return;
+  if (videoEl.paused) { videoEl.play(); playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause'; }
+  else { videoEl.pause(); playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play'; }
+});
+
+watchlistCheckbox.addEventListener('change', function() {
+  if (currentMovieIndex == null) return;
+  if (this.checked) addToWatchlist(currentMovieIndex); else removeFromWatchlist(currentMovieIndex);
+});
+
+scrollDownBtn.addEventListener('click', () => {
+  window.scrollTo({ top: document.querySelector('#movies').offsetTop - 20, behavior: 'smooth' });
+});
+
+document.addEventListener('click', (e) => {
+  if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
+  if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
+});
+
+// Global search (filters within current season)
+globalSearch && globalSearch.addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  const activeSeasonBtn = document.querySelector('.season-btn.active');
+  const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+  let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+  if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
+  renderMovies(list);
+});
+
+attachVideoListeners();
+window.addEventListener('DOMContentLoaded', initPage);
+</script>
+</body>
+</html>
