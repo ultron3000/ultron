@@ -6,432 +6,842 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js (from Tukaram for HLS playback support) -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
-  <script async src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
 
   <style>
-    body { background: #0b0c0e; color: #eaeaea; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
-    header, footer { background: #121517; }
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #111; }
-    ::-webkit-scrollbar-thumb { background: #0077cc; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #0099ff; }
-
-    .fade-in { animation: fadeIn 0.45s ease-out forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-
-    .glow-effect { position: relative; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ffcc00;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ffdd33;
+    }
+    
+    /* Custom animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    @keyframes arrowBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(5px); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    .pulse-hover:hover {
+      animation: pulse 1.5s infinite;
+    }
+    
+    .arrow-bounce {
+      animation: arrowBounce 2s infinite;
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    
+    /* Glow effect */
+    .glow-effect {
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+    
+    .glow-effect:hover {
+      transform: translateY(-5px);
+    }
+    
     .glow-effect::after {
-      content: ''; position: absolute; inset: 0; border-radius: 12px;
-      box-shadow: 0 0 12px rgba(34,197,94,0.02), 0 0 18px rgba(59,130,246,0.06);
-      transition: box-shadow 0.25s ease; pointer-events: none;
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
     }
-    .glow-effect:hover::after { box-shadow: 0 0 20px rgba(34,197,94,0.03), 0 0 36px rgba(59,130,246,0.12); }
-
-    .gradient-text { background: linear-gradient(90deg, #00bfff, #0077cc); -webkit-background-clip: text; color: transparent; }
-
-    .showcase-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-    .showcase-overlay { position:absolute; inset:0; background:linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0) 100%); }
-
-    .season-btn.active { background:#0077cc !important; color:#fff !important; }
-    .filter-btn.active { background:#0077cc !important; color:#fff !important; }
-
-    /* Modal & player */
-    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.9); z-index:1000; }
-    .modal-card { width:95%; max-width:1100px; background:linear-gradient(180deg, rgba(17,24,39,0.9), rgba(17,24,39,0.95)); border-radius:12px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.7); border:1px solid rgba(0,119,204,0.28); }
-    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(0,0,0,0.32); border-bottom:1px solid rgba(255,255,255,0.06); }
-    .modal-title { font-size:1.125rem; font-weight:600; color:#7dd3fc; }
-    .modal-close-btn { width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#fff; background:rgba(255,255,255,0.04); cursor:pointer; border:1px solid rgba(255,255,255,0.02); }
-
-    .modal-player { position:relative; padding-bottom:56.25%; height:0; background:black; }
-    .modal-player video, .modal-player iframe { position:absolute; inset:0; width:100%; height:100%; background:black; display:block; }
-
-    .spinner { width:36px; height:36px; border-radius:999px; border:4px solid rgba(255,255,255,0.06); border-top-color:#7dd3fc; animation:spin 1s linear infinite; display:none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* advanced top-right control tray */
-    .adv-tray {
-      position:absolute; top:12px; right:12px; display:flex; gap:8px; align-items:center;
-      padding:8px 10px; border-radius:999px; background: rgba(8,12,20,0.45); backdrop-filter: blur(6px);
-      border: 1px solid rgba(59,130,246,0.18); box-shadow: 0 8px 30px rgba(59,130,246,0.06); z-index:22;
-      opacity:0; transform: translateY(-6px); transition: opacity 220ms ease, transform 220ms ease;
+    
+    .glow-effect:hover::after {
+      box-shadow: 0 0 20px rgba(255, 204, 0, 0.7);
     }
-    .adv-tray.show { opacity:1; transform: translateY(0); }
-    .adv-btn { display:flex; align-items:center; gap:6px; color:#dbeafe; background:transparent; border:none; padding:6px 8px; border-radius:8px; cursor:pointer; }
-    .adv-select { background:transparent; color:#dbeafe; border:none; outline:none; padding:6px; }
-    .adv-btn:hover { background: rgba(255,255,255,0.02); }
+    
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(90deg, #ffcc00, #ff9900);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    /* Custom fonts */
+    .marvel-font {
+      font-family: 'Marvel', sans-serif;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .movie-card {
+        width: calc(50% - 1rem);
+      }
+    }
+    
+    @media (max-width: 400px) {
+      .movie-card {
+        width: 100%;
+      }
+    }
+    
+    /* Custom modal transition */
+    .modal-enter {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    
+    .modal-enter-active {
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 300ms, transform 300ms;
+    }
+    
+    .modal-exit {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .modal-exit-active {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 300ms, transform 300ms;
+    }
+    
+    /* Custom progress bar */
+    .progress-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      position: relative;
+    }
+    
+    .progress-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: #ffcc00;
+      transition: width 0.3s ease;
+    }
+    
+    /* Custom tooltip */
+    .tooltip {
+      position: relative;
+    }
+    
+    .tooltip-text {
+      visibility: hidden;
+      width: 120px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    /* Custom checkbox for watchlist */
+    .watchlist-checkbox {
+      position: relative;
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+    }
+    
+    .watchlist-checkbox input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .watchlist-checkbox .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      background-color: transparent;
+      border: 2px solid #ffcc00;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+    
+    .watchlist-checkbox input:checked ~ .checkmark {
+      background-color: #ffcc00;
+    }
+    
+    .watchlist-checkbox .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+    
+    .watchlist-checkbox input:checked ~ .checkmark:after {
+      display: block;
+    }
+    
+    .watchlist-checkbox .checkmark:after {
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid black;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
 
-    @media (max-width:640px) {
-      .adv-tray { top:8px; right:8px; padding:6px 8px; gap:6px; }
-      .adv-select { font-size:13px; }
+    /* Tukaram-style flexible modal player container */
+    #modal-player {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: black;
+    }
+    #modal-player video,
+    #modal-player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
     }
   </style>
 </head>
-<body class="bg-black text-gray-100 min-h-screen">
-
-<header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-blue-600/20">
-  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-    <div class="flex items-center space-x-2">
-      <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+<body class="bg-black text-gray-100 min-h-screen font-roboto">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center pulse-hover">
         <i class="fas fa-user-astronaut text-white text-xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold gradient-text marvel-font tracking-wide">Alien: Earth</h1>
       </div>
-      <h1 class="text-2xl font-bold gradient-text">Alien: Earth</h1>
+      
+      <div class="flex items-center space-x-4">
+        <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
+          <i class="fas fa-bookmark text-yellow-500"></i>
+          <span class="tooltip-text">My Watchlist</span>
+        </button>
+        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon text-yellow-500"></i>
+          <span class="tooltip-text">Toggle Theme</span>
+        </button>
+        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-search text-yellow-500"></i>
+          <span class="tooltip-text">Search</span>
+        </button>
+      </div>
     </div>
-    <div class="flex items-center space-x-4">
-      <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
-        <i class="fas fa-search text-blue-300"></i>
+    
+    <!-- Search Bar (hidden by default) -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
+      <div class="relative">
+        <input type="text" placeholder="Search episodes..." 
+               class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent placeholder-gray-400">
+        <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
+      </div>
+    </div>
+    
+    <!-- Watchlist dropdown (hidden by default) -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-700">
+        <h3 class="font-semibold text-yellow-500">My Watchlist</h3>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
+        <!-- Watchlist items will be added here -->
+        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+<main class="container mx-auto px-4 py-6">
+  <!-- Hero Section -->
+  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
+    
+    <div class="relative w-full h-[400px] md:h-[500px] overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+    <iframe
+      src="https://www.youtube.com/embed/ZbsiKjVAV28?autoplay=1&mute=1&loop=1&playlist=ZbsiKjVAV28&controls=0"
+      frameborder="0"
+      allow="autoplay; fullscreen"
+      class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+    ></iframe>
+  </div>
+    
+    <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
+      <div class="flex items-center mb-2">
+        <span class="bg-yellow-600 text-black text-xs font-bold px-2 py-1 rounded mr-2">NEW</span>
+        <span class="text-yellow-500 text-sm">Season 1 • 2025</span>
+      </div>
+      <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text marvel-font tracking-wide">Alien: Earth</h2>
+      <div class="flex items-center mb-4">
+        <div class="flex items-center mr-4">
+          <i class="fas fa-star text-yellow-500 mr-1"></i>
+          <span class="text-white">7.8</span>
+        </div>
+        <span class="text-gray-300 text-sm mr-4">TV-14</span>
+        <span class="text-gray-300 text-sm">8 Episodes</span>
+      </div>
+      <p class="text-gray-300 mb-4 max-w-lg text-sm md:text-base">When a mysterious space vessel crash-lands on Earth, a young woman and a ragtag group of tactical soldiers make a fateful discovery that puts them face-to-face with the planet's greatest threat.</p>
+      <div class="flex space-x-3">
+        <button class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
+          <i class="fas fa-play mr-2"></i> Play All
+        </button>
+        <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+          <i class="fas fa-info-circle mr-2"></i> Details
+        </button>
+      </div>
+    </div>
+    <div class="absolute bottom-4 right-4 z-20">
+      <button id="scroll-down" class="bg-black/50 text-yellow-500 rounded-full p-2 border border-yellow-500/30 hover:bg-yellow-500 hover:text-black transition">
+        <i class="fas fa-chevron-down arrow-bounce"></i>
       </button>
     </div>
-  </div>
-</header>
-
-
-  <div id="search-bar" class="hidden px-4 pb-4">
-    <div class="relative">
-      <input id="search-input" type="text" placeholder="Search episodes..." class="w-full bg-gray-900 border border-blue-600/30 rounded-full py-2 px-4 pl-10 text-white">
-      <i class="fas fa-search absolute left-3 top-3 text-blue-300"></i>
-    </div>
-  </div>
-</header>
-
-<main class="container mx-auto px-4 py-8">
-  <section class="mb-8 relative overflow-hidden rounded-xl h-44 md:h-64">
-    <video autoplay muted loop class="showcase-video">
-      <source src="https://imdb-video.media-imdb.com/vi1042270233/1434659607842-pgv4ql-1758144957087.mp4?Expires=1763228732&Signature=o20bX3bev0QJg3-xT7GG583PYy1jTJ-jDNlZ8gYRffxtF0cu5x8NLrjaLConLftLlSb-npuNM2fdqaNDgvtQjmntiEdyUccQ4WcJhkZ0kQ-af-fsQjGfrAO45Vyts7l30HwJH42m5UhNtI-3CrwkIn0NKHyS3SYpxCCV1g87PAr~7Gi5vQZIyanXFefWkLxIKTzI70EB3Xvjwlz2KEHARp6s6DiaWeCewtGQzzWeIWbRE0DboYmcUhLNMdbg6qrwS51LuE~dF30m1Tq6Lm07CnrhprSlMruxJeTWjH7A7FvEdNRjeepS6pokgg7UK7TpOZ-ghv3Jvjth7aUEqf-Kkw__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
-    </video>
-    <div class="showcase-overlay"></div>
-    <div class="relative h-full flex flex-col justify-end p-6 md:p-8">
-      <p class="text-gray-300 mb-4 max-w-lg">When a mysterious space vessel crash-lands on Earth, a young woman and a ragtag group of tactical soldiers make a fateful discovery that puts them face-to-face with the planet's greatest threat.</p>
-    </div>
-  </section>
-
-  <div class="flex overflow-x-auto mb-6 pb-2 space-x-2">
-    <button class="season-btn active bg-blue-600 text-white px-4 py-2 rounded-full" data-season="all">All Episodes</button>
-    <button class="season-btn bg-gray-800 px-4 py-2 rounded-full" data-season="1">Season 1</button>
-
-  </div>
-
-  <div class="flex flex-wrap justify-between mb-8 gap-4">
-    <div class="flex space-x-2 overflow-x-auto pb-2">
-      <button class="filter-btn active bg-blue-500 text-white px-4 py-1 rounded-full">All</button>
-
-    </div>
-  </div>
-
-  <section>
-    <h3 class="text-xl font-semibold mb-6"><i class="fas fa-list-ul text-blue-400 mr-2"></i>Episodes</h3>
-    <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
   </section>
 </main>
 
-<footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8 text-center text-gray-400">
-  © Alien: Earth – Fan Listing
-</footer>
 
-<!-- Modal -->
-<div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-header">
-      <div id="modal-title" class="modal-title"></div>
-      <button id="close-video-modal" class="modal-close-btn" aria-label="Close player"><i class="fas fa-times"></i></button>
+    <!-- Season Navigation -->
+    <div class="flex items-center justify-between mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
+      <h3 class="text-xl font-semibold flex items-center">
+        <i class="fas fa-tv text-yellow-500 mr-2"></i>
+        <span class="marvel-font">EPISODES</span>
+      </h3>
+      <div class="flex items-center space-x-2">
+        <button class="season-btn active bg-yellow-600 text-black px-3 py-1 rounded-full text-xs font-medium">Season 1</button>
+      </div>
     </div>
 
-    <div class="modal-player">
-      <video id="modal-video" controls playsinline preload="metadata"></video>
-      <div id="buffer-spinner" class="spinner" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);"></div>
 
-      <!-- Advanced control tray (top-right) -->
-      <div id="adv-tray" class="adv-tray" aria-hidden="true">
-        <button id="resume-btn" class="adv-btn" title="Resume last position"><i class="fas fa-play-circle"></i></button>
-        <button id="cast-btn" class="adv-btn" title="Cast to device"><i class="fas fa-tv"></i></button>
-        <button id="pip-btn" class="adv-btn" title="Picture-in-Picture"><i class="fas fa-window-restore"></i></button>
-        <select id="speed-select" class="adv-select" title="Playback speed">
-          <option value="0.5">0.5x</option><option value="0.75">0.75x</option>
-          <option value="1" selected>1x</option><option value="1.25">1.25x</option>
-          <option value="1.5">1.5x</option><option value="2">2x</option>
-        </select>
-        <button id="subs-btn" class="adv-btn" title="Add subtitles (.vtt)"><i class="fas fa-closed-captioning"></i></button>
+      
+
+
+    <!-- Episodes Grid -->
+    <section class="container mx-auto px-4">
+      <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <!-- Movie cards will be inserted here by JavaScript -->
+      </div>
+    </section>
+
+    <!-- Footer / Social -->
+  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  </div>
+
+  <!-- Playback Modal (Tukaram-style flexible player inside Hawkeye UI) -->
+  <div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90 transition-opacity duration-300">
+    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden shadow-2xl transform transition-all duration-300 scale-95">
+      <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl bg-black/50 rounded-full p-2 transition">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <div class="relative">
+        <!-- Flexible player container: video or iframe will be injected here -->
+        <div id="modal-player">
+          <video id="modal-video" class="w-full" controls playsinline>
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        <div id="video-progress" class="progress-bar w-full">
+          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 id="modal-title" class="text-2xl font-bold mb-1"></h3>
+            <div class="flex items-center text-gray-400 text-sm">
+              <span>S1 • E<span id="episode-num"></span></span>
+              <span class="mx-2">•</span>
+              <span id="modal-duration">45 min</span>
+            </div>
+          </div>
+          <label class="watchlist-checkbox">
+            <input type="checkbox" id="watchlist-checkbox">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        
+        <p id="modal-description" class="text-gray-300 mb-6">
+          Loading description...
+        </p>
+        
+        <div class="flex space-x-3">
+          <button id="play-btn" class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-play mr-2"></i> Play
+          </button>
+          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+            <i class="fas fa-info-circle mr-2"></i> Details
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-/* -----------------------------
-   Episode list (paste your episodes)
-   ----------------------------- */
-const movies = [
-  // Season 1 (8 episodes)
-  { title: "Neverland", video: "https://spx.mistralstudio.shop:443/v4/mik/ntjht/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/d4cydmliyqDZyBWkxkliiED4B0G.jpg", description: "The death of an American seaman on a U.S. nuclear submarine during an AUKUS ceremony on Sydney Harbour is investigated in a joint effort. :contentReference[oaicite:1]{index=1}", duration: "45 min", season:1, episode:1, tags:["Crime","Naval"] },
-  { title: "Mr. October", video: "https://spc.mistralstudio.shop:443/v4/tab/hjdxk/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/cdajiwi3frAqI0XIwsCH5q9P8Hu.jpg", description: "When a Navy compliance officer is found dead in a waterhole from a snakebite, the team uncovers a deadly taipan in unexpected territory. :contentReference[oaicite:2]{index=2}", duration:"46 min", season:1, episode:2, tags:["Crime","Drama"] },
-  { title: "Metamorphosis", video: "https://s6mb.fiorellagarden.sbs:443/v4/epu/qmwjl/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/4pLJcZUh73j8wSQfB5vAX3jtORj.jpg", description: "When a shark spits out an arm wearing U.S. Navy equipment, the investigation tests loyalty among former Navy divers. :contentReference[oaicite:3]{index=3}", duration:"47 min", season:1, episode:3, tags:["Naval","Crime"] },
-  { title: "Observation", video: "https://s5r.rivonadesign.cyou:443/v4/epu/ko853/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/hzE6VJ37veL4p54IicLcI5pDDSJ.jpg", description: "A body in Sydney’s historic Rocks area leads the team on a ghost-hunt style chase to catch a killer. :contentReference[oaicite:4]{index=4}", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
-  { title: "In Space, No One...", video: "https://spx.oravialuxury.online:443/v4/tab/lwb1l/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/hkLVUpJ8HWSAowCxazGDcUOpxLS.jpg", description: "One of their own is held hostage in a dog-cafe situation while the team races to save them. :contentReference[oaicite:5]{index=5}", duration:"46 min", season:1, episode:5, tags:["Drama"] },
-  { title: "The Fly", video: "https://spx.harmonivia.cyou:443/v4/rqz/6irnd/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ppYjI7rPvsZznQr59XzysFUZTsY.jpg", description: "With rising Indo-Pacific tensions, the task-force gets grafted into a multinational unit and a U.S. Navy researcher is found dead in a secret bunker. :contentReference[oaicite:6]{index=6}", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
-  { title: "Emergence", video: "https://s5r.auroriacollective.cyou:443/v4/9ow/qxvey/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/7DLRyfODm9aii0aLgYiuA6r2zwI.jpg", description: "A visit to a high-tech launch site ends up with the team trapped underground with limited oxygen after a research death. :contentReference[oaicite:7]{index=7}", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
-  { title: "The Real Monsters", video: "https://soq.glacialstudio.shop:443/v4/kdv/qts15/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/tssL6QBaKUkdXtmPUidrsREIEX5.jpg", description: "JD’s son is kidnapped by an international assassin in exchange for a criminal in NCIS custody — global spotlight and internal betrayal. :contentReference[oaicite:8]{index=8}", duration:"52 min", season:1, episode:8, tags:["Crime","Drama"] },
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-500"></div>
+  </div>
 
- 
+  <script>
+    // Enhanced movie data with more details
+    const movies = [
+      { title: "Neverland", video: "https://spx.mistralstudio.shop:443/v4/mik/ntjht/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/d4cydmliyqDZyBWkxkliiED4B0G.jpg", description: "When a spaceship crash-lands on Earth, a sister searches for her brother amidst an unexpected alien threat.", duration: "45 min", season:1, episode:1, tags:["Crime","Naval"] },
+  { title: "Mr. October", video: "https://spc.mistralstudio.shop:443/v4/tab/hjdxk/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/cdajiwi3frAqI0XIwsCH5q9P8Hu.jpg", description: "Tensions rise between rival corporations, a reunion takes place, and a secret is revealed.", duration:"46 min", season:1, episode:2, tags:["Crime","Drama"] },
+  { title: "Metamorphosis", video: "https://s6mb.fiorellagarden.sbs:443/v4/epu/qmwjl/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/4pLJcZUh73j8wSQfB5vAX3jtORj.jpg", description: "The team returns home with unexpected cargo. An unsettling experiment occurs, and a new talent is discovered.", duration:"47 min", season:1, episode:3, tags:["Naval","Crime"] },
+  { title: "Observation", video: "https://s5r.rivonadesign.cyou:443/v4/epu/ko853/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/hzE6VJ37veL4p54IicLcI5pDDSJ.jpg", description: "An unexpected connection is formed while a covert plot puts everyone in danger.", duration:"48 min", season:1, episode:4, tags:["Drama","Crime"] },
+  { title: "In Space, No One...", video: "https://spx.oravialuxury.online:443/v4/tab/lwb1l/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/hkLVUpJ8HWSAowCxazGDcUOpxLS.jpg", description: "An outer-space vessel in peril leads to a dangerous reckoning.", duration:"46 min", season:1, episode:5, tags:["Drama"] },
+  { title: "The Fly", video: "https://spx.harmonivia.cyou:443/v4/rqz/6irnd/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/ppYjI7rPvsZznQr59XzysFUZTsY.jpg", description: "Tensions rise as powerful enemies clash and confront each other, a dangerous plan unfolds, and curiosity leads to deadly consequences.", duration:"50 min", season:1, episode:6, tags:["Naval","Crime"] },
+  { title: "Emergence", video: "https://s5r.auroriacollective.cyou:443/v4/9ow/qxvey/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/7DLRyfODm9aii0aLgYiuA6r2zwI.jpg", description: "An escape plan is hatched leading to a breaking of factions, betrayals, and a shocking confrontation.", duration:"49 min", season:1, episode:7, tags:["Drama","Naval"] },
+  { title: "The Real Monsters", video: "https://soq.glacialstudio.shop:443/v4/kdv/qts15/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w300/tssL6QBaKUkdXtmPUidrsREIEX5.jpg", description: "A new power dynamic emerges.", duration:"52 min", season:1, episode:8, tags:["Crime","Drama"] },
+
 ];
 
+    // DOM elements
+    const container = document.getElementById('movies');
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const themeToggle = document.getElementById('theme-toggle');
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+    const watchlistItems = document.getElementById('watchlist-items');
+    const playbackModal = document.getElementById('playback-modal');
+    const closeModal = document.getElementById('close-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+    const episodeNum = document.getElementById('episode-num');
+    const modalDuration = document.getElementById('modal-duration');
+    const playBtn = document.getElementById('play-btn');
+    const watchlistCheckbox = document.getElementById('watchlist-checkbox');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    const scrollDownBtn = document.getElementById('scroll-down');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const seasonBtns = document.querySelectorAll('.season-btn');
+    const modalPlayer = document.getElementById('modal-player');
 
-/* -----------------------------
-   Elements & state
-   ----------------------------- */
-const container = document.getElementById('movies');
-const searchBtn = document.getElementById('search-btn');
-const searchBar = document.getElementById('search-bar');
-const searchInput = document.getElementById('search-input');
+    // Current HLS instance and current movie index
+    let currentHls = null;
+    let currentMovieIndex = null;
 
-const videoModal = document.getElementById('video-modal');
-const modalVideo = document.getElementById('modal-video');
-const modalTitle = document.getElementById('modal-title');
-const closeBtn = document.getElementById('close-video-modal');
-const bufferSpinner = document.getElementById('buffer-spinner');
-
-const advTray = document.getElementById('adv-tray');
-const resumeBtn = document.getElementById('resume-btn');
-const castBtn = document.getElementById('cast-btn');
-const pipBtn = document.getElementById('pip-btn');
-const speedSelect = document.getElementById('speed-select');
-const subsBtn = document.getElementById('subs-btn');
-
-let currentHls = null;
-let currentMovie = null;
-let currentSeason = 'all';
-let currentFilter = 'All';
-let resumeKey = null;
-let advTimer = null;
-let castAvailable = false;
-
-/* -----------------------------
-   Utility detectors
-   ----------------------------- */
-function isHls(url){ return url && (/\.m3u8($|\?)/i.test(url) || /index.*(\.txt|\.m3u8)/i.test(url) || url.includes('/index')); }
-function isMP4(url){ return url && /\.mp4($|\?)/i.test(url); }
-function isYouTube(url){ return url && /(youtu\.be|youtube\.com)/i.test(url); }
-function formatTime(s){ if(!isFinite(s)) return '0:00'; const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=Math.floor(s%60); return (h>0? h+':':'') + (h>0? String(m).padStart(2,'0'):m) + ':' + String(sec).padStart(2,'0'); }
-
-/* -----------------------------
-   Render episodes
-   ----------------------------- */
-function renderMovies(list = movies){
-  container.innerHTML = '';
-  let filtered = list;
-  if (currentSeason !== 'all') filtered = filtered.filter(m => m.season == currentSeason);
-  if (currentFilter !== 'All') filtered = filtered.filter(m => m.tags.includes(currentFilter));
-  filtered.forEach((m,i) => {
-    const card = document.createElement('div');
-    card.className = 'glow-effect fade-in cursor-pointer rounded-lg overflow-hidden';
-    card.innerHTML = `
-      <div class="relative group overflow-hidden rounded-lg">
-        <img src="${m.image}" class="w-full h-48 object-cover rounded-lg transition group-hover:scale-105">
-        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-blue-400 text-3xl">
-          <i class="fas fa-play"></i>
-        </div>
-      </div>
-      <div class="mt-3">
-        <div class="text-white font-medium">${m.title}</div>
-        <div class="text-gray-400 text-sm">S${m.season} • E${m.episode} • ${m.duration}</div>
-      </div>
-    `;
-    card.addEventListener('click', () => playInModal(m));
-    container.appendChild(card);
-  });
-}
-renderMovies();
-
-/* -----------------------------
-   Search toggle + logic
-   ----------------------------- */
-searchBtn.addEventListener('click', ()=> searchBar.classList.toggle('hidden'));
-searchInput && searchInput.addEventListener('input', function(){
-  const q = this.value.trim().toLowerCase();
-  const filtered = movies.filter(m => m.title.toLowerCase().includes(q) || (m.description||'').toLowerCase().includes(q));
-  renderMovies(filtered);
-});
-
-/* -----------------------------
-   Season & filter buttons
-   ----------------------------- */
-document.querySelectorAll('.season-btn').forEach(btn => {
-  btn.addEventListener('click', function(){
-    document.querySelectorAll('.season-btn').forEach(b=>b.classList.remove('active','bg-blue-600','text-white'));
-    this.classList.add('active','bg-blue-600','text-white');
-    currentSeason = this.dataset.season;
-    renderMovies();
-  });
-});
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', function(){
-    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active','bg-blue-500','text-white'));
-    this.classList.add('active','bg-blue-500','text-white');
-    currentFilter = this.textContent;
-    renderMovies();
-  });
-});
-
-/* -----------------------------
-   Modal & playback (HLS preserved)
-   ----------------------------- */
-function showModal(){ videoModal.classList.remove('hidden'); videoModal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; showAdvTray(); }
-function hideModal(){ videoModal.classList.add('hidden'); videoModal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; hideAdvTray(true); }
-
-function playInModal(item){
-  const title = item.title || 'Video';
-  const url = item.video;
-  currentMovie = item;
-  resumeKey = `ncis_resume::${title.replace(/\s+/g,'_')}::s${item.season || ''}::e${item.episode || ''}`;
-  // cleanup
-  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls=null; }
-  modalVideo.pause(); modalVideo.removeAttribute('src'); try{ modalVideo.load(); }catch(e){}
-  modalTitle.textContent = title;
-
-  // show resume UI in tray if available
-  const saved = localStorage.getItem(resumeKey);
-  if(saved){
-    resumeBtn.style.display = 'inline-flex';
-    resumeBtn.dataset.saved = saved;
-  } else {
-    resumeBtn.style.display = 'none';
-    delete resumeBtn.dataset.saved;
-  }
-
-  if(!url){ modalTitle.textContent = title + ' — No URL'; showModal(); return; }
-  if(isYouTube(url)){ window.open(url, '_blank'); return; }
-
-  showModal();
-
-  if(isHls(url)){
-    if(Hls.isSupported()){
-      bufferSpinner.style.display = 'block';
-      currentHls = new Hls();
-      currentHls.loadSource(url);
-      currentHls.attachMedia(modalVideo);
-      currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ bufferSpinner.style.display='none'; // apply resume
-        const savedPos = parseFloat(localStorage.getItem(resumeKey) || '0');
-        if(savedPos) modalVideo.currentTime = savedPos;
-        modalVideo.play().catch(()=>{}); });
-      currentHls.on(Hls.Events.ERROR, (evt,data)=>{ if(data && data.fatal){ try{ currentHls.destroy(); }catch(e){} currentHls=null; modalVideo.src = url; modalVideo.play().catch(()=>{}); }});
-    } else {
-      modalVideo.src = url;
-      modalVideo.play().catch(()=>{});
+    // Helper: always get the current <video> (we recreate this sometimes)
+    function getModalVideo() {
+      return document.getElementById('modal-video');
     }
-  } else {
-    modalVideo.src = url;
-    const savedPos = parseFloat(localStorage.getItem(resumeKey) || '0');
-    if(savedPos) modalVideo.currentTime = savedPos;
-    modalVideo.play().catch(()=>{});
-  }
-}
 
-function closePlayer(){
-  if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls=null; }
-  try{ modalVideo.pause(); }catch(e){}
-  modalVideo.removeAttribute('src');
-  hideModal();
-}
-closeBtn.addEventListener('click', closePlayer);
-videoModal.addEventListener('click', (e)=>{ if(e.target === videoModal) closePlayer(); });
+    /* === Tukaram-style helper functions === */
+    function isHls(u) {
+      if (!u) return false;
+      return u.includes('.m3u8') ||
+             u.includes('index-') ||
+             /index.*\.txt/i.test(u) ||
+             u.includes('manifest') ||
+             u.includes('master.m3u8');
+    }
 
-/* buffer spinner */
-modalVideo.addEventListener('waiting', ()=> { bufferSpinner.style.display = 'block'; });
-modalVideo.addEventListener('playing', ()=> { bufferSpinner.style.display = 'none'; });
-modalVideo.addEventListener('stalled', ()=> { bufferSpinner.style.display = 'block'; });
+    function isMP4(u) {
+      return /\.mp4($|\?)/i.test(u || '');
+    }
 
-/* save resume periodically */
-modalVideo.addEventListener('timeupdate', ()=> {
-  if(!resumeKey) return;
-  try{ localStorage.setItem(resumeKey, String(modalVideo.currentTime)); }catch(e){}
-});
+    function isYouTube(u) {
+      return !!(u && (u.includes('youtube.com') ||
+                      u.includes('youtu.be') ||
+                      u.includes('youtube-nocookie.com') ||
+                      u.includes('/embed/')));
+    }
 
-/* -----------------------------
-   Advanced tray: show/hide (top-right)
-   ----------------------------- */
-function showAdvTray(){
-  advTray.classList.add('show');
-  advTray.setAttribute('aria-hidden','false');
-  clearTimeout(advTimer);
-  advTimer = setTimeout(()=> hideAdvTray(), 3000);
-}
-function hideAdvTray(force){
-  if(force){ advTray.classList.remove('show'); advTray.setAttribute('aria-hidden','true'); return; }
-  advTray.classList.remove('show'); advTray.setAttribute('aria-hidden','true');
-}
-document.querySelector('.modal-player').addEventListener('mousemove', showAdvTray);
-document.addEventListener('fullscreenchange', showAdvTray);
+    // Reset modal-player to a fresh standard video element (used on close and before new playback)
+    function resetPlayerContainer() {
+      // Destroy HLS if any
+      if (currentHls) {
+        try { currentHls.destroy(); } catch (e) {}
+        currentHls = null;
+      }
+      // Reset inner HTML
+      modalPlayer.innerHTML = `
+        <video id="modal-video" class="w-full" controls playsinline>
+          Your browser does not support the video tag.
+        </video>
+      `;
+    }
 
-/* -----------------------------
-   Tray wiring: speed, PiP, subs, resume, cast fallback
-   ----------------------------- */
-speedSelect.addEventListener('change', ()=> { modalVideo.playbackRate = parseFloat(speedSelect.value); });
+    // Close modal and cleanup
+    function closeModalHandler() {
+      const videoEl = getModalVideo();
+      if (currentHls) {
+        try { currentHls.destroy(); } catch (e) {}
+        currentHls = null;
+      }
+      if (videoEl) {
+        try { videoEl.pause(); } catch(e) {}
+        try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e) {}
+      }
+      resetPlayerContainer();
+      playbackModal.classList.add('hidden');
+      document.body.style.overflow = '';
+      currentMovieIndex = null;
+      playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+      progressBarFill.style.width = '0%';
+    }
 
-pipBtn.addEventListener('click', async ()=> {
-  try{
-    if(document.pictureInPictureElement) await document.exitPictureInPicture();
-    else await modalVideo.requestPictureInPicture();
-  }catch(e){ alert('Picture-in-Picture not available here.'); }
-});
+    // Core: Tukaram-style playInModal
+    function playInModal(title, url, movie, episodeIndex) {
+      // Keep index for watchlist & progress
+      currentMovieIndex = episodeIndex;
 
-subsBtn.addEventListener('click', ()=> {
-  const url = prompt('Paste a subtitle .vtt URL (CORS required)');
-  if(!url) return;
-  // remove previous tracks
-  const tracks = modalVideo.querySelectorAll('track');
-  tracks.forEach(t=>t.remove());
-  const tr = document.createElement('track');
-  tr.kind = 'subtitles'; tr.label = 'User subtitle'; tr.srclang = 'en'; tr.src = url; tr.default = true;
-  modalVideo.appendChild(tr);
-  setTimeout(()=>{ for(const t of modalVideo.textTracks) t.mode='showing'; }, 200);
-});
+      // Basic text info in modal
+      modalTitle.textContent = movie.title;
+      modalDescription.textContent = movie.description;
+      episodeNum.textContent = episodeIndex + 1;
+      modalDuration.textContent = movie.duration;
+      watchlistCheckbox.checked = movie.inWatchlist;
+      progressBarFill.style.width = '0%';
 
-resumeBtn.addEventListener('click', ()=> {
-  const saved = resumeBtn.dataset.saved;
-  if(saved) {
-    modalVideo.currentTime = parseFloat(saved);
-    resumeBtn.style.display = 'none';
-  }
-});
+      // Clean slate
+      resetPlayerContainer();
 
-/* CAST fallback: simple graceful UI (browser cast preferred) */
-(function initCast(){
-  let initialized = false;
-  window.__onGCastApiAvailable = function(loaded) {
-    if(loaded){ castAvailable = true; initialized = true; }
-    else { setTimeout(()=>{ if(!initialized) castAvailable = false; }, 2000); }
-  };
-  castBtn.addEventListener('click', ()=> {
-    if(!castAvailable){ const link = currentMovie && currentMovie.video ? currentMovie.video : window.location.href; alert('Casting unavailable here. Open the link on your TV / cast device: ' + link); return; }
-    alert('Casting available — use browser cast UI to select a device.');
-  });
-})();
+      if (!url) {
+        modalTitle.textContent = title + ' — No playable URL provided';
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        return;
+      }
 
-/* -----------------------------
-   Keyboard shortcuts
-   ----------------------------- */
-document.addEventListener('keydown', (e)=>{
-  if(videoModal.classList.contains('hidden')) return;
-  if(e.code === 'Space'){ e.preventDefault(); if(modalVideo.paused) modalVideo.play(); else modalVideo.pause(); showAdvTray(); }
-  if(e.key.toLowerCase() === 'f'){ const el = document.querySelector('.modal-card'); if(!document.fullscreenElement) el.requestFullscreen?.(); else document.exitFullscreen?.(); showAdvTray(); }
-  if(e.key.toLowerCase() === 'm'){ modalVideo.muted = !modalVideo.muted; showAdvTray(); }
-  if(e.key === 'ArrowRight'){ modalVideo.currentTime = Math.min((modalVideo.duration||0), modalVideo.currentTime + 10); showAdvTray(); }
-  if(e.key === 'ArrowLeft'){ modalVideo.currentTime = Math.max(0, modalVideo.currentTime - 10); showAdvTray(); }
-  if(e.key === 'ArrowUp'){ modalVideo.volume = Math.min(1, (modalVideo.volume || 1) + 0.05); showAdvTray(); }
-  if(e.key === 'ArrowDown'){ modalVideo.volume = Math.max(0, (modalVideo.volume || 1) - 0.05); showAdvTray(); }
-});
+      // Streamtape / etc. - iframe hosts
+      if (url.includes('streamtape.com') ||
+          url.includes('openload.co') ||
+          url.includes('vidcdn') ||
+          url.includes('dood')) {
+        modalPlayer.innerHTML = `
+          <iframe src="${url}" width="100%" height="100%" allowfullscreen
+                  allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
 
-/* -----------------------------
-   Small UX: show adv tray when modal opens or on mouse move
-   ----------------------------- */
-document.querySelectorAll('.modal-player').forEach(el=> el.addEventListener('mouseenter', showAdvTray));
-document.querySelectorAll('.modal-player').forEach(el=> el.addEventListener('mouseleave', ()=> advTimer = setTimeout(()=> hideAdvTray(), 3000)));
+      // YouTube
+      if (isYouTube(url)) {
+        let embedUrl = url;
+        if (url.includes('watch') && url.includes('v=')) {
+          const vid = new URLSearchParams(url.split('?')[1]).get('v');
+          if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+        } else if (url.includes('youtu.be/')) {
+          const parts = url.split('youtu.be/');
+          if (parts[1]) {
+            const vid = parts[1].split(/[?&]/)[0];
+            embedUrl = `https://www.youtube.com/embed/${vid}`;
+          }
+        }
+        modalPlayer.innerHTML = `
+          <iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0"
+                  width="100%" height="100%" allowfullscreen
+                  allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
 
-/* -----------------------------
-   Ensure elements exist fallback
-   ----------------------------- */
-if(!document.querySelector('.modal-player')){
-  console.warn('modal-player not found — advanced tray will not initialize correctly.');
-}
-</script>
+      const videoEl = getModalVideo();
+
+      // HLS
+      if (isHls(url)) {
+        if (Hls.isSupported()) {
+          currentHls = new Hls();
+          currentHls.loadSource(url);
+          currentHls.attachMedia(videoEl);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+            playbackModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            loadingSpinner.classList.add('hidden');
+            videoEl.play().catch(() => {});
+          });
+        } else {
+          videoEl.src = url;
+          playbackModal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+          loadingSpinner.classList.add('hidden');
+          videoEl.play().catch(() => {});
+        }
+        return;
+      }
+
+      // MP4
+      if (isMP4(url)) {
+        videoEl.src = url;
+        playbackModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        loadingSpinner.classList.add('hidden');
+        videoEl.play().catch(() => {});
+        return;
+      }
+
+      // Unknown type – fallback to player.html
+      loadingSpinner.classList.add('hidden');
+      window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+    }
+
+    // Initialize the page
+    function initPage() {
+      // Create movie cards
+      movies.forEach((movie, index) => {
+        const card = document.createElement('div');
+        card.className = `movie-card fade-in delay-${index % 5} glow-effect`;
+        card.innerHTML = `
+          <div class="relative group overflow-hidden rounded-xl cursor-pointer">
+            <img src="${movie.image}" alt="${movie.title}" 
+                 class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              <div>
+                <h3 class="text-white font-semibold text-lg">${movie.title}</h3>
+                <p class="text-gray-300 text-sm">${movie.duration}</p>
+              </div>
+            </div>
+            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
+              <i class="fas fa-play"></i>
+            </div>
+            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
+              <i class="fas fa-star text-yellow-500 text-xs mr-1"></i>
+              <span class="text-white text-xs">${movie.rating}</span>
+            </div>
+          </div>
+          <div class="mt-3">
+            <h3 class="text-white font-medium">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-sm mt-1">
+              <span>S1 • E${index + 1}</span>
+              <span class="mx-2">•</span>
+              <span>${movie.duration}</span>
+            </div>
+          </div>
+        `;
+        
+        card.addEventListener('click', () => {
+          loadingSpinner.classList.remove('hidden');
+          playInModal(movie.title, movie.video, movie, index);
+        });
+        
+        container.appendChild(card);
+      });
+
+      // Filter buttons
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+          this.classList.add('active', 'bg-yellow-600', 'text-black');
+        });
+      });
+
+      // Season buttons
+      seasonBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelector('.season-btn.active').classList.remove('active', 'bg-yellow-600', 'text-black');
+          this.classList.add('active', 'bg-yellow-600', 'text-black');
+        });
+      });
+
+      // Initialize watchlist from local state
+      updateWatchlist();
+    }
+
+    // Update watchlist display
+    function updateWatchlist() {
+      watchlistItems.innerHTML = '';
+      const watchlistMovies = movies.filter(movie => movie.inWatchlist);
+      if (watchlistMovies.length === 0) {
+        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
+        return;
+      }
+      watchlistMovies.forEach((movie, idx) => {
+        const index = movies.indexOf(movie);
+        const item = document.createElement('div');
+        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
+        item.innerHTML = `
+          <div class="flex items-center">
+            <span class="text-yellow-500 text-sm mr-2">${idx + 1}.</span>
+            <span class="text-white text-sm truncate">${movie.title}</span>
+          </div>
+          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+        item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeFromWatchlist(index);
+        });
+        item.addEventListener('click', () => {
+          loadingSpinner.classList.remove('hidden');
+          playInModal(movie.title, movie.video, movie, index);
+          watchlistDropdown.classList.add('hidden');
+        });
+        watchlistItems.appendChild(item);
+      });
+    }
+
+    function addToWatchlist(index) {
+      movies[index].inWatchlist = true;
+      updateWatchlist();
+    }
+
+    function removeFromWatchlist(index) {
+      movies[index].inWatchlist = false;
+      updateWatchlist();
+    }
+
+    // Event listeners
+    searchBtn.addEventListener('click', () => {
+      searchBar.classList.toggle('hidden');
+      watchlistDropdown.classList.add('hidden');
+    });
+
+    watchlistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      watchlistDropdown.classList.toggle('hidden');
+      searchBar.classList.add('hidden');
+    });
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('bg-gray-100');
+      document.body.classList.toggle('text-gray-900');
+      document.body.classList.toggle('bg-black');
+      document.body.classList.toggle('text-gray-100');
+      
+      const icon = themeToggle.querySelector('i');
+      if (document.body.classList.contains('bg-black')) {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+      } else {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      }
+    });
+
+    closeModal.addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', function(e) {
+      if (e.target === this) closeModalHandler();
+    });
+
+    // Play/pause button for the in-modal video (HLS or MP4 only)
+    playBtn.addEventListener('click', () => {
+      const videoEl = getModalVideo();
+      if (!videoEl) return;
+      if (videoEl.paused) {
+        videoEl.play();
+        playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause';
+      } else {
+        videoEl.pause();
+        playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+      }
+    });
+
+    watchlistCheckbox.addEventListener('change', function() {
+      if (currentMovieIndex == null) return;
+      if (this.checked) {
+        addToWatchlist(currentMovieIndex);
+      } else {
+        removeFromWatchlist(currentMovieIndex);
+      }
+    });
+
+    // Progress bar (only works when a video element is present)
+    document.addEventListener('timeupdate', (e) => {
+      const videoEl = getModalVideo();
+      if (!videoEl) return;
+    });
+    // Direct listener on video element (re-attached whenever we recreate)
+    function attachVideoListeners() {
+      const videoEl = getModalVideo();
+      if (!videoEl) return;
+      videoEl.addEventListener('timeupdate', () => {
+        if (!videoEl.duration) return;
+        const progress = (videoEl.currentTime / videoEl.duration) * 100;
+        progressBarFill.style.width = progress + '%';
+      });
+      videoEl.addEventListener('ended', () => {
+        playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
+      });
+    }
+    // Attach once initially
+    attachVideoListeners();
+    // Also re-attach whenever we resetPlayerContainer
+    const originalReset = resetPlayerContainer;
+    resetPlayerContainer = function() {
+      originalReset();
+      attachVideoListeners();
+    };
+
+    scrollDownBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: document.querySelector('#movies').offsetTop - 20,
+        behavior: 'smooth'
+      });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) {
+        watchlistDropdown.classList.add('hidden');
+      }
+      
+      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) {
+        searchBar.classList.add('hidden');
+      }
+    });
+
+    // Initialize the page when loaded
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
 </body>
 </html>
