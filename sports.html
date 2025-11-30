@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Live Universe — Optimized</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    /* Google font */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    :root{
+      --accent-cyan: #00f2ff;
+      --accent-gold: #ffcc00;
+      --bg-1: #00172b;
+      --glass: rgba(10,18,30,0.5);
+    }
+
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background: radial-gradient(circle at 10% 10%, #00172b 0%, #071029 25%, #020617 60%, #000000 100%);
+      color:#e6eef2;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
+    }
+
+    /* ---------- Top nav ---------- */
+    .navbar{
+      position:sticky; top:0; z-index:60;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 16px; gap:12px;
+      background: linear-gradient(180deg, rgba(3,6,12,0.6), rgba(3,6,12,0.25));
+      border-bottom:1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(8px);
+    }
+    .brand{display:flex; gap:12px; align-items:center;}
+    .brand img{height:44px; width:auto; border-radius:6px; box-shadow: 0 6px 20px rgba(0,0,0,0.6);}
+    .brand h1{font-size:1rem; margin:0; color:var(--accent-cyan); font-weight:700; letter-spacing:0.6px;}
+    .brand small{display:block; margin-top:2px; color:#9fdff6; font-size:12px; font-weight:500;}
+
+    .nav-controls{
+      display:flex; align-items:center; gap:10px;
+    }
+
+    .nav-btns{ display:flex; gap:6px; align-items:center; }
+    .nav-controls button {
+      padding:8px 12px; border-radius:10px; background:transparent; color:#cfe8ef;
+      border: 1px solid transparent; font-weight:600; cursor:pointer; font-size:14px;
+    }
+    .nav-controls button:focus{ outline:2px solid rgba(0,242,255,0.12); outline-offset:2px; }
+    .nav-controls button.active{
+      color:#00141a; background: linear-gradient(90deg,var(--accent-cyan), #77e6ff);
+      border-color: rgba(0,242,255,0.12);
+      box-shadow: 0 8px 24px rgba(0,242,255,0.06);
+    }
+
+    #searchBox{
+      width:220px; padding:9px 12px; border-radius:10px; background: rgba(255,255,255,0.02);
+      border:1px solid rgba(255,255,255,0.03); color:#dff7fb; font-weight:500;
+    }
+
+    /* ---------- Video header (responsive) ---------- */
+    .video-header{position:relative; width:100%; height:420px; overflow:hidden; border-bottom:1px solid rgba(255,255,255,0.03);}
+    .video-header video{
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      min-width:100%; min-height:100%; width:auto; height:auto; object-fit:cover;
+      opacity:0.14; filter:grayscale(10%) contrast(90%); pointer-events:none;
+      transition:opacity .4s ease;
+      will-change:transform,opacity;
+    }
+    /* poster overlay so when video paused we show a better visual */
+    .video-poster{
+      position:absolute; inset:0; background-size:cover; background-position:center; opacity:0; transition:opacity .28s ease;
+    }
+    .video-paused .video-header video{ opacity:0.06; }
+    .video-paused .video-poster{ opacity:1; }
+
+    /* ---------- ticker ---------- */
+    .ticker{
+      background: linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,25,35,0.6));
+      border-top:1px solid rgba(255,255,255,0.02);
+      padding:8px 12px; display:flex; gap:12px; align-items:center; overflow:hidden;
+    }
+    .ticker .label{ color:var(--accent-gold); font-weight:700; font-size:13px; white-space:nowrap; }
+    .ticker .marquee{ flex:1; color:#cfe8ef; font-weight:600; white-space:nowrap; display:block; animation:marquee 18s linear infinite; }
+    @keyframes marquee{ from{transform:translateX(100%);} to{transform:translateX(-100%);} }
+
+    /* ---------- container & grid ---------- */
+    .container{ max-width:1280px; margin: -80px auto 64px; padding: 0 20px; position:relative; z-index:30; }
+    .grid{ display:grid; gap:14px; grid-template-columns:repeat(2,1fr); }
+    @media(min-width:640px){ .grid{ grid-template-columns:repeat(3,1fr); } }
+    @media(min-width:900px){ .grid{ grid-template-columns:repeat(4,1fr); } }
+    @media(min-width:1200px){ .grid{ grid-template-columns:repeat(5,1fr); } }
+
+    .movie-card{
+      background: linear-gradient(180deg, rgba(8,12,18,0.6), rgba(6,11,16,0.45));
+      border:1px solid rgba(255,255,255,0.03);
+      border-radius:12px; overflow:hidden; position:relative;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+      -webkit-tap-highlight-color: transparent;
+      will-change:transform;
+    }
+    .movie-card:active{ transform:translateY(1px); }
+    .poster-wrap{ position:relative; height:170px; overflow:hidden; display:block; background:#000; }
+    .poster-wrap img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .45s ease; }
+    .movie-card:hover .poster-wrap img{ transform:scale(1.05); }
+
+    /* live badge */
+    .live-badge{
+      position:absolute; left:10px; top:10px; background: linear-gradient(90deg,#ff3b3b,#ff7b7b);
+      color:white; padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px;
+      box-shadow: 0 6px 18px rgba(255,59,59,0.16); display:flex; gap:8px; align-items:center;
+      animation: livePulse 1.2s infinite;
+    }
+    .live-dot{ width:8px; height:8px; border-radius:50%; background:#fff; box-shadow:0 0 8px rgba(255,255,255,0.7); }
+    @keyframes livePulse{ 0%{transform:scale(1);} 50%{transform:scale(1.04);} 100%{transform:scale(1);} }
+
+    .card-body{ padding:12px; display:flex; flex-direction:column; gap:6px; }
+    .title{ font-weight:600; color:#eafcff; font-size:0.96rem; }
+    .meta{ color:#bcdfe6; font-size:12px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .tag{ font-size:11px; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,0.03); color:#cfe8ef; font-weight:600; }
+
+    /* watch button overlay */
+    .card-overlay{ position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; padding:14px; pointer-events:none; }
+    .watch-btn{
+      pointer-events:auto; background:linear-gradient(90deg,var(--accent-cyan), #47eaff);
+      color:#00141a; padding:10px 14px; border-radius:999px; font-weight:800; border:none; transform:translateY(8px);
+      transition:transform .18s ease;
+    }
+    .movie-card:hover .watch-btn{ transform:translateY(0); }
+
+    /* modal */
+    .modal-overlay{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.85); z-index:120; backdrop-filter: blur(8px); }
+    .modal-card{ width:95%; max-width:1100px; background: linear-gradient(180deg, rgba(6,10,18,0.98), rgba(3,6,12,0.98)); border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.04); box-shadow: 0 30px 80px rgba(0,0,0,0.7); }
+    .modal-header{ display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .modal-title{ color:var(--accent-cyan); font-weight:700; font-size:1rem; }
+    .modal-player{ position:relative; padding-bottom:56.25%; height:0; background:#000; }
+
+    /* footer */
+    .footer{ text-align:center; color:#94bfc9; padding:22px 0; opacity:0.9; }
+
+    /* spark canvas (optimized) */
+    #sparkCanvasPage{ position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10000; mix-blend-mode:screen; opacity:0.85; }
+
+    /* ---------- Small screens: stack nav, adjust spacing ---------- */
+    @media(max-width:820px){
+      .navbar{ flex-wrap:wrap; align-items:center; gap:8px; padding:10px; }
+      .brand h1{ font-size:0.95rem; }
+      .nav-controls{ width:100%; justify-content:space-between; }
+      #searchBox{ width:140px; }
+      .video-header{ height:320px; }
+      .poster-wrap{ height:150px; }
+      .container{ margin-top:-56px; }
+      .ticker .marquee{ animation-duration:24s; font-size:13px; }
+    }
+
+    @media(max-width:520px){
+      .nav-controls{ flex-direction:row; gap:8px; align-items:center; }
+      .nav-btns { display:flex; gap:6px; overflow:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
+      .nav-controls button{ padding:8px 10px; font-size:13px; }
+      #searchBox{ width:120px; padding:8px 10px; font-size:13px; }
+      .grid{ grid-template-columns:repeat(2,1fr); gap:10px; }
+      .video-header{ height:260px; }
+      .poster-wrap{ height:130px; }
+      .movie-card{ border-radius:10px; }
+      .watch-btn{ padding:9px 12px; font-size:14px; }
+      .modal-card{ width:96%; }
+      /* disable hover transforms on touch */
+      .movie-card:hover .poster-wrap img{ transform:none; }
+    }
+  </style>
+</head>
+<body class="page-root">
+
+  <!-- Top Navigation -->
+  <header class="navbar" role="banner" aria-label="Top navigation">
+    <div class="brand" aria-hidden="false">
+      <img src="https://static.vecteezy.com/system/resources/thumbnails/007/688/855/small/tv-logo-free-vector.jpg" alt="Live logo">
+      <div>
+        <h1>LIVE SPORTS NETWORK</h1>
+        <small>Live channels · Movies · Entertainment</small>
+      </div>
+    </div>
+
+    <div class="nav-controls" role="navigation" aria-label="Category navigation">
+      <div class="nav-btns" aria-hidden="false">
+        <button data-cat="all" class="active" aria-pressed="true">All</button>
+        <button data-cat="cricket">Sports</button>
+        <button data-cat="movie">Movies</button>
+        <button data-cat="football">Football</button>
+      </div>
+      <input id="searchBox" placeholder="Search channels..." aria-label="Search channels" />
+    </div>
+  </header>
+
+  <!-- Video Header -->
+  <section class="video-header" aria-hidden="true">
+    <!-- poster fallback div (visible when video paused on mobile) -->
+    <div class="video-poster" id="videoPoster"
+         style="background-image:url('https://images.unsplash.com/photo-1558980394-0c3a9b3f6b62?q=80&w=2400&auto=format&fit=crop&s=placeholder');">
+    </div>
+
+    <!-- background video: autoplay on desktop; paused on small screens via JS -->
+    <video id="bgVideo" autoplay muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1558980394-0c3a9b3f6b62?q=80&w=2400&auto=format&fit=crop&s=placeholder">
+      <source src="https://cdn.pixabay.com/video/2019/08/17/26097-357512275_large.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </section>
+
+  <!-- Ticker -->
+  <div class="ticker" role="status" aria-live="polite">
+    <div class="label">NOW</div>
+    <div id="ticker-text" class="marquee">IND vs AUS • Live on Sony Sports 1 • Next: PAK vs BAN • Tune for match highlights & replays</div>
+  </div>
+
+  <!-- Grid container -->
+  <main class="container" id="mainContent">
+    <div id="movies" class="grid" role="list" aria-label="Channels list"></div>
+  </main>
+
+  <footer class="footer" role="contentinfo">© Live Channels Universe</footer>
+
+  <!-- Modal (initially hidden) -->
+  <div id="video-modal" class="modal-overlay hidden" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <div id="modal-title" class="modal-title"></div>
+        <button id="close-video-modal" class="text-white hover:text-red-400" aria-label="Close player"><i class="fas fa-times text-xl"></i></button>
+      </div>
+      <div class="modal-player">
+        <video id="modal-video" class="absolute inset-0 w-full h-full" controls playsinline></video>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spark Canvas (optimized; disabled on small screens) -->
+  <canvas id="sparkCanvasPage" aria-hidden="true"></canvas>
+
+  <!-- ======= Scripts (render + behavior) ======= -->
+  <script>
+    /* ===== channel list (kept) ===== */
+   const movies = [
+ {
+    title: "Sony Sports 1",
+    video: "https://allottplay.com/tv/toffee/live.php?id=sony_sports_1_hd",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVjDTXq-_cCgYr7x72KFivpdp-U9YFTwdf9g&s",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Sony Sports 5",
+    video: "https://allottplay.com/tv/toffee/live.php?id=sony_sports_5_hd",
+    image: "https://www.sonypicturesnetworks.com/images/logos/SONY_SportsTen5_HD_Logo_CLR.png",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Hot Star",
+    video: "https://hugh.cdn.rumble.cloud/live/y16rq9u0/slot-137/6odd-ekvt/chunklist.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/commons/0/0e/Hotstar_New_Logo.jpeg",
+    category: "cricket",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "PEO Sports 1",
+    video: "https://edge1-moblive.yuppcdn.net/drm/smil:peosports1drm.smil/index.m3u8",
+    image: "https://img.freepik.com/premium-vector/peo-logo-peo-letter-peo-letter-logo-design-initials-peo-logo-linked-with-circle-uppercase-monogram-logo-peo-typography-technology-business-real-estate-brand_229120-82420.jpg",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "FOX Cricket 501",
+    video: "https://hugh.cdn.rumble.cloud/live/v13wgnv6/slot-119/pisx-5m44_1080p/chunklist.m3u8",
+    image: "https://images.seeklogo.com/logo-png/61/1/fox-cricket-logo-png_seeklogo-612614.png",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Willow XTRA",
+    video: "https://fl7.moveonjoy.com/WILLOW_CRICKET/index.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcG_dlntgSehdJUsXxCMkIPVq6FZViCQ5zij2mffUifgN-SOacL-q6PukpKzzgFG0EVvw&usqp=CAU",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Willow Cricket",
+    video: "https://fl1.moveonjoy.com/WILLOW_CRICKET/index.m3u8",
+    image: "https://image.xumo.com/v1/channels/channel/99951406/600x337.webp?type=channelTile",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Star Sports 1 HD",
+    video: "https://wasitv-pro.site/crichd/master.m3u8/?c=star1in&key=WASITV",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Star_Sports_1_HD.png/1200px-Star_Sports_1_HD.png",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Star Sports 2 HD",
+    video: "https://anywhere.pwisetthon.com/https://bongoflixbd.top/stream.php?id=3ac46078-2bf0-4998-a021-37b459e09fba",
+    image: "https://img1.hotstarext.com/image/upload/f_auto/sources/r1/cms/prod/7196/597196-h",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "DD Sports",
+    video: "https://cdn-6.pishow.tv/live/13/master.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/en/thumb/1/16/DD_Sports_logo.svg/1200px-DD_Sports_logo.svg.png",
+    category: "cricket",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Ten Cricket",
+    video: "https://allottplay.com/tv/toffee/live.php?id=ten_cricket",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLMhVJFXkNYK7trsuhRe58ZK1-pQLUhD3T6w&s",
+    category: "cricket",
+    language: "English",
+    isPopular: false
+  },
+  {
+    title: "Ten Sports HD",
+    video: "https://flussonic.superfasthdserver.com/TenSports/index.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/en/1/12/Ten_Sports_Logo.png",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Sky Sports Cricket",
+    video: "https://wasitv-pro.site/crichd/master.m3u8/?c=skyscric&key=WASITV",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsvdclX7KrynjQ1-VOHm3S3RCZzTayQnYE2w&s",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "A Sports HD",
+    video: "https://webott.viatv.com.np/v0t1/ASportsHd/playlist.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDuSnhZM781OL5Yl9KapyIuEe_z8fNQrdqmw&s",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "FiFa+ UK",
+    video: "https://a62dad94.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0ZJRkFQbHVzRW5nbGlzaF9ITFM/playlist.m3u8",
+    image: "https://brandlogos.net/wp-content/uploads/2022/10/fifa-logo_brandlogos.net_pdjxs-512x512.png",
+    category: "football",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Geo Super",
+    video: "https://anywhere.pwisetthon.com/https://ml-pull-dvc-myco.io:2096/GEO_SUPER/index.m3u8",
+    image: "https://images.seeklogo.com/logo-png/19/1/geo-super-logo-png_seeklogo-198639.png",
+    category: "football",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Cricket Gold",
+    video: "https://d382r3rgbxdixq.cloudfront.net/scheduler/scheduleMaster/418.m3u8",
+    image: "https://i.ytimg.com/vi/CeAgx48qQ3M/hq720.jpg?v=65bae4af&sqp=CLT54scG-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLD6fP5iTRlif4O3JGKjLReLKlw1dg",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "astro cricket",
+    video: "https://anywhere.pwisetthon.com/http://103.240.44.26/Astro-Cricket/index.fmp4.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/commons/f/fc/Astro_Cricket_%282024%29.png",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Red Bull",
+    video: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master_3360.m3u8",
+    image: "https://miro.medium.com/v2/resize:fit:600/0*_eIBPdOja4LWqRF5.jpeg",
+    category: "sports",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "H&C",
+    video: "https://hncfree-samsungau.amagi.tv/playlist.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAuSKPk_qfyUhZTdgT5NYN56RyH9z3FTRxWA&s",
+    category: "sports",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Zee Cinema HD",
+    video: "https://amg17931-zee-amg17931c5-samsung-th-5696.playouts.now.amagi.tv/playlist/amg17931-asiatvusaltdfast-zeecinema-samsungth/playlist.m3u8",
+    image: "https://pbs.twimg.com/profile_images/971359116122767360/zfwcAwYB_400x400.jpg",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "B4U Movies",
+    video: "https://cdnb4u.wiseplayout.com:443/B4U_Movies/HD1080/HD1080.m3u8",
+    image: "https://www.nicepng.com/png/detail/359-3595110_b4u-movies-logo-b4u-movies-channel-logo.png",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "DD National HD",
+    video: "https://d3qs3d2rkhfqrt.cloudfront.net:443/out/v1/40492a64c1db4a1385ba1a397d357d3a/index_3.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/hi/1/15/Dd_national_New_Logos.png",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "&Flix",
+    video: "https://edge3-moblive.yuppcdn.net/drm/smil:nflixdrm.smil/index.m3u8",
+    image: "https://exchange4media.gumlet.io/news-photo/108705-big24.jpg",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "DD Sahyadri",
+    video: "https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/66dcc3ebe182447ba42837e746cf0c7c/index.m3u8",
+    image: "https://www.saamana.com/wp-content/uploads/2017/01/dd-sahyadri-logo.jpg",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "TNT Sports 2",
+    video: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/bsaaetko8v/out/v1/f8fa17f087564f51aa4d5c700be43ec4/cenc.mpd",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSg-y6bVhw19VBEl7AXbr1EMsGcchkjQHxsU0PSRexEYazGTY2TgxjewSvyxaaRgkq0dT8&usqp=CAU",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Star Movies Select HD",
+    video: "https://smashyplayer.top:443/hls/pdPobtaRuieS_GLX9bD8YA/k5/sku8p8ed/u89az/tt/index-f1-v1-a1.m3u8?v=1758651105",
+    image: "https://www.adgully.com/img/800/202003/star-movies-select-hd.png.jpg",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+];
+
+    /* ===== elements & state ===== */
+    const container = document.getElementById('movies');
+    const videoModal = document.getElementById('video-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const bgVideo = document.getElementById('bgVideo');
+    const videoPoster = document.getElementById('videoPoster');
+    const pageRoot = document.querySelector('.page-root');
+    let currentHls = null;
+
+    /* ===== small utility functions ===== */
+    function isHls(u){ return !!(u && (u.includes('.m3u8') || u.includes('index-') || /index.*\\.txt/i.test(u))); }
+    function isMP4(u){ return !!(u && /\.mp4($|\?)/i.test(u)); }
+    function isYouTube(u){ return !!(u && (u.includes('youtu') || u.includes('youtube.com') || u.includes('youtu.be'))); }
+
+    function showModal(){ videoModal.classList.remove('hidden'); document.body.style.overflow='hidden'; videoModal.setAttribute('aria-hidden','false'); }
+    function hideModal(){ videoModal.classList.add('hidden'); document.body.style.overflow=''; videoModal.setAttribute('aria-hidden','true'); }
+
+    /* ===== playInModal - supports HLS / MP4 / YouTube / iframe fallbacks ===== */
+    function playInModal(title, url) {
+      // cleanup previous
+      if (currentHls) { try{ currentHls.destroy(); } catch(e){} currentHls = null; }
+      const playerContainer = document.querySelector('.modal-player');
+      modalTitle.textContent = title || '';
+
+      // streamtape / iframe style
+      if (url.includes('streamtape.com') || url.includes('player.html') || url.includes('allottplay.com')) {
+        playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
+        showModal();
+        return;
+      }
+
+      // YouTube
+      if (isYouTube(url)) {
+        let embed = url;
+        try {
+          if (url.includes('watch?v=')) {
+            const id = (new URL(url)).searchParams.get('v');
+            embed = `https://www.youtube.com/embed/${id}`;
+          } else if (url.includes('youtu.be/')) {
+            const id = url.split('youtu.be/')[1].split(/[?&]/)[0];
+            embed = `https://www.youtube.com/embed/${id}`;
+          }
+        } catch(e){}
+        playerContainer.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        showModal();
+        return;
+      }
+
+      // HLS
+      if (isHls(url)) {
+        playerContainer.innerHTML = `<video id="modal-video" class="absolute inset-0 w-full h-full" controls playsinline></video>`;
+        const videoEl = document.getElementById('modal-video');
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          try {
+            currentHls.loadSource(url);
+            currentHls.attachMedia(videoEl);
+            currentHls.on(Hls.Events.MANIFEST_PARSED, () => { showModal(); videoEl.play().catch(()=>{}); });
+          } catch(e) {
+            videoEl.src = url;
+            showModal();
+            videoEl.play().catch(()=>{});
+          }
+        } else {
+          videoEl.src = url;
+          showModal();
+          videoEl.play().catch(()=>{});
+        }
+        return;
+      }
+
+      // MP4
+      if (isMP4(url)) {
+        playerContainer.innerHTML = `<video id="modal-video" class="absolute inset-0 w-full h-full" controls playsinline src="${url}"></video>`;
+        showModal();
+        const v = document.getElementById('modal-video');
+        v.play().catch(()=>{});
+        return;
+      }
+
+      // fallback to player.html
+      window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+    }
+
+    /* Closes player and destroys HLS */
+    function closePlayer(){
+      if (currentHls) { try { currentHls.destroy(); } catch(e){} currentHls = null; }
+      const playerContainer = document.querySelector('.modal-player');
+      playerContainer.innerHTML = `<video id="modal-video" class="absolute inset-0 w-full h-full" controls playsinline></video>`;
+      hideModal();
+    }
+
+    /* Close handlers */
+    document.getElementById('close-video-modal').addEventListener('click', closePlayer);
+    videoModal.addEventListener('click', e => { if (e.target === videoModal) closePlayer(); });
+
+    /* ===== Render grid (optimized card rendering) ===== */
+    function createCard(movie) {
+      const div = document.createElement('div');
+      div.className = 'movie-card';
+      div.setAttribute('role','listitem');
+      const live = movie.isPopular ? `<div class="live-badge"><span class="live-dot"></span><span style="margin-left:6px">LIVE</span></div>` : '';
+      div.innerHTML = `
+        <div class="poster-wrap">
+          <img src="${movie.image}" alt="${movie.title}" loading="lazy" decoding="async">
+          ${live}
+          <div class="card-overlay"><button class="watch-btn" aria-label="Watch ${movie.title}"><i class="fas fa-play"></i>&nbsp;Watch</button></div>
+        </div>
+        <div class="card-body">
+          <div class="title">${movie.title}</div>
+          <div class="meta"><span class="tag">${movie.category ? movie.category.toUpperCase() : ''}</span><span>${movie.language||''}</span></div>
+        </div>
+      `;
+      // Click handler
+      div.addEventListener('click', () => playInModal(movie.title, movie.video));
+      return div;
+    }
+
+    function renderMovies(list) {
+      container.innerHTML = '';
+      // keep DOM ops light: use fragment
+      const frag = document.createDocumentFragment();
+      list.forEach(movie => frag.appendChild(createCard(movie)));
+      container.appendChild(frag);
+    }
+
+    // initial render: use movies (the array)
+    // If you left the movies array trimmed above, please ensure the full array is present.
+    renderMovies(movies);
+
+    /* ===== Category filter logic ===== */
+    document.querySelectorAll('.nav-controls button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-controls button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+        btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
+        const cat = btn.dataset.cat || 'all';
+        if (cat === 'all') renderMovies(movies);
+        else renderMovies(movies.filter(m => m.category === cat));
+      });
+    });
+
+    /* ===== Search box (keeps active filter if cleared) ===== */
+    document.getElementById('searchBox').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      if (!q) {
+        const active = document.querySelector('.nav-controls button.active');
+        const cat = active ? (active.dataset.cat || 'all') : 'all';
+        if (cat === 'all') renderMovies(movies); else renderMovies(movies.filter(m => m.category === cat));
+        return;
+      }
+      const filtered = movies.filter(m => (m.title || '').toLowerCase().includes(q) || (m.category||'').toLowerCase().includes(q) || (m.language||'').toLowerCase().includes(q));
+      renderMovies(filtered);
+    });
+
+    /* ===== Ticker update (compact) ===== */
+    (function updateTicker(){
+      const ticker = document.getElementById('ticker-text');
+      const popular = movies.filter(m => m.isPopular).slice(0,6).map(m => m.title).join(' • ');
+      ticker.textContent = `Now on air: ${popular} • Catch replays & highlights`;
+    })();
+
+    /* ===== Background video control: pause on small screens to save resources ===== */
+    const MOBILE_BREAKPOINT = 820; // px
+    function setVideoForViewport() {
+      const isSmall = window.innerWidth <= MOBILE_BREAKPOINT || ('matchMedia' in window && window.matchMedia('(prefers-reduced-data: reduce)').matches);
+      if (isSmall) {
+        // pause the background video and show poster overlay for better battery & perf
+        try { bgVideo.pause(); } catch(e){}
+        pageRoot.classList.add('video-paused');
+      } else {
+        // play on larger screens
+        pageRoot.classList.remove('video-paused');
+        bgVideo.play().catch(()=>{});
+      }
+    }
+
+    // debounce helper
+    function debounce(fn, wait=120){ let t=null; return function(){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,arguments), wait); }; }
+
+    window.addEventListener('resize', debounce(setVideoForViewport, 180));
+    window.addEventListener('orientationchange', debounce(setVideoForViewport, 250));
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { try{ bgVideo.pause(); } catch(e){} } else setVideoForViewport(); });
+    // initial
+    setVideoForViewport();
+
+    /* ===== Spark canvas (heavily optimized and disabled on small screens) ===== */
+    (function initSparks(){
+      const canvas = document.getElementById('sparkCanvasPage');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let sparks = [];
+      let enabled = window.innerWidth > MOBILE_BREAKPOINT;
+      let raf = null;
+
+      function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resize();
+      window.addEventListener('resize', debounce(resize,120));
+
+      // disable sparks for low-power / small screens
+      function toggleEnabled(){
+        enabled = window.innerWidth > MOBILE_BREAKPOINT && !navigator.connection?.saveData;
+        if (!enabled) { sparks = []; ctx.clearRect(0,0,canvas.width,canvas.height); if (raf) cancelAnimationFrame(raf); raf = null; }
+        else { if (!raf) animate(); }
+      }
+      toggleEnabled();
+      window.addEventListener('resize', debounce(toggleEnabled,150));
+      window.addEventListener('orientationchange', debounce(toggleEnabled,200));
+
+      const easing = t => t*(2-t);
+      const DUR = 300;
+      const COUNT = 6;
+      const SIZE = 7;
+      const RADIUS = 12;
+      const COLOR = 'rgba(0,242,255,0.95)';
+
+      function draw(now){
+        if (!enabled) return;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for (let i=sparks.length-1;i>=0;i--){
+          const s = sparks[i];
+          const el = now - s.t;
+          if (el >= DUR){ sparks.splice(i,1); continue; }
+          const p = el / DUR;
+          const e = easing(p);
+          const d = e * RADIUS;
+          const l = SIZE * (1 - e);
+          const x1 = s.x + d * Math.cos(s.a);
+          const y1 = s.y + d * Math.sin(s.a);
+          const x2 = s.x + (d + l) * Math.cos(s.a);
+          const y2 = s.y + (d + l) * Math.sin(s.a);
+          ctx.strokeStyle = COLOR;
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(x1,y1);
+          ctx.lineTo(x2,y2);
+          ctx.stroke();
+        }
+        raf = requestAnimationFrame(draw);
+      }
+      function animate(ts){ draw(ts || performance.now()); }
+
+      // generate sparks on clicks (limited)
+      document.addEventListener('click', (e) => {
+        if (!enabled) return;
+        for (let i=0;i<Math.min(3, COUNT); i++){
+          sparks.push({ x: e.clientX, y: e.clientY, a: (2*Math.PI*i)/COUNT + (Math.random()-0.5)*0.2, t: performance.now() });
+        }
+        if (!raf) animate();
+      });
+
+    })();
+
+    /* ===== Accessibility: focus outline for keyboard users (small) ===== */
+    (function focusStyleAdjust(){
+      function handleFirstTab(e){
+        if (e.key === 'Tab') document.body.classList.add('user-is-tabbing');
+      }
+      window.addEventListener('keydown', handleFirstTab, { once: true });
+    })();
+
+    /* ===== End scripts ===== */
+  </script>
+</body>
+</html>
