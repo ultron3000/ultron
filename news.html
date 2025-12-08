@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live News Channels</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #ff3e00;
+      --secondary: #ffcc00;
+      --dark: #111827;
+      --darker: #0a0e17;
+      --light: #f3f4f6;
+    }
+    
+    body {
+      background-color: var(--dark);
+      color: var(--light);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      transition: all 0.3s ease;
+    }
+    
+    .dark-mode {
+      --primary: #ff3e00;
+      --secondary: #ffcc00;
+      --dark: #111827;
+      --darker: #0a0e17;
+      --light: #f3f4f6;
+    }
+    
+    .light-mode {
+      --primary: #d32f2f;
+      --secondary: #1976d2;
+      --dark: #f5f5f5;
+      --darker: #e0e0e0;
+      --light: #212121;
+    }
+    
+    .channel-card {
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .channel-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .channel-image {
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.3);
+    }
+    
+    .filter-btn.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ff2d00;
+    }
+    
+    /* Animation for loading */
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    
+    .animate-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    /* Mobile menu animation */
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(0);
+      }
+    }
+    
+    .mobile-menu {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+    
+    /* For skeleton loading */
+    .skeleton {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-gradient-to-r from-gray-900 to-gray-800 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-tv text-2xl text-primary" style="color: var(--primary);"></i>
+        <h1 class="text-xl font-bold">Live News Channels</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-700 transition">
+          <i class="fas fa-moon text-yellow-300"></i>
+        </button>
+        
+        <div class="relative hidden md:block">
+          <input type="text" id="search-input" placeholder="Search channels..." 
+                 class="bg-gray-800 text-white px-4 py-2 rounded-full w-64 focus:outline-none focus:ring-2 focus:ring-primary transition">
+          <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
+        </div>
+        
+        <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-gray-700 transition">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden absolute top-16 right-0 w-64 bg-gray-800 rounded-lg shadow-xl p-4 mobile-menu">
+      <div class="mb-4">
+        <input type="text" id="mobile-search-input" placeholder="Search channels..." 
+               class="bg-gray-700 text-white px-4 py-2 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-primary transition">
+      </div>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button class="filter-btn px-3 py-1 rounded-full bg-gray-700 text-sm active" data-filter="all">All</button>
+        <button class="filter-btn px-3 py-1 rounded-full bg-gray-700 text-sm" data-filter="regional">Regional</button>
+        <button class="filter-btn px-3 py-1 rounded-full bg-gray-700 text-sm" data-filter="national">National</button>
+        <button class="filter-btn px-3 py-1 rounded-full bg-gray-700 text-sm" data-filter="popular">Popular</button>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-sm">Dark Mode</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="mobile-theme-toggle" class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-6">
+    <!-- Search and Filters (Desktop) -->
+    <div class="hidden md:flex justify-between items-center mb-8">
+      <div class="flex space-x-2">
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 active" data-filter="all">All Channels</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800" data-filter="regional">Regional</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800" data-filter="national">National</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800" data-filter="popular">Popular</button>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center">
+          <span class="mr-2">Sort by:</span>
+          <select id="sort-select" class="bg-gray-800 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="name">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="popular">Most Popular</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Loading Skeleton -->
+    <div id="loading-skeleton" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div class="channel-card skeleton h-64 rounded-xl"></div>
+      <div class="channel-card skeleton h-64 rounded-xl"></div>
+      <div class="channel-card skeleton h-64 rounded-xl"></div>
+      <div class="channel-card skeleton h-64 rounded-xl"></div>
+    </div>
+    
+    <!-- Channels Grid -->
+    <div id="channels-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <!-- Channels will be inserted here by JavaScript -->
+    </div>
+    
+    <!-- No Results Message -->
+    <div id="no-results" class="hidden text-center py-12">
+      <i class="fas fa-tv text-5xl text-gray-500 mb-4"></i>
+      <h3 class="text-xl font-semibold mb-2">No channels found</h3>
+      <p class="text-gray-400">Try adjusting your search or filter criteria</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-tv text-2xl text-primary" style="color: var(--primary);"></i>
+            <span class="text-lg font-semibold">Live News Channels</span>
+          </div>
+          <p class="mt-2 text-sm">Your gateway to live news from around the world</p>
+        </div>
+        
+        <div class="flex space-x-6">
+          <a href="#" class="hover:text-primary transition"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="hover:text-primary transition"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 mt-6 pt-6 text-sm text-center">
+        <p>© 2023 Live News Channels. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Enhanced channel data with categories and popularity
+    const channels = [
+      { 
+        title: "TV9 Marathi", 
+        video: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9marlygv8h/liveabr/playlist.m3u8", 
+        image: "https://yt3.googleusercontent.com/HB8cDZ8136P8A3e-YlAYHN8hsSIqfFweGFkXT_ZUi_3iRozZiLoUwCjTYHzFx10KSD1x7MMcKw=s900-c-k-c0x00ffffff-no-rj",
+        category: "regional",
+        language: "Marathi",
+        isPopular: true
+      },
+      { 
+        title: "Asianet News Kannada", 
+        video: "https://vidcdn.vidgyor.com:443/suvarna-origin/liveabr/suvarna-origin/live_720p/chunks.m3u8", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9VJqis436srFpYOXqxuVyeeZZypgjNPS4-Q&s",
+        category: "regional",
+        language: "Kannada",
+        isPopular: true
+      },
+      { 
+        title: "Asianet News Tamil", 
+        video: "https://vidcdn.vidgyor.com/ptm-origin/aslive/playlist.m3u8", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgtewW_rp9On01bkt8qNnh_tdaAgF0lGt1IQ&s",
+        category: "regional",
+        language: "Tamil",
+        isPopular: false
+      },
+      { 
+        title: "Good News TV", 
+        video: "https://bpgdlwwar3ze-hls-live.wmncdn.net/goodnews/live.stream/playlist.m3u8", 
+        image: "https://yt3.googleusercontent.com/hg_Z9skLIMof4uk0TI6Kf7m8lA9MLF1cZVZdqDUcWizRjfv1vLDQBzTGmd8IYpXA_FkFDs8mF_4=s900-c-k-c0x00ffffff-no-rj",
+        category: "national",
+        language: "English",
+        isPopular: false
+      },
+      { 
+        title: "India News Rajasthan", 
+        video: "https://livetv.newsx.com/itv/itvnetwork9/playlist.m3u8", 
+        image: "https://daex9l847wg3n.cloudfront.net/shemoutputimages/India-News-Rajasthan/5eeb7b28a609d2aeb400000b/large_16_9_1736753363.jpg",
+        category: "regional",
+        language: "Hindi",
+        isPopular: true
+      },
+      { 
+        title: "India News Madhya Pradesh/Chhatisgarh", 
+        video: "https://livetv.newsx.com/itv/itvnetwork7/playlist.m3u8", 
+        image: "https://daex9l847wg3n.cloudfront.net/shemoutputimages/India-News-Madhya-Pradesh/Chhattisgarh/5eeb7a1da609d2aeb4000009/large_16_9_1736753467.jpg",
+        category: "regional",
+        language: "Hindi",
+        isPopular: false
+      },
+      { 
+        title: "News 24", 
+        video: "https://vidcdn.vidgyor.com/news24-origin/liveabr/playlist.m3u8", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_waJAccFBdkkKcs7dFZuChcYbNKKZEIWXWA&s",
+        category: "national",
+        language: "Hindi",
+        isPopular: true
+      },
+      { 
+        title: "Sadhna Plus News", 
+        video: "https://6n3yow8pl9ok-hls-live.5centscdn.com/sadhananewstv/live.stream/playlist.m3u8", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKj-ln0Sq0qy-tF8BK03MExReW_vM5PmIWnw&s",
+        category: "regional",
+        language: "Hindi",
+        isPopular: false
+      },
+      { 
+        title: "Sudarshan News", 
+        video: "https://ott.livelegitpro.in:443/pusa/sudarshantv/tracks-v1a1/mono.m3u8", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzniTUTcQf07GfTT1DBu2poJu96EoqioqztQ&s",
+        category: "national",
+        language: "Hindi",
+        isPopular: true
+      },
+      { 
+        title: "VBC News", 
+        video: "https://5a1178b42cc03.streamlock.net/8200/8200/playlist.m3u8", 
+        image: "https://i.ytimg.com/vi/tZyjrbb2Qjs/maxresdefault.jpg",
+        category: "regional",
+        language: "Telugu",
+        isPopular: false
+      },
+      { 
+        title: "Republic Bharat", 
+        video: "https://republicbharatlive.akamaized.net/hls/live/2021912/republicbharat/master.m3u8", 
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1S2XFBEaC-UbsXO7owhdNJg-LfHutBNpQ3EkM6HOJgr98XnlZwFxiTO0O9Rccnic-W1Q&usqp=CAU",
+        category: "national",
+        language: "Hindi",
+        isPopular: true
+      },
+      { 
+        title: "Times Now", 
+        video: "https://timesnow-lh.akamaihd.net/i/TIMESNOW_1@129288/master.m3u8", 
+        image: "https://yt3.googleusercontent.com/ytc/APkrFKZWeMCsx4Q9e_Hm6nhOOUQ3fv96QGUXiMr1-pPP=s900-c-k-c0x00ffffff-no-rj",
+        category: "national",
+        language: "English",
+        isPopular: true
+      }
+    ];
+
+    // DOM Elements
+    const channelsGrid = document.getElementById('channels-grid');
+    const loadingSkeleton = document.getElementById('loading-skeleton');
+    const noResults = document.getElementById('no-results');
+    const searchInput = document.getElementById('search-input');
+    const mobileSearchInput = document.getElementById('mobile-search-input');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const sortSelect = document.getElementById('sort-select');
+    const themeToggle = document.getElementById('theme-toggle');
+    const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    // Current filter state
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let currentSort = 'name';
+
+    // Initialize the app
+    function init() {
+      // Simulate loading delay
+      setTimeout(() => {
+        loadingSkeleton.classList.add('hidden');
+        renderChannels();
+      }, 1000);
+      
+      // Event listeners
+      searchInput.addEventListener('input', handleSearch);
+      mobileSearchInput.addEventListener('input', handleSearch);
+      
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          currentFilter = button.dataset.filter;
+          updateActiveFilterButton();
+          renderChannels();
+        });
+      });
+      
+      sortSelect.addEventListener('change', () => {
+        currentSort = sortSelect.value;
+        renderChannels();
+      });
+      
+      themeToggle.addEventListener('click', toggleTheme);
+      mobileThemeToggle.addEventListener('change', toggleTheme);
+      mobileMenuButton.addEventListener('click', toggleMobileMenu);
+      
+      // Close mobile menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mobileMenu.contains(e.target) && e.target !== mobileMenuButton) {
+          mobileMenu.classList.add('hidden');
+        }
+      });
+    }
+
+    // Render channels based on current filters and search
+    function renderChannels() {
+      let filteredChannels = [...channels];
+      
+      // Apply search filter
+      if (currentSearch) {
+        filteredChannels = filteredChannels.filter(channel => 
+          channel.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+          channel.language.toLowerCase().includes(currentSearch.toLowerCase())
+        );
+      }
+      
+      // Apply category filter
+      if (currentFilter !== 'all') {
+        if (currentFilter === 'popular') {
+          filteredChannels = filteredChannels.filter(channel => channel.isPopular);
+        } else {
+          filteredChannels = filteredChannels.filter(channel => channel.category === currentFilter);
+        }
+      }
+      
+      // Apply sorting
+      filteredChannels = sortChannels(filteredChannels);
+      
+      // Clear the grid
+      channelsGrid.innerHTML = '';
+      
+      // Show no results message if no channels match
+      if (filteredChannels.length === 0) {
+        noResults.classList.remove('hidden');
+        channelsGrid.classList.add('hidden');
+        return;
+      }
+      
+      noResults.classList.add('hidden');
+      channelsGrid.classList.remove('hidden');
+      
+      // Create channel cards
+      filteredChannels.forEach(channel => {
+        const channelCard = document.createElement('div');
+        channelCard.className = 'channel-card bg-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition';
+        channelCard.innerHTML = `
+          <div class="relative">
+            <img src="${channel.image}" alt="${channel.title}" class="channel-image w-full">
+            ${channel.isPopular ? '<span class="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded-full flex items-center"><i class="fas fa-fire mr-1"></i> Popular</span>' : ''}
+            <button class="absolute bottom-2 right-2 bg-primary hover:bg-opacity-90 text-white p-2 rounded-full transition">
+              <i class="fas fa-play"></i>
+            </button>
+          </div>
+          <div class="p-4">
+            <h3 class="font-semibold text-lg mb-1 truncate">${channel.title}</h3>
+            <div class="flex justify-between items-center text-sm text-gray-400">
+              <span class="flex items-center">
+                <i class="fas fa-globe mr-1"></i> ${channel.language}
+              </span>
+              <span class="flex items-center">
+                <i class="fas fa-tag mr-1"></i> ${channel.category.charAt(0).toUpperCase() + channel.category.slice(1)}
+              </span>
+            </div>
+          </div>
+        `;
+        
+        // Add click event to play the channel
+        channelCard.addEventListener('click', () => {
+          const url = `player.html?title=${encodeURIComponent(channel.title)}&video=${encodeURIComponent(channel.video)}`;
+          window.location.href = url;
+        });
+        
+        channelsGrid.appendChild(channelCard);
+      });
+    }
+
+    // Sort channels based on current sort option
+    function sortChannels(channels) {
+      switch (currentSort) {
+        case 'name':
+          return channels.sort((a, b) => a.title.localeCompare(b.title));
+        case 'name-desc':
+          return channels.sort((a, b) => b.title.localeCompare(a.title));
+        case 'popular':
+          return channels.sort((a, b) => (b.isPopular - a.isPopular) || a.title.localeCompare(b.title));
+        default:
+          return channels;
+      }
+    }
+
+    // Handle search input
+    function handleSearch(e) {
+      currentSearch = e.target.value;
+      renderChannels();
+    }
+
+    // Update active filter button style
+    function updateActiveFilterButton() {
+      filterButtons.forEach(button => {
+        if (button.dataset.filter === currentFilter) {
+          button.classList.add('active');
+        } else {
+          button.classList.remove('active');
+        }
+      });
+    }
+
+    // Toggle between dark and light theme
+    function toggleTheme() {
+      const body = document.body;
+      const isDark = body.classList.contains('dark-mode');
+      
+      if (isDark) {
+        body.classList.remove('dark-mode');
+        body.classList.add('light-mode');
+        themeToggle.innerHTML = '<i class="fas fa-sun text-yellow-300"></i>';
+      } else {
+        body.classList.remove('light-mode');
+        body.classList.add('dark-mode');
+        themeToggle.innerHTML = '<i class="fas fa-moon text-yellow-300"></i>';
+      }
+      
+      // Sync mobile theme toggle
+      mobileThemeToggle.checked = !isDark;
+    }
+
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+      mobileMenu.classList.toggle('hidden');
+    }
+
+    // Initialize the app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
+  <!-- ============================= -->
+<!--     ADSTERAA GLOBAL BLOCK     -->
+<!-- ============================= -->
+
+<!-- Banner 300x250 (Best placement: under video or anywhere inside content) -->
+<div id="adsterra-banner-container" style="text-align:center; margin:20px 0;">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : '267d846b24a4cdd5fd7ab140783cec90',
+        'format' : 'iframe',
+        'height' : 250,
+        'width' : 300,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//bowlingprosperhalfbrother.com/267d846b24a4cdd5fd7ab140783cec90/invoke.js"></script>
+</div>
+
+
+<!-- Social Bar (Floating bottom widget - high earnings, non-intrusive) -->
+<script type="text/javascript" src="//bowlingprosperhalfbrother.com/42/5b/58/425b58e61b66997ed4519d91d1f2dcf4.js"></script>
+
+
+<!-- PopUnder (fires once per user interaction) - keep LAST -->
+<script type="text/javascript" src="//bowlingprosperhalfbrother.com/2d/95/e8/2d95e8d5c6532307745afa9b1be1162b.js"></script>
+
+<!-- ============================= -->
+<!--     END ADSTERRA BLOCK        -->
+<!-- ============================= -->
+
+<!-- ===========================
+      EXOCLICK — ALL IN ONE ADS
+     =========================== -->
+
+<!-- DESKTOP POPUNDER -->
+<script type="application/javascript">
+(function() {
+    function randStr(e,t){for(var n="",r=t||"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",o=0;o<e;o++)n+=r.charAt(Math.floor(Math.random()*r.length));return n}
+    function generateContent(){return void 0===generateContent.val&&(generateContent.val="document.dispatchEvent("+randStr(4*Math.random()+3)+");"),generateContent.val}
+    try{Object.defineProperty(document.currentScript,"innerHTML",{get:generateContent}),Object.defineProperty(document.currentScript,"textContent",{get:generateContent})}catch(e){};
+
+    var adConfig = {
+        "ads_host": "a.pemsrv.com",
+        "syndication_host": "s.pemsrv.com",
+        "idzone": 5788556,
+        "popup_fallback": false,
+        "popup_force": false,
+        "chrome_enabled": true,
+        "new_tab": false,
+        "frequency_period": 720,
+        "frequency_count": 1,
+        "trigger_method": 3,
+        "trigger_class": "",
+        "trigger_delay": 0,
+        "capping_enabled": true,
+        "tcf_enabled": true,
+        "only_inline": false
+    };
+
+    popMagic.init(adConfig);
+})();
+</script>
+
+<!-- DESKTOP INSTANT MESSAGE -->
+<script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+<ins class="eas6a97888e6" data-zoneid="5788558"></ins>
+<script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+
+<!-- DESKTOP STICKY BANNER -->
+<script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+<ins class="eas6a97888e17" data-zoneid="5788560"></ins>
+<script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+
+
+<!-- ===========================
+      MOBILE ADS
+     =========================== -->
+
+<!-- MOBILE POPUNDER -->
+<script type="application/javascript">
+(function() {
+    function randStr(e,t){for(var n="",r=t||"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",o=0;o<e;o++)n+=r.charAt(Math.floor(Math.random()*r.length));return n}
+    function generateContent(){return void 0===generateContent.val&&(generateContent.val="document.dispatchEvent("+randStr(4*Math.random()+3)+");"),generateContent.val}
+    try{Object.defineProperty(document.currentScript,"innerHTML",{get:generateContent}),Object.defineProperty(document.currentScript,"textContent",{get:generateContent})}catch(e){};
+
+    var adConfig = {
+        "ads_host": "a.pemsrv.com",
+        "syndication_host": "s.pemsrv.com",
+        "idzone": 5788562,
+        "popup_fallback": false,
+        "popup_force": false,
+        "chrome_enabled": true,
+        "new_tab": false,
+        "frequency_period": 720,
+        "frequency_count": 1,
+        "trigger_method": 3,
+        "trigger_class": "",
+        "trigger_delay": 0,
+        "capping_enabled": true,
+        "tcf_enabled": true,
+        "only_inline": false
+    };
+
+    popMagic.init(adConfig);
+})();
+</script>
+
+<!-- MOBILE INSTANT MESSAGE -->
+<script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+<ins class="eas6a97888e14" data-zoneid="5788564"></ins>
+<script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+
+<!-- MOBILE BANNER -->
+<script async type="application/javascript" src="https://a.magsrv.com/ad-provider.js"></script>
+<ins class="eas6a97888e10" data-zoneid="5788566"></ins>
+<script>(AdProvider = window.AdProvider || []).push({"serve": {}});</script>
+
+<!-- ===========================
+      / END EXOCLICK ADS
+     =========================== -->
+
+</body>
+</html>
