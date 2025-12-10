@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Rocket Boys - Seasons 1 & 2</title>
+  <title>Rocket Boys</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -58,28 +58,46 @@
 
     /* keep other original Hawkeye styles intact */
     body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
+
+    /* Illumination modal styles (keeps modal look consistent) */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-backdrop.active { display:flex; }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
+
+    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
+    .player-meta .meta-left { max-width:65%; }
+    .player-meta h3 { margin:0; font-size:1.125rem; }
+    .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
+
+    .controls-row { display:flex; gap:8px; align-items:center; }
+
+    .btn {
+      background:transparent; border:1px solid #9ad34d; color:#9ad34d;
+      padding:8px 12px; border-radius:8px; cursor:pointer;
+    }
+    .btn:hover { background: rgba(154,211,77,0.06); }
+
+    .hidden { display:none; }
+
+    @media(max-width:640px){
+      .player-meta .meta-left { max-width:55%; }
+      .btn { padding:6px 8px; font-size:0.9rem; }
+    }
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
   <!-- Header -->
   <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-    <div class="flex items-center space-x-2">
-
-      <!-- Logo circle stays same size -->
-      <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center relative">
-
-        <!-- Rocket Icon -->
-        <i class="fas fa-rocket text-black text-lg"
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
+          <i class="fas fa-rocket text-black text-lg"
            style="animation: rocketFly 1.2s ease-in-out infinite;"></i>
-
-        <!-- Flame -->
-        <span class="absolute bottom-0 w-1.5 h-1.5 bg-orange-400 rounded-full blur-sm"
-              style="animation: rocketFlame .4s ease-in-out infinite;"></span>
+        </div>
+        <h1 class="text-2xl font-bold gradient-text marvel-font tracking-wide">Rocket Boys</h1>
       </div>
-
-      <h1 class="text-2xl font-bold gradient-text">Rocket Boys</h1>
-    </div>
       
       <div class="flex items-center space-x-4">
         <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
@@ -137,8 +155,8 @@
       
       <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
         <div class="flex items-center mb-2">
-          <span class="bg-[#9ad34d] text-black text-xs font-bold px-2 py-1 rounded mr-2">NEW</span>
-          <span class="text-[#9ad34d] text-sm">Seasons 1–2</span>
+          <span class="bg-[#9ad34d] text-black text-xs font-bold px-2 py-1 rounded mr-2"></span>
+          <span class="text-[#9ad34d] text-sm">Seasons 1-2</span>
         </div>
         <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text marvel-font tracking-wide">Rocket Boys</h2>
         <div class="flex items-center mb-4">
@@ -176,31 +194,13 @@
       <div class="flex items-center space-x-2">
         <!-- Add data-season attributes for filtering -->
         <button class="season-btn active bg-[#9ad34d] text-black px-3 py-1 rounded-full text-xs font-medium" data-season="1">Season 1</button>
-        <button class="season-btn bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-full text-xs font-medium" data-season="2">Season 2</button>
-        <button class="season-btn bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
+        <button class="season-btn bg-gray-800 text-white px-3 py-1 rounded-full text-xs font-medium" data-season="2">Season 2</button>
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="flex flex-wrap items-center justify-between mb-8 gap-4 container mx-auto px-4">
-      <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-        <button class="filter-btn active bg-[#9ad34d] text-black px-4 py-1 rounded-full text-sm font-medium">All</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium">Action</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium">Drama</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium">Sci-Fi</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium">Mystery</button>
-      </div>
+
       
-      <div class="flex items-center space-x-2">
-        <span class="text-gray-400 text-sm">Sort by:</span>
-        <select id="sort-select" class="bg-gray-900 border border-gray-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-[#9ad34d]">
-          <option>Release Date</option>
-          <option>Episode Order</option>
-          <option>Popularity</option>
-          <option>Duration</option>
-        </select>
-      </div>
-    </div>
+
 
     <!-- Episodes Grid -->
     <section class="container mx-auto px-4">
@@ -209,91 +209,37 @@
       </div>
     </section>
 
-    
+    <!-- Footer / Social -->
+  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  </div>
 
-  <!-- Footer -->
-  <footer class="bg-gray-900 border-t border-gray-800 mt-16 py-8">
-    <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div>
-          <div class="flex items-center space-x-2 mb-4">
-            <div class="w-8 h-8 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center">
-            </div>
-          </div>
-          <p class="text-gray-400 text-sm">© Sony LIV. All rights reserved.</p>
-        </div>
-        
-        <div>
-
-          </ul>
-        </div>
-        
-        <div>
-          <ul class="space-y-2">
-
-          </ul>
-        </div>
-        
-        <div>
-          <h4 class="text-white font-semibold mb-4">Connect</h4>
-          <div class="flex space-x-4 mb-4">
-            <a href="#" class="text-gray-400 hover:text-[#9ad34d] transition"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="text-gray-400 hover:text-[#9ad34d] transition"><i class="fab fa-twitter"></i></a>
-            <a href="https://www.instagram.com/stark_4152" class="text-gray-400 hover:text-[#9ad34d] transition"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#9ad34d] transition"><i class="fab fa-youtube"></i></a>
-          </div>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white text-sm py-2 px-4 rounded-full transition">
-          </button>
-        </div>
-      </div>
-      <div class="border-t border-gray-800 mt-8 pt-6 text-center">
-      </div>
-    </div>
-  </footer>
-
-  <!-- Playback Modal (preserved from original file) -->
-  <div id="playback-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-90 transition-opacity duration-300">
-    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden shadow-2xl transform transition-all duration-300 scale-95">
-      <button id="close-modal" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2 transition">
+  <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2">
         <i class="fas fa-times"></i>
       </button>
-      
-      <div class="relative">
-        <div id="modal-player">
-          <video id="modal-video" class="w-full" controls playsinline>
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        <div id="video-progress" class="progress-bar w-full">
-          <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
-        </div>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <!-- video or iframe injected here -->
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       </div>
-      
-      <div class="p-6">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h3 id="modal-title" class="text-2xl font-bold mb-1"></h3>
-            <div class="flex items-center text-gray-400 text-sm">
-              <span id="modal-season-ep">S1 • E1</span>
-              <span class="mx-2">•</span>
-              <span id="modal-duration">45 min</span>
-            </div>
-          </div>
-          <label class="watchlist-checkbox">
-            <input type="checkbox" id="watchlist-checkbox">
-            <span class="checkmark"></span>
-          </label>
+
+      <div class="player-meta">
+        <div class="meta-left">
+          <h3 id="modalTitle">Episode Title</h3>
+          <p id="modalDesc" class="text-sm">Episode description will appear here.</p>
         </div>
-        
-        <p id="modal-description" class="text-gray-300 mb-6">Loading description...</p>
-        
-        <div class="flex space-x-3">
-          <button id="play-btn" class="bg-[#9ad34d] hover:bg-[#8fcf3a] text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-play mr-2"></i> Play
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-info-circle mr-2"></i> Details
-          </button>
+        <div class="controls-row">
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
         </div>
       </div>
     </div>
@@ -305,12 +251,14 @@
   </div>
 
   <script>
-    /* ------------------------
-       LOKI episodes data (dummy URLs)
-       ------------------------ */
-    const movies = [
-      // Season 1 (6 eps)
-      {
+// ========================
+// SEASON SELECTOR + DATA
+// ========================
+
+// Quantum Leap (2022) – Season 1 & 2
+const movies = [
+    // ------- SEASON 1 -------
+    {
     title: "War and Peace",
     video: "https://sipt.pavonilaboratories.cyou/v4/db/da6fg/index-f2-v1-a1.txt",        // ← insert link
     image: "https://images.slivcdn.com/videoasset_images/rocketboysmain_landscape_image.jpg?h=398&w=708&q=high",        // ← insert image URL
@@ -475,163 +423,265 @@
 ];
 
     /* ------------------------
-       DOM references & preserved functions from original file
+       Modal / playback implementation (Illumination-style)
        ------------------------ */
-    const container = document.getElementById('movies');
-    const searchBtn = document.getElementById('search-btn');
-    const searchBar = document.getElementById('search-bar');
-    const themeToggle = document.getElementById('theme-toggle');
-    const watchlistBtn = document.getElementById('watchlist-btn');
-    const watchlistDropdown = document.getElementById('watchlist-dropdown');
-    const watchlistItems = document.getElementById('watchlist-items');
-    const playbackModal = document.getElementById('playback-modal');
-    const closeModal = document.getElementById('close-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDescription = document.getElementById('modal-description');
-    const episodeNum = document.getElementById('modal-season-ep');
-    const modalDuration = document.getElementById('modal-duration');
-    const playBtn = document.getElementById('play-btn');
-    const watchlistCheckbox = document.getElementById('watchlist-checkbox');
-    const progressBarFill = document.getElementById('progress-bar-fill');
-    const scrollDownBtn = document.getElementById('scroll-down');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const seasonBtns = document.querySelectorAll('.season-btn');
-    const modalPlayer = document.getElementById('modal-player');
-    const globalSearch = document.getElementById('global-search');
-    let currentHls = null;
-    let currentMovieIndex = null;
+    const playerWrapper = document.getElementById('playerWrapper');
+    const playbackModal = document.getElementById('playbackModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
 
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+    function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
     function isHls(u) {
       if (!u) return false;
-      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
+      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master');
     }
-    function isMP4(u) { return /\.mp4($|\?)/i.test(u || ''); }
-    function isYouTube(u) { return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('/embed/'))); }
+    function isYouTube(u) {
+      if (!u) return false;
+      return u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/');
+    }
 
     function resetPlayerContainer() {
-      if (currentHls) { try { currentHls.destroy(); } catch(e) {} currentHls = null; }
-      modalPlayer.innerHTML = `<video id="modal-video" class="w-full" controls playsinline>Your browser does not support the video tag.</video>`;
-      attachVideoListeners();
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
     }
 
-    function closeModalHandler() {
-      const videoEl = document.getElementById('modal-video');
-      if (currentHls) { try { currentHls.destroy(); } catch (e) {} currentHls = null; }
-      if (videoEl) { try { videoEl.pause(); } catch(e) {} try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e) {} }
-      resetPlayerContainer();
-      playbackModal.classList.add('hidden');
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
       document.body.style.overflow = '';
-      currentMovieIndex = null;
-      playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
-      progressBarFill.style.width = '0%';
     }
 
-    function playInModal(title, url, movieObj) {
-      currentMovieIndex = movies.indexOf(movieObj);
-      modalTitle.textContent = movieObj.title;
-      modalDescription.textContent = movieObj.description || '';
-      episodeNum.textContent = `S${movieObj.season} • E${movieObj.episode}`;
-      modalDuration.textContent = movieObj.duration || '';
-      watchlistCheckbox.checked = !!movieObj.inWatchlist;
-      progressBarFill.style.width = '0%';
-      resetPlayerContainer();
+    function showError(msg) { console.warn(msg); }
 
-      if (!url) {
-        modalTitle.textContent = title + ' — No playable URL provided';
-        playbackModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
+        showError('Invalid playback request');
         return;
       }
+      currentFiltered = list;
+      currentIndex = index;
+      const item = list[index];
+      if (!item) { showError('Missing item'); return; }
+
+      modalTitle.textContent = item.title || '';
+      modalDesc.textContent = item.description || '';
+
+      resetPlayerContainer();
+      showModal();
+
+      // pick source
+      let src = '';
+      if (typeof item.video === 'object' && item.video !== null) {
+        src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
+      } else {
+        src = item.video;
+      }
+      if (!src) {
+        showError('No video url');
+        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=`, 500);
+        return;
+      }
+
+      const lc = (src||'').toLowerCase();
 
       // iframe hosts
-      if (url.includes('streamtape.com') || url.includes('openload') || url.includes('dood')) {
-        modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
-        playbackModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        loadingSpinner.classList.add('hidden');
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
       }
 
-      // YouTube
-      if (isYouTube(url)) {
-        let embedUrl = url;
+      // youtube
+      if (isYouTube(src)) {
+        let embed = src;
         try {
-          if (url.includes('watch') && url.includes('v=')) {
-            const vid = new URLSearchParams(url.split('?')[1]).get('v');
-            if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
-          } else if (url.includes('youtu.be/')) {
-            const parts = url.split('youtu.be/');
-            if (parts[1]) {
-              const vid = parts[1].split(/[?&]/)[0];
-              embedUrl = `https://www.youtube.com/embed/${vid}`;
-            }
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
           }
         } catch(e){}
-        modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
-        playbackModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        loadingSpinner.classList.add('hidden');
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
       }
 
-      const videoEl = document.getElementById('modal-video');
-
       // HLS
-      if (isHls(url)) {
+      if (isHls(src)) {
+        const v = document.getElementById('modalVideo');
+        if (!v) { showError('Video element missing'); return; }
         if (window.Hls && Hls.isSupported()) {
           currentHls = new Hls();
-          currentHls.loadSource(url);
-          currentHls.attachMedia(videoEl);
-          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-            playbackModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            loadingSpinner.classList.add('hidden');
-            videoEl.play().catch(()=>{});
+          try {
+            currentHls.loadSource(src);
+            currentHls.attachMedia(v);
+          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
           });
+          currentHls.on(Hls.Events.ERROR, function(event, data) {
+            console.warn('HLS error', data);
+            if (data && data.fatal) {
+              try { currentHls.destroy(); } catch(e){}
+              currentHls = null;
+              showError('HLS fatal error — redirecting to player.html');
+              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+            }
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         } else {
-          videoEl.src = url;
-          playbackModal.classList.remove('hidden');
-          document.body.style.overflow = 'hidden';
-          loadingSpinner.classList.add('hidden');
-          videoEl.play().catch(()=>{});
+          showError('HLS not supported — redirecting to player.html');
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
         }
         return;
       }
 
       // MP4
-      if (isMP4(url)) {
-        videoEl.src = url;
-        playbackModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        loadingSpinner.classList.add('hidden');
-        videoEl.play().catch(()=>{});
+      if (isMP4(src)) {
+        const v = document.getElementById('modalVideo');
+        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
       }
 
-      // Fallback
-      loadingSpinner.classList.add('hidden');
-      window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
+      // fallback
+      window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
+    /* Controls */
+    function togglePlayPause() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return showError('No current video');
+      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+      else showError('No next video');
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return showError('No current video');
+      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+      else showError('No previous video');
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    /* Close modal & cleanup */
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById('modalVideo');
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+    }
+
+    /* Events wiring */
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+
+    closeModalBtn.addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
+    });
+
+    // Keyboard shortcuts when modal active
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
+        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+        case 'n': playNext(); break;
+        case 'p': playPrev(); break;
+      }
+    });
+
+    /* Attach video timeupdate/ended listeners */
     function attachVideoListeners() {
-      const videoEl = document.getElementById('modal-video');
-      if (!videoEl) return;
-      videoEl.removeEventListener('timeupdate', videoTimeUpdateHandler);
-      videoEl.addEventListener('timeupdate', videoTimeUpdateHandler);
-      videoEl.removeEventListener('ended', videoEndedHandler);
-      videoEl.addEventListener('ended', videoEndedHandler);
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.removeEventListener('timeupdate', onTimeUpdate);
+      v.addEventListener('timeupdate', onTimeUpdate);
+      v.removeEventListener('ended', onEnded);
+      v.addEventListener('ended', onEnded);
     }
-    function videoTimeUpdateHandler() {
-      const videoEl = document.getElementById('modal-video');
-      if (!videoEl || !videoEl.duration) return;
-      const progress = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = progress + '%';
+    function onTimeUpdate() {
+      // If the original progress bar exists, update it (preserved element)
+      const progressBarFill = document.getElementById('progress-bar-fill');
+      const videoEl = document.getElementById('modalVideo');
+      if (!progressBarFill || !videoEl || !videoEl.duration) return;
+      const p = (videoEl.currentTime / videoEl.duration) * 100;
+      progressBarFill.style.width = p + '%';
     }
-    function videoEndedHandler() {
-      playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
+    function onEnded() {
+      const playBtn = document.getElementById('play-btn') || playPauseBtn;
+      if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
     }
 
-    /* renderMovies: creates the episode cards from a list */
+    /* Render episodes grid (wired to openPlayer) */
+    const container = document.getElementById('movies');
     function renderMovies(list) {
       container.innerHTML = '';
       list.forEach((movie, index) => {
@@ -664,21 +714,23 @@
           </div>
         `;
         card.addEventListener('click', () => {
-          loadingSpinner.classList.remove('hidden');
-          playInModal(movie.title, movie.video, movie);
+          // show loading spinner while resolving
+          const loadingSpinner = document.getElementById('loading-spinner');
+          if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+          // open with the full current list and index
+          openPlayer(list, index);
+          // attach listeners for the video element (a bit delayed to allow element to exist)
+          setTimeout(()=> attachVideoListeners(), 200);
+          if (loadingSpinner) loadingSpinner.classList.add('hidden');
         });
         container.appendChild(card);
       });
     }
 
-    /* ------------------------
-       Init page (w/ season filtering wired up)
-       ------------------------ */
+    /* Init page (season filtering wired up) */
     function initPage() {
-      // Default: render all
       renderMovies(movies);
 
-      // Filter buttons (visual only as before)
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
@@ -686,14 +738,12 @@
         });
       });
 
-      // Season buttons: now filter content (preserve active styling)
+      // Season buttons: filter content
+      const seasonBtns = document.querySelectorAll('.season-btn');
       seasonBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-          // remove active classes on season buttons
           seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
-          // set this as active
           this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-
           const season = this.dataset.season;
           let filtered;
           if (!season || season === 'all') filtered = movies;
@@ -702,12 +752,36 @@
         });
       });
 
-      // Watchlist initial render
+      // Play All behavior (starts at first)
+      const playAllBtn = document.getElementById('play-all');
+      if (playAllBtn) {
+        playAllBtn.addEventListener('click', () => {
+          openPlayer(movies, 0);
+          setTimeout(()=> attachVideoListeners(), 200);
+        });
+      }
+
+      // Global search wiring
+      const globalSearch = document.getElementById('global-search');
+      if (globalSearch) {
+        globalSearch.addEventListener('input', (e) => {
+          const q = e.target.value.trim().toLowerCase();
+          const activeSeasonBtn = document.querySelector('.season-btn.active');
+          const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+          let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+          if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
+          renderMovies(list);
+        });
+      }
+
+      // Watchlist UI wiring preserved
       updateWatchlist();
     }
 
     /* Watchlist functions (preserved) */
+    const watchlistItems = document.getElementById('watchlist-items');
     function updateWatchlist() {
+      if (!watchlistItems) return;
       watchlistItems.innerHTML = '';
       const watchlistMovies = movies.filter(m => m.inWatchlist);
       if (watchlistMovies.length === 0) {
@@ -732,9 +806,8 @@
           removeFromWatchlist(index);
         });
         item.addEventListener('click', () => {
-          loadingSpinner.classList.remove('hidden');
-          playInModal(movie.title, movie.video, movie);
-          watchlistDropdown.classList.add('hidden');
+          openPlayer(movies, index);
+          document.getElementById('watchlist-dropdown').classList.add('hidden');
         });
         watchlistItems.appendChild(item);
       });
@@ -743,6 +816,14 @@
     function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
 
     /* preserved UI event wiring (search, theme, watchlist, modal controls) */
+    const containerEl = document.getElementById('movies');
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const themeToggle = document.getElementById('theme-toggle');
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+    const closeModal = document.getElementById('close-modal');
+
     searchBtn.addEventListener('click', () => {
       searchBar.classList.toggle('hidden');
       watchlistDropdown.classList.add('hidden');
@@ -765,45 +846,23 @@
       } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
     });
 
-    closeModal.addEventListener('click', closeModalHandler);
-    playbackModal.addEventListener('click', function(e) { if (e.target === this) closeModalHandler(); });
+    // close modal by clicking background already wired above via playbackModal click
 
-    playBtn.addEventListener('click', () => {
-      const videoEl = document.getElementById('modal-video');
-      if (!videoEl) return;
-      if (videoEl.paused) { videoEl.play(); playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause'; }
-      else { videoEl.pause(); playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play'; }
-    });
-
-    watchlistCheckbox.addEventListener('change', function() {
-      if (currentMovieIndex == null) return;
-      if (this.checked) addToWatchlist(currentMovieIndex); else removeFromWatchlist(currentMovieIndex);
-    });
-
-    scrollDownBtn.addEventListener('click', () => {
-      window.scrollTo({ top: document.querySelector('#movies').offsetTop - 20, behavior: 'smooth' });
-    });
-
+    // watchlist close on outside click & search close
     document.addEventListener('click', (e) => {
       if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
       if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
     });
 
-    // Global search at top (filters current season / all)
-    globalSearch && globalSearch.addEventListener('input', (e) => {
-      const q = e.target.value.trim().toLowerCase();
-      const activeSeasonBtn = document.querySelector('.season-btn.active');
-      const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
-      let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
-      if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
-      renderMovies(list);
+    // attach video listeners placeholder (modal video element created on demand)
+    function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
+
+    // init on DOMContentLoaded
+    window.addEventListener('DOMContentLoaded', () => {
+      initPage();
+      // ensure modal close button works
+      document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
     });
-
-    // attach video listeners initially
-    attachVideoListeners();
-
-    // kickoff
-    window.addEventListener('DOMContentLoaded', initPage);
   </script>
   <!-- ============================= -->
 <!--     ADSTERAA GLOBAL BLOCK     -->
