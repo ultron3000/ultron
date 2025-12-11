@@ -131,18 +131,17 @@
     }
     .modal-backdrop.active { display:flex; }
     .modal-card { 
-  width: 100%;
-  height: 100%;
-  max-width: 980px;
-  max-height: 90vh;
-  border-radius: 0;
-  /* allow controls to be visible if they extend slightly */
-  overflow: visible;
-  background: #0b1220;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
-  display: flex;
-  flex-direction: column;
-}
+      width: 100%;
+      height: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      border-radius: 0;
+      overflow: hidden;
+      background: #0b1220;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+    }
     .player-wrapper { 
       position: relative;
       flex: 1;
@@ -240,16 +239,15 @@
     /* Responsive adjustments */
     @media (min-width: 768px) {
       .modal-card {
-    width: 100%;
-    max-width: 1100px; /* more space for controls */
-    max-height: 85vh;
-}
+        width: 92%;
+        height: auto;
+        border-radius: 12px;
+        max-height: 80vh;
+      }
       .player-wrapper {
-  padding-bottom: 56.25%; /* keep 16:9 ratio */
-  height: auto;           /* allow flexbox to size properly */
-  flex: 1 1 auto;         /* allow the player to shrink/grow with modal */
-  min-height: 280px;      /* ensures reasonable height on narrow desktops */
-}
+        padding-bottom: 56.25%;
+        height: 0;
+      }
       .player-meta {
         flex-direction: row;
         justify-content: space-between;
@@ -259,15 +257,14 @@
         max-width: 65%;
       }
       .controls-row {
-    flex-wrap: wrap;        /* allow buttons to go on second line */
-    justify-content: center; /* center them */
-    gap: 12px;               /* spacing so each button is clean */
-}
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+      }
       .btn {
-    flex: unset;          /* allow natural width */
-    min-width: 90px;      /* ensure buttons stay visible */
-    padding: 10px 16px;   /* better spacing */
-}
+        flex: 0;
+        min-width: auto;
+        padding: 8px 12px;
+      }
       #topCloseBtn {
         opacity: 0;
       }
@@ -290,106 +287,54 @@
     /* Modal legacy styles (unused) */
     .modal-overlay { display:none; }
     /* ============================
-   FINAL MODAL PLAYER FIX PATCH
+   DESKTOP FIX — DOES NOT TOUCH MOBILE
    ============================ */
 
-/* Fix modal clipping + allow space for controls */
-.modal-card { 
-  width: 100%;
-  height: 100%;
-  max-width: 1100px;     /* More horizontal space */
-  max-height: 90vh;
-  border-radius: 0;
-  overflow: visible;      /* Prevent controls clipping */
-  background: #0b1220;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
-  display: flex;
-  flex-direction: column;
-}
-
-/* Ensure controls appear above video */
-.player-meta {
-  position: relative;
-  z-index: 12;
-  background: linear-gradient(
-      180deg,
-      rgba(11, 18, 32, 0.0) 0%,
-      rgba(11, 18, 32, 0.95) 100%
-  );
-}
-
-/* Stronger layout for controls in all modes */
-.controls-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px !important;
-}
-
-/* Prevent video from pushing controls out */
-.player-wrapper {
-  position: relative;
-  background: #000;
-  min-height: 260px; /* ensures vertical room */
-}
-
-/* DESKTOP FIXES */
 @media (min-width: 768px) {
 
-  .modal-card {
-    width: 92%;
-    height: auto;
-    border-radius: 12px;
-    max-height: 85vh;   /* the optional fix you needed */
-    overflow: visible;
-  }
-
+  /* Fix video height so it doesn't cover controls */
   .player-wrapper {
-    padding-bottom: 56.25%; /* maintain 16:9 */
-    height: auto;           
-    flex: 1 1 auto;       
-    min-height: 320px;      /* extra breathing room */
+    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
+    height: auto !important;
+    max-height: 60vh !important;       /* safe video height */
+    position: relative !important;
   }
 
+  /* Ensure iframe/video stays inside wrapper */
+  .player-wrapper video,
+  .player-wrapper iframe {
+    height: 100% !important;
+    max-height: 60vh !important;
+    position: relative !important;
+  }
+
+  /* Make sure controls are ALWAYS visible above video */
   .player-meta {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
+    position: relative !important;
+    z-index: 100 !important;
+    background: #0b1220 !important;      /* solid background for visibility */
+    padding-top: 10px !important;
   }
 
-  .player-meta .meta-left {
-    max-width: 65%;
-  }
-
+  /* Controls row layout */
   .controls-row {
-    flex-wrap: wrap;         /* allow 2 lines if needed */
-    justify-content: flex-end;
-    gap: 12px;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 12px !important;
   }
 
+  /* Buttons behave normally */
   .btn {
-    flex: unset;
-    min-width: 95px;        /* ensures proper visibility */
-    padding: 10px 16px;
+    min-width: 95px !important;
+    padding: 10px 16px !important;
+    flex: unset !important;
   }
 
-  #topCloseBtn {
-    opacity: 0;
-  }
-  .player-wrapper:hover #topCloseBtn {
-    opacity: 1;
-  }
-}
-
-/* MOBILE FIX (keep icons when text removed) */
-@media (max-width: 480px) {
-  .btn {
-    padding: 8px;
-    font-size: 0; /* hide text on mobile */
-  }
-  .btn i {
-    font-size: 1rem;
-    margin: 0 !important;
+  /* Modal height adjustment to fit everything */
+  .modal-card {
+    max-height: 85vh !important;
+    overflow: visible !important;
   }
 }
 
