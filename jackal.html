@@ -106,7 +106,57 @@
     opacity: 1 !important;
   }
 }
+/* ============================
+   DESKTOP FIX — DOES NOT TOUCH MOBILE
+   ============================ */
 
+@media (min-width: 768px) {
+
+  /* Fix video height so it doesn't cover controls */
+  .player-wrapper {
+    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
+    height: auto !important;
+    max-height: 60vh !important;       /* safe video height */
+    position: relative !important;
+  }
+
+  /* Ensure iframe/video stays inside wrapper */
+  .player-wrapper video,
+  .player-wrapper iframe {
+    height: 100% !important;
+    max-height: 60vh !important;
+    position: relative !important;
+  }
+
+  /* Make sure controls are ALWAYS visible above video */
+  .player-meta {
+    position: relative !important;
+    z-index: 100 !important;
+    background: #0b1220 !important;      /* solid background for visibility */
+    padding-top: 10px !important;
+  }
+
+  /* Controls row layout */
+  .controls-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 12px !important;
+  }
+
+  /* Buttons behave normally */
+  .btn {
+    min-width: 95px !important;
+    padding: 10px 16px !important;
+    flex: unset !important;
+  }
+
+  /* Modal height adjustment to fit everything */
+  .modal-card {
+    max-height: 85vh !important;
+    overflow: visible !important;
+  }
+}
   </style>
 </head>
 
@@ -263,7 +313,6 @@
           <button id="nextBtn" class="btn" title="Next"><i class="fas fa-step-forward"></i></button>
           <button id="muteBtn" class="btn" title="Mute"><i class="fas fa-volume-up"></i></button>
           <button id="fullscreenBtn" class="btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
-          <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
         </div>
       </div>
     </div>
