@@ -118,35 +118,170 @@
     .delay-300 { animation-delay: 0.3s; }
     .delay-400 { animation-delay: 0.4s; }
     
-    /* Illumination modal styles (keeps modal look consistent) */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    /* Illumination modal styles (responsive) */
+    .modal-backdrop { 
+      position:fixed; 
+      inset:0; 
+      background: rgba(0,0,0,0.9); 
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index:9999; 
+      padding: 0;
+    }
     .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
-    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
-    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      border-radius: 0;
+      overflow: hidden;
+      background: #0b1220;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+    }
+    .player-wrapper { 
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #000;
+    }
+    #topCloseBtn { 
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: all 0.2s ease;
+    }
+    #topCloseBtn:hover {
+      background: rgba(0,0,0,0.9);
+      transform: scale(1.1);
+    }
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
 
-    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
-    .player-meta .meta-left { max-width:65%; }
-    .player-meta h3 { margin:0; font-size:1.125rem; }
-    .player-meta p { margin:6px 0 0 0; color:var(--muted); font-size:0.92rem; }
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+      color: #ddd;
+      background: #0b1220;
+    }
+    .player-meta .meta-left { 
+      width: 100%;
+    }
+    .player-meta h3 { 
+      margin: 0;
+      font-size: 1.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .player-meta p { 
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-    .controls-row { display:flex; gap:8px; align-items:center; }
+    .controls-row { 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
 
     .btn {
-      background:transparent; border:1px solid var(--primary); color:var(--primary);
-      padding:8px 12px; border-radius:8px; cursor:pointer;
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 60px;
+      flex: 1;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
-    .btn:hover { background: rgba(254,209,65,0.06); }
+    .btn:hover { 
+      background: rgba(254,209,65,0.06); 
+    }
+    .btn i {
+      font-size: 1rem;
+    }
 
-    .hidden { display:none; }
+    /* Responsive adjustments */
+    @media (min-width: 768px) {
+      .modal-card {
+        width: 92%;
+        height: auto;
+        border-radius: 12px;
+        max-height: 80vh;
+      }
+      .player-wrapper {
+        padding-bottom: 56.25%;
+        height: 0;
+      }
+      .player-meta {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .player-meta .meta-left {
+        max-width: 65%;
+      }
+      .controls-row {
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+      }
+      .btn {
+        flex: 0;
+        min-width: auto;
+        padding: 8px 12px;
+      }
+      #topCloseBtn {
+        opacity: 0;
+      }
+      .player-wrapper:hover #topCloseBtn {
+        opacity: 1;
+      }
+    }
 
-    /* Modal original close button kept hidden (we rely on backdrop & controls) */
-    .modal-close { display:none; }
-
-    /* Modal header fallback for small screens */
-    @media(max-width:640px){
-      .player-meta .meta-left { max-width:55%; }
-      .btn { padding:6px 8px; font-size:0.9rem; }
+    @media (max-width: 480px) {
+      .btn {
+        padding: 8px;
+        font-size: 0;
+      }
+      .btn i {
+        font-size: 1rem;
+        margin: 0 !important;
+      }
     }
 
     /* Modal legacy styles (unused) */
@@ -214,7 +349,7 @@
     <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
     <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
     <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
   </div>
 </div>
 
@@ -224,6 +359,9 @@
     <div class="player-wrapper" id="playerWrapper">
       <!-- video or iframe injected here -->
       <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
+        <i class="fas fa-times text-xl"></i>
+      </button>
     </div>
 
     <div class="player-meta">
@@ -237,6 +375,7 @@
         <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
         <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
         <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
       </div>
     </div>
   </div>
@@ -247,7 +386,7 @@
      * Existing movies array (unchanged)
      ******************************/
     const movies = [
-      { title: "The Bad Guys", video: "https://i60k6cbfsa8z.silverpeakenterprises.online/m2q5ea5w42hk/hls3/01/00413/kmvuvksfdpk4_h/master.txt", image: "https://olathelibrary.librarycalendar.com/sites/default/files/2023-01/gdc101730_1_8452.jpg", categories: ["all"] },
+    { title: "The Bad Guys", video: "https://i60k6cbfsa8z.silverpeakenterprises.online/m2q5ea5w42hk/hls3/01/00413/kmvuvksfdpk4_h/master.txt", image: "https://olathelibrary.librarycalendar.com/sites/default/files/2023-01/gdc101730_1_8452.jpg", categories: ["all"] },
       { title: "The Bad Guys 2", video: "https://p.10014.workers.dev:443/hailmist36.pro/file2/GLsw5nZMVXMnmVa5AUAxaWtVESz8QaSz0iij4vPmlppMQuj7Y2c12k0gCqOjOFfI2toVjIjAV~GG3QOH0AUFiNrehZG7E4cnLYmR0WPd55N12bjhuXLgEAkzYeIw+BIrSkxNpYJesSV9HwPfe6e+kV7ftvyE5zrGFmbe7Nc8dOg=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://image.tmdb.org/t/p/original/c1msaKf1wyuKcmLjjJd6rIBPFcd.jpg", categories: ["all"] },
       { title: "The Bad Guys: A Very Bad Holiday", video: "https://sedrfmwrpjxatem5.bluehaveninteractive.online/3wegyoxZ9JubI3z/hls3/01/03257/0ggxlzk9g22d_,n,h,.urlset/master.txt", image: "https://media.themoviedb.org/t/p/w500/er0Gth3Tr279hFq1xeKdYxhcleO.jpg", categories: ["all"] },
       { title: "The Bad Guys: Haunted Heist", video: "https://sdqm.virelodesignagency.cyou/v4/us/39iv9/cf-master.txt?v=1736730542", image: "https://m.media-amazon.com/images/M/MV5BZDQ0NTRkNGMtMDM2NS00ZTkxLWE3NWYtNzE3MTQ4YTg4Njg2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", categories: ["all"] },
@@ -489,6 +628,8 @@
     prevBtn.addEventListener('click', playPrev);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
 
     // close by clicking outside
     playbackModal.addEventListener('click', function(e){
