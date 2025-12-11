@@ -131,17 +131,18 @@
     }
     .modal-backdrop.active { display:flex; }
     .modal-card { 
-      width: 100%;
-      height: 100%;
-      max-width: 980px;
-      max-height: 90vh;
-      border-radius: 0;
-      overflow: hidden;
-      background: #0b1220;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
-      display: flex;
-      flex-direction: column;
-    }
+  width: 100%;
+  height: 100%;
+  max-width: 980px;
+  max-height: 90vh;
+  border-radius: 0;
+  /* allow controls to be visible if they extend slightly */
+  overflow: visible;
+  background: #0b1220;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+}
     .player-wrapper { 
       position: relative;
       flex: 1;
@@ -244,9 +245,11 @@
     max-height: 85vh;
 }
       .player-wrapper {
-        padding-bottom: 56.25%;
-        height: 0;
-      }
+  padding-bottom: 56.25%; /* keep 16:9 ratio */
+  height: auto;           /* allow flexbox to size properly */
+  flex: 1 1 auto;         /* allow the player to shrink/grow with modal */
+  min-height: 280px;      /* ensures reasonable height on narrow desktops */
+}
       .player-meta {
         flex-direction: row;
         justify-content: space-between;
