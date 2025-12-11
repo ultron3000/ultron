@@ -123,6 +123,8 @@
     .modal-backdrop.active { display:flex; }
     .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
     .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    #topCloseBtn { opacity: 0; transition: opacity 0.3s ease; }
+    .player-wrapper:hover #topCloseBtn { opacity: 1; }
     .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
 
     .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
@@ -224,6 +226,9 @@
     <div class="player-wrapper" id="playerWrapper">
       <!-- video or iframe injected here -->
       <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
+        <i class="fas fa-times text-xl"></i>
+      </button>
     </div>
 
     <div class="player-meta">
@@ -237,6 +242,7 @@
         <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
         <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
         <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
       </div>
     </div>
   </div>
@@ -507,6 +513,8 @@
     prevBtn.addEventListener('click', playPrev);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
 
     // close by clicking outside
     playbackModal.addEventListener('click', function(e){
