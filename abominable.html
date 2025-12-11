@@ -85,20 +85,83 @@
       .player-meta .meta-left { max-width:55%; }
       .btn { padding:6px 8px; font-size:0.9rem; }
     }
+    /* ============================
+   MOBILE FIX — DOES NOT TOUCH DESKTOP
+   ============================ */
+
+@media (max-width: 767px) {
+
+  /* Proper mobile player layout (matches your working version) */
+  .player-wrapper {
+    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
+    height: 0 !important;
+    position: relative !important;
+  }
+
+  .player-wrapper video,
+  .player-wrapper iframe {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Proper stacked mobile controls */
+  .player-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    background: #0b1220 !important;
+    z-index: 20 !important;
+  }
+
+  /* Mobile control row wraps properly */
+  .controls-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 10px !important;
+  }
+
+  /* Mobile buttons use icon-only layout */
+  .btn {
+    padding: 8px !important;
+    font-size: 0 !important;      /* hides text on mobile */
+    min-width: 48px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .btn i {
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+  }
+
+  /* Close button always visible on mobile */
+  #topCloseBtn {
+    opacity: 1 !important;
+  }
+}
+
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
   <!-- Header -->
   <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
-         <i class="fas fa-otter text-black text-xl"></i>
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
+        <i class="fas fa-mountain text-black text-xl"></i>
+<i class="fas fa-paw text-black text-xl"></i>
+<i class="fas fa-icicles text-black text-xl"></i>
         </div>
-        <h1 class="text-2xl font-bold gradient-text marvel-font tracking-wide">Abominable and the Invisible City</h1>
+        <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">Abominable and the Invisible City</h1>
       </div>
       
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2 sm:space-x-4">
         <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
           <i class="fas fa-bookmark loki-accent"></i>
           <span class="tooltip-text">My Watchlist</span>
@@ -141,32 +204,32 @@
     <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
     
-    <div class="relative w-full h-[400px] md:h-[500px] overflow-hidden">
+    <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
       <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
         <!-- Loki hero trailer (YouTube embed) -->
         <iframe
-          src="https://www.youtube.com/embed/ecSb3wMUPEQ?autoplay=1&mute=1&controls=0&loop=1&playlist=ecSb3wMUPEQ"
+          src="https://www.youtube.com/embed/ecSb3wMUPEQ?autoplay=1&mute=1&loop=1&playlist=ecSb3wMUPEQ&controls=0&modestbranding=1"
           frameborder="0"
           allow="autoplay; fullscreen"
           class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         ></iframe>
       </div>
       
-      <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
-        <div class="flex items-center mb-2">
-          <span class="bg-[#9ad34d] text-black text-xs font-bold px-2 py-1 rounded mr-2"></span>
-          <span class="text-[#9ad34d] text-sm">Seasons 1-2</span>
+      <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
+        <div class="flex items-center mb-1 sm:mb-2">
+          <span class="bg-[#9ad34d] text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2"></span>
+          <span class="text-[#9ad34d] text-xs sm:text-sm">Seasons 1-2</span>
         </div>
-        <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text marvel-font tracking-wide">Abominable and the Invisible City</h2>
-        <div class="flex items-center mb-4">
-          <div class="flex items-center mr-4">
-            <i class="fas fa-star loki-accent mr-1"></i>
-            <span class="text-white">6.6</span>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">Abominable and the Invisible City</h2>
+        <div class="flex items-center mb-2 sm:mb-4">
+          <div class="flex items-center mr-2 sm:mr-4">
+            <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
+            <span class="text-white text-xs sm:text-sm">7.3</span>
           </div>
-          <span class="text-gray-300 text-sm mr-4">TV-Y7</span>
+          <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV Series</span>
         </div>
-        <p class="text-gray-300 mb-4 max-w-lg text-sm md:text-base">The yeti, Yi, Jin and Peng are back to discover the magical world outside</p>
-        <div class="flex space-x-3">
+        <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">The yeti, Yi, Jin and Peng are back to discover the magical world outside.</p>
+        <div class="flex space-x-2 sm:space-x-3">
           <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
             <i class="fas fa-play mr-2"></i> Play All
           </button>
@@ -185,15 +248,18 @@
 </main>
 
     <!-- Season Navigation -->
-    <div class="flex items-center justify-between mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
-      <h3 class="text-xl font-semibold flex items-center">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
+      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
         <i class="fas fa-tv loki-accent mr-2"></i>
         <span class="marvel-font">EPISODES</span>
       </h3>
-      <div class="flex items-center space-x-2">
-        <button class="season-btn active bg-[#9ad34d] text-black px-3 py-1 rounded-full text-xs font-medium" data-season="all">All Seasons</button>
-        <button class="season-btn bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded-full text-xs font-medium" data-season="1">Season 1</button>
-        <button class="season-btn bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded-full text-xs font-medium" data-season="2">Season 2</button>
+      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max">
+          <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
+          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
+          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="2">Season 2</button>
+
+        </div>
       </div>
     </div>
 
@@ -203,7 +269,7 @@
 
     <!-- Episodes Grid -->
     <section class="container mx-auto px-4">
-      <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
         <!-- Movie cards inserted by JS -->
       </div>
     </section>
@@ -213,7 +279,7 @@
     <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
     <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
     <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
   </div>
 
   <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
@@ -238,7 +304,7 @@
           <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
           <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
           <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>>
         </div>
       </div>
     </div>
@@ -250,10 +316,14 @@
   </div>
 
   <script>
-    /* ------------- Keep existing episodes array UNCHANGED (per your request) ------------- */
-    const episodes = [
-    // Season 1 (10 eps) - season & episode properties included for UI
-    { title: "Everest Returns", season:1, episode:1, video:"https://sxic.marvellium.shop/v4/ty/gkzqg/index-f1-v1-a1.txt", image:"https://image.tmdb.org/t/p/w300/6nbWxjFYUtgcHTONJxOdifREupk.jpg", duration:"22 min", description:"While her mom and Nai Nai prepare for the grand opening of their family's dumpling shop, Yi, along with Jin and Peng, discover that Yi's violin has attracted a magical, bird-like creature, Fenghuang, who needs their help." },
+// ========================
+// SEASON SELECTOR + DATA
+// ========================
+
+// Quantum Leap (2022) – Season 1 & 2
+const movies = [
+      // Season 1 (6 eps)
+      { title: "Everest Returns", season:1, episode:1, video:"https://sxic.marvellium.shop/v4/ty/gkzqg/index-f1-v1-a1.txt", image:"https://image.tmdb.org/t/p/w300/6nbWxjFYUtgcHTONJxOdifREupk.jpg", duration:"22 min", description:"While her mom and Nai Nai prepare for the grand opening of their family's dumpling shop, Yi, along with Jin and Peng, discover that Yi's violin has attracted a magical, bird-like creature, Fenghuang, who needs their help." },
     { title: "Welcome Home, Everest!", season:1, episode:2, video:"https://sojg.vyntrixconsultancy.sbs/v4/m9/snxv8/index-f1-v1-a1.txt", image:"https://image.tmdb.org/t/p/w300/jSflAscdYKCjJgKtNxvk1vHNJjL.jpg", duration:"23 min", description:"Yi and the crew notice that Everest isn't looking too great; the crew tries everything to cool him down, even begging their old foe, Burnish, for help." },
     { title: "Sewer Koi and The Museum Heist", season:1, episode:3, video:"https://sskt.tavero.cyou:443/v4/ek/jw9gh/index-f2-v1-a1.txt", image:"https://image.tmdb.org/t/p/w300/ltqf9fDRdSg9Cc6D3LPDXlupuiC.jpg", duration:"21 min", description:"An earth-shaking rumble signals the arrival of a new creature, but Yi and Jin butt heads when each is convinced that they're the better team leader; the crew eventually discovers that a massive Sewer Koi is behind the earthquakes." },
     { title: "Peng vs. Peng", season:1, episode:4, video:"https://sh9f.dreamoraacademy.site/v4/m9/5xnp8/index-f1-v1-a1.txt", image:"https://image.tmdb.org/t/p/w300/jRHjPptIAFiMNUwV7INzGtmxqWl.jpg", duration:"22 min", description:"After a late-night sugar binge from Nai Nai's stash, Peng starts acting strangely." },
@@ -544,11 +614,11 @@
         card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
         card.innerHTML = `
           <div class="relative group overflow-hidden rounded-xl">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl">
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
               <div>
-                <h3 class="text-white font-semibold text-lg">${movie.title}</h3>
-                <p class="text-gray-300 text-sm">${movie.duration || ''}</p>
+                <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
+                <p class="text-gray-300 text-xs sm:text-sm">${movie.duration || ''}</p>
               </div>
             </div>
             <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
@@ -584,32 +654,28 @@
 
     /* Init page (season filtering wired up) */
     function initPage() {
-      renderMovies(episodes);
+      renderMovies(movies);
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
+          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+        });
+      });
 
       // Season buttons: filter content
       const seasonBtns = document.querySelectorAll('.season-btn');
       seasonBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => {
-            b.classList.remove('active', 'bg-[#9ad34d]', 'text-black');
-            b.classList.add('bg-gray-800', 'hover:bg-gray-700', 'text-white');
-          });
+          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
           this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-          this.classList.remove('bg-gray-800', 'hover:bg-gray-700', 'text-white');
-          
           const season = this.dataset.season;
           let filtered;
-          if (season === 'all') {
-            filtered = episodes;
-          } else {
-            filtered = episodes.filter(m => String(m.season) === String(season));
-          }
+          if (!season || season === 'all') filtered = movies;
+          else filtered = movies.filter(m => String(m.season) === String(season));
           renderMovies(filtered);
         });
       });
-
-      // Set first season button as active by default
-      document.querySelector('.season-btn[data-season="all"]').click();
 
       // Play All behavior (starts at first)
       const playAllBtn = document.getElementById('play-all');
@@ -723,6 +789,7 @@
       document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
     });
   </script>
+  
   <!-- ============================= -->
 <!--     ADSTERAA GLOBAL BLOCK     -->
 <!-- ============================= -->
