@@ -46,6 +46,67 @@
 
     #playerError { display:none; }
     #playerError.show { display:block; }
+    /* ============================
+   MOBILE FIX — DOES NOT TOUCH DESKTOP
+   ============================ */
+
+@media (max-width: 767px) {
+
+  /* Proper mobile player layout (matches your working version) */
+  .player-wrapper {
+    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
+    height: 0 !important;
+    position: relative !important;
+  }
+
+  .player-wrapper video,
+  .player-wrapper iframe {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Proper stacked mobile controls */
+  .player-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    background: #0b1220 !important;
+    z-index: 20 !important;
+  }
+
+  /* Mobile control row wraps properly */
+  .controls-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 10px !important;
+  }
+
+  /* Mobile buttons use icon-only layout */
+  .btn {
+    padding: 8px !important;
+    font-size: 0 !important;      /* hides text on mobile */
+    min-width: 48px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .btn i {
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+  }
+
+  /* Close button always visible on mobile */
+  #topCloseBtn {
+    opacity: 1 !important;
+  }
+}
+
   </style>
 </head>
 
@@ -202,6 +263,7 @@
           <button id="nextBtn" class="btn" title="Next"><i class="fas fa-step-forward"></i></button>
           <button id="muteBtn" class="btn" title="Mute"><i class="fas fa-volume-up"></i></button>
           <button id="fullscreenBtn" class="btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+          <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
         </div>
       </div>
     </div>
@@ -214,22 +276,22 @@
    * Data (unchanged as uploaded)
    ***************/
   const episodes = [
-    { title: "Episode 1", year: 2024, video: "https://queenselti.me/stream_675319c583556/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4749/1738838544749-h", runtime: "45 min", rating: "7.8/10", description: "When an elite assassin carries out his latest kill, it catches the attention of an intelligence officer, who starts to hunt him down." },
-    { title: "Episode 2", year: 2024, video: "https://queenselti.me/stream_67531a22891de/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4955/1738838544955-h", runtime: "45 min", rating: "8.1/10", description: "With his previous client backing out of payment, the Jackal's reputation is on the line, and he starts to plot his revenge." },
-    { title: "Episode 3", year: 2024, video: "https://queenselti.me/stream_67531aa7b1e83/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/5166/1738838545166-h", runtime: "45 min", rating: "8.3/10", description: "Armed with the knowledge of his wayward client's identity, the Jackal tracks him down in Munich, determined to settle the score." },
-    { title: "Episode 4", year: 2024, video: "https://queenselti.me/stream_67531b1359203/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/7180/1738838547180-h", runtime: "45 min", rating: "8.4/10", description: "His vengeance fulfilled, the Jackal flees Munich and tries to quell Nuria's suspicions. Bianca follows a new lead in her hunt." },
-    { title: "Episode 5", year: 2024, video: "https://queenselti.me/stream_67531bbd13437/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/6205/1738838546205-h", runtime: "45 min", rating: "8.7/10", description: "The Jackal visits Norman with a special commission, but with Bianca also tracking Norman down, she is starting to close in on him." },
-    { title: "Episode 6", year: 2024, video: "https://queenselti.me/stream_67531bfd9efbb/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/3306/1738838543306-h", runtime: "45 min", rating: "9.0/10", description: "Following his shoot-out with Bianca, the Jackal must escape his captors and regroup ahead of his hit on Ulle Dag Charles; Bianca tracks his trail of devastation through central Europe." },
-    { title: "Episode 7", year: 2024, video: "https://queenselti.me/stream_67531bfdd205d/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/1604/1738838541604-h", runtime: "45 min", rating: "8.5/10", description: "The Jackal and Bianca both descend on Tallinn in anticipation of UDC's announcement; with the venue in lockdown and Bianca closing in, the Jackal must use all his wiles as he prepares to take his shot." },
-    { title: "Episode 8", year: 2024, video: "https://queenselti.me/stream_67531d12e5508/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/8679/1738838538679-h", runtime: "45 min", rating: "8.2/10", description: "Emerging from the turmoil in Tallinn, the Jackal retreats into the shadows. Meanwhile, Bianca meticulously delves into the mysterious history of 'Duggan,' analyzing his experiences in Afghanistan to uncover potential new leads." },
-    { title: "Episode 9", year: 2024, video: "https://queenselti.me/stream_67531e5b44036/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4846/1738838534846-h", runtime: "45 min", rating: "8.2/10", description: "With the release of River imminent, UDC believes himself safe. As time runs out, the Jackal must use all his skills to reach his target." },
-    { title: "Episode 10", year: 2024, video: "https://queenselti.me/stream_675f00f2796fd/uwu.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4435/1738838534435-h", runtime: "45 min", rating: "8.2/10", description: "A wanted man, the Jackal is on the run and desperate to get back to Nuria, but Bianca is given one last shot to bring him to justice." }
+    { title: "Episode 1", year: 2024, video: "https://p.10014.workers.dev:443/frostveil88.live/file2/aqAq3zu97OJYKuIeujX5zo9zpwhT8hNU4zTtuzJsTUruMxxPCE6N69YJxdE+g7g631vwVmecLpRhTFZ6ZRcokx+UOYAtF3I8UgfvczlrDmpgq7skxWHxgP6xYxZP0COVSw2j8Eg4spwrKEF~jdZjVA==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4749/1738838544749-h", runtime: "45 min", rating: "7.8/10", description: "When an elite assassin carries out his latest kill, it catches the attention of an intelligence officer, who starts to hunt him down." },
+    { title: "Episode 2", year: 2024, video: "https://p.10014.workers.dev:443/hailmist36.pro/file2/uYNI9xPEpwbhFRzjHgqKiAF5gck80I+r89ApnMRtcJ7NZ7l2qn7LquI3MA9hXFr56AsAG8f0+ebiNvIhCT8G6QUC63yULIn2O5~QKPmP4bOrMoM0QzpbcN9R~WJvncL61oZ4YFO+dzi6gBjB2TvS~w==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4955/1738838544955-h", runtime: "45 min", rating: "8.1/10", description: "With his previous client backing out of payment, the Jackal's reputation is on the line, and he starts to plot his revenge." },
+    { title: "Episode 3", year: 2024, video: "https://p.10014.workers.dev:443/dewshine74.xyz/file2/xaG2YaYeq9RcKNYkRZIFdApWkDtZZ3r7EQ7yA0J73dmB~~FqqebldQLc87jObJuSeGW0A1eGDUSDd~~IJMMgSSF+oK1bSVp6qd+YuDgeQcmmQ~AI8Ow+3LWlh1lJb2rXgvlSJbw0SSYYXvSMv4YsXQ==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/5166/1738838545166-h", runtime: "45 min", rating: "8.3/10", description: "Armed with the knowledge of his wayward client's identity, the Jackal tracks him down in Munich, determined to settle the score." },
+    { title: "Episode 4", year: 2024, video: "https://p.10014.workers.dev:443/stormgleam42.xyz/file2/MBWfEmLX83hcs5iXqwXSk3uhSp1uvkccIfAmjq2yiK6itZvHudQgp1l6qsgyewoxQurbagRbofOcqVLxjrMqLj+BBH1k8CvsBBgf3tjmhDS3xnWvK0RqHkqkRQHHu1upOYrrxcoGAMTFhqKSbIMbAg==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/7180/1738838547180-h", runtime: "45 min", rating: "8.4/10", description: "His vengeance fulfilled, the Jackal flees Munich and tries to quell Nuria's suspicions. Bianca follows a new lead in her hunt." },
+    { title: "Episode 5", year: 2024, video: "https://p.10014.workers.dev:443/rainflare53.pro/file2/hKkjcA2vq3FH~+5bZea8KKSb0N6DVsqxJcB~4qr6k10+F+L7eUH3kz8gTQ4b~gKOmzSR3wwAFlK6US~DczD9O9ytUkoNReO7h1qIv0s9f7jC2ghu~+5SMP2C~ewNP2ZiYTcPTrc0o1YtEfM+TLew1Q==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/6205/1738838546205-h", runtime: "45 min", rating: "8.7/10", description: "The Jackal visits Norman with a special commission, but with Bianca also tracking Norman down, she is starting to close in on him." },
+    { title: "Episode 6", year: 2024, video: "https://p.10014.workers.dev:443/dewshine74.xyz/file2/P3aZywUINpcWL8RPRhMx0VWEnu1p~7BlvgfIe9AzfhAg6wKUvfprnif0Lvo7+5HffA~Y2fnXJMl2Tk0ALwo1aMpmq~mnSBTb8r7qdoaQK~IpG1W5DnLrFekFrwpGufp~ypFwpBGvPEcCitnDLO3+1Q==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/3306/1738838543306-h", runtime: "45 min", rating: "9.0/10", description: "Following his shoot-out with Bianca, the Jackal must escape his captors and regroup ahead of his hit on Ulle Dag Charles; Bianca tracks his trail of devastation through central Europe." },
+    { title: "Episode 7", year: 2024, video: "https://p.10014.workers.dev:443/cloudspark91.live/file2/1olkifcpEf+CdDR4otzTt6z9v6e9p8vPqGLRtR~j70SqTvX9b48GCW54TeZ58MWQ~OkplrzaAfP1BXqPje2ATeHZaeEzWXpiZlh21cbPn2BCUfjdJ1RYXX~~nz~lwqMmu66QZWBSAvxU2PXYX+uTfYTa9cXRs~6ckPdaCKpZUmk=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/1604/1738838541604-h", runtime: "45 min", rating: "8.5/10", description: "The Jackal and Bianca both descend on Tallinn in anticipation of UDC's announcement; with the venue in lockdown and Bianca closing in, the Jackal must use all his wiles as he prepares to take his shot." },
+    { title: "Episode 8", year: 2024, video: "https://p.10014.workers.dev:443/rainflare53.pro/file2/tdtVlaRN0RgiS708f9dTMznyc7~ynTzs6881v30Xtox2AwqA96a3Saq5rFB1OYWJRCLns+hN975LCMRUTVGkI2w+fLaktIjfK+xpf0yAWYT7Yn~1TuHsbnKYeGLLzlor4T5nKOfTy+lephQZeMrldN6EYVPg+YGQhnkdbG9nVIc=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/8679/1738838538679-h", runtime: "45 min", rating: "8.2/10", description: "Emerging from the turmoil in Tallinn, the Jackal retreats into the shadows. Meanwhile, Bianca meticulously delves into the mysterious history of 'Duggan,' analyzing his experiences in Afghanistan to uncover potential new leads." },
+    { title: "Episode 9", year: 2024, video: "https://p.10014.workers.dev:443/rainflare53.pro/file2/+yM9qjyJKims2xvT5jTlCMnItdEhU1Vzawim2sRm0aLfldbZP2QL3IWH4RHLKN4bnHnzJMsRC53qZ~llEDh91hEIg59T7d~JD9t96bYw4ZkOKTzBJZMa8ocQmOLlYQv4g5TppV~rJfHPXa7xifRsuw==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4846/1738838534846-h", runtime: "45 min", rating: "8.2/10", description: "With the release of River imminent, UDC believes himself safe. As time runs out, the Jackal must use all his skills to reach his target." },
+    { title: "Episode 10", year: 2024, video: "https://p.10014.workers.dev:443/dewshine74.xyz/file2/0JJnVDitewsVG4+IH+dVF8cpb+nA3T6c8SpMaO6FUl41Y9XIvZcj73srdGG4onft+Ml+GjXC9Tb4hYesy~sVdNm737FrbUtFM6Dlx7F~kwrFJMsZC4uNGbcJ3pPqKwZT80Iv1gj1BPoMOf+U57Om+cEuZ8ZQmULKogsm+1yXhEE=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4435/1738838534435-h", runtime: "45 min", rating: "8.2/10", description: "A wanted man, the Jackal is on the run and desperate to get back to Nuria, but Bianca is given one last shot to bring him to justice." }
   ];
 
   const originalMovie = {
     title: "The Day of the Jackal (1973)",
     year: 1973,
-    video: "https://queenselti.me/stream_660503f29ed41/uwu.m3u8",
+    video: "https://p.10014.workers.dev:443/stormgleam42.xyz/file2/HuNqyyO52e19IbwzhAyoUzd9ad2kPP02DfmEcQXx~6q2SbRUPDic8qugwM88mjklM9TryfkQX4FVFcCjqOpuJBUu5XH9KzUfHTBjgNKb1FpTf~bG8K~0RI9INzFqnGW+p253kTZc1+EWxAW8fwomH9E+QInVeQYApezK3GWp+XU=/MTA4MA==/aW5kZXgubTN1OA==.m3u8",
     image: "https://ntvb.tmsimg.com/assets/p2497_v_h10_aa.jpg?w=1280&h=720",
     runtime: "143 min",
     rating: "7.8/10",
