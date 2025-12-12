@@ -1,51 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>The Day of the Jackal — Fixed Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>The Day of the Jackal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- hls.js -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js (from Tukaram for HLS playback support) -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
-    /* kept your styles (unchanged) */
+    /* PRESERVE original Hawkeye CSS and animations but adjust theme to Loki */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #111; }
-    ::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #ffdd33; }
+    ::-webkit-scrollbar-track { background: #07060b; }
+    ::-webkit-scrollbar-thumb { background: #9ad34d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #bfe67a; }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
-    .fade-in { animation: fadeIn 0.45s ease-out forwards; }
-    .delay-1 { animation-delay: .08s } .delay-2 { animation-delay: .16s } .delay-3 { animation-delay: .24s } .delay-4 { animation-delay: .32s } .delay-5 { animation-delay: .40s }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes arrowBounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(5px);} }
 
-    .glow-effect { position:relative; }
-    .glow-effect::after { content:''; position:absolute; inset:0; border-radius:12px; box-shadow:0 0 15px rgba(255,204,0,0); transition: box-shadow .3s ease; pointer-events:none; }
-    .glow-effect:hover::after { box-shadow:0 0 15px rgba(255,204,0,0.7); }
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .pulse-hover:hover { animation: pulse 1.5s infinite; }
+    .arrow-bounce { animation: arrowBounce 2s infinite; }
 
-    .gradient-text {
-      background: linear-gradient(90deg,#ffcc00,#ff9900);
-      -webkit-background-clip:text; background-clip:text; color:transparent;
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
+
+    .glow-effect { position: relative; transition: transform 0.3s ease; }
+    .glow-effect:hover { transform: translateY(-5px); }
+    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(154,211,77,0); transition:box-shadow 0.3s; pointer-events:none;}
+    .glow-effect:hover::after { box-shadow:0 0 20px rgba(154,211,77,0.25); }
+
+    .gradient-text { background: linear-gradient(90deg, #9ad34d, #7f3cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .marvel-font { font-family: 'Marvel', sans-serif; }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
+    @media (max-width: 400px) { .movie-card { width: 100%; } }
+
+    /* Modal player container (Tukaram-style preserved) */
+    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
+    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
+
+    /* small Loki tint changes to Hawkeye theme */
+    header { background: linear-gradient(90deg,#081018,#04040a); }
+    .bg-loki { background: linear-gradient(135deg,#7f3cff,#9ad34d); }
+    .loki-accent { color: #9ad34d; }
+    .btn-loki { background: #9ad34d; color: #061217; }
+    .btn-loki:hover { filter: brightness(0.95); }
+    .watchlist-checkbox .checkmark { border: 2px solid #9ad34d; }
+    .progress-bar-fill { background: #9ad34d; }
+
+    /* keep other original Hawkeye styles intact */
+    body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
+
+    /* Illumination modal styles (keeps modal look consistent) */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-backdrop.active { display:flex; }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
+
+    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
+    .player-meta .meta-left { max-width:65%; }
+    .player-meta h3 { margin:0; font-size:1.125rem; }
+    .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
+
+    .controls-row { display:flex; gap:8px; align-items:center; }
+
+    .btn {
+      background:transparent; border:1px solid #9ad34d; color:#9ad34d;
+      padding:8px 12px; border-radius:8px; cursor:pointer;
     }
+    .btn:hover { background: rgba(154,211,77,0.06); }
 
-    @media (max-width:640px) { .movie-card { width: calc(50% - 1rem); } }
-    @media (max-width:400px) { .movie-card { width: 100%; } }
+    .hidden { display:none; }
 
-    /* Modal/player styles (Hawkeye-style) */
-    .modal-overlay { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.9); z-index:9999; opacity:0; visibility:hidden; transition: all .2s ease; }
-    .modal-overlay.active { opacity:1; visibility:visible; }
-    .modal-card { width:95%; max-width:1100px; border-radius:12px; overflow:hidden; background: linear-gradient(180deg,#0b0b0b,#151515); box-shadow:0 30px 80px rgba(0,0,0,0.7); }
-    .player-area { position:relative; padding-bottom:56.25%; height:0; background:black; }
-    .player-area video, .player-area iframe { position:absolute; inset:0; width:100%; height:100%; background:black; }
-    .progress-bar { height:6px; background: rgba(255,255,255,0.06); width:100%; position:relative; }
-    .progress-fill { position:absolute; left:0; top:0; bottom:0; width:0%; background:#ffd166; transition: width .2s linear; }
-    .controls { display:flex; gap:8px; align-items:center; }
-    .btn { background:#1f1f1f; color:#fff; padding:8px 12px; border-radius:8px; }
-    .btn.primary { background:#ffd166; color:#111827; }
-
-    #playerError { display:none; }
-    #playerError.show { display:block; }
+    @media(max-width:640px){
+      .player-meta .meta-left { max-width:55%; }
+      .btn { padding:6px 8px; font-size:0.9rem; }
+    }
     /* ============================
    MOBILE FIX — DOES NOT TOUCH DESKTOP
    ============================ */
@@ -109,50 +148,87 @@
 
   </style>
 </head>
-
-<body class="bg-black text-gray-100 min-h-screen">
-  <!-- Header (kept intact) -->
-  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
-          <i class="fas fa-crosshairs text-black text-xl"></i>
+<body class="bg-black text-gray-100 min-h-screen font-roboto">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
+        <i class="fas fa-crosshairs text-black text-xl"></i>
         </div>
-        <h1 class="text-2xl font-bold gradient-text">THE DAY OF THE JACKAL</h1>
+        <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">The Day of the Jackal</h1>
       </div>
-
-      <div class="flex items-center space-x-4">
-        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-moon text-yellow-500"></i>
+      
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
+          <i class="fas fa-bookmark loki-accent"></i>
+          <span class="tooltip-text">My Watchlist</span>
         </button>
-        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-search text-yellow-500"></i>
+        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon loki-accent"></i>
+          <span class="tooltip-text">Toggle Theme</span>
+        </button>
+        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-search loki-accent"></i>
+          <span class="tooltip-text">Search</span>
         </button>
       </div>
     </div>
-
+    
     <!-- Search Bar (hidden by default) -->
-    <div id="search-bar" class="hidden px-4 pb-4">
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
       <div class="relative">
-        <input id="search-input" type="text" placeholder="Search episodes..."
-               class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
-        <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
+        <input id="global-search" type="text" placeholder="Search episodes..." 
+               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400">
+        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d]"></i>
+      </div>
+    </div>
+    
+    <!-- Watchlist dropdown (hidden by default) -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-700">
+        <h3 class="font-semibold loki-accent">My Watchlist</h3>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
+        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
       </div>
     </div>
   </header>
 
-  <!-- Main content (kept intact) -->
-  <main class="container mx-auto px-4 py-8">
-    <!-- Hero -->
-    <section class="mb-12 relative overflow-hidden rounded-xl">
-      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-      <img src="https://static1.cbrimages.com/wordpress/wp-content/uploads/2024/10/the-day-of-the-jackal-eddie-redmayne.jpg"
-           alt="The Day of the Jackal Banner" class="w-full h-64 md:h-96 object-cover">
-      <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
-        <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text">Movie & TV Series</h2>
-        <p class="text-gray-300 mb-4 max-w-lg">A gripping political thriller across two eras — the iconic 1973 film and the modern 2024 TV series — both follow a deadly assassin known as "The Jackal" and the global manhunt to stop him.</p>
-        <div class="flex space-x-3">
-          <button id="play-all-btn" class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
+  <!-- Main Content -->
+<main class="container mx-auto px-4 py-6">
+  <!-- Hero Section -->
+  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
+    
+    <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+        <!-- Loki hero trailer (YouTube embed) -->
+        <iframe
+          src="https://www.youtube.com/embed/shsIx-ZVL0E?autoplay=1&mute=1&loop=1&playlist=shsIx-ZVL0E&controls=0&modestbranding=1"
+          frameborder="0"
+          allow="autoplay; fullscreen"
+          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        ></iframe>
+      </div>
+      
+      <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
+        <div class="flex items-center mb-1 sm:mb-2">
+          <span class="bg-[#9ad34d] text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2">PEACOCK ORIGINAL</span>
+          <span class="text-[#9ad34d] text-xs sm:text-sm">Season 1</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">The Day of the Jackal</h2>
+        <div class="flex items-center mb-2 sm:mb-4">
+          <div class="flex items-center mr-2 sm:mr-4">
+            <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
+            <span class="text-white text-xs sm:text-sm">8.2</span>
+          </div>
+          <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
+        </div>
+        <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">A gripping political thriller across two eras — the iconic 1973 film and the modern 2024 TV series — both follow a deadly assassin known as "The Jackal" and the global manhunt to stop him.</p>
+        <div class="flex space-x-2 sm:space-x-3">
+          <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
             <i class="fas fa-play mr-2"></i> Play All
           </button>
           <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
@@ -160,122 +236,93 @@
           </button>
         </div>
       </div>
-    </section>
-
-    <!-- Filters -->
-    <div class="flex flex-wrap items-center justify-between mb-8 gap-4">
-      <div class="flex space-x-2 overflow-x-auto pb-2">
-        <button class="filter-btn active bg-yellow-600 text-black px-4 py-1 rounded-full text-sm font-medium" data-filter="all">All</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium" data-filter="thriller">Thriller</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium" data-filter="drama">Drama</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium" data-filter="political">Political</button>
-        <button class="filter-btn bg-gray-800 hover:bg-gray-700 px-4 py-1 rounded-full text-sm font-medium" data-filter="crime">Crime</button>
-      </div>
-
-      <div class="flex items-center space-x-2">
-        <span class="text-gray-400 text-sm">Sort by:</span>
-        <select id="sort-select" class="bg-gray-900 border border-gray-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-yellow-500">
-          <option value="release">Release Date</option>
-          <option value="order">Episode Order</option>
-          <option value="pop">Popularity</option>
-        </select>
+      <div class="absolute bottom-4 right-4 z-20">
+        <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
+          <i class="fas fa-chevron-down arrow-bounce"></i>
+        </button>
       </div>
     </div>
+  </section>
+</main>
+
+    <!-- Season Navigation -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
+      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
+        <i class="fas fa-tv loki-accent mr-2"></i>
+        <span class="marvel-font">EPISODES</span>
+      </h3>
+      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max">
+          <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
+          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
+        </div>
+      </div>
+    </div>
+
+
+      
+
 
     <!-- Episodes Grid -->
-    <section>
-      <h3 class="text-xl font-semibold mb-6 flex items-center">
-        <i class="fas fa-list-ul text-yellow-500 mr-2"></i>
-        Episodes
-      </h3>
-
-      <div id="episodes" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <!-- episode cards inserted by JS -->
+    <section class="container mx-auto px-4">
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+        <!-- Movie cards inserted by JS -->
       </div>
     </section>
 
-    <!-- Original Movie Section -->
-    <section class="mt-12">
-      <h3 class="text-xl font-semibold mb-6 flex items-center">
-        <i class="fas fa-film text-yellow-500 mr-2"></i>
-        Original Movie (1973)
-      </h3>
+    <!-- Footer / Social -->
+  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  </div>
 
-      <div id="original-movie" class="grid grid-cols-1 gap-6">
-        <!-- original movie card inserted by JS -->
-      </div>
-    </section>
-  </main>
+  <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2">
+        <i class="fas fa-times"></i>
+      </button>
 
-  <!-- Footer (kept) -->
-  <footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8">
-    <div class="container mx-auto px-4">
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <div class="mb-4 md:mb-0">
-          <div class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-              <i class="fas fa-shield-alt text-black text-sm"></i>
-            </div>
-            <span class="text-xl font-bold gradient-text">THE DAY OF THE JACKAL</span>
-          </div>
-          <p class="text-gray-400 text-sm mt-2">©  The Day of the Jackal Productions. All rights reserved.</p>
-        </div>
-
-        <div class="flex space-x-6">
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-twitter"></i></a>
-          <a href="https://www.instagram.com/stark_4152" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-instagram"></i></a>
-          <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-youtube"></i></a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Playback Modal (Hawkeye-style) -->
-  <div id="playback-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-card">
-      <div class="relative p-4 border-b border-gray-700 flex items-start justify-between">
-        <div>
-          <div id="modal-title" class="text-xl font-bold text-yellow-400"></div>
-          <div id="modal-sub" class="text-sm text-gray-400 mt-1"></div>
-        </div>
-        <div class="flex items-center gap-3">
-          <button id="close-modal-btn" class="text-white p-2 rounded bg-gray-800 hover:bg-gray-700"><i class="fas fa-times"></i></button>
-        </div>
+      <div class="player-wrapper" id="playerWrapper">
+        <!-- video or iframe injected here -->
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       </div>
 
-      <div id="player-area" class="player-area">
-        <!-- default video (JS will create/destroy HLS-controlled <video>) -->
-        <video id="modal-video" controls playsinline preload="metadata" class="w-full h-full"></video>
-      </div>
-
-      <div class="progress-bar" id="video-progress"><div id="progress-fill" class="progress-fill"></div></div>
-
-      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <p id="modal-desc" class="text-gray-300 text-sm"></p>
-          <div id="qualityControls" class="mt-2"></div>
+      <div class="player-meta">
+        <div class="meta-left">
+          <h3 id="modalTitle">Episode Title</h3>
+          <p id="modalDesc" class="text-sm">Episode description will appear here.</p>
         </div>
-
-        <div class="controls">
-          <button id="prevBtn" class="btn" title="Previous"><i class="fas fa-step-backward"></i></button>
-          <button id="modal-play" class="btn primary" title="Play/Pause"><i class="fas fa-play mr-2"></i><span id="playText">Play</span></button>
-          <button id="nextBtn" class="btn" title="Next"><i class="fas fa-step-forward"></i></button>
-          <button id="muteBtn" class="btn" title="Mute"><i class="fas fa-volume-up"></i></button>
-          <button id="fullscreenBtn" class="btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+        <div class="controls-row">
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="playerError" class="hidden bg-red-900 text-white p-2 rounded mt-2 text-center"></div>
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#9ad34d]"></div>
+  </div>
 
   <script>
-  /***************
-   * Data (unchanged as uploaded)
-   ***************/
-  const episodes = [
-    { title: "Episode 1", year: 2024, video: "https://p.10014.workers.dev:443/frostveil88.live/file2/aqAq3zu97OJYKuIeujX5zo9zpwhT8hNU4zTtuzJsTUruMxxPCE6N69YJxdE+g7g631vwVmecLpRhTFZ6ZRcokx+UOYAtF3I8UgfvczlrDmpgq7skxWHxgP6xYxZP0COVSw2j8Eg4spwrKEF~jdZjVA==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4749/1738838544749-h", runtime: "45 min", rating: "7.8/10", description: "When an elite assassin carries out his latest kill, it catches the attention of an intelligence officer, who starts to hunt him down." },
+// ========================
+// SEASON SELECTOR + DATA
+// ========================
+
+// Quantum Leap (2022) – Season 1 & 2
+const movies = [
+
+/* -------------------------
+   SEASON 1 (4 Episodes)
+------------------------- */
+{ title: "Episode 1", year: 2024, video: "https://p.10014.workers.dev:443/frostveil88.live/file2/aqAq3zu97OJYKuIeujX5zo9zpwhT8hNU4zTtuzJsTUruMxxPCE6N69YJxdE+g7g631vwVmecLpRhTFZ6ZRcokx+UOYAtF3I8UgfvczlrDmpgq7skxWHxgP6xYxZP0COVSw2j8Eg4spwrKEF~jdZjVA==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4749/1738838544749-h", runtime: "45 min", rating: "7.8/10", description: "When an elite assassin carries out his latest kill, it catches the attention of an intelligence officer, who starts to hunt him down." },
     { title: "Episode 2", year: 2024, video: "https://p.10014.workers.dev:443/hailmist36.pro/file2/uYNI9xPEpwbhFRzjHgqKiAF5gck80I+r89ApnMRtcJ7NZ7l2qn7LquI3MA9hXFr56AsAG8f0+ebiNvIhCT8G6QUC63yULIn2O5~QKPmP4bOrMoM0QzpbcN9R~WJvncL61oZ4YFO+dzi6gBjB2TvS~w==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4955/1738838544955-h", runtime: "45 min", rating: "8.1/10", description: "With his previous client backing out of payment, the Jackal's reputation is on the line, and he starts to plot his revenge." },
     { title: "Episode 3", year: 2024, video: "https://p.10014.workers.dev:443/dewshine74.xyz/file2/xaG2YaYeq9RcKNYkRZIFdApWkDtZZ3r7EQ7yA0J73dmB~~FqqebldQLc87jObJuSeGW0A1eGDUSDd~~IJMMgSSF+oK1bSVp6qd+YuDgeQcmmQ~AI8Ow+3LWlh1lJb2rXgvlSJbw0SSYYXvSMv4YsXQ==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/5166/1738838545166-h", runtime: "45 min", rating: "8.3/10", description: "Armed with the knowledge of his wayward client's identity, the Jackal tracks him down in Munich, determined to settle the score." },
     { title: "Episode 4", year: 2024, video: "https://p.10014.workers.dev:443/stormgleam42.xyz/file2/MBWfEmLX83hcs5iXqwXSk3uhSp1uvkccIfAmjq2yiK6itZvHudQgp1l6qsgyewoxQurbagRbofOcqVLxjrMqLj+BBH1k8CvsBBgf3tjmhDS3xnWvK0RqHkqkRQHHu1upOYrrxcoGAMTFhqKSbIMbAg==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/7180/1738838547180-h", runtime: "45 min", rating: "8.4/10", description: "His vengeance fulfilled, the Jackal flees Munich and tries to quell Nuria's suspicions. Bianca follows a new lead in her hunt." },
@@ -284,10 +331,8 @@
     { title: "Episode 7", year: 2024, video: "https://p.10014.workers.dev:443/cloudspark91.live/file2/1olkifcpEf+CdDR4otzTt6z9v6e9p8vPqGLRtR~j70SqTvX9b48GCW54TeZ58MWQ~OkplrzaAfP1BXqPje2ATeHZaeEzWXpiZlh21cbPn2BCUfjdJ1RYXX~~nz~lwqMmu66QZWBSAvxU2PXYX+uTfYTa9cXRs~6ckPdaCKpZUmk=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/1604/1738838541604-h", runtime: "45 min", rating: "8.5/10", description: "The Jackal and Bianca both descend on Tallinn in anticipation of UDC's announcement; with the venue in lockdown and Bianca closing in, the Jackal must use all his wiles as he prepares to take his shot." },
     { title: "Episode 8", year: 2024, video: "https://p.10014.workers.dev:443/rainflare53.pro/file2/tdtVlaRN0RgiS708f9dTMznyc7~ynTzs6881v30Xtox2AwqA96a3Saq5rFB1OYWJRCLns+hN975LCMRUTVGkI2w+fLaktIjfK+xpf0yAWYT7Yn~1TuHsbnKYeGLLzlor4T5nKOfTy+lephQZeMrldN6EYVPg+YGQhnkdbG9nVIc=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/8679/1738838538679-h", runtime: "45 min", rating: "8.2/10", description: "Emerging from the turmoil in Tallinn, the Jackal retreats into the shadows. Meanwhile, Bianca meticulously delves into the mysterious history of 'Duggan,' analyzing his experiences in Afghanistan to uncover potential new leads." },
     { title: "Episode 9", year: 2024, video: "https://p.10014.workers.dev:443/rainflare53.pro/file2/+yM9qjyJKims2xvT5jTlCMnItdEhU1Vzawim2sRm0aLfldbZP2QL3IWH4RHLKN4bnHnzJMsRC53qZ~llEDh91hEIg59T7d~JD9t96bYw4ZkOKTzBJZMa8ocQmOLlYQv4g5TppV~rJfHPXa7xifRsuw==/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4846/1738838534846-h", runtime: "45 min", rating: "8.2/10", description: "With the release of River imminent, UDC believes himself safe. As time runs out, the Jackal must use all his skills to reach his target." },
-    { title: "Episode 10", year: 2024, video: "https://p.10014.workers.dev:443/dewshine74.xyz/file2/0JJnVDitewsVG4+IH+dVF8cpb+nA3T6c8SpMaO6FUl41Y9XIvZcj73srdGG4onft+Ml+GjXC9Tb4hYesy~sVdNm737FrbUtFM6Dlx7F~kwrFJMsZC4uNGbcJ3pPqKwZT80Iv1gj1BPoMOf+U57Om+cEuZ8ZQmULKogsm+1yXhEE=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4435/1738838534435-h", runtime: "45 min", rating: "8.2/10", description: "A wanted man, the Jackal is on the run and desperate to get back to Nuria, but Bianca is given one last shot to bring him to justice." }
-  ];
-
-  const originalMovie = {
+    { title: "Episode 10", year: 2024, video: "https://p.10014.workers.dev:443/dewshine74.xyz/file2/0JJnVDitewsVG4+IH+dVF8cpb+nA3T6c8SpMaO6FUl41Y9XIvZcj73srdGG4onft+Ml+GjXC9Tb4hYesy~sVdNm737FrbUtFM6Dlx7F~kwrFJMsZC4uNGbcJ3pPqKwZT80Iv1gj1BPoMOf+U57Om+cEuZ8ZQmULKogsm+1yXhEE=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/4435/1738838534435-h", runtime: "45 min", rating: "8.2/10", description: "A wanted man, the Jackal is on the run and desperate to get back to Nuria, but Bianca is given one last shot to bring him to justice." },
+   {
     title: "The Day of the Jackal (1973)",
     year: 1973,
     video: "https://p.10014.workers.dev:443/stormgleam42.xyz/file2/HuNqyyO52e19IbwzhAyoUzd9ad2kPP02DfmEcQXx~6q2SbRUPDic8qugwM88mjklM9TryfkQX4FVFcCjqOpuJBUu5XH9KzUfHTBjgNKb1FpTf~bG8K~0RI9INzFqnGW+p253kTZc1+EWxAW8fwomH9E+QInVeQYApezK3GWp+XU=/MTA4MA==/aW5kZXgubTN1OA==.m3u8",
@@ -295,362 +340,452 @@
     runtime: "143 min",
     rating: "7.8/10",
     description: "A French paramilitary organization hires a professional assassin to kill President Charles de Gaulle, triggering an international manhunt in this classic thriller."
-  };
-
-  /* ============================
-     DOM refs
-     ============================ */
-  const episodesContainer = document.getElementById('episodes');
-  const originalMovieContainer = document.getElementById('original-movie');
-  const searchBtn = document.getElementById('search-btn');
-  const searchBar = document.getElementById('search-bar');
-  const themeToggle = document.getElementById('theme-toggle');
-  const playbackModal = document.getElementById('playback-modal');
-  const closeModalBtn = document.getElementById('close-modal-btn');
-  const playerArea = document.getElementById('player-area');
-  const modalTitle = document.getElementById('modal-title');
-  const modalSub = document.getElementById('modal-sub');
-  const modalDesc = document.getElementById('modal-desc');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const fullscreenBtn = document.getElementById('fullscreenBtn');
-  const muteBtn = document.getElementById('muteBtn');
-  const searchInput = document.getElementById('search-input');
-  const playAllBtn = document.getElementById('play-all-btn');
-  const filterButtons = document.querySelectorAll('.filter-btn');
-  const sortSelect = document.getElementById('sort-select');
-  const progressFill = document.getElementById('progress-fill');
-  const playerError = document.getElementById('playerError');
-  const qualityControls = document.getElementById('qualityControls');
-
-  /* Playback state */
-  let currentVideo = null; // { list, index, item }
-  let currentHls = null;
-
-  /* Helpers from Hawkeye (kept) */
-  function isHls(u) {
-    if (!u) return false;
-    return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
   }
-  function isMP4(u) { return /\.mp4($|\?)/i.test(u || ''); }
-  function isYouTube(u) { return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/'))); }
+ 
 
-  function showError(msg) {
-    if(!playerError) return;
-    playerError.textContent = msg;
-    playerError.classList.add('show');
-    setTimeout(()=> playerError.classList.remove('show'), 3500);
-  }
+];
 
-  /* RENDERING (kept same structure) */
-  function createEpisodeCard(ep, idx) {
-    const wrapper = document.createElement('div');
-    wrapper.className = `movie-card fade-in delay-${(idx%5)+1} glow-effect`;
-    wrapper.innerHTML = `
-      <div class="relative group overflow-hidden rounded-xl cursor-pointer">
-        <img src="${ep.image}" alt="${ep.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-          <div>
-            <h3 class="text-white font-semibold text-lg">${ep.title}</h3>
-            <p class="text-gray-300 text-sm">${ep.runtime}</p>
-          </div>
-        </div>
-        <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
-          <i class="fas fa-play"></i>
-        </div>
-      </div>
-      <div class="mt-3">
-        <h3 class="text-white font-medium">${ep.title}</h3>
-        <div class="flex items-center text-gray-400 text-sm mt-1">
-          <span>S1 • E${idx + 1}</span><span class="mx-2">•</span><span>${ep.runtime}</span>
-        </div>
-      </div>
-    `;
-    wrapper.addEventListener('click', () => {
-      const combined = episodes.slice().concat([originalMovie]);
-      openPlaybackFor(combined, idx);
-    });
-    return wrapper;
-  }
+    /* ------------------------
+       Modal / playback implementation (Illumination-style)
+       ------------------------ */
+    const playerWrapper = document.getElementById('playerWrapper');
+    const playbackModal = document.getElementById('playbackModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
 
-  function renderEpisodes() {
-    const term = (searchInput.value || '').toLowerCase().trim();
-    let list = episodes.slice();
-    if(term) list = list.filter(e => e.title.toLowerCase().includes(term) || (e.description||'').toLowerCase().includes(term));
-    const sort = sortSelect.value;
-    if(sort === 'release') list.sort((a,b) => (a.year||0) - (b.year||0));
-    else if(sort === 'pop') list.sort((a,b) => (parseFloat(b.rating)||0) - (parseFloat(a.rating)||0));
-    episodesContainer.innerHTML = '';
-    list.forEach((ep, idx) => episodesContainer.appendChild(createEpisodeCard(ep, idx)));
-  }
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
 
-  function renderOriginalMovieCard(){
-    originalMovieContainer.innerHTML = '';
-    const card = document.createElement('div');
-    card.className = `movie-card fade-in delay-1 glow-effect`;
-    card.innerHTML = `
-      <div class="relative group overflow-hidden rounded-xl cursor-pointer">
-        <img src="${originalMovie.image}" alt="${originalMovie.title}" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-          <div>
-            <h3 class="text-white font-semibold text-lg">${originalMovie.title}</h3>
-            <p class="text-gray-300 text-sm">${originalMovie.runtime}</p>
-          </div>
-        </div>
-        <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
-          <i class="fas fa-play"></i>
-        </div>
-      </div>
-      <div class="mt-3">
-        <h3 class="text-white font-medium">${originalMovie.title}</h3>
-        <div class="flex items-center text-gray-400 text-sm mt-1">
-          <span>${originalMovie.year}</span><span class="mx-2">•</span><span>${originalMovie.runtime}</span>
-        </div>
-      </div>
-    `;
-    card.addEventListener('click', () => {
-      const combined = episodes.slice().concat([originalMovie]);
-      openPlaybackFor(combined, combined.length - 1);
-    });
-    originalMovieContainer.appendChild(card);
-  }
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
 
-  /* ============================
-     Playback functions (Hawkeye-based, fixed)
-     - IMPORTANT: HLS streams are now played IN-MODAL via hls.js
-     - iframe hosts and YouTube still embed as iframe
-     ============================ */
+    function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
+    function isHls(u) {
+      if (!u) return false;
+      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master');
+    }
+    function isYouTube(u) {
+      if (!u) return false;
+      return u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/');
+    }
 
-  function resetPlayerContainer(){
-    if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
-    playerArea.innerHTML = `<video id="modal-video" controls playsinline preload="metadata" class="w-full h-full"></video>`;
-  }
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
 
-  function getModalVideo(){ return document.getElementById('modal-video'); }
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
 
-  // Open playback for item in list — NOTE: NO forced redirect for HLS
-  function openPlaybackFor(listArray, indexToOpen){
-    if(!Array.isArray(listArray) || listArray.length === 0) return showError("No videos available");
-    const item = listArray[indexToOpen];
-    if(!item) return showError("Item not found");
+    function showError(msg) { console.warn(msg); }
 
-    // If item.video is object (qualities), build combined string for checks
-    const videoVal = item.video;
-    let combined = '';
-    if(typeof videoVal === 'object') combined = Object.values(videoVal).join(' ');
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
+        showError('Invalid playback request');
+        return;
+      }
+      currentFiltered = list;
+      currentIndex = index;
+      const item = list[index];
+      if (!item) { showError('Missing item'); return; }
 
-    // We removed forced redirect. Instead attempt to play everything in modal:
-    // - If iframe host or youtube -> embed iframe
-    // - else if HLS -> use hls.js in modal
-    // - else try setting <video>.src (mp4, etc.)
-    playInModal(listArray, indexToOpen);
-  }
+      modalTitle.textContent = item.title || '';
+      modalDesc.textContent = item.description || '';
 
-  function playInModal(listArr, index){
-    const item = listArr[index];
-    if(!item) return showError("Video not available");
+      resetPlayerContainer();
+      showModal();
 
-    modalTitle.textContent = item.title || '';
-    modalDesc.textContent = item.description || '';
-    qualityControls.innerHTML = '';
+      // pick source
+      let src = '';
+      if (typeof item.video === 'object' && item.video !== null) {
+        src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
+      } else {
+        src = item.video;
+      }
+      if (!src) {
+        showError('No video url');
+        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=`, 500);
+        return;
+      }
 
-    resetPlayerContainer();
+      const lc = (src||'').toLowerCase();
 
-    // choose initial src
-    let src = '';
-    if(typeof item.video === 'object'){
-      src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
-      // build quality buttons
-      Object.entries(item.video).forEach(([q,u])=>{
-        const b = document.createElement('button');
-        b.className = 'quality-btn px-2 py-1 mx-1 rounded bg-gray-700 text-white text-sm';
-        b.textContent = q.toUpperCase();
-        b.dataset.url = u;
-        b.addEventListener('click', () => {
-          const v = getModalVideo();
-          const cur = v && v.currentTime ? v.currentTime : 0;
-          // destroy previous HLS if any
-          if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
-          if(isHls(b.dataset.url) && window.Hls && Hls.isSupported()){
-            // replace video element to ensure clean attach
-            resetPlayerContainer();
-            const newV = getModalVideo();
-            currentHls = new Hls();
-            currentHls.loadSource(b.dataset.url);
-            currentHls.attachMedia(newV);
-            currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ newV.currentTime = cur; newV.play().catch(()=>{}); });
-          } else {
-            // normal src replace
-            if(getModalVideo()) { getModalVideo().src = b.dataset.url; try{ getModalVideo().currentTime = cur; }catch(e){} getModalVideo().play().catch(()=>{}); }
+      // iframe hosts
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      // youtube
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
           }
-        });
-        qualityControls.appendChild(b);
-      });
-    } else {
-      src = item.video;
-    }
+        } catch(e){}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
 
-    // iframe hosts list
-    const iframeHosts = ['streamtape.com','openload.co','vidcdn.','dood.','sbembed','drive.google.com','mega.nz','streamlare','mixdrop','rapidvideo'];
-
-    // embed iframe for those hosts
-    if(typeof src === 'string' && iframeHosts.some(h => src.includes(h))){
-      playerArea.innerHTML = `<iframe src="${src}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
-      playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
-      currentVideo = { list: listArr, index, item };
-      updateNavButtons();
-      return;
-    }
-
-    // YouTube embed
-    if(isYouTube(src)){
-      let embedUrl = src;
-      try{
-        if(src.includes('watch') && src.includes('v=')){
-          const vid = new URLSearchParams(src.split('?')[1]).get('v');
-          if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
-        } else if(src.includes('youtu.be/')){
-          const parts = src.split('youtu.be/');
-          if(parts[1]) embedUrl = `https://www.youtube.com/embed/${parts[1].split(/[?&]/)[0]}`;
-        }
-      }catch(e){}
-      playerArea.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
-      playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
-      currentVideo = { list: listArr, index, item };
-      updateNavButtons();
-      return;
-    }
-
-    // else use <video> element — handle HLS with hls.js if needed
-    const v = getModalVideo();
-    if(!v) return showError('Player not available');
-
-    if(isHls(src)){
-      if(window.Hls && Hls.isSupported()){
-        try{
+      // HLS
+      if (isHls(src)) {
+        const v = document.getElementById('modalVideo');
+        if (!v) { showError('Video element missing'); return; }
+        if (window.Hls && Hls.isSupported()) {
           currentHls = new Hls();
-          currentHls.loadSource(src);
-          currentHls.attachMedia(v);
-          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-            playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
-            v.play().catch(()=>{ showError('Autoplay blocked — press play'); });
+          try {
+            currentHls.loadSource(src);
+            currentHls.attachMedia(v);
+          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
           });
-          currentHls.on(Hls.Events.ERROR, (event,data) => {
-            if(data && data.fatal){
-              try{ currentHls.destroy(); }catch(e){} currentHls = null;
-              v.src = src; playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
-              v.play().catch(()=>{});
+          currentHls.on(Hls.Events.ERROR, function(event, data) {
+            console.warn('HLS error', data);
+            if (data && data.fatal) {
+              try { currentHls.destroy(); } catch(e){}
+              currentHls = null;
+              showError('HLS fatal error — redirecting to player.html');
+              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
             }
           });
-        }catch(e){
-          // fallback to src
-          v.src = src; playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
           v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        } else {
+          showError('HLS not supported — redirecting to player.html');
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
         }
-      } else {
-        v.src = src; playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
-        v.play().catch(()=>{});
+        return;
       }
-    } else {
-      // mp4 or other direct playable url
-      v.src = src; playbackModal.classList.add('active'); document.body.style.overflow = 'hidden';
-      v.play().catch(()=>{ showError('Autoplay blocked — press play'); });
+
+      // MP4
+      if (isMP4(src)) {
+        const v = document.getElementById('modalVideo');
+        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      // fallback
+      window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
-    currentVideo = { list: listArr, index, item };
-    attachVideoListeners();
-    updateNavButtons();
-  }
+    /* Controls */
+    function togglePlayPause() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return showError('No current video');
+      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+      else showError('No next video');
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return showError('No current video');
+      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+      else showError('No previous video');
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
 
-  function attachVideoListeners(){
-    const v = getModalVideo();
-    if(!v) return;
-    if(v.dataset.listenersAttached) return;
-    v.dataset.listenersAttached = '1';
+    /* Close modal & cleanup */
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById('modalVideo');
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+    }
 
-    v.addEventListener('timeupdate', () => {
-      if(!v.duration || !isFinite(v.duration)) return;
-      const pct = (v.currentTime / v.duration) * 100;
-      progressFill.style.width = pct + '%';
+    /* Events wiring */
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+
+    closeModalBtn.addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
     });
-    v.addEventListener('play', () => { document.getElementById('modal-play').innerHTML = '<i class="fas fa-pause mr-2"></i><span id="playText">Pause</span>'; });
-    v.addEventListener('pause', () => { document.getElementById('modal-play').innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>'; });
-    v.addEventListener('ended', () => { document.getElementById('modal-play').innerHTML = '<i class="fas fa-redo mr-2"></i><span id="playText">Replay</span>'; });
-  }
 
-  function updateNavButtons(){
-    if(!currentVideo || !Array.isArray(currentVideo.list)){ prevBtn.disabled = nextBtn.disabled = true; return; }
-    prevBtn.disabled = currentVideo.index <= 0;
-    nextBtn.disabled = currentVideo.index >= currentVideo.list.length - 1;
-  }
+    // Keyboard shortcuts when modal active
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
+        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+        case 'n': playNext(); break;
+        case 'p': playPrev(); break;
+      }
+    });
 
-  function playNext(){ if(currentVideo && currentVideo.index < currentVideo.list.length - 1) playInModal(currentVideo.list, currentVideo.index + 1); else showError('No next item'); }
-  function playPrev(){ if(currentVideo && currentVideo.index > 0) playInModal(currentVideo.list, currentVideo.index - 1); else showError('No previous item'); }
+    /* Attach video timeupdate/ended listeners */
+    function attachVideoListeners() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.removeEventListener('timeupdate', onTimeUpdate);
+      v.addEventListener('timeupdate', onTimeUpdate);
+      v.removeEventListener('ended', onEnded);
+      v.addEventListener('ended', onEnded);
+    }
+    function onTimeUpdate() {
+      // If the original progress bar exists, update it (preserved element)
+      const progressBarFill = document.getElementById('progress-bar-fill');
+      const videoEl = document.getElementById('modalVideo');
+      if (!progressBarFill || !videoEl || !videoEl.duration) return;
+      const p = (videoEl.currentTime / videoEl.duration) * 100;
+      progressBarFill.style.width = p + '%';
+    }
+    function onEnded() {
+      const playBtn = document.getElementById('play-btn') || playPauseBtn;
+      if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
+    }
 
-  function closeModalHandler(){
-    if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
-    const v = getModalVideo();
-    if(v){ try{ v.pause(); }catch(e){} try{ v.removeAttribute('src'); v.load(); }catch(e){} }
-    qualityControls.innerHTML = '';
-    progressFill.style.width = '0%';
-    playbackModal.classList.remove('active');
-    document.body.style.overflow = '';
-    currentVideo = null;
-  }
+    /* Render episodes grid (wired to openPlayer) */
+    const container = document.getElementById('movies');
+    function renderMovies(list) {
+      container.innerHTML = '';
+      list.forEach((movie, index) => {
+        const card = document.createElement('div');
+        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
+        card.innerHTML = `
+          <div class="relative group overflow-hidden rounded-xl">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              <div>
+                <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
+                <p class="text-gray-300 text-xs sm:text-sm">${movie.duration || ''}</p>
+              </div>
+            </div>
+            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
+              <i class="fas fa-play"></i>
+            </div>
+            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
+              <i class="fas fa-star text-[#9ad34d] text-xs mr-1"></i>
+              <span class="text-white text-xs">${movie.rating || ''}</span>
+            </div>
+          </div>
+          <div class="mt-3">
+            <h3 class="text-white font-medium">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-sm mt-1">
+              <span>S${movie.season} • E${movie.episode}</span>
+              <span class="mx-2">•</span>
+              <span>${movie.duration || ''}</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          // show loading spinner while resolving
+          const loadingSpinner = document.getElementById('loading-spinner');
+          if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+          // open with the full current list and index
+          openPlayer(list, index);
+          // attach listeners for the video element (a bit delayed to allow element to exist)
+          setTimeout(()=> attachVideoListeners(), 200);
+          if (loadingSpinner) loadingSpinner.classList.add('hidden');
+        });
+        container.appendChild(card);
+      });
+    }
 
-  // Controls
-  document.getElementById('modal-play').addEventListener('click', () => {
-    const v = getModalVideo(); if(!v) return;
-    if(v.paused) v.play().catch(()=>showError('Press play to continue')); else v.pause();
-  });
-  prevBtn.addEventListener('click', playPrev);
-  nextBtn.addEventListener('click', playNext);
-  fullscreenBtn.addEventListener('click', () => {
-    const elem = playerArea.querySelector('video') || playerArea.querySelector('iframe');
-    if(!elem) return;
-    if(!document.fullscreenElement) elem.requestFullscreen?.().catch(()=>{}); else document.exitFullscreen?.().catch(()=>{});
-  });
-  muteBtn.addEventListener('click', () => {
-    const v = getModalVideo(); if(!v) return; v.muted = !v.muted; muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute mr-1"></i> Unmute' : '<i class="fas fa-volume-up mr-1"></i> Mute';
-  });
+    /* Init page (season filtering wired up) */
+    function initPage() {
+      renderMovies(movies);
 
-  closeModalBtn.addEventListener('click', closeModalHandler);
-  playbackModal.addEventListener('click', (e)=> { if(e.target === playbackModal) closeModalHandler(); });
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
+          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+        });
+      });
 
-  document.addEventListener('keydown', (e) => {
-    if(!playbackModal.classList.contains('active')) return;
-    if(e.key === 'Escape') closeModalHandler();
-    if(e.key === ' ') { e.preventDefault(); document.getElementById('modal-play').click(); }
-    if(e.key === 'ArrowRight'){ const v = getModalVideo(); if(v) v.currentTime += 10; }
-    if(e.key === 'ArrowLeft'){ const v = getModalVideo(); if(v) v.currentTime -= 10; }
-    if(e.key.toLowerCase() === 'n') playNext();
-    if(e.key.toLowerCase() === 'p') playPrev();
-    if(e.key.toLowerCase() === 'm') muteBtn.click();
-    if(e.key.toLowerCase() === 'f') fullscreenBtn.click();
-  });
+      // Season buttons: filter content
+      const seasonBtns = document.querySelectorAll('.season-btn');
+      seasonBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
+          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+          const season = this.dataset.season;
+          let filtered;
+          if (!season || season === 'all') filtered = movies;
+          else filtered = movies.filter(m => String(m.season) === String(season));
+          renderMovies(filtered);
+        });
+      });
 
-  /* UI interactions (kept) */
-  searchBtn.addEventListener('click', ()=> searchBar.classList.toggle('hidden'));
-  themeToggle.addEventListener('click', ()=> {
-    document.body.classList.toggle('bg-black'); document.body.classList.toggle('text-gray-100');
-    document.body.classList.toggle('bg-white'); document.body.classList.toggle('text-gray-900');
-    const icon = themeToggle.querySelector('i'); if(icon) icon.classList.toggle('fa-sun'); if(icon) icon.classList.toggle('fa-moon');
-  });
-  filterButtons.forEach(btn => btn.addEventListener('click', function(){
-    document.querySelector('.filter-btn.active')?.classList.remove('active','bg-yellow-600','text-black');
-    this.classList.add('active','bg-yellow-600','text-black');
-    renderEpisodes();
-  }));
-  sortSelect.addEventListener('change', renderEpisodes);
-  searchInput.addEventListener('input', renderEpisodes);
-  playAllBtn.addEventListener('click', ()=> {
-    const combined = episodes.slice().concat([originalMovie]);
-    if(combined.length) openPlaybackFor(combined, 0);
-  });
+      // Play All behavior (starts at first)
+      const playAllBtn = document.getElementById('play-all');
+      if (playAllBtn) {
+        playAllBtn.addEventListener('click', () => {
+          openPlayer(movies, 0);
+          setTimeout(()=> attachVideoListeners(), 200);
+        });
+      }
 
-  /* Initialize page */
-  function initPage(){ renderEpisodes(); renderOriginalMovieCard(); }
-  window.addEventListener('DOMContentLoaded', initPage);
+      // Global search wiring
+      const globalSearch = document.getElementById('global-search');
+      if (globalSearch) {
+        globalSearch.addEventListener('input', (e) => {
+          const q = e.target.value.trim().toLowerCase();
+          const activeSeasonBtn = document.querySelector('.season-btn.active');
+          const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+          let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+          if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
+          renderMovies(list);
+        });
+      }
+
+      // Watchlist UI wiring preserved
+      updateWatchlist();
+    }
+
+    /* Watchlist functions (preserved) */
+    const watchlistItems = document.getElementById('watchlist-items');
+    function updateWatchlist() {
+      if (!watchlistItems) return;
+      watchlistItems.innerHTML = '';
+      const watchlistMovies = movies.filter(m => m.inWatchlist);
+      if (watchlistMovies.length === 0) {
+        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
+        return;
+      }
+      watchlistMovies.forEach((movie, idx) => {
+        const index = movies.indexOf(movie);
+        const item = document.createElement('div');
+        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
+        item.innerHTML = `
+          <div class="flex items-center">
+            <span class="text-[#9ad34d] text-sm mr-2">${idx + 1}.</span>
+            <span class="text-white text-sm truncate">${movie.title}</span>
+          </div>
+          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+        item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeFromWatchlist(index);
+        });
+        item.addEventListener('click', () => {
+          openPlayer(movies, index);
+          document.getElementById('watchlist-dropdown').classList.add('hidden');
+        });
+        watchlistItems.appendChild(item);
+      });
+    }
+    function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
+    function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
+
+    /* preserved UI event wiring (search, theme, watchlist, modal controls) */
+    const containerEl = document.getElementById('movies');
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const themeToggle = document.getElementById('theme-toggle');
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+    const closeModal = document.getElementById('close-modal');
+
+    searchBtn.addEventListener('click', () => {
+      searchBar.classList.toggle('hidden');
+      watchlistDropdown.classList.add('hidden');
+    });
+
+    watchlistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      watchlistDropdown.classList.toggle('hidden');
+      searchBar.classList.add('hidden');
+    });
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('bg-gray-100');
+      document.body.classList.toggle('text-gray-900');
+      document.body.classList.toggle('bg-black');
+      document.body.classList.toggle('text-gray-100');
+      const icon = themeToggle.querySelector('i');
+      if (document.body.classList.contains('bg-black')) {
+        icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
+      } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+    });
+
+    // close modal by clicking background already wired above via playbackModal click
+
+    // watchlist close on outside click & search close
+    document.addEventListener('click', (e) => {
+      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
+      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
+    });
+
+    // attach video listeners placeholder (modal video element created on demand)
+    function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
+
+    // init on DOMContentLoaded
+    window.addEventListener('DOMContentLoaded', () => {
+      initPage();
+      // ensure modal close button works
+      document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
+    });
   </script>
   <!-- ============================= -->
 <!--     ADSTERAA GLOBAL BLOCK     -->
