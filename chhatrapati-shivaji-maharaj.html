@@ -169,9 +169,14 @@ const movies=[
 
 const tvShows=[
 {title:'स्वराज्यरक्षक संभाजी',video:'https://www.youtube.com/embed/xPV20XdWjrQ?autoplay=1',image:'https://s.itl.cat/pngfile/s/207-2071007_swarajya-rakshak-sambhaji-tv-show-swarajya-rakshak-sambhaji.jpg'},
-{title:'राजा शिवछत्रपती',video:'https://www.youtube.com/embed/eMBgubZWYh0?autoplay=1',image:'https://static.toiimg.com/thumb/imgsize-23456,msid-74935695,width-600,resizemode-4/74935695.jpg'},
 {title:'स्वराज्य सौदामिनी ताराराणी',video:'https://www.youtube.com/embed/zLB--Mpu-Po?autoplay=1',image:'https://m.media-amazon.com/images/M/MV5BYzIyZDYyYjItZTE5Ni00OTE2LWI2YTctZTBlNWJhNzhjNTEwXkEyXkFqcGc@._V1_.jpg'},
-{title:'स्वराज्यजननी जिजामाता',video:'https://www.youtube.com/embed/Su-ZniKjUqA?autoplay=1',image:'https://pbs.twimg.com/profile_images/1309840125161922560/dK_cu5Xt_400x400.jpg'}
+{
+  title:'स्वराज्यजननी जिजामाता',
+  video:'https://www.youtube.com/watch?v=C5fTWpqe2Us&list=PL0U3wd8lGkb-PXFMBMnf_Y0ZQR0psVyfm&index=374',
+  image:'https://pbs.twimg.com/profile_images/1309840125161922560/dK_cu5Xt_400x400.jpg',
+  external:true
+}
+
 ];
 
 const modal=document.getElementById('playbackModal');
@@ -188,7 +193,14 @@ function render(list,target){
       <img src="${m.image}" class="w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover">
       <div class="play-overlay"><i class="fas fa-play text-3xl"></i></div>
       <div class="absolute bottom-0 w-full bg-black/70 p-2 text-sm">${m.title}</div>`;
-    d.onclick=()=>openPlayer(list,i);
+    d.onclick=()=>{
+  if(m.external){
+    window.open(m.video,'_blank','noopener noreferrer');
+  }else{
+    openPlayer(list,i);
+  }
+};
+
     target.appendChild(d);
   });
 }
