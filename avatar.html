@@ -286,6 +286,58 @@
 
     /* Modal legacy styles (unused) */
     .modal-overlay { display:none; }
+    /* ============================
+   DESKTOP FIX — DOES NOT TOUCH MOBILE
+   ============================ */
+
+@media (min-width: 768px) {
+
+  /* Fix video height so it doesn't cover controls */
+  .player-wrapper {
+    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
+    height: auto !important;
+    max-height: 60vh !important;       /* safe video height */
+    position: relative !important;
+  }
+
+  /* Ensure iframe/video stays inside wrapper */
+  .player-wrapper video,
+  .player-wrapper iframe {
+    height: 100% !important;
+    max-height: 60vh !important;
+    position: relative !important;
+  }
+
+  /* Make sure controls are ALWAYS visible above video */
+  .player-meta {
+    position: relative !important;
+    z-index: 100 !important;
+    background: #0b1220 !important;      /* solid background for visibility */
+    padding-top: 10px !important;
+  }
+
+  /* Controls row layout */
+  .controls-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 12px !important;
+  }
+
+  /* Buttons behave normally */
+  .btn {
+    min-width: 95px !important;
+    padding: 10px 16px !important;
+    flex: unset !important;
+  }
+
+  /* Modal height adjustment to fit everything */
+  .modal-card {
+    max-height: 85vh !important;
+    overflow: visible !important;
+  }
+}
+
   </style>
 </head>
 <body class="relative">
@@ -386,7 +438,7 @@
      * Existing movies array (unchanged)
      ******************************/
     const movies = [
-       { 
+{ 
         title: "Avatar", 
         video: "https://p.10014.workers.dev:443/hailmist36.pro/file2/1ikYmLYJtx5o9GMyc9J1TxK5DhjxxOIkUZJktGYk14~MhNpARv5yD6mSIDey+2FWSf7EzSp5p1KVdArVqJ5bhx1yBMWgdYP1aROvZDk1G4YCBGTmw18AMXd0jhvlr3RyL4NhCzrS6XZ50Ld+Lx0cTFvgUWhWSL72pffHoMFOU80=/MTA4MA==/aW5kZXgubTN1OA==.m3u8", 
         image: "https://image.tmdb.org/t/p/w500/gKY6q7SjCkAU6FqvqWybDYgUKIF.jpg",
@@ -411,6 +463,7 @@
         description: "Jake and Neytiri's family grapples with grief after Neteyam's death, encountering a new, aggressive Na'vi tribe, the Ash People, who are led by the fiery Varang, as the conflict on Pandora escalates and a new moral focus emerges."
       },
     ];
+
 
     /******************************
      * DOM refs for modal controls
