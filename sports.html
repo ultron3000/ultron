@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
     
@@ -610,6 +611,45 @@
     language: "Hindi",
     isPopular: true
   },
+  {
+  title: "TNT Sports 1",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRr4oeI4SZ7HYRJRv4wjqH-z1wmY1sOv7fP_A&s",
+  video: {
+    mpd: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/wf8usag51e/out/v1/bd3b0c314fff4bb1ab4693358f3cd2d3/cenc.mpd",
+    key: "d0f2e5c39e70c18f29bf77768a1ad89a:d6853c51fcf37a18905f0609972395d7"
+  },
+  category: "sports"
+},
+
+{
+  title: "TNT Sports 2",
+  image: "https://stmify.com/wp-content/uploads/2024/10/220-s.webp",
+  video: {
+    mpd: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/bsaaetko8v/out/v1/f8fa17f087564f51aa4d5c700be43ec4/cenc.mpd",
+    key: "9f51f3dc6313ac8bc668e2d9d1c04dfa:74bc63e5a193454a91ca494975db33f9"
+  },
+  category: "sports"
+},
+
+{
+  title: "TNT Sports 3",
+  image: "https://www.circle-sports.com/assets/images/TNT%20Sports%2031731488195.png",
+  video: {
+    mpd: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/lsdasbvglv/out/v1/bb548a3626cd4708afbb94a58d71dce9/cenc.mpd",
+    key: "a93c1cbfdccd23233bac13540c693e7f:2f6ab2e6693eb847eff3c9da8f9d01fc"
+  },
+  category: "sports"
+},
+
+{
+  title: "TNT Sports 4",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTylIj8gl7scZSi61odUmSQip6lZrjJofSe2w&s",
+  video: {
+    mpd: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/i2pcjr4pe5/out/v1/912e9db56d75403b8a9ac0a719110f36/cenc.mpd",
+    key: "192b1115da041585c77200128549efa1:634e10efe4abbb14be400a3ccbac0258"
+  },
+  category: "sports"
+}
   
 ];
 
@@ -635,150 +675,190 @@
     let currentFiltered = [];
     let currentIndex = null;
 
-    /******************************
-     * Type detection helpers
-     ******************************/
-    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
-    function isHls(url) {
-      if (!url) return false;
-      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+/******************************
+ * Type detection helpers
+ ******************************/
+function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+function isHls(url) {
+  if (!url) return false;
+  return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+}
+function isYouTube(url) {
+  if (!url) return false;
+  return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+}
+
+/******************************
+ * Reset player container
+ ******************************/
+function resetPlayerContainer() {
+  if (currentHls) {
+    try { currentHls.destroy(); } catch(e) {}
+    currentHls = null;
+  }
+  if (window.shakaPlayer) {
+    try { window.shakaPlayer.destroy(); } catch(e) {}
+    window.shakaPlayer = null;
+  }
+  playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+}
+
+function showModal() {
+  playbackModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function hideModal() {
+  playbackModal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showError(msg) {
+  console.warn(msg);
+}
+
+/******************************
+ * Core: open player (Illumination logic)
+ ******************************/
+async function openPlayer(list, index) {
+  if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
+    showError('Invalid playback request');
+    return;
+  }
+  currentFiltered = list;
+  currentIndex = index;
+  const movie = list[index];
+  if (!movie) { showError('Movie missing'); return; }
+
+  // metadata
+  modalTitle.textContent = movie.title || '';
+  modalDesc.textContent = movie.description || (movie.title || '');
+
+  // reset & show
+  resetPlayerContainer();
+  showModal();
+
+  // pick src
+  let src = '';
+  if (typeof movie.video === 'object' && movie.video !== null) {
+    src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+  } else {
+    src = movie.video;
+  }
+  if (!src) {
+    showError('No video source');
+    setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+    return;
+  }
+
+  const lc = (src || '').toLowerCase();
+
+  /******************************
+   * 🔴 ADD: DASH / MPD + ClearKey (from test.html)
+   ******************************/
+  if (typeof movie.video === 'object' && movie.video.mpd) {
+    const v = document.getElementById(modalVideoId);
+    if (!v) {
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(movie.video.mpd)}`;
+      return;
     }
-    function isYouTube(url) {
-      if (!url) return false;
-      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
-    }
 
-    /******************************
-     * Reset player container
-     ******************************/
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-    }
+    try {
+      window.shakaPlayer = new shaka.Player(v);
 
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function showError(msg) {
-      console.warn(msg);
-    }
-
-    /******************************
-     * Core: open player (Illumination logic)
-     ******************************/
-    function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
-      currentFiltered = list;
-      currentIndex = index;
-      const movie = list[index];
-      if (!movie) { showError('Movie missing'); return; }
-
-      // metadata
-      modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.title || '');
-
-      // reset & show
-      resetPlayerContainer();
-      showModal();
-
-      // pick src
-      let src = '';
-      if (typeof movie.video === 'object' && movie.video !== null) {
-        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
-      } else {
-        src = movie.video;
-      }
-      if (!src) {
-        showError('No video source');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
-        return;
-      }
-
-      const lc = (src || '').toLowerCase();
-
-      // iframe-hosted common hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // youtube
-      if (isYouTube(src)) {
-        let embed = src;
-        try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch (e) {}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // HLS
-      if (isHls(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) { showError('Video element missing'); return; }
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-          currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+      if (movie.video.key) {
+        const [kid, key] = movie.video.key.split(':');
+        window.shakaPlayer.configure({
+          drm: {
+            clearKeys: {
+              [kid]: key
             }
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-        }
-        return;
+          }
+        });
       }
 
-      // MP4
-      if (isMP4(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
-        v.src = src;
+      await window.shakaPlayer.load(movie.video.mpd);
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      return; // ⛔ STOP — do not continue to HLS/MP4
+    } catch (e) {
+      console.warn('DASH playback failed', e);
+    }
+  }
+
+  /******************************
+   * iframe-hosted common hosts
+   ******************************/
+  if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+    playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+    playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    return;
+  }
+
+  // youtube
+  if (isYouTube(src)) {
+    let embed = src;
+    try {
+      if (src.includes('watch') && src.includes('v=')) {
+        const v = new URLSearchParams(src.split('?')[1]).get('v');
+        if (v) embed = `https://www.youtube.com/embed/${v}`;
+      } else if (src.includes('youtu.be/')) {
+        const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+        if (p) embed = `https://www.youtube.com/embed/${p}`;
+      }
+    } catch (e) {}
+    playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+    playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    return;
+  }
+
+  // HLS
+  if (isHls(src)) {
+    const v = document.getElementById(modalVideoId);
+    if (!v) { showError('Video element missing'); return; }
+    if (window.Hls && Hls.isSupported()) {
+      currentHls = new Hls();
+      try {
+        currentHls.loadSource(src);
+        currentHls.attachMedia(v);
+      } catch (e) { console.warn('HLS attach error', e); }
+      currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
         v.play().catch(()=>{});
         playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+      });
+      currentHls.on(Hls.Events.ERROR, function(event, data) {
+        console.warn('HLS error', data);
+        if (data && data.fatal) {
+          try { currentHls.destroy(); } catch(e){}
+          currentHls = null;
+          showError('HLS fatal error — redirecting to player.html');
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+        }
+      });
+    } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+      v.src = src;
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    } else {
+      showError('HLS not supported — redirecting to player.html');
+      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
     }
+    return;
+  }
+
+  // MP4
+  if (isMP4(src)) {
+    const v = document.getElementById(modalVideoId);
+    if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+    v.src = src;
+    v.play().catch(()=>{});
+    playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    return;
+  }
+
+  // fallback
+  window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+}
+
 
     /******************************
      * Controls
