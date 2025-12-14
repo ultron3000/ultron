@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Live TV Channels</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Video.js -->
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+
+<!-- Shaka Player -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b0b0b;
+  color: #fff;
+}
+
+header {
+  background: #111;
+  padding: 12px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: calc(100vh - 50px);
+}
+
+#channelList {
+  overflow-y: auto;
+  background: #141414;
+  padding: 10px;
+}
+
+.channel {
+  padding: 10px;
+  margin-bottom: 6px;
+  background: #1e1e1e;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.channel:hover {
+  background: #2a2a2a;
+}
+
+#playerBox {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+}
+</style>
+</head>
+
+<body>
+
+<header>📺 Live TV Player</header>
+
+<div id="container">
+  <div id="channelList"></div>
+
+  <div id="playerBox">
+    <video id="video" class="video-js vjs-default-skin" controls autoplay></video>
+  </div>
+</div>
+
+<script>
+const channels = [
+  // 🔴 PASTE CONTINUES — trimmed here for readability
+  // 🔴 DO NOT CHANGE STRUCTURE
+
+  {"id":"sony12","m3u8":"https://waptv.wapka.xyz/index.html"},
+  {"id":"sony122","mpd":"https://abmyxykaaaaaaaamkyvb65fuqebyg.7a77200bf98444ac997a89ed83775793.emt.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/f60kqesunw/out/v1/a435ed7a00f947deb4369b46d8f2fb70/cenc.mpd","key":"1779c27b9d077a3ba0c9cc1bb9a94b9f:cc5cf3b7928fb9e0a1ee6a8b566f0a8e"},
+  {"id":"amzonhindi","mpd":"https://ottb.live.cf.ww.aiv-cdn.net/sin-nitro/live/dash/enc/feh5lmnfkl/out/v1/2f30a0bcdbc64a09b2e101d0b71ed290/cenc.mpd","key":"c349ec4cb941fbf48a81798dffe7e5eb:857bfaea3e7173bc3c63ce3749cabfcf"},
+  {"id":"fox","m3u8":"https://tv4go.wapka.xyz/foxeng"},
+  {"id":"willowtv","m3u8":"https://tvgotk.github.io/p1/?url=https://fl1.moveonjoy.com/WILLOW_CRICKET/index.m3u8"},
+  {"id":"skycricket1","m3u8":"https://rr3---sg-npoe23nsr.lioncdn.net/Sky_Sports_Cricket_Live_TV/tracks-v1a1/mono.m3u8"},
+  {"id":"bein1","mpd":"https://aba5sdmaaaaaaaamooyrewxky2c4j.otte.live.cf.ww.aiv-cdn.net/syd-nitro/live/dash/enc/ghwcl6hv68/out/v1/83536910d8034e9b9895a20fbe1c1687/cenc.mpd","key":"335dad778109954503dcbb21dc92015f:24bfd75d436cbf73168a2a2dccd40281"},
+  {"id":"ssc1","mpd":"https://ssc1-ak.akamaized.net/out/v1/c696e4819b55414388a1a487e8a45ca1/index.mpd","key":"d84c325f36814f39bbe59080272b10c3:550727de4c96ef1ecff874905493580f"},
+  {"id":"espn","mpd":"https://live-atv-cdn.izzigo.tv/1/out/u/dash/ESPNHD/dash/default.mpd","key":"bb43112b7b72e9c287da0ecdec8606a7:29e3d2678107f0ab0b35b6537c734f2a"},
+  {"id":"redbull","m3u8":"https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master_3360.m3u8"},
+  {"id": "tnt1",
+ "mpd": "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/wf8usag51e/out/v1/bd3b0c314fff4bb1ab4693358f3cd2d3/cenc.mpd",
+ "key": "d0f2e5c39e70c18f29bf77768a1ad89a:d6853c51fcf37a18905f0609972395d7" }, 
+{"id": "tnt2",
+ "mpd": "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/bsaaetko8v/out/v1/f8fa17f087564f51aa4d5c700be43ec4/cenc.mpd",
+ "key": "9f51f3dc6313ac8bc668e2d9d1c04dfa:74bc63e5a193454a91ca494975db33f9" },
+{"id": "tnt3",
+ "mpd": "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/lsdasbvglv/out/v1/bb548a3626cd4708afbb94a58d71dce9/cenc.mpd",
+ "key": "a93c1cbfdccd23233bac13540c693e7f:2f6ab2e6693eb847eff3c9da8f9d01fc" }, 
+ {"id": "tnt4",
+ "mpd": "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/i2pcjr4pe5/out/v1/912e9db56d75403b8a9ac0a719110f36/cenc.mpd",
+ "key": "192b1115da041585c77200128549efa1:634e10efe4abbb14be400a3ccbac0258" },
+ {"id": "tnt5",
+ "mpd": "https://otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/gesdwrdncn/out/v1/79e752f1eccd4e18b6a8904a0bc01f2d/cenc.mpd",
+ "key": "60c0d9b41475e01db4ffb91ed557fbcc:36ee40e58948ca15e3caba8d47b8f34b" },
+
+];
+
+const channelList = document.getElementById('channelList');
+const video = document.getElementById('video');
+let vjsPlayer = videojs(video);
+let shakaPlayer = null;
+
+channels.forEach(ch => {
+  const div = document.createElement('div');
+  div.className = 'channel';
+  div.textContent = ch.id;
+  div.onclick = () => playChannel(ch);
+  channelList.appendChild(div);
+});
+
+async function playChannel(ch) {
+  if (shakaPlayer) {
+    await shakaPlayer.destroy();
+    shakaPlayer = null;
+  }
+
+  if (ch.m3u8) {
+    vjsPlayer.src({
+      src: ch.m3u8,
+      type: 'application/x-mpegURL'
+    });
+    vjsPlayer.play();
+  }
+
+  if (ch.mpd) {
+    vjsPlayer.pause();
+    shakaPlayer = new shaka.Player(video);
+
+    if (ch.key) {
+      const [kid, key] = ch.key.split(':');
+      shakaPlayer.configure({
+        drm: { clearKeys: { [kid]: key } }
+      });
+    }
+
+    try {
+      await shakaPlayer.load(ch.mpd);
+    } catch (e) {
+      alert('Playback error');
+      console.error(e);
+    }
+  }
+}
+</script>
+
+</body>
+</html>
