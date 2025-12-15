@@ -67,6 +67,155 @@
   .light .modal-close{background:#fff;color:#111}
 
   @media(max-width:640px){ .poster{height:220px} .site-logo{height:52px} .toolbar{gap:8px} }
+  /* ============================
+   MOBILE FIX — DOES NOT TOUCH DESKTOP
+   ============================ */
+
+@media (max-width: 767px) {
+
+  /* Proper mobile player layout (matches your working version) */
+  .player-wrapper {
+    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
+    height: 0 !important;
+    position: relative !important;
+  }
+
+  .player-wrapper video,
+  .player-wrapper iframe {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Proper stacked mobile controls */
+  .player-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    background: #0b1220 !important;
+    z-index: 20 !important;
+  }
+
+  /* Mobile control row wraps properly */
+  .controls-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 10px !important;
+  }
+
+  /* Mobile buttons use icon-only layout */
+  .btn {
+    padding: 8px !important;
+    font-size: 0 !important;      /* hides text on mobile */
+    min-width: 48px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .btn i {
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+  }
+
+  /* Close button always visible on mobile */
+  #topCloseBtn {
+    opacity: 1 !important;
+  }
+}
+
+/* =========================
+   CARS-STYLE PLAYER CONTROLS
+   ========================= */
+
+.player-meta{
+  background:#0b1220;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+
+.controls-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:12px;
+  flex-wrap:nowrap;
+}
+
+/* Buttons like Cars */
+.controls-row .btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-width:44px;
+  height:44px;
+  padding:0 12px;
+  font-size:14px;
+  border-radius:999px;
+  touch-action:manipulation;
+}
+
+/* Icon-only buttons (mobile friendly) */
+.controls-row .btn i{
+  font-size:16px;
+}
+
+/* Video height tuning */
+.player-container video,
+.player-container iframe{
+  max-height:70vh;
+}
+
+/* =========================
+   MOBILE OPTIMIZATION
+   ========================= */
+@media (max-width: 768px){
+
+  .player-container video,
+  .player-container iframe{
+    height:52vh;
+  }
+
+  .player-meta{
+    padding:6px 8px 10px;
+  }
+
+  .meta-left{
+    display:none; /* Cars hides title on mobile */
+  }
+
+  .controls-row{
+    justify-content:space-between;
+    gap:6px;
+  }
+
+  .controls-row .btn{
+    flex:1;
+    padding:0;
+    height:42px;
+    font-size:0; /* hide text */
+  }
+
+  .controls-row .btn i{
+    font-size:18px;
+  }
+}
+
+/* =========================
+   VERY SMALL SCREENS
+   ========================= */
+@media (max-width: 420px){
+  .player-container video,
+  .player-container iframe{
+    height:48vh;
+  }
+}
+
 </style>
 </head>
 <body class="mode-standard">
@@ -104,15 +253,41 @@
   <section id="gridWrap" class="movie-grid" aria-live="polite"></section>
 </main>
 
-<!-- modal -->
+<!-- MODAL -->
 <div id="videoModal" class="modal" aria-hidden="true">
   <div class="modal-box" role="dialog" aria-modal="true" aria-label="Video player">
+
+    <!-- TOP CLOSE -->
     <button id="modalClose" class="modal-close" aria-label="Close player">&times;</button>
-    <div id="playerContainer" style="width:100%;display:flex;align-items:center;justify-content:center">
+
+    <!-- PLAYER -->
+    <div id="playerContainer" class="player-container">
       <video id="modalVideo" controls playsinline></video>
+      <button id="topCloseBtn" class="top-close" aria-label="Close">
+        ✕
+      </button>
     </div>
+
+    <!-- META + CONTROLS -->
+    <div class="player-meta">
+      <div class="meta-left">
+        <h3 id="modalTitle">Title</h3>
+        <p id="modalDesc" class="text-sm"></p>
+      </div>
+
+      <div class="controls-row">
+        <button id="prevBtn" class="btn">⏮ Prev</button>
+        <button id="playPauseBtn" class="btn">▶ Play</button>
+        <button id="nextBtn" class="btn">Next ⏭</button>
+        <button id="fullscreenBtn" class="btn">⛶</button>
+        <button id="muteBtn" class="btn">🔊</button>
+        <button id="closeBtn" class="btn">✕</button>
+      </div>
+    </div>
+
   </div>
 </div>
+
 
 <script>
 /* Movie list */
@@ -180,12 +355,16 @@ const movies = [
  { title: "पांडू", url: "https://steamtape.com/e/klRApzy2vWuOlok/", image: "https://m.media-amazon.com/images/M/MV5BZjc2Y2UzNTctZjM3YS00Mzc2LTk3ZTYtMmFhMzA2YmE1NmEwXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },  
 ];
 
+
+
 /* DOM refs */
 const gridWrap = document.getElementById('gridWrap');
 const modal = document.getElementById('videoModal');
 const playerContainer = document.getElementById('playerContainer');
 const modalVideoId = 'modalVideo';
 let currentHls = null;
+let currentIndex = -1;
+
 
 /* helper checks */
 const isYouTube = u => /youtu/i.test(u);
@@ -216,8 +395,13 @@ function makeCard(m){
   inner.appendChild(img);
   inner.appendChild(t);
   card.appendChild(inner);
-  card.addEventListener('click', ()=> playInModal(m.title, m.url));
-  card.addEventListener('keydown', e=> { if(e.key==='Enter' || e.key===' ') playInModal(m.title, m.url); });
+ const index = movies.indexOf(m);
+
+card.addEventListener('click', ()=> playInModal(m.title, m.url, index));
+card.addEventListener('keydown', e=> { 
+  if(e.key==='Enter' || e.key===' ')
+    playInModal(m.title, m.url, index);
+});
   return card;
 }
 movies.forEach(m => gridWrap.appendChild(makeCard(m)));
@@ -230,29 +414,76 @@ function resetPlayer(){
 function showModal(){ modal.classList.add('active'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden'; }
 function hideModal(){ modal.classList.remove('active'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
 
-function playInModal(title, url){
+function playInModal(title, url, index){
+  currentIndex = index;
   resetPlayer();
-  const videoEl = document.getElementById(modalVideoId);
 
-  if(isStreamtape(url)){
-    playerContainer.innerHTML = `<iframe src="${url}" allow="autoplay; fullscreen" allowfullscreen style="width:100%;height:72vh;border:0;border-radius:8px"></iframe>`;
-    showModal(); return;
+  const videoEl = document.getElementById(modalVideoId);
+  const lower = url.toLowerCase();
+
+  // STREAMTAPE
+  if (isStreamtape(url)) {
+    playerContainer.innerHTML =
+      `<iframe src="${url}" allow="autoplay; fullscreen"
+        allowfullscreen
+        style="width:100%;height:72vh;border:0;border-radius:8px"></iframe>`;
+    showModal();
+    return;
   }
-  if(isYouTube(url)){
-    const id = url.includes('v=') ? new URL(url).searchParams.get('v') : url.split('/').pop();
-    playerContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&rel=0" allow="autoplay; encrypted-media; fullscreen" frameborder="0" style="width:100%;height:72vh;border:0;border-radius:8px" allowfullscreen></iframe>`;
-    showModal(); return;
+
+  // YOUTUBE
+  if (isYouTube(url)) {
+    const id = url.includes('v=')
+      ? new URL(url).searchParams.get('v')
+      : url.split('/').pop();
+
+    playerContainer.innerHTML =
+      `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
+        allow="autoplay; encrypted-media; fullscreen"
+        style="width:100%;height:72vh;border:0;border-radius:8px"
+        allowfullscreen></iframe>`;
+    showModal();
+    return;
   }
-  if(isMega(url)){
-    playerContainer.innerHTML = `<iframe src="${url}" allowfullscreen style="width:100%;height:72vh;border:0;border-radius:8px"></iframe>`;
-    showModal(); return;
+
+  // MEGA
+  if (isMega(url)) {
+    playerContainer.innerHTML =
+      `<iframe src="${url}" allowfullscreen
+        style="width:100%;height:72vh;border:0;border-radius:8px"></iframe>`;
+    showModal();
+    return;
   }
-  if(isHls(url)){
-    if(Hls.isSupported()){
+
+  // GOOGLE DRIVE
+  if (isGDrive(url)) {
+    let fileId = "";
+    const match = url.match(/\/d\/([^/]+)/);
+    if (match) fileId = match[1];
+    const qp = new URL(url).searchParams.get("id");
+    if (!fileId && qp) fileId = qp;
+
+    if (fileId) {
+      playerContainer.innerHTML =
+        `<iframe src="https://drive.google.com/file/d/${fileId}/preview"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+          style="width:100%;height:72vh;border:0;border-radius:8px"></iframe>`;
+      showModal();
+      return;
+    }
+  }
+
+  // HLS
+  if (isHls(url)) {
+    if (Hls.isSupported()) {
       currentHls = new Hls();
       currentHls.loadSource(url);
       currentHls.attachMedia(videoEl);
-      currentHls.on(Hls.Events.MANIFEST_PARSED, ()=>{ showModal(); videoEl.play().catch(()=>{}); });
+      currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+        showModal();
+        videoEl.play().catch(()=>{});
+      });
     } else {
       videoEl.src = url;
       showModal();
@@ -260,47 +491,70 @@ function playInModal(title, url){
     }
     return;
   }
-  if(isMP4(url)){
+
+  // MP4
+  if (isMP4(url) || isIndexer(url)) {
     videoEl.src = url;
     showModal();
     videoEl.play().catch(()=>{});
     return;
   }
-  // Indexer direct links (play as MP4)
-if (isIndexer(url)) {
-    videoEl.src = url;
-    showModal();
-    videoEl.play().catch(()=>{});
-    return;
-}
-// Google Drive preview embed
-if (isGDrive(url)) {
-    let fileId = "";
-    
-    // Method 1: Extract /d/FILEID/
-    const match = url.match(/\/d\/([^/]+)/);
-    if (match) fileId = match[1];
 
-    // Fallback for ?id= 
-    const idParam = new URL(url).searchParams.get("id");
-    if (!fileId && idParam) fileId = idParam;
-
-    if (fileId) {
-        const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-        playerContainer.innerHTML = `
-            <iframe src="${embedUrl}" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen 
-                    style="width:100%;height:72vh;border:0;border-radius:8px">
-            </iframe>`;
-        showModal();
-        return;
-    }
+  // FALLBACK
+  window.location.href =
+    `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
 }
 
+/* =========================
+   PLAYER CONTROLS (WORKING)
+   ========================= */
+const playPauseBtn = document.getElementById('playPauseBtn');
+const nextBtn = document.getElementById('nextBtn');
+const prevBtn = document.getElementById('prevBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const muteBtn = document.getElementById('muteBtn');
+const closeBtn = document.getElementById('closeBtn');
+const topCloseBtn = document.getElementById('topCloseBtn');
 
-  window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
-}
+playPauseBtn && playPauseBtn.addEventListener('click', () => {
+  const v = document.getElementById(modalVideoId);
+  if (v) v.paused ? v.play() : v.pause();
+});
+
+nextBtn && nextBtn.addEventListener('click', () => {
+  if (currentIndex < movies.length - 1) {
+    const m = movies[currentIndex + 1];
+    playInModal(m.title, m.url, currentIndex + 1);
+  }
+});
+
+prevBtn && prevBtn.addEventListener('click', () => {
+  if (currentIndex > 0) {
+    const m = movies[currentIndex - 1];
+    playInModal(m.title, m.url, currentIndex - 1);
+  }
+});
+
+fullscreenBtn && fullscreenBtn.addEventListener('click', () => {
+  const v = document.getElementById(modalVideoId);
+  if (v && v.requestFullscreen) v.requestFullscreen();
+});
+
+muteBtn && muteBtn.addEventListener('click', () => {
+  const v = document.getElementById(modalVideoId);
+  if (v) v.muted = !v.muted;
+});
+
+closeBtn && closeBtn.addEventListener('click', () => {
+  resetPlayer();
+  hideModal();
+});
+
+topCloseBtn && topCloseBtn.addEventListener('click', () => {
+  resetPlayer();
+  hideModal();
+});
+
 
 /* close handlers */
 document.getElementById('modalClose').addEventListener('click', ()=>{ resetPlayer(); hideModal(); });
