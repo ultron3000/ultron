@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>मराठी चित्रपट संग्रह</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
 <style>
   :root{--bg:#070707;--card:#121214;--accent:#ffc107;--btn-bg:#1f1f1f}
   .light{--bg:#f7f7f8;--card:#ffffff;--btn-bg:#ffffff}
@@ -195,11 +199,14 @@
   }
 
   .controls-row .btn{
-    flex:1;
-    padding:0;
-    height:42px;
-    font-size:0; /* hide text */
-  }
+  flex:1;
+  padding:0;
+  height:42px;
+}
+
+.controls-row .btn span{
+  display:none;
+}
 
   .controls-row .btn i{
     font-size:18px;
@@ -215,6 +222,36 @@
     height:48vh;
   }
 }
+
+
+
+/* =========================
+   CARS BUTTON COLORS FIX
+   ========================= */
+
+.controls-row .btn{
+  background:transparent;
+  border:2px solid #ffc107;
+  color:#ffc107;
+}
+
+.controls-row .btn i{
+  color:#ffc107;
+}
+
+/* hover / active */
+.controls-row .btn:hover{
+  background:rgba(255,193,7,0.15);
+}
+
+/* mobile icon-only buttons */
+@media (max-width:768px){
+  .controls-row .btn{
+    background:rgba(255,193,7,0.12);
+    border:1px solid #ffc107;
+  }
+}
+
 
 </style>
 </head>
@@ -276,13 +313,13 @@
       </div>
 
       <div class="controls-row">
-        <button id="prevBtn" class="btn">⏮ Prev</button>
-        <button id="playPauseBtn" class="btn">▶ Play</button>
-        <button id="nextBtn" class="btn">Next ⏭</button>
-        <button id="fullscreenBtn" class="btn">⛶</button>
-        <button id="muteBtn" class="btn">🔊</button>
-        <button id="closeBtn" class="btn">✕</button>
-      </div>
+  <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i><span>Prev</span></button>
+  <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i><span>Play</span></button>
+  <button id="nextBtn" class="btn"><i class="fas fa-step-forward"></i><span>Next</span></button>
+  <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+  <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+  <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+</div>
     </div>
 
   </div>
@@ -505,6 +542,9 @@ function playInModal(title, url, index){
     `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
 }
 
+function getVideo(){
+  return document.getElementById(modalVideoId);
+}
 /* =========================
    PLAYER CONTROLS (WORKING)
    ========================= */
@@ -516,9 +556,10 @@ const muteBtn = document.getElementById('muteBtn');
 const closeBtn = document.getElementById('closeBtn');
 const topCloseBtn = document.getElementById('topCloseBtn');
 
-playPauseBtn && playPauseBtn.addEventListener('click', () => {
-  const v = document.getElementById(modalVideoId);
-  if (v) v.paused ? v.play() : v.pause();
+playPauseBtn.addEventListener('click', () => {
+  const v = getVideo();
+  if (!v) return; // iframe → ignore
+  v.paused ? v.play() : v.pause();
 });
 
 nextBtn && nextBtn.addEventListener('click', () => {
@@ -535,14 +576,21 @@ prevBtn && prevBtn.addEventListener('click', () => {
   }
 });
 
-fullscreenBtn && fullscreenBtn.addEventListener('click', () => {
-  const v = document.getElementById(modalVideoId);
-  if (v && v.requestFullscreen) v.requestFullscreen();
+fullscreenBtn.addEventListener('click', () => {
+  const v = getVideo();
+  if (v && v.requestFullscreen) {
+    v.requestFullscreen();
+  } else {
+    // iframe fullscreen fallback (Cars behavior)
+    const iframe = playerContainer.querySelector('iframe');
+    iframe && iframe.requestFullscreen && iframe.requestFullscreen();
+  }
 });
 
-muteBtn && muteBtn.addEventListener('click', () => {
-  const v = document.getElementById(modalVideoId);
-  if (v) v.muted = !v.muted;
+muteBtn.addEventListener('click', () => {
+  const v = getVideo();
+  if (!v) return;
+  v.muted = !v.muted;
 });
 
 closeBtn && closeBtn.addEventListener('click', () => {
