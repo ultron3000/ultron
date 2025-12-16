@@ -851,6 +851,11 @@ video:-webkit-full-screen {
 /******************************
  * Type detection helpers
  ******************************/
+
+function isMobileDevice() {
+  return /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+    
 function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
 function isHls(url) {
   if (!url) return false;
@@ -947,37 +952,56 @@ if (movie.id && !movie.video) {
 
 
   /******************************
-   * 🔴 ADD: DASH / MPD + ClearKey (from test.html)
-   ******************************/
-  if (typeof movie.video === 'object' && movie.video.mpd) {
-    const v = document.getElementById(modalVideoId);
-    if (!v) {
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(movie.video.mpd)}`;
-      return;
-    }
+ * 🔴 DASH / MPD + ClearKey (DESKTOP ONLY)
+ ******************************/
+if (typeof movie.video === 'object' && movie.video.mpd) {
 
-    try {
-      window.shakaPlayer = new shaka.Player(v);
+  // ❌ BLOCK DRM DASH ON MOBILE (Chrome / iOS restriction)
+  if (isMobileDevice()) {
+    alert('This channel works on desktop only.');
+    closeModalHandler();
+    return;
+  }
 
-      if (movie.video.key) {
-        const [kid, key] = movie.video.key.split(':');
-        window.shakaPlayer.configure({
-          drm: {
-            clearKeys: {
-              [kid]: key
+  const v = document.getElementById(modalVideoId);
+  if (!v) return;
+
+  try {
+    shaka.polyfill.installAll();
+
+    window.shakaPlayer = new shaka.Player(v);
+
+    if (movie.video.key) {
+      const [kid, key] = movie.video.key.split(':');
+
+      window.shakaPlayer.configure({
+        drm: {
+          clearKeys: {
+            [kid]: key
+          },
+          advanced: {
+            'com.widevine.alpha': {
+              videoRobustness: 'SW_SECURE_DECODE'
             }
           }
-        });
-      }
-
-      await window.shakaPlayer.load(movie.video.mpd);
-      v.play().catch(()=>{});
-      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      return; // ⛔ STOP — do not continue to HLS/MP4
-    } catch (e) {
-      console.warn('DASH playback failed', e);
+        }
+      });
     }
+
+    await window.shakaPlayer.load(movie.video.mpd);
+    v.play().catch(() => {});
+    playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    return;
+
+  } catch (e) {
+    console.warn('DASH playback failed', e);
+    alert('Playback failed for this channel.');
+    closeModalHandler();
+    return;
   }
+}
+
+    
 
   /******************************
    * iframe-hosted common hosts
