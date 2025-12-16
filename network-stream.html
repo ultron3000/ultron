@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Network Stream Player + Link Extractor</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    body {
+      background: #000;
+      color: #ffcc00;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input {
+      width: 60%;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin-left: 10px;
+      border-radius: 5px;
+      border: none;
+      background-color: #ffcc00;
+      color: black;
+      cursor: pointer;
+    }
+    video {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 900px;
+      height: auto;
+      background: black;
+      border: 3px solid #ffcc00;
+      border-radius: 15px;
+    }
+    #links { margin-top: 20px; }
+    .link-item { margin: 10px 0; }
+    .link-item button { margin-left: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>Network Stream Player</h2>
+  <input type="text" id="streamUrl" placeholder="Paste stream link (.txt, .m3u8, .mp4)" />
+  <button onclick="playStream()">Play</button>
+
+  <br><br>
+
+  <input type="text" id="pageUrl" placeholder="Paste webpage URL to extract video links" />
+  <button onclick="extractLinks()">Extract</button>
+
+  <video id="videoPlayer" controls autoplay crossorigin="anonymous"></video>
+
+  <div id="links"></div>
+
+  <script>
+    function playStream(urlInputId = 'streamUrl') {
+      const video = document.getElementById('videoPlayer');
+      const url = document.getElementById(urlInputId).value.trim();
+
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) alert("HLS playback error: " + data.details);
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.addEventListener("loadedmetadata", () => video.play());
+      } else {
+        video.src = url;
+        video.load();
+        video.play();
+      }
+    }
+
+    async function extractLinks() {
+      const pageUrl = document.getElementById('pageUrl').value.trim();
+      const linksContainer = document.getElementById('links');
+      linksContainer.innerHTML = '<p style="color:white">Loading...</p>';
+
+      try {
+        const response = await fetch(`https://stream-production-e59c.up.railway.app/extract?url=${encodeURIComponent(pageUrl)}`);
+        const html = await response.text();
+
+        // Match video, source, and direct links in HTML and JS
+        const regex = /https?:[^"'\s>]+\.(m3u8|mp4)(\?[^"'\s>]*)?/gi;
+        const matches = [...html.matchAll(regex)];
+
+        if (matches.length === 0) {
+          linksContainer.innerHTML = '<p style="color:red">No video links found.</p>';
+          return;
+        }
+
+        linksContainer.innerHTML = '<h3>Found Links:</h3>';
+        matches.forEach((match, index) => {
+          const link = match[0];
+          const id = `foundLink${index}`;
+          linksContainer.innerHTML += `
+            <div class="link-item">
+              <input type="text" id="${id}" value="${link}" readonly size="60">
+              <button onclick="copyToClipboard('${id}')">Copy</button>
+              <button onclick="document.getElementById('streamUrl').value='${link}'; playStream();">Play</button>
+            </div>
+          `;
+        });
+      } catch (err) {
+        linksContainer.innerHTML = '<p style="color:red">Failed to extract links. Page may block access.</p>';
+        console.error(err);
+      }
+    }
+
+    function copyToClipboard(id) {
+      const input = document.getElementById(id);
+      input.select();
+      input.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(input.value).then(() => {
+        alert("Copied to clipboard");
+      });
+    }
+  </script>
+</body>
+  <!-- GitHub Dark Theme Embedded Player Section -->
+<hr style="margin:40px 0; border: 1px solid #ffcc00;">
+<h2>Embed-Ready Movie Player (GitHub Pages Compatible)</h2>
+<p>Use ?movie= URL parameter to auto-load streams.</p>
+<input id="ghUrlInput" type="text" placeholder="Paste .m3u8 or .mp4 link here or use ?movie=" style="width:80%; padding:10px; margin:10px 0;" />
+<button onclick="ghPlayStream()" style="padding:10px 20px; background:#ffcc00; color:black; border:none; border-radius:6px;">Play</button>
+<br/>
+<video id="ghVideoPlayer" controls autoplay style="margin-top:20px; width:90%; max-width:900px; background:black; border:3px solid #ffcc00; border-radius:12px;"></video>
+
+<script>
+  function ghGetQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+
+  function ghPlayStream() {
+    const url = document.getElementById('ghUrlInput').value.trim();
+    const video = document.getElementById('ghVideoPlayer');
+    if (Hls.isSupported() && url.endsWith(".m3u8")) {
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.play();
+      });
+    } else {
+      video.src = url;
+      video.load();
+      video.play();
+    }
+  }
+
+  window.addEventListener("load", () => {
+    const movie = ghGetQueryParam("movie");
+    if (movie) {
+      document.getElementById("ghUrlInput").value = movie;
+      ghPlayStream();
+    }
+  });
+</script>
+  <script>
+  async function ghPlayStream() {
+    const video = document.getElementById('ghVideoPlayer');
+    const input = document.getElementById('ghUrlInput').value.trim();
+    let url = input;
+
+    // If it's a .txt file, fetch it
+    if (url.endsWith('.txt')) {
+      try {
+        const response = await fetch(url);
+        url = (await response.text()).trim();
+      } catch (err) {
+        alert("Failed to load .txt file");
+        return;
+      }
+    }
+
+    // Reset player
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+
+    // Use HLS.js for .m3u8
+    if (Hls.isSupported() && url.endsWith(".m3u8")) {
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        video.play();
+      });
+      hls.on(Hls.Events.ERROR, function (event, data) {
+        if (data.fatal) alert("HLS error: " + data.details);
+      });
+    } else {
+      // Fallback to native HTML5 for MP4 or supported formats
+      video.src = url;
+      video.addEventListener("loadedmetadata", () => video.play());
+      video.load();
+    }
+  }
+
+  function ghGetQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+  }
+
+  window.addEventListener("load", () => {
+    const movie = ghGetQueryParam("movie");
+    if (movie) {
+      document.getElementById("ghUrlInput").value = movie;
+      ghPlayStream();
+    }
+  });
+</script>
+
+
+</html>
