@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <title>Live Channels</title>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
@@ -134,13 +134,29 @@
       width: 100%;
       height: 100%;
       max-width: 980px;
-      max-height: 90vh;
+      max-height: 100vh;
       border-radius: 0;
       overflow: hidden;
       background: #0b1220;
       box-shadow: 0 30px 80px rgba(0,0,0,0.7);
       display: flex;
       flex-direction: column;
+    }
+
+    @media (max-width: 640px) {
+      .modal-card {
+        max-height: 100vh;
+      }
+      .player-wrapper {
+        padding-bottom: 56.25% !important;
+      }
+      .player-meta {
+        padding: 8px !important;
+      }
+      .btn {
+        padding: 6px 8px !important;
+        font-size: 0.8rem !important;
+      }
     }
     .player-wrapper { 
       position: relative;
@@ -345,12 +361,12 @@
 
 <div class="container mx-auto px-4 py-8 max-w-7xl">
 
-<header class="text-center mb-8">
-  <h1 class="text-3xl font-bold text-yellow-400">📡 Live TV Channels</h1>
+<header class="text-center mb-4 sm:mb-6 md:mb-8">
+  <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">📡 Live TV Channels</h1>
 </header>
 
 <!-- Category Tabs -->
-<div class="flex flex-wrap justify-center gap-3 mb-8">
+<div class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-4 sm:mb-6 md:mb-8 overflow-x-auto py-2 px-1 sm:px-0">
   <button class="category-tab active px-4 py-2 rounded-full border border-yellow-400" data-category="all">All</button>
   <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="cricket">Cricket</button>
   <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="football">Football</button>
@@ -377,7 +393,7 @@
 </div>
 <!-- Movies Grid -->
 <div class="mb-12">
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
+<div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6" id="movies"></div>
 </div>
 <!-- Footer / Social -->
   <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
@@ -766,23 +782,7 @@
   },
   category: "education"
 },
-{
-  id: "sts11",
-  title: "Star Sports 1",
-  image: "https://www.tataplay.com/s3-api/v1/assets/channels/star-sports-1.gif",
-  video: null,
-  category: "sports"
-},
-{
-  id: "tencricket",
-  title: "Ten Cricket",
-  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLMhVJFXkNYK7trsuhRe58ZK1-pQLUhD3T6w&s",
-  video: null,
-  category: "sports"
-}
 
-
-  
 ];
 
 
@@ -1097,6 +1097,28 @@ if (movie.id && !movie.video) {
       if (e.target === playbackModal) closeModalHandler();
     });
 
+    // Touch events for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    playerWrapper.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+
+    playerWrapper.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+
+    function handleSwipe() {
+      if (touchEndX < touchStartX - 50) {
+        playNext(); // Swipe left
+      }
+      if (touchEndX > touchStartX + 50) {
+        playPrev(); // Swipe right
+      }
+    }
+
     // Escape & keyboard
     document.addEventListener('keydown', (e) => {
       if (!playbackModal.classList.contains('active')) return;
@@ -1123,7 +1145,7 @@ if (movie.id && !movie.video) {
         const delayClass = `delay-${(index % 5) * 100}`;
 
         const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-lg sm:rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
         div.innerHTML = `
           <div class="relative overflow-hidden rounded-t-lg">
             <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
