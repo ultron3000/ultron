@@ -889,11 +889,9 @@ async function openPlayer(list, index) {
   const lc = (src || '').toLowerCase();
 
   /******************************
- * LIVE TV RESOLVER (AUTHORITATIVE)
- * Uses live-player.html
+ * LIVE TV RESOLVER (FINAL)
  ******************************/
-if (movie.id && movie.video === null) {
-  // Ensure clean container
+if (movie.id && !movie.video) {
   resetPlayerContainer();
   showModal();
 
@@ -908,7 +906,7 @@ if (movie.id && movie.video === null) {
   `;
 
   playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return; // ⛔ HARD STOP — NOTHING BELOW RUNS
+  return; // ⛔ HARD STOP
 }
 
 
