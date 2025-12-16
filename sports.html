@@ -769,7 +769,7 @@
 {
   id: "sts11",
   title: "Star Sports 1",
-  image: "https://static.wikia.nocookie.net/logopedia/images/3/33/SS1_Crop.jpg/revision/latest/scale-to-width-down/200?cb=20240313135639",
+  image: "https://www.tataplay.com/s3-api/v1/assets/channels/star-sports-1.gif",
   video: null,
   category: "sports"
 },
@@ -779,7 +779,7 @@
   image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLMhVJFXkNYK7trsuhRe58ZK1-pQLUhD3T6w&s",
   video: null,
   category: "sports"
-},
+}
 
 
   
@@ -874,12 +874,6 @@ async function openPlayer(list, index) {
   resetPlayerContainer();
   showModal();
 
-  // pick src
-  let src = '';
-  // 🔁 STREAM MAP OVERRIDE (ID-BASED)
-if (movie.id && STREAM_MAP[movie.id]) {
-  movie.video = STREAM_MAP[movie.id];
-}
 
   if (typeof movie.video === 'object' && movie.video !== null) {
     src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
@@ -893,6 +887,30 @@ if (movie.id && STREAM_MAP[movie.id]) {
   }
 
   const lc = (src || '').toLowerCase();
+
+  /******************************
+ * LIVE TV RESOLVER (AUTHORITATIVE)
+ * Uses live-player.html
+ ******************************/
+if (movie.id && movie.video === null) {
+  // Ensure clean container
+  resetPlayerContainer();
+  showModal();
+
+  playerWrapper.innerHTML = `
+    <iframe
+      src="https://ultron3000.github.io/ultron/live-player.html?id=${encodeURIComponent(movie.id)}"
+      frameborder="0"
+      allow="autoplay; encrypted-media; picture-in-picture"
+      allowfullscreen
+      style="width:100%;height:100%;background:#000">
+    </iframe>
+  `;
+
+  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  return; // ⛔ HARD STOP — NOTHING BELOW RUNS
+}
+
 
   /******************************
    * 🔴 ADD: DASH / MPD + ClearKey (from test.html)
@@ -997,19 +1015,17 @@ if (movie.id && STREAM_MAP[movie.id]) {
     return;
   }
 
-  // Live TV channels → dedicated resolver
-if (movie.id) {
-  playerWrapper.innerHTML = `
-    <iframe
-      src="https://ultron3000.github.io/ultron/live-player.html?id=${encodeURIComponent(movie.id)}"
-      frameborder="0"
-      allow="autoplay; encrypted-media"
-      allowfullscreen
-      style="width:100%;height:100%;background:#000">
-    </iframe>`;
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+// 🚨 Live TV channels (iframe-blocked sources → FULL redirect)
+if (
+  movie.id &&
+  (movie.id === "sts11" || movie.id === "tencricket")
+) {
+  window.location.href =
+    "https://tv4go.pages.dev/?id=" + encodeURIComponent(movie.id);
   return;
 }
+
+
 
 
   // fallback
