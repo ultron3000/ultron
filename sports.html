@@ -766,9 +766,27 @@
   },
   category: "education"
 },
+{
+  id: "sts11",
+  title: "Star Sports 1",
+  image: "https://static.wikia.nocookie.net/logopedia/images/3/33/SS1_Crop.jpg/revision/latest/scale-to-width-down/200?cb=20240313135639",
+  video: null,
+  category: "sports"
+},
+{
+  id: "tencricket",
+  title: "Ten Cricket",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLMhVJFXkNYK7trsuhRe58ZK1-pQLUhD3T6w&s",
+  video: null,
+  category: "sports"
+},
+
 
   
 ];
+
+
+
 
 
 
@@ -791,6 +809,8 @@
     let currentHls = null;
     let currentFiltered = [];
     let currentIndex = null;
+
+
 
 /******************************
  * Type detection helpers
@@ -856,6 +876,11 @@ async function openPlayer(list, index) {
 
   // pick src
   let src = '';
+  // 🔁 STREAM MAP OVERRIDE (ID-BASED)
+if (movie.id && STREAM_MAP[movie.id]) {
+  movie.video = STREAM_MAP[movie.id];
+}
+
   if (typeof movie.video === 'object' && movie.video !== null) {
     src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
   } else {
@@ -971,6 +996,21 @@ async function openPlayer(list, index) {
     playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
     return;
   }
+
+  // Live TV channels → dedicated resolver
+if (movie.id) {
+  playerWrapper.innerHTML = `
+    <iframe
+      src="live-player.html?id=${movie.id}"
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+      style="width:100%;height:100%;background:#000">
+    </iframe>`;
+  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  return;
+}
+
 
   // fallback
   window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
