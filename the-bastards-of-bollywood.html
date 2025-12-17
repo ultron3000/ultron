@@ -98,30 +98,6 @@
     position: relative !important;
   }
 
-  /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-
-  object-fit: contain !important;
-  background-color: black;
-}
-
-/* Only cover when video aspect is cinematic */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
-    object-fit: cover !important;
-  }
-}
-
   .player-wrapper video,
   .player-wrapper iframe {
     position: absolute !important;
@@ -170,7 +146,14 @@ iframe:-webkit-full-screen {
   }
 }
 
-
+ /* === FULLSCREEN VIDEO FIX (NO UI IMPACT) === */
+video:fullscreen,
+video:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover !important;
+  background: black;
+}
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
@@ -531,15 +514,14 @@ const movies = [
       else showError('No previous video');
     }
     function toggleFullscreen() {
-  const wrapper = document.getElementById('playerWrapper');
-  if (!wrapper) return;
-
-  if (!document.fullscreenElement) {
-    wrapper.requestFullscreen().catch(() => showError('Fullscreen failed'));
-  } else {
-    document.exitFullscreen();
-  }
-}
+      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+      } else {
+        document.exitFullscreen();
+      }
+    }
     function toggleMute() {
       const v = document.getElementById('modalVideo');
       if (!v) return;
