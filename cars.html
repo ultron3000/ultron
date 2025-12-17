@@ -284,13 +284,24 @@
       }
     }
 
-    /* === FULLSCREEN VIDEO FIX (NO UI IMPACT) === */
+    /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
 video:fullscreen,
 video:-webkit-full-screen {
   width: 100vw !important;
   height: 100vh !important;
-  object-fit: cover !important;
-  background: black;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+
+  object-fit: contain !important; /* default: NO cropping */
+  background-color: black;
+}
+
+/* Only cover when video aspect is cinematic (safe to crop) */
+@media (min-aspect-ratio: 16/9) {
+  video:fullscreen,
+  video:-webkit-full-screen {
+    object-fit: cover !important;
+  }
 }
 
     /* Modal legacy styles (unused) */
