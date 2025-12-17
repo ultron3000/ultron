@@ -264,7 +264,7 @@ const channelList = document.getElementById('channelList');
 const searchBox = document.getElementById('searchBox');
 const modal = document.getElementById('playerModal');
 const closeBtn = document.getElementById('closeBtn');
-const video = document.getElementById('video');
+let video = document.getElementById('video');
 
 let vjsPlayer = videojs(video);
 let shakaPlayer = null;
@@ -307,14 +307,38 @@ async function openPlayer(ch) {
 async function closePlayer() {
   modal.style.display = 'none';
 
+  // Destroy Shaka cleanly
   if (shakaPlayer) {
     await shakaPlayer.destroy();
     shakaPlayer = null;
   }
 
-  vjsPlayer.pause();
-  vjsPlayer.reset();
+  // Dispose Video.js completely
+  if (vjsPlayer) {
+    vjsPlayer.dispose();
+    vjsPlayer = null;
+  }
+
+  // Recreate video element (CRITICAL FIX)
+  const container = document.getElementById('playerModalContent');
+  const oldVideo = document.getElementById('video');
+
+  if (oldVideo) oldVideo.remove();
+
+  const newVideo = document.createElement('video');
+  newVideo.id = 'video';
+  newVideo.className = 'video-js vjs-default-skin';
+  newVideo.setAttribute('controls', '');
+  newVideo.setAttribute('autoplay', '');
+  newVideo.setAttribute('playsinline', '');
+
+  container.appendChild(newVideo);
+
+  // Re-init Video.js
+  video = newVideo;
+  vjsPlayer = videojs(video);
 }
+
 
 closeBtn.onclick = closePlayer;
 document.addEventListener('keydown', e => e.key === 'Escape' && closePlayer());
