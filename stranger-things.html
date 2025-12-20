@@ -512,6 +512,22 @@ const movies = [
         return;
       }
 
+      // MP4 (missing handler)
+if (src.includes('.mp4')) {
+  const v = document.getElementById('modalVideo');
+  if (!v) {
+    window.location.href =
+      `player.html?title=${encodeURIComponent(item.title || '')}&video=${encodeURIComponent(src)}`;
+    return;
+  }
+
+  v.src = src;
+  v.play().catch(() => {});
+  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  return;
+}
+
+
       // MP4
       if (isMP4(src)) {
         const v = document.getElementById('modalVideo');
