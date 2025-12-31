@@ -132,6 +132,30 @@
     }
     .modal-video { width:100%; height:100%; background:#000; display:block; }
     .hidden { display:none; }
+
+    /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
+video:fullscreen,
+video:-webkit-full-screen,
+iframe:fullscreen,
+iframe:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+
+  object-fit: contain !important;
+  background-color: black;
+}
+
+/* Only cover when video aspect is cinematic */
+@media (min-aspect-ratio: 16/9) {
+  video:fullscreen,
+  video:-webkit-full-screen,
+  iframe:fullscreen,
+  iframe:-webkit-full-screen {
+    object-fit: cover !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -226,16 +250,7 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
 <script>
-/* ===== NOTE =====
-   I preserved your original UI/HTML exactly. Below script replaces the
-   simple MP4-only handling with Tukaram/Hawkeye-style playback:
-   - Supports .m3u8 via Hls.js (with native Safari fallback)
-   - MP4 playback via <video>
-   - iframe embeds for hosts like Streamtape / dood / ok.ru / drive / mega
-   - YouTube -> embed conversion
-   - Falls back to player.html for unknown/unplayable sources
-   The movies array is left as placeholders — replace with your real data if needed.
-   ===== */
+
 
 const movies = [
       { title: "The Wild Robot", video: "https://sskt.hushfieldproductions.space:443/v4/k5/j5juh/index-f2-v1-a1.txt", image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/the-wild-robot-sensory-friendly-screening-et00417334-1729776735.jpg", categories: ["all"] },
