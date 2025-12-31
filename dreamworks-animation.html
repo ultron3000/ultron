@@ -133,6 +133,16 @@
     .modal-video { width:100%; height:100%; background:#000; display:block; }
     .hidden { display:none; }
 
+    .custom-controls {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  padding: 12px;
+  background: #020617;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+
     /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
 video:fullscreen,
 video:-webkit-full-screen,
@@ -241,6 +251,15 @@ iframe:-webkit-full-screen {
            By default we keep a <video> element for MP4/HLS playback. -->
       <div id="modal-player-wrapper">
         <video id="modal-video" class="modal-video" controls playsinline></video>
+        <div class="custom-controls">
+  <button id="prevBtn">⏮</button>
+  <button id="playPauseBtn">⏯</button>
+  <button id="nextBtn">⏭</button>
+  <button id="muteBtn">🔇</button>
+  <button id="fullscreenBtn">⛶</button>
+  <button id="closeBtn">✕</button>
+</div>
+
       </div>
     </div>
   </div>
@@ -368,8 +387,52 @@ function resetPlayerWrapper() {
     try { currentHls.destroy(); } catch (e) {}
     currentHls = null;
   }
-  modalPlayerWrapper.innerHTML = `<video id="${modalVideoId}" class="modal-video" controls playsinline></video>`;
+
+  modalPlayerWrapper.innerHTML = `
+    <video id="${modalVideoId}" class="modal-video" controls playsinline></video>
+    ${modalControlsHTML}
+  `;
+
+  bindModalControls();
 }
+
+function bindModalControls() {
+  const video = document.getElementById(modalVideoId);
+  if (!video) return;
+
+  document.getElementById('playPauseBtn').onclick = () => {
+    video.paused ? video.play() : video.pause();
+  };
+
+  document.getElementById('muteBtn').onclick = () => {
+    video.muted = !video.muted;
+  };
+
+  document.getElementById('fullscreenBtn').onclick = () => {
+    if (!document.fullscreenElement) {
+      video.requestFullscreen().catch(()=>{});
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  document.getElementById('closeBtn').onclick = () => {
+    modalCloseBtn.click();
+  };
+
+  document.getElementById('prevBtn').onclick = () => {
+    if (currentIndex > 0) {
+      playInModal(currentFiltered, currentIndex - 1);
+    }
+  };
+
+  document.getElementById('nextBtn').onclick = () => {
+    if (currentIndex < currentFiltered.length - 1) {
+      playInModal(currentFiltered, currentIndex + 1);
+    }
+  };
+}
+
 
 /* Show error helper (keeps UI minimal) */
 function showPlayerError(msg) {
@@ -605,6 +668,21 @@ renderMovies(movies);
 
 /* Expose close to window if external code expects it */
 window.closeModal = closeModal;
+
+
+
+const modalControlsHTML = `
+  <div class="custom-controls">
+    <button id="prevBtn">⏮</button>
+    <button id="playPauseBtn">⏯</button>
+    <button id="nextBtn">⏭</button>
+    <button id="muteBtn">🔇</button>
+    <button id="fullscreenBtn">⛶</button>
+    <button id="closeBtn">✕</button>
+  </div>
+`;
+
+
 
 </script>
  
