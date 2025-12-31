@@ -77,6 +77,18 @@
   @media (min-width: 1025px) {
     .modal-container { width: 80%; max-width: 1200px; }
   }
+
+  .btn {
+  background: rgba(255,255,255,0.1);
+  padding: 10px 14px;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+.btn:hover {
+  background: var(--sony-yellow);
+  color: black;
+}
+
 </style>
 </head>
 <body class="pb-16">
@@ -159,6 +171,17 @@
             Your browser does not support the video tag.
           </video>
         </div>
+
+        <!-- Custom Modal Controls -->
+<div id="custom-controls" class="flex justify-center items-center gap-4 p-4 bg-black/80">
+  <button id="prevBtn" class="btn text-white"><i class="fas fa-step-backward"></i></button>
+  <button id="playPauseBtn" class="btn text-white"><i class="fas fa-play"></i></button>
+  <button id="nextBtn" class="btn text-white"><i class="fas fa-step-forward"></i></button>
+  <button id="muteBtn" class="btn text-white"><i class="fas fa-volume-up"></i></button>
+  <button id="fullscreenBtn" class="btn text-white"><i class="fas fa-expand"></i></button>
+  <button id="closeBtn" class="btn text-white"><i class="fas fa-times"></i></button>
+</div>
+
 
         <div id="video-progress" class="progress-bar w-full">
           <div id="progress-bar-fill" class="progress-bar-fill" style="width:0%"></div>
@@ -266,6 +289,13 @@
   // Playback state
   let currentHls = null;
   let currentIndex = null;
+  const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const muteBtn = document.getElementById('muteBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const closeBtn = document.getElementById('closeBtn');
+
 
   // Helper: always return the current <video> element
   function getModalVideo() {
@@ -311,6 +341,55 @@
       playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
     });
   }
+
+  // Play / Pause
+playPauseBtn.addEventListener('click', () => {
+  const video = getModalVideo();
+  if (!video) return;
+  if (video.paused) {
+    video.play();
+    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+  } else {
+    video.pause();
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+  }
+});
+
+// Previous
+prevBtn.addEventListener('click', () => {
+  if (currentIndex === null || currentIndex === 0) return;
+  const prevMovie = movies[currentIndex - 1];
+  loadingSpinner.classList.remove('hidden');
+  playInModal(prevMovie.title, prevMovie.video, prevMovie, currentIndex - 1);
+});
+
+// Next
+nextBtn.addEventListener('click', () => {
+  if (currentIndex === null || currentIndex >= movies.length - 1) return;
+  const nextMovie = movies[currentIndex + 1];
+  loadingSpinner.classList.remove('hidden');
+  playInModal(nextMovie.title, nextMovie.video, nextMovie, currentIndex + 1);
+});
+
+// Mute / Unmute
+muteBtn.addEventListener('click', () => {
+  const video = getModalVideo();
+  if (!video) return;
+  video.muted = !video.muted;
+  muteBtn.innerHTML = video.muted
+    ? '<i class="fas fa-volume-mute"></i>'
+    : '<i class="fas fa-volume-up"></i>';
+});
+
+// Fullscreen
+fullscreenBtn.addEventListener('click', () => {
+  const player = document.getElementById('modal-player');
+  if (player.requestFullscreen) player.requestFullscreen();
+});
+
+// Close
+closeBtn.addEventListener('click', closeModalHandler);
+
 
   // Close modal and cleanup (destroy HLS, pause & unload). :contentReference[oaicite:6]{index=6}
   function closeModalHandler() {
