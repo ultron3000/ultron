@@ -341,6 +341,32 @@
   }
 }
 
+/* ===== GRID VIEW TOGGLE ===== */
+
+/* Compact grid */
+.compact-grid {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+/* List view */
+.list-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.list-grid .movie-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.list-grid .movie-poster {
+  width: 120px;
+  aspect-ratio: 2/3;
+  flex-shrink: 0;
+}
+
+
   /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
 video:fullscreen,
 video:-webkit-full-screen,
@@ -405,6 +431,15 @@ iframe:-webkit-full-screen {
       />
     </div>
 
+    <!-- View Toggle (Single Icon) -->
+<button id="viewToggleBtn"
+  onclick="cycleView()"
+  title="Change View"
+  class="text-yellow-400 hover:text-yellow-300 transition">
+  <i id="viewToggleIcon" class="fas fa-th-large text-xl"></i>
+</button>
+
+
   </div>
 </header>
 
@@ -458,6 +493,31 @@ iframe:-webkit-full-screen {
     /******************************
      * Existing movies array (unchanged)
      ******************************/
+     /* ===== SINGLE ICON VIEW CYCLER ===== */
+let currentView = 0; // 0=grid, 1=compact, 2=list
+
+function cycleView() {
+  const grid = document.getElementById('movies');
+  const icon = document.getElementById('viewToggleIcon');
+
+  grid.classList.remove('compact-grid', 'list-grid');
+
+  if (currentView === 0) {
+    grid.classList.add('compact-grid');
+    icon.className = 'fas fa-border-all text-xl';
+    currentView = 1;
+  } 
+  else if (currentView === 1) {
+    grid.classList.add('list-grid');
+    icon.className = 'fas fa-list text-xl';
+    currentView = 2;
+  } 
+  else {
+    icon.className = 'fas fa-th-large text-xl';
+    currentView = 0;
+  }
+}
+
     const movies = [
             { title: "Ikkis ", video: "https://lizer123.site:443/stream/bTN1OC80MS84NWFjNmZlYjU4NGI2NjVlODU2NjQ5NzRjNTQ2Y2ZlYy8xMDgwcC8xMDgwcC5tM3U4P2lkPQ==", image: "https://image.tmdb.org/t/p/w500/8PWu0V10nMqG5SrA13wLRXTD2fH.jpg", category: "other", year: 2026 },
             { title: "120 Bahadur ", video: "https://lizer123.site:443/stream/bTN1OC80MS80OTlhM2Y4ODE1NmJiNjMyMWUwMGQwZmYwYWI1NTA0MS8xMDgwcC8xMDgwcC5tM3U4P2lkPQ==", image: "https://image.tmdb.org/t/p/w500/fdxf02vUous6fty6O4nollyuo4m.jpg", category: "other", year: 2025 },
