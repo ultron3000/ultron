@@ -582,11 +582,26 @@ iframe:-webkit-full-screen {
       const lc = (src || '').toLowerCase();
 
       // iframe-hosted common hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
+      if (
+  src.includes('m3u8-proxy.m3u8') ||
+  src.includes('f5.megacdn.co') ||
+  lc.includes('streamtape.com') ||
+  lc.includes('dood') ||
+  lc.includes('vidcdn') ||
+  lc.includes('ok.ru')
+) {
+  playerWrapper.innerHTML = `
+    <iframe
+      src="${src}"
+      width="100%"
+      height="100%"
+      frameborder="0"
+      allowfullscreen
+      allow="autoplay"
+    ></iframe>`;
+  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  return;
+}
 
       // youtube
       if (isYouTube(src)) {
