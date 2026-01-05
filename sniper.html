@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <title>Sniper Cinematic Universe — Modal Player Integrated</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sniper Cinematic Universe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
@@ -26,13 +26,40 @@
     .scrollbar::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
     .search-input:focus { box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
     .year-badge { position:absolute; top:0.5rem; right:0.5rem; background: rgba(0,0,0,0.7); padding:0.25rem 0.5rem; border-radius:0.25rem; font-size:0.75rem; font-weight:500; }
-    @media (max-width:640px){ .movie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (min-width:1024px){ .movie-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+    @media (max-width: 480px) { 
+      .movie-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+      .movie-card { height: auto; }
+      .controls { flex-wrap: wrap; justify-content: center; }
+    }
+    @media (min-width: 481px) and (max-width: 767px) { 
+      .movie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 768px) and (max-width: 1023px) { 
+      .movie-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (min-width: 1024px) { 
+      .movie-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    }
 
     /* Hawkeye modal/player */
     .modal-overlay { position: fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.9); z-index:9999; opacity:0; visibility:hidden; transition: all .2s ease; }
     .modal-overlay.active { opacity:1; visibility:visible; }
-    .modal-card { width:95%; max-width:980px; border-radius:12px; overflow:hidden; background: linear-gradient(180deg,#0b0b0b,#151515); box-shadow: 0 30px 80px rgba(0,0,0,0.7); }
+    .modal-card { 
+      width: 95%; 
+      max-width: 980px; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      background: linear-gradient(180deg,#0b0b0b,#151515); 
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7); 
+      margin: 1rem; 
+    }
+    @media (max-width: 768px) {
+      .modal-card { 
+        width: 100%; 
+        margin: 0; 
+        border-radius: 0; 
+      }
+    }
     .player-area { position: relative; padding-bottom:56.25%; height:0; background:black; }
     .player-area video, .player-area iframe { position:absolute; inset:0; width:100%; height:100%; background:black; }
     .progress-bar { height:6px; background: rgba(255,255,255,0.06); width:100%; position:relative; }
@@ -46,7 +73,7 @@
 <body class="min-h-screen flex flex-col">
   <!-- Header -->
   <header class="bg-gradient-to-r from-gray-900 to-gray-800 py-6 px-4 shadow-lg">
-    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center px-2 sm:px-4">
       <div class="flex items-center mb-4 md:mb-0">
         <i class="fas fa-crosshairs text-3xl text-amber-500 mr-3"></i>
         <h1 class="title-font text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-600">SNIPER CINEMATIC UNIVERSE</h1>
@@ -59,10 +86,10 @@
   </header>
 
   <!-- Main Content -->
-  <main class="flex-grow container mx-auto px-4 py-8">
+  <main class="flex-grow container mx-auto px-2 sm:px-4 py-4 sm:py-8">
     <section class="mb-12">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="title-font text-2xl md:text-3xl font-bold text-amber-500 flex items-center"><i class="fas fa-star mr-3"></i> Featured Collection</h2>
+        <h2 class="title-font text-xl sm:text-2xl md:text-3xl font-bold text-amber-500 flex items-center"><i class="fas fa-star mr-2 sm:mr-3"></i> Featured Collection</h2>
         <div class="flex space-x-2">
           <button class="filter-btn px-3 py-1 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700 transition" data-filter="all">All</button>
           <button class="filter-btn px-3 py-1 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700 transition" data-filter="classic">Classic</button>
@@ -70,7 +97,7 @@
         </div>
       </div>
 
-      <div id="movieGrid" class="movie-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 scrollbar overflow-y-auto pb-4"></div>
+      <div id="movieGrid" class="movie-grid grid gap-3 sm:gap-4 md:gap-6 scrollbar overflow-y-auto pb-4"></div>
     </section>
   </main>
 
@@ -93,7 +120,7 @@
 
       <div class="progress-bar" id="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
 
-      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="p-2 sm:p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2 sm:gap-3">
         <div><p id="modal-desc" class="text-gray-300 text-sm"></p></div>
         <div class="controls">
           <button id="prevBtn" class="btn" title="Previous"><i class="fas fa-step-backward"></i></button>
