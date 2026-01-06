@@ -41,13 +41,48 @@
       z-index: 10;
     }
 
-    h1 { font-family: 'Oswald', sans-serif; font-size: 2.5rem; margin: 0; color: var(--secondary); text-shadow: 0 2px 4px rgba(0,0,0,0.5); letter-spacing: 1px; }
-    .subtitle { font-size: 1rem; color: var(--light); opacity: 0.8; margin-top: 5px; }
+    h1 { 
+      font-family: 'Oswald', sans-serif; 
+      font-size: clamp(1.8rem, 5vw, 2.5rem); 
+      margin: 0; 
+      color: var(--secondary); 
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5); 
+      letter-spacing: 1px; 
+      line-height: 1.2;
+    }
+    .subtitle { 
+      font-size: clamp(0.8rem, 3vw, 1rem); 
+      color: var(--light); 
+      opacity: 0.8; 
+      margin-top: 5px; 
+    }
 
-    .controls { display:flex; flex-wrap:wrap; gap:15px; margin:25px 0; align-items:center; justify-content:center; }
+    .controls { 
+      display:flex; 
+      flex-wrap:wrap; 
+      gap:15px; 
+      margin:20px 0; 
+      align-items:center; 
+      justify-content:center; 
+    }
 
-    .search-container { position: relative; flex-grow: 1; max-width: 600px; }
-    #searchBar { width:100%; padding:12px 20px 12px 45px; font-size:1rem; border-radius:30px; border:2px solid var(--primary); background: rgba(15,15,15,0.8); color: var(--light); transition: var(--transition); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .search-container { 
+      position: relative; 
+      flex-grow: 1; 
+      min-width: 100%;
+      max-width: 600px; 
+    }
+    #searchBar { 
+      width:100%; 
+      padding:10px 15px 10px 40px; 
+      font-size:0.95rem; 
+      border-radius:30px; 
+      border:2px solid var(--primary); 
+      background: rgba(15,15,15,0.8); 
+      color: var(--light); 
+      transition: var(--transition); 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
+    }
     #searchBar:focus { outline:none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(240,19,30,0.3); }
     .search-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); color: var(--primary); }
 
@@ -56,8 +91,8 @@
 
     .movies {
       display:grid;
-      grid-template-columns: repeat(auto-fill,minmax(220px,1fr));
-      gap:25px;
+      grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
+      gap:15px;
       padding:10px 0;
       margin:0 auto;
     }
@@ -74,8 +109,24 @@
     .movie:hover { transform: translateY(-10px); box-shadow: 0 12px 24px rgba(240,19,30,0.3); }
     .movie img { width:100%; height:320px; object-fit:cover; display:block; transition: var(--transition); }
     .movie-title { font-weight:700; margin:12px; color: var(--light); font-size:1.05rem; }
-    .theme-toggle { position: fixed; bottom:20px; right:20px; background:var(--primary); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.3); z-index:100; transition: var(--transition); }
-    .theme-toggle:hover { transform: scale(1.1); }
+    .theme-toggle { 
+      position: fixed; 
+      bottom:20px; 
+      right:20px; 
+      background:var(--primary); 
+      width:50px; 
+      height:50px; 
+      border-radius:50%; 
+      display:flex; 
+      align-items:center; 
+      justify-content:center; 
+      cursor:pointer; 
+      box-shadow:0 4px 12px rgba(0,0,0,0.3); 
+      z-index:100; 
+      transition: var(--transition); 
+      touch-action: manipulation;
+    }
+    .theme-toggle:hover, .theme-toggle:active { transform: scale(1.1); }
 
     /* --- HAWKEYE modal player CSS (integrated) --- */
     /* Playback Modal (Tukaram-style flexible player) */
@@ -96,6 +147,8 @@
       overflow: hidden;
       box-shadow: 0 30px 80px rgba(0,0,0,0.7);
       transform: translateY(0);
+      max-height: 90vh;
+      overflow-y: auto;
     }
     #playback-modal .modal-card .modal-top {
       position: relative;
@@ -153,9 +206,19 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* small responsive tweak */
+    /* Responsive tweaks */
     @media (max-width: 760px) {
       #modal-player video, #modal-player iframe { height: calc(56.25vw); }
+      .container { padding: 15px; }
+      .movie img { height: 220px; }
+      .movie-title { font-size: 0.9rem; margin: 8px; }
+      .filter-btn { padding: 8px 15px; font-size: 0.9rem; }
+    }
+
+    @media (max-width: 480px) {
+      .movies { grid-template-columns: repeat(auto-fill,minmax(120px,1fr)); }
+      .movie img { height: 180px; }
+      .search-icon { left: 10px; font-size: 0.9rem; }
     }
 
     /* scrollbar cosmetic */
