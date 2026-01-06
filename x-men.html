@@ -176,6 +176,31 @@
     .watchlist-checkbox input:checked ~ .checkmark:after { display:block; left:6px; top:2px; width:5px; height:10px; border: solid #000; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 
     #play-btn { background: var(--secondary); color: #000; border: none; padding: 10px 18px; border-radius: 999px; font-weight:600; cursor:pointer; }
+    .modal-controls {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.modal-controls .btn {
+  background: var(--secondary);
+  color: #000;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-controls .btn:hover {
+  opacity: 0.85;
+}
+
 
     #close-modal {
       position: absolute;
@@ -226,6 +251,30 @@
     ::-webkit-scrollbar-track { background: var(--dark); }
     ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+
+    /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
+video:fullscreen,
+video:-webkit-full-screen,
+iframe:fullscreen,
+iframe:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+
+  object-fit: contain !important;
+  background-color: black;
+}
+
+/* Only cover when video aspect is cinematic */
+@media (min-aspect-ratio: 16/9) {
+  video:fullscreen,
+  video:-webkit-full-screen,
+  iframe:fullscreen,
+  iframe:-webkit-full-screen {
+    object-fit: cover !important;
+  }
+}
   </style>
 
   <!-- HLS.js (from Hawkeye/Tukaram) -->
@@ -262,16 +311,29 @@
     <button id="close-modal" aria-label="Close player"><i class="fas fa-times"></i></button>
 
     <div class="modal-top">
-      <div id="modal-player">
-        <!-- will inject <video> or <iframe> here; start with default video element -->
-        <video id="modal-video" class="w-full" controls playsinline>
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      <div class="progress-bar" id="video-progress">
-        <div id="progress-bar-fill" class="progress-bar-fill" style="width:0%"></div>
-      </div>
-    </div>
+  <div id="modal-player">
+    <video id="modal-video" class="w-full" controls playsinline>
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <div class="progress-bar" id="video-progress">
+    <div id="progress-bar-fill" class="progress-bar-fill" style="width:0%"></div>
+  </div>
+
+  <!-- 🔽 ADD YOUR BUTTONS RIGHT HERE 🔽 -->
+  <div class="modal-controls">
+    <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+    <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+    <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+    <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+    <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+    <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+  </div>
+  <!-- 🔼 END ADD 🔼 -->
+
+</div> <!-- .modal-top -->
+
 
     <div class="modal-meta">
       <div>
@@ -583,6 +645,65 @@ playbackModal.addEventListener('click', function(e) {
 })();
 
 /* small page init (nothing else required) */
+const prevBtn = document.getElementById('prevBtn');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const nextBtn = document.getElementById('nextBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const muteBtn = document.getElementById('muteBtn');
+const closeBtn = document.getElementById('closeBtn');
+
+/* Play / Pause */
+playPauseBtn?.addEventListener('click', () => {
+  const video = getModalVideo();
+  if (!video) return;
+
+  if (video.paused) {
+    video.play();
+    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+  } else {
+    video.pause();
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i> Play';
+  }
+});
+
+/* Mute */
+muteBtn?.addEventListener('click', () => {
+  const video = getModalVideo();
+  if (!video) return;
+
+  video.muted = !video.muted;
+  muteBtn.innerHTML = video.muted
+    ? '<i class="fas fa-volume-mute"></i>'
+    : '<i class="fas fa-volume-up"></i>';
+});
+
+/* Fullscreen */
+fullscreenBtn?.addEventListener('click', () => {
+  const video = getModalVideo();
+  if (!video) return;
+
+  if (video.requestFullscreen) video.requestFullscreen();
+  else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+});
+
+/* Close */
+closeBtn?.addEventListener('click', closeModalHandler);
+
+/* Prev / Next */
+prevBtn?.addEventListener('click', () => {
+  if (currentMovieIndex > 0) {
+    const prev = movies[currentMovieIndex - 1];
+    playInModal(prev.title, prev.video, prev, currentMovieIndex - 1);
+  }
+});
+
+nextBtn?.addEventListener('click', () => {
+  if (currentMovieIndex < movies.length - 1) {
+    const next = movies[currentMovieIndex + 1];
+    playInModal(next.title, next.video, next, currentMovieIndex + 1);
+  }
+});
+
 window.addEventListener('DOMContentLoaded', () => {
   // nothing extra to init — movies already rendered
 });
