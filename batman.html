@@ -217,17 +217,26 @@
       background: transparent;
       border: 1px solid var(--primary);
       color: var(--primary);
-      padding: 10px 14px;
-      border-radius: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 0.9rem;
-      min-width: 60px;
+      font-size: 0.8rem;
+      min-width: 40px;
       flex: 1;
       text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
+    }
+    @media (min-width: 768px) {
+      .btn {
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        min-width: 60px;
+        gap: 6px;
+      }
     }
     .btn:hover { 
       background: rgba(254,209,65,0.06); 
@@ -338,6 +347,30 @@
   }
 }
 
+/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
+video:fullscreen,
+video:-webkit-full-screen,
+iframe:fullscreen,
+iframe:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+
+  object-fit: contain !important;
+  background-color: black;
+}
+
+/* Only cover when video aspect is cinematic */
+@media (min-aspect-ratio: 16/9) {
+  video:fullscreen,
+  video:-webkit-full-screen,
+  iframe:fullscreen,
+  iframe:-webkit-full-screen {
+    object-fit: cover !important;
+  }
+}
+
   </style>
 </head>
 <body class="relative">
@@ -350,10 +383,10 @@
 <div class="container mx-auto px-4 py-8 max-w-7xl">
 
 <!-- Full-Width Video Header with Animated Logo -->
-<div class="relative w-full h-[400px] md:h-[500px] overflow-hidden">
+<div class="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] overflow-hidden">
   <!-- YouTube Video Background -->
   <iframe 
-    src="https://www.youtube.com/embed/uLx6el5dCwA?autoplay=1&mute=1&loop=1&playlist=uLx6el5dCwA&controls=0&modestbranding=1"
+    src="https://www.youtube.com/embed/XLYAz6yuJOk?autoplay=1&mute=1&loop=1&playlist=uLx6el5dCwA&controls=0&modestbranding=1"
     frameborder="0" 
     allow="autoplay; fullscreen" 
     class="absolute top-0 left-0 w-full h-full pointer-events-none">
@@ -362,8 +395,8 @@
   <!-- Animated Logo at Top-Left -->
   <img 
     src="https://images.seeklogo.com/logo-png/30/2/batman-logo-png_seeklogo-302396.png" 
-    alt="Despicable Me Logo" 
-    class="absolute top-4 left-4 h-16 md:h-24 animate-logo z-10"
+    alt="Transformers Logo" 
+    class="absolute top-2 left-2 sm:top-4 sm:left-4 h-10 sm:h-16 md:h-20 lg:h-24 animate-logo z-10"
   />
 </div>
 
@@ -394,10 +427,10 @@
 </div>
 <!-- Movies Grid -->
 <div class="mb-12">
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
+<div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6" id="movies"></div>
 </div>
 <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+  <div class="border-t border-gray-800 mt-6 sm:mt-8 pt-4 sm:pt-6 text-center text-gray-500">
     <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
     <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
     <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
@@ -438,7 +471,7 @@
      * Existing movies array (unchanged)
      ******************************/
     const movies = [
-   { title: "Batman", video: "https://sdqm.greenleafhospitality.space:443/v4/36/s5yaf/index-f2-v1-a1.txt", image: "https://posterspy.com/wp-content/uploads/2024/07/batman-1966-2.jpg", category: "batman", year: 1966 },
+{ title: "Batman", video: "https://sdqm.greenleafhospitality.space:443/v4/36/s5yaf/index-f2-v1-a1.txt", image: "https://posterspy.com/wp-content/uploads/2024/07/batman-1966-2.jpg", category: "batman", year: 1966 },
     { title: "Batman", video: "https://sdqm.zenithflowengineering.shop:443/v4/61/md9a5/index-f1-v1-a1.txt", image: "https://i.pinimg.com/736x/ab/8d/eb/ab8deb68ba4b53124a5a7f4ab9545aae.jpg", category: "batman", year: 1989 },
     { title: "Batman Forever", video: "https://sr81.northfieldinnovation.store/v4/qu/bknrl/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BMTUyNjJhZWItMTZkNS00NDc4LTllNjUtYTg3NjczMzA5ZTViXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "batman", year: 1995 },
     { title: "Batman & Robin", video: "https://scvo.greenlineinnovations.store:443/v4/ic/uv5sm/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BYzU3ZjE3M2UtM2E4Ni00MDI5LTkyZGUtOTFkMGIyYjNjZGU3XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "batman", year: 1997 },
@@ -450,7 +483,7 @@
     { title: "Batman v Superman: Dawn of Justice", video: "https://sqtd.auroravisionfactory.shop/v4/ho/tbk1t/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BZTJkYjdmYjYtOGMyNC00ZGU1LThkY2ItYTc1OTVlMmE2YWY1XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "justice", year: 2016 },
     { title: "Justice League (2017)", video: "https://skra.lyralis.cyou:443/v4/lf/lzut5/index-f2-v1-a1.txt", image: "https://c8.alamy.com/comp/2ADR2DD/justice-league-2017-directed-by-zack-snyder-and-starring-ben-affleck-gal-gadot-jason-momoa-ezra-miller-and-ray-fisher-bruce-wayne-gathers-a-team-to-fight-supervillain-steppenwolf-2ADR2DD.jpg", category: "justice", year: 2017 },
             { title: "Zack Snyder's Justice League (2021)", video: "https://s6p9.prismaticaeventworks.cfd:443/v4/m9/kcgbz/index-f2-v1-a1.txt", image: "https://images.moviesanywhere.com/897ae723da11ee8a2df0aa8191989c24/6547ea47-9560-4f2d-963f-2348afb0bd97.jpg", category: "justice", year: 2021 },
-                
+
     ];
 
     /******************************
@@ -721,19 +754,19 @@
         const delayClass = `delay-${(index % 5) * 100}`;
 
         const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-lg sm:rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
         div.innerHTML = `
           <div class="relative overflow-hidden rounded-t-lg">
             <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
-                <i class="fas fa-play mr-2"></i> Watch Now
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2 sm:p-4">
+              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-1 px-2 sm:py-2 sm:px-4 rounded-full transition transform hover:scale-105 text-xs sm:text-sm">
+                <i class="fas fa-play mr-1 sm:mr-2"></i> Watch Now
               </button>
             </div>
           </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-2 text-sm text-gray-400">
+          <div class="p-2 sm:p-3 md:p-4">
+            <h3 class="font-semibold text-sm sm:text-base md:text-lg truncate">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-1 sm:mt-2 text-xs sm:text-sm text-gray-400">
               <span>${movie.year}</span>
               <span>${movie.duration}</span>
             </div>
