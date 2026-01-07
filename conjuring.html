@@ -142,6 +142,21 @@
       display: flex;
       flex-direction: column;
     }
+    
+    @media (max-width: 640px) {
+      .modal-card {
+        max-height: 100vh;
+      }
+      .player-meta {
+        padding: 8px;
+      }
+      .player-meta h3 {
+        font-size: 1rem;
+      }
+      .player-meta p {
+        font-size: 0.8rem;
+      }
+    }
     .player-wrapper { 
       position: relative;
       flex: 1;
@@ -284,7 +299,7 @@
       }
     }
 
-    /* Modal legacy styles (unused) */
+   /* Modal legacy styles (unused) */
     .modal-overlay { display:none; }
     /* ============================
    DESKTOP FIX — DOES NOT TOUCH MOBILE
@@ -337,6 +352,29 @@
     overflow: visible !important;
   }
 }
+/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
+video:fullscreen,
+video:-webkit-full-screen,
+iframe:fullscreen,
+iframe:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+
+  object-fit: contain !important;
+  background-color: black;
+}
+
+/* Only cover when video aspect is cinematic */
+@media (min-aspect-ratio: 16/9) {
+  video:fullscreen,
+  video:-webkit-full-screen,
+  iframe:fullscreen,
+  iframe:-webkit-full-screen {
+    object-fit: cover !important;
+  }
+}
 
   </style>
 </head>
@@ -347,13 +385,13 @@
 <div class="stars"></div>
 <div class="stars2"></div>
 </div>
-<div class="container mx-auto px-4 py-8 max-w-7xl">
+<div class="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl">
 
 <!-- Full-Width Video Header with Animated Logo -->
-<div class="relative w-full h-[400px] md:h-[500px] overflow-hidden">
+<div class="relative w-full h-[280px] sm:h-[350px] md:h-[500px] overflow-hidden">
   <!-- YouTube Video Background -->
   <iframe 
-    src="https://www.youtube.com/embed/PBDCSMbcIHM?autoplay=1&mute=1&loop=1&playlist=PBDCSMbcIHM&controls=0&modestbranding=1"
+    src="https://www.youtube.com/embed/fdGWRq1dVBA?autoplay=1&mute=1&loop=1&playlist=PBDCSMbcIHM&controls=0&modestbranding=1"
     frameborder="0" 
     allow="autoplay; fullscreen" 
     class="absolute top-0 left-0 w-full h-full pointer-events-none">
@@ -394,10 +432,10 @@
 </div>
 <!-- Movies Grid -->
 <div class="mb-12">
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6" id="movies"></div>
 </div>
 <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+  <div class="border-t border-gray-800 mt-6 sm:mt-8 pt-4 sm:pt-6 text-center text-gray-500">
     <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
     <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
     <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
@@ -438,16 +476,16 @@
      * Existing movies array (unchanged)
      ******************************/
     const movies = [
-{ title: "The Conjuring", video: "https://j7fqjm25xt.helixmotioncraft.store/m2q5ea5w42hk/hls3/01/00375/0enes4t7ba6x_h/master.txt", image: "https://i.ebayimg.com/images/g/8-sAAOSwT5tgwi3m/s-l400.jpg", category: "conjuring", year: 2013 },
-            { title: "The Conjuring 2", video: "https://jdevchpxbgc6.lakesideproductioncollect.sbs/tyhlyqrrroqc/hls3/01/00719/7jpsqc4x4pyq_o/master.txt", image: "https://m.media-amazon.com/images/I/81ZpWSeRbVL._AC_UF1000,1000_QL80_DpWeblab_.jpg", category: "conjuring", year: 2016 },
-            { title: "The Conjuring: The Devil Made Me Do It", video: "https://drrh37sqosrl.viatoraacademy.shop/ma1vmsqmq/hls3/01/00544/ng5dwur4bnxs_h/master.txt", image: "https://m.media-amazon.com/images/M/MV5BMjVjMzgyMzUtZDMxOS00MmNkLWE3YjktMmU3NThmOGRkMDcyXkEyXkFqcGc@._V1_.jpg", category: "conjuring", year: 2021 },
+    { title: "The Conjuring", video: "https://j7fqjm25xt.helixmotioncraft.store/m2q5ea5w42hk/hls3/01/00375/0enes4t7ba6x_h/master.txt", image: "https://image.tmdb.org/t/p/w500/wVYREutTvI2tmxr6ujrHT704wGF.jpg", category: "conjuring", year: 2013 },
+            { title: "The Conjuring 2", video: "https://jdevchpxbgc6.lakesideproductioncollect.sbs/tyhlyqrrroqc/hls3/01/00719/7jpsqc4x4pyq_o/master.txt", image: "https://image.tmdb.org/t/p/w500/zEqyD0SBt6HL7W9JQoWwtd5Do1T.jpg", category: "conjuring", year: 2016 },
+            { title: "The Conjuring: The Devil Made Me Do It", video: "https://drrh37sqosrl.viatoraacademy.shop/ma1vmsqmq/hls3/01/00544/ng5dwur4bnxs_h/master.txt", image: "https://image.tmdb.org/t/p/w500/rQfX2xx8TUoNvyk892yKWNikJaM.jpg", category: "conjuring", year: 2021 },
             { title: "The Conjuring: Last Rites", video: "https://lizer123.site:443/stream/bTN1OC80MS81M2JlMDFmNGYwNWFlYmU5ZDBjNjkyNjhhYzE5OTljZS8xMDgwcC8xMDgwcC5tM3U4P2lkPQ==", image: "https://i.pinimg.com/564x/4a/bf/f3/4abff36d0b2f972a84ceef8eebbc2893.jpg", category: "conjuring", year: 2025 },
-            { title: "Annabelle", video: "https://54pkdcyxbsxbermn.meadowbrooklearninglab.space/vy7cie2tqwc2cgp/hls3/01/00384/pmqlhsh2r4dc_h/master.txt", image: "https://upload.wikimedia.org/wikipedia/en/9/90/Annabelle_film_poster.jpg", category: "conjuring", year: 2017 },
+            { title: "Annabelle", video: "https://54pkdcyxbsxbermn.meadowbrooklearninglab.space/vy7cie2tqwc2cgp/hls3/01/00384/pmqlhsh2r4dc_h/master.txt", image: "https://image.tmdb.org/t/p/w500/yLsuU2P2SpDYFwtZQ7dtfVAf6TE.jpg", category: "conjuring", year: 2017 },
             { title: "Annabelle: Creation", video: "https://se9d.evercresthospitality.space:443/v4/61/qm99a/index-f2-v1-a1.txt", image: "https://m.media-amazon.com/images/I/91fWyeqhysL._AC_UF894,1000_QL80_.jpg", category: "conjuring", year: 2017 },
             { title: "Annabelle Comes Home", video: "https://54pkdcyxbsxbermn.orionengineeringlab.sbs/jxnu44rmvdct/hls3/01/00830/2dfj7kpdl8pb_o/index-v1-a1.txt", image: "https://images.moviesanywhere.com/412278051451bd29427d51bcb3fc468e/4311f1f7-9863-4be4-a45b-921adcf4dbac.jpg?h=375&resize=fit&w=250", category: "conjuring", year: 2017 },
 
-    ];
 
+    ];
 
     /******************************
      * DOM refs for modal controls
@@ -717,19 +755,19 @@
         const delayClass = `delay-${(index % 5) * 100}`;
 
         const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-lg sm:rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
         div.innerHTML = `
           <div class="relative overflow-hidden rounded-t-lg">
             <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
-                <i class="fas fa-play mr-2"></i> Watch Now
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3 sm:p-4">
+              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-medium sm:font-bold py-1 px-3 sm:py-2 sm:px-4 rounded-full transition transform hover:scale-105 text-sm sm:text-base">
+                <i class="fas fa-play mr-1 sm:mr-2"></i> Watch Now
               </button>
             </div>
           </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-2 text-sm text-gray-400">
+          <div class="p-3 sm:p-4">
+            <h3 class="font-medium sm:font-semibold text-base sm:text-lg truncate">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-1 sm:mt-2 text-xs sm:text-sm text-gray-400">
               <span>${movie.year}</span>
               <span>${movie.duration}</span>
             </div>
@@ -834,6 +872,7 @@
     document.head.appendChild(style);
 
 </script>
+
  
     
 </body>
