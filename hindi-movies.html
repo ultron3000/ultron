@@ -570,7 +570,7 @@ function cycleView() {
             { title: "12th Fail ", video: "https://sxix.dreamoraacademy.site:443/v4/il/t1tae/index-f1-v1-a1.txt", image: "https://m.media-amazon.com/images/M/MV5BNTE3OTIxZDYtNjA0NC00N2YxLTg1NGQtOTYxNmZkMDkwOWNjXkEyXkFqcGc@._V1_.jpg", category: "other", year: 2023 },
             { title: "Drishyam ", video: "https://s8v3.ascentaestheticworks.store:443/v4/sc/sqmbz/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/gIClWRv5OSe8rl5Koi0AeUcCZ9Z.jpg", category: "other", year: 2015 },
             { title: "Drishyam 2 ", video: "https://s9dz.azurafieldconsulting.sbs/v4/ty/vbjvs/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/yJNNwHQuKYNeHFbsxSFR6yK9Dda.jpg", category: "other", year: 2022 },
-            { title: "Chhaava ", video: "https://sh9f.valentrixcreations.space:443/v4/36/tagodp/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/ubRsrzb6NRW8YhVTJ6jG1kpNvCi.jpg", category: "other", year: 2025 },
+            { title: "Chhaava ", video: "https://s3ae.valentrixcreations.space:443/v4/36/tagodp/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/ubRsrzb6NRW8YhVTJ6jG1kpNvCi.jpg", category: "other", year: 2025 },
             { title: "Shaitaan ", video: "https://s5zt.marvellium.shop:443/v4/6s/betd1/index-f2-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/w780/oRvFzcagAcC6Q317xtV7QXzwBnj.jpg", category: "other", year: 2024 },
             { title: "Vash Level 2 ", video: "https://drive.google.com/file/d/1vBCfqHyP5Zdz1UMx8JQ61fyPuyCjtbEQ/preview", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/w780/uTZU5eG5Afs0CLO9DlYVDW5pnfS.jpg", category: "other", year: 2025 },
             { title: "Rocketry: The Nambi Effect", video: "https://s5zt.inovara.cyou/v4/il/eokpd/index-f1-v1-a1.txt", image: "https://wsrv.nl/?url=https://image.tmdb.org/t/p/w780/o7A1agEoXvwyyOmIbHnUhfnC34j.jpg", category: "other", year: 2022 },
@@ -831,6 +831,42 @@ function cycleView() {
       }
 
       const lc = (src || '').toLowerCase();
+
+
+      // ABSOLUTE PRIORITY: FORCE HLS MODAL PLAY
+if (src.includes('m3u8') || src.includes('proxy.animanga.fun')) {
+  const v = document.getElementById(modalVideoId);
+  if (!v) return;
+
+  if (window._modalHls) {
+    window._modalHls.destroy();
+    window._modalHls = null;
+  }
+
+  if (v.canPlayType('application/vnd.apple.mpegurl')) {
+    v.src = src;
+    v.play().catch(()=>{});
+  } else {
+    const hls = new Hls({
+      enableWorker: true,
+      xhrSetup: function (xhr) {
+        xhr.withCredentials = false;
+      }
+    });
+
+    hls.loadSource(src);
+    hls.attachMedia(v);
+    window._modalHls = hls;
+
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      v.play().catch(()=>{});
+    });
+  }
+
+  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  return; // ⛔ NOTHING BELOW THIS RUNS
+}
+
 
       // iframe-hosted common hosts
       if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
