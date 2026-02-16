@@ -942,6 +942,35 @@ if (src.includes('workers.dev/mp4/')) {
   return;
 }
 
+      // FORCE lizer123 /stream/ links to use HLS
+if (src.includes('lizer123.site') && src.includes('/stream/')) {
+
+  const v = document.getElementById(modalVideoId);
+  if (!v) { showError('Video element missing'); return; }
+
+  if (currentHls) {
+    currentHls.destroy();
+    currentHls = null;
+  }
+
+  if (Hls.isSupported()) {
+    currentHls = new Hls();
+    currentHls.loadSource(src);
+    currentHls.attachMedia(v);
+    currentHls.on(Hls.Events.MANIFEST_PARSED, function () {
+      v.play().catch(()=>{});
+    });
+  } 
+  else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+    v.src = src;
+    v.load();
+    v.play().catch(()=>{});
+  }
+
+  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  return;
+}
+
 
       // MP4
       if (isMP4(src)) {
