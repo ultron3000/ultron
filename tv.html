@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Live Channels</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #ffcc00;
+      --secondary: #111827;
+      --accent: #f59e0b;
+      --muted: #9CA3AF;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    .movie-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .search-input {
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .search-input:focus {
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5);
+    }
+    
+    .header-glow {
+      text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+    }
+    
+    .movie-poster {
+      aspect-ratio: 2/3;
+      transition: transform 0.5s ease;
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: scale(1.05);
+    }
+    
+    .category-tab {
+      transition: all 0.3s ease;
+    }
+    
+    .category-tab:hover {
+      transform: translateY(-2px);
+    }
+    
+    .category-tab.active {
+      background-color: var(--primary);
+      color: var(--secondary);
+      font-weight: 600;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #ffcc00;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #f59e0b;
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+    
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    
+    /* Illumination modal styles (responsive) */
+    .modal-backdrop { 
+      position:fixed; 
+      inset:0; 
+      background: rgba(0,0,0,0.9); 
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index:9999; 
+      padding: 0;
+    }
+    .modal-backdrop.active { display:flex; }
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 980px;
+      max-height: 100vh;
+      border-radius: 0;
+      overflow: hidden;
+      background: #0b1220;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (max-width: 640px) {
+      .modal-card {
+        max-height: 100vh;
+      }
+      .player-wrapper {
+        padding-bottom: 56.25% !important;
+      }
+      .player-meta {
+        padding: 8px !important;
+      }
+      .btn {
+        padding: 6px 8px !important;
+        font-size: 0.8rem !important;
+      }
+    }
+    .player-wrapper { 
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #000;
+    }
+    #topCloseBtn { 
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: all 0.2s ease;
+    }
+    #topCloseBtn:hover {
+      background: rgba(0,0,0,0.9);
+      transform: scale(1.1);
+    }
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+      color: #ddd;
+      background: #0b1220;
+    }
+    .player-meta .meta-left { 
+      width: 100%;
+    }
+    .player-meta h3 { 
+      margin: 0;
+      font-size: 1.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .player-meta p { 
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .controls-row { 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 60px;
+      flex: 1;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn:hover { 
+      background: rgba(254,209,65,0.06); 
+    }
+    .btn i {
+      font-size: 1rem;
+    }
+
+    /* Responsive adjustments */
+    @media (min-width: 768px) {
+      .modal-card {
+        width: 92%;
+        height: auto;
+        border-radius: 12px;
+        max-height: 80vh;
+      }
+      .player-wrapper {
+        padding-bottom: 56.25%;
+        height: 0;
+      }
+      .player-meta {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .player-meta .meta-left {
+        max-width: 65%;
+      }
+      .controls-row {
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+      }
+      .btn {
+        flex: 0;
+        min-width: auto;
+        padding: 8px 12px;
+      }
+      #topCloseBtn {
+        opacity: 0;
+      }
+      .player-wrapper:hover #topCloseBtn {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn {
+        padding: 8px;
+        font-size: 0;
+      }
+      .btn i {
+        font-size: 1rem;
+        margin: 0 !important;
+      }
+    }
+
+    /* Modal legacy styles (unused) */
+    .modal-overlay { display:none; }
+    /* ============================
+   DESKTOP FIX — DOES NOT TOUCH MOBILE
+   ============================ */
+
+@media (min-width: 768px) {
+
+  /* Fix video height so it doesn't cover controls */
+  .player-wrapper {
+    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
+    height: auto !important;
+    max-height: 60vh !important;       /* safe video height */
+    position: relative !important;
+  }
+
+  /* Ensure iframe/video stays inside wrapper */
+  .player-wrapper video,
+  .player-wrapper iframe {
+    height: 100% !important;
+    max-height: 60vh !important;
+    position: relative !important;
+  }
+
+  /* Make sure controls are ALWAYS visible above video */
+  .player-meta {
+    position: relative !important;
+    z-index: 100 !important;
+    background: #0b1220 !important;      /* solid background for visibility */
+    padding-top: 10px !important;
+  }
+
+  /* Controls row layout */
+  .controls-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 12px !important;
+  }
+
+  /* Buttons behave normally */
+  .btn {
+    min-width: 95px !important;
+    padding: 10px 16px !important;
+    flex: unset !important;
+  }
+
+  /* Modal height adjustment to fit everything */
+  .modal-card {
+    max-height: 85vh !important;
+    overflow: visible !important;
+  }
+}
+/* === MOBILE FULLSCREEN VIDEO FIX (NO CROPPING) === */
+@media (max-width: 768px) {
+  video:fullscreen,
+  video:-webkit-full-screen {
+    object-fit: contain !important;
+    background-color: black;
+  }
+}
+
+
+
+  </style>
+</head>
+
+<body>
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+
+<header class="relative flex items-center justify-center mb-4 sm:mb-6 md:mb-8">
+
+  <!-- LOGO -->
+  <img
+    src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png"
+    alt="Logo"
+    class="absolute left-0 h-9 sm:h-10 md:h-12 drop-shadow-lg"
+  />
+
+  <!-- TITLE -->
+  <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400 tracking-wide">
+    📡 Live TV Channels
+  </h1>
+
+</header>
+
+
+<!-- Category Tabs -->
+<div class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-4 sm:mb-6 md:mb-8 overflow-x-auto py-2 px-1 sm:px-0">
+  <button class="category-tab active px-4 py-2 rounded-full border border-yellow-400" data-category="all">All</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="cricket">Cricket</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="football">Football</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="sports">Sports</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="movie">Movies</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="entertainment">Entertainment</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="comedy">Comedy</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="education">Education</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="kid">KIDS</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="music">Music</button>
+  <button class="category-tab px-4 py-2 rounded-full border border-yellow-400" data-category="news">News</button>
+</div>
+
+<!-- Grid -->
+<div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
+
+</div>
+
+
+
+
+
+
+</style>
+
+</div>
+</div>
+<!-- Movies Grid -->
+<div class="mb-12">
+<div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6" id="movies"></div>
+</div>
+<!-- Footer / Social -->
+  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  </div>
+</div>
+
+<!-- === REPLACED: Illumination-style Modal Player === -->
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="player-wrapper" id="playerWrapper">
+      <!-- video or iframe injected here -->
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="player-meta">
+      <div class="meta-left">
+        <h3 id="modalTitle">Title</h3>
+        <p id="modalDesc" class="text-sm"></p>
+      </div>
+      <div class="controls-row">
+        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    /******************************
+     * Existing movies array (unchanged)
+     ******************************/
+    const movies = [
+  {
+    title: "DD Sports",
+    video: "https://cdn-6.pishow.tv/live/13/master.m3u8",
+    image: "https://img-cdn.publive.online/fit-in/1200x675/afaqs/media/post_attachments/cc92e1d6759635265b89f3d0071d6699b2a5bbe5fb6ffc022ab82b6b7a05455a.webp",
+    category: "cricket",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Star Sports 1 HD",
+    video: "https://waptv.wapka.xyz/index.html",
+    image: "https://cdn.smartads.in/images/product/television/Star-Sports-1-Hindi-HD.png",
+    category: "cricket",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Star Sports 2 HD",
+    video: "https://24spn-webhost8.blogspot.com/?m=1",
+    image: "https://cdn.smartads.in/images/product/television/STAR-Sports-2.png",
+    category: "cricket",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Prime Hindi",
+    video: "https://waptv.wapka.xyz/prime",
+    image: "https://tbreak.com/content/images/2025/10/prime-video-logo-square-8.jpg",
+    category: "cricket",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Sky Sports cricket",
+    video: "https://crichd.workspace-sultanarabi161.workers.dev/live/skyscric.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/commons/0/0e/Sky-sports-main-cricket.jpg",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Prime English",
+    video: "https://waptv.wapka.xyz/eng",
+    image: "https://tbreak.com/content/images/2025/10/prime-video-logo-square-8.jpg",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "WILLOW by Cricbuzz",
+    video: "https://crichd.workspace-sultanarabi161.workers.dev/live/willowusa.m3u8",
+    image: "https://yt3.googleusercontent.com/J9caFjlO0_bU2ZBsy71DuamvYztO2aGXzNwe1du8Fp1y7QY2vNQdqt3_B7su85vPDxha2A-M-Ws=s900-c-k-c0x00ffffff-no-rj",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Star Sports Select 1",
+    video: "https://jiogo.pages.dev/?id=460",
+    image: "https://cdn.smartads.in/images/product/television/Star-Sports-Select-1-HD.png",
+    category: "sports",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Star Sports Select 2",
+    video: "https://jiogo.pages.dev/?id=461",
+    image: "https://cdn.smartads.in/images/product/television/Star-Sports-Select-2-HD.png",
+    category: "sports",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Star Sports Khel",
+    video: "https://jiogo.pages.dev/?id=1998",
+    image: "https://indiantvinfo.com/media/schema-and-structured-data-for-wp/Star-Sports-Khel-720x720.jpg",
+    category: "cricket",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "T-Sports HD",
+    video: "https://satoshi-cors.herokuapp.com/http://103.96.235.18:9090/sports1/index.m3u8",
+    image: "https://yt3.googleusercontent.com/eY6Yt0YDmWSheMmneYNjUD_2N5p8r2nFca9CENifrZ9TugWxrQW24oznjqBJPOFmSs2M6avemg=s900-c-k-c0x00ffffff-no-rj",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "WILLOW Sports",
+    video: "https://amg01269-amg01269c1-sportstribal-emea-5204.playouts.now.amagi.tv/playlist/amg01269-willowtvfast-willowplus-sportstribalemea/playlist.m3u8",
+    image: "https://s.yimg.com/ny/api/res/1.2/la.fLlMgzGGXbMbYMpeHcQ--/YXBwaWQ9aGlnaGxhbmRlcjt3PTY0MDtoPTY0MA--/https://media.zenfs.com/en/business-wire.com/ee3396c941e0bd91118ecad239eaf1da",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+  title: "Cricbuzz 1",
+  image: "https://mena-img-cdn-lb.aws.playco.com/474w/criclife/CRICLIVE2Y2021M/CRICLIVE2Y2021M-474x677-PST.jpg",
+  video: {
+    mpd: "https://ev-fast-mpd.starzplayarabia.com/live/eds/CricLife2/DASH/CricLife2.mpd",
+    key: "48bef83b4c6a3c5189b01b0126210da4:bd085230b7b09e50954fe0af111a8a9f"
+  },
+  category: "cricket"
+  },
+  {
+  title: "Cricbuzz 2",
+  image: "https://cdn-bgp.bluestacks.com/BGP/us/gametiles_com.cricbuzz.android.jpg",
+  video: {
+    mpd: "https://ev-fast-mpd.starzplayarabia.com/live/eds/Criclife_3/DASH/Criclife_3.mpd",
+    key: "4e8b5ddac5332a4e66c002b4c0f22322:d06de29b0eacb81ac6e3f325849047e8"
+  },
+  category: "cricket"
+  },
+  {
+  title: "Criclife",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjdxvBVzC2EhvkKSG6n8vOqXDEgadqErSRDA&s",
+  video: {
+    mpd: "https://ev-fast-mpd.starzplayarabia.com/live/eds/CricLife1/DASH/CricLife1.mpd",
+    key: "1e23e51b09a67b83813c17049870bcd4:c3d6288e378b0dc55320fd0e6fd2e55f"
+  },
+  category: "cricket"
+  },
+  {
+    title: "FiFa+ UK",
+    video: "https://a62dad94.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/UmFrdXRlblRWLWV1X0ZJRkFQbHVzRW5nbGlzaF9ITFM/playlist.m3u8",
+    image: "https://yt3.googleusercontent.com/7I4v3nDGujU63xg-ivICPVJK73dNs2RZ4DzIxIOaR9nVaqF2m1n3NOr8DAJCnHpIJxGEJwZ-Pmw=s900-c-k-c0x00ffffff-no-rj",
+    category: "football",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Realmadrid TV",
+    video: "https://b96bc664.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/VENMVFZQbHVzLWNhX1JlYWxNYWRyaWRfSExT/playlist.m3u8?ads.wurl_channel=1865",
+    image: "https://thumbs.dreamstime.com/b/tallinn-estonia-august-logo-emblem-real-madrid-tallinn-estonia-august-logo-emblem-real-madrid-close-up-final-125468393.jpg",
+    category: "football",
+  },
+  {
+    title: "Geo Super",
+    video: "https://anywhere.pwisetthon.com/https://ml-pull-dvc-myco.io:2096/GEO_SUPER/index.m3u8",
+    image: "https://image.winudf.com/v2/image/Y29tLmdhcHBsZS5nZW9zdXBlcl9zY3JlZW5fMF8xNTI2MDM2Mjk0XzAyMQ/screen-0.jpg?fakeurl=1&type=.jpg",
+    category: "football",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Cricket Gold",
+    video: "https://d382r3rgbxdixq.cloudfront.net/scheduler/scheduleMaster/418.m3u8",
+    image: "https://d229kpbsb5jevy.cloudfront.net/tv/150/150/bnw/Cricket-Gold-Channel_black.png",
+    category: "cricket",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Zee Cinema HD",
+    video: "https://amg17931-zee-amg17931c5-samsung-th-5696.playouts.now.amagi.tv/playlist/amg17931-asiatvusaltdfast-zeecinema-samsungth/playlist.m3u8",
+    image: "https://pbs.twimg.com/profile_images/971359116122767360/zfwcAwYB_400x400.jpg",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "B4U Movies",
+    video: "https://cdnb4u.wiseplayout.com:443/B4U_Movies/HD1080/HD1080.m3u8",
+    image: "https://cdn.shortpixel.ai/spai/q_lossy+ret_img+to_webp/www.bizasialive.com/wp-content/uploads/2018/01/b4umovieslogo001-1200x750.jpg",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "B4U Kadak",
+    video: "https://cdnb4u.wiseplayout.com/B4U_Kadak/master.m3u8",
+    image: "https://yt3.googleusercontent.com/xQsbPZ5WsqvTzKOKFozAVbtfjgOQoZh14F9-KSl2u1smIRGVMawqocSadyEsKcHTSROjvDcS=s900-c-k-c0x00ffffff-no-rj",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Bollywood Classic",
+    video: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-classic/manifest.m3u8",
+    image: "https://images.squarespace-cdn.com/content/v1/63f66748474ef363a52a0c2a/cb43444c-32cc-4b78-b747-980a59481418/IMG_6219.JPG",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Bollywood HD",
+    video: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/bollywood-hd/manifest.m3u8",
+    image: "https://images.squarespace-cdn.com/content/v1/63f66748474ef363a52a0c2a/0cd69118-d7d2-4f27-9035-48503aaf585d/IMG_6412.JPG",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "DD National HD",
+    video: "https://d3qs3d2rkhfqrt.cloudfront.net:443/out/v1/40492a64c1db4a1385ba1a397d357d3a/index_3.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/hi/1/15/Dd_national_New_Logos.png",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "&Flix",
+    video: "https://edge3-moblive.yuppcdn.net/drm/smil:nflixdrm.smil/index.m3u8",
+    image: "https://yt3.googleusercontent.com/Ktusknr8uKCVvjlnuJdXKJlsjN9Lv_-RGJWseGTd3DnuuMWcYKKgEUzXTlUWqSdQyyRER2si2A=s900-c-k-c0x00ffffff-no-rj",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Just For laughs gags",
+    video: "https://distributionsjustepourrire-justforlaughsgags-1-be.samsung.wurl.tv/playlist.m3u8",
+    image: "https://m.media-amazon.com/images/M/MV5BOGMyYWUxNmYtNTdhOS00Zjg1LWEwZWItMjIyY2MwMDU2MTY2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+    category: "comedy",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "AFV",
+    video: "https://linear-12.frequency.stream/dist/plex/12/hls/master/playlist.m3u8",
+    image: "https://yt3.googleusercontent.com/rx4nCj-P7ep0Ec5tmZht424HJ0320RUXHON-OwDOeaTNtXEDDvWGwCGa54HhXT_3JPC3D-dWTg=s900-c-k-c0x00ffffff-no-rj",
+    category: "comedy",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Mix Hollywood",
+    video: "https://ml-pull-hwc.myco.io/MixTV/hls/index.m3u8",
+    image: "https://assets.myco.io/public/compressed/thumbnails/20251105/mycolive-mix_1jpg-1762353499626.webp",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Miramax Movie",
+    video: "https://linear-798.frequency.stream/mt/plex/798/hls/master/playlist.m3u8",
+    image: "https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-thumbnail/s3/0011/2581/brand.gif?itok=B6FjQqjY",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+{
+    title: "Sony Movies",
+    video: "https://a-cdn.klowdtv.com/live1/smc_720p/playlist.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7hbdP0mlH_2fixqi5XPs-6GuoBvfeJgwRow&s",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+{
+    title: "Sony One Comedy Hits",
+    video: "https://9f8e2ffcd87f4c469be7194e48f84874.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-802-UK-SONYONECOMEDYHITS-LG_UK/playlist.m3u8",
+    image: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/e9c044f2-3aa1-4fee-94ae-5445d49a988a/delgzci-8a48149c-b3d2-4384-92aa-e37c8f329316.png/v1/fill/w_894,h_894,q_70,strp/sony_comedy_logo_by_jhmedia_delgzci-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTIwMCIsInBhdGgiOiIvZi9lOWMwNDRmMi0zYWExLTRmZWUtOTRhZS01NDQ1ZDQ5YTk4OGEvZGVsZ3pjaS04YTQ4MTQ5Yy1iM2QyLTQzODQtOTJhYS1lMzdjOGYzMjkzMTYucG5nIiwid2lkdGgiOiI8PTEyMDAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.2rlt6dksWZnRBEPO9qA1j91a2zalG7oUavBMsO_BBok",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+{
+    title: "Sony One Thriller TV",
+    video: "https://52aad07d9d4f4d479d9b27e08ddf9e8b.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-808-UK-SONYONETHRILLERTV-LG_UK/playlist.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqVSEWvcscs7VSZ3rO6VC9-_XQXfuYrhQIMA&s",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+{
+    title: "Sony One Action Hits",
+    video: "https://89514e758f814907be6d14bbc0aa66b7.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-800-UK-SONYONEACTIONHITS-LG_UK/playlist.m3u8",
+    image: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/560dfea6-13fc-45c5-abb5-0692213c6010/dfz5di1-06372f62-0683-4c6b-ab67-933962e46c1a.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi81NjBkZmVhNi0xM2ZjLTQ1YzUtYWJiNS0wNjkyMjEzYzYwMTAvZGZ6NWRpMS0wNjM3MmY2Mi0wNjgzLTRjNmItYWI2Ny05MzM5NjJlNDZjMWEucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.8IZ3w2-o-70maeUyprJs0LaSEf88Upo4Ij7KPjd12Bw",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+{
+    title: "Sony One Faves",
+    video: "https://8a4805800dac428ebbf1d3cde0cdcf87.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-806-UK-SONYONEFAVES-LG_UK/playlist.m3u8",
+    image: "https://stmify.com/wp-content/uploads/2024/08/33-s.webp",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "HBO 1",
+    video: "https://fl1.moveonjoy.com/HBO/index.m3u8",
+    image: "https://oxolive.b-cdn.net/wp-content/uploads/2025/08/ChatGPT-Image-Dec-31-2025-09_57_04-PM-1-185x278.png",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+{
+    title: "HBO 2",
+    video: "https://fl1.moveonjoy.com/HBO_2/index.m3u8",
+    image: "https://oxolive.b-cdn.net/wp-content/uploads/2025/08/ChatGPT-Image-Dec-31-2025-09_52_52-PM-1-185x278.png",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "Cinelife",
+    video: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/cinelife/playlist.m3u8",
+    image: "https://yt3.googleusercontent.com/ytc/AIdro_kn9hBbTkmYl9A-cK0vprRB--XgAse7bhAJZJdZqvfFQP0=s900-c-k-c0x00ffffff-no-rj",
+    category: "movie",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "DD Sahyadri",
+    video: "https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/66dcc3ebe182447ba42837e746cf0c7c/index.m3u8",
+    image: "https://yt3.googleusercontent.com/nCOn_XPVxsFz1qPRcWRdMLv0DcrH-D-FazGhQSYXuEEFIkWwqkPwtZbW1KJfmF3CJo5JvLvabA=s900-c-k-c0x00ffffff-no-rj",
+    category: "movie",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+  title: "TNT Sports 1",
+  image: "https://cricstream4u.github.io/cinearena/tnt1.jpg",
+  video: {
+    mpd: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/wf8usag51e/out/v1/bd3b0c314fff4bb1ab4693358f3cd2d3/cenc.mpd",
+    key: "d0f2e5c39e70c18f29bf77768a1ad89a:d6853c51fcf37a18905f0609972395d7"
+  },
+  category: "sports"
+},
+
+{
+  title: "TNT Sports 2",
+  image: "https://cricstream4u.github.io/cinearena/tnt2.jpg",
+  video: {
+    mpd: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/bsaaetko8v/out/v1/f8fa17f087564f51aa4d5c700be43ec4/cenc.mpd",
+    key: "9f51f3dc6313ac8bc668e2d9d1c04dfa:74bc63e5a193454a91ca494975db33f9"
+  },
+  category: "sports"
+},
+
+{
+  title: "TNT Sports 3",
+  image: "https://cricstream4u.github.io/cinearena/tnt3.jpg",
+  video: {
+    mpd: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/lsdasbvglv/out/v1/bb548a3626cd4708afbb94a58d71dce9/cenc.mpd",
+    key: "a93c1cbfdccd23233bac13540c693e7f:2f6ab2e6693eb847eff3c9da8f9d01fc"
+  },
+  category: "sports"
+},
+
+{
+  title: "TNT Sports 4",
+  image: "https://cricstream4u.github.io/cinearena/tnt4.jpg",
+  video: {
+    mpd: "https://ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/dash/enc/i2pcjr4pe5/out/v1/912e9db56d75403b8a9ac0a719110f36/cenc.mpd",
+    key: "192b1115da041585c77200128549efa1:634e10efe4abbb14be400a3ccbac0258"
+  },
+  category: "sports"
+},
+{
+  title: "beIN SPORTS 1",
+  image: "https://logowik.com/content/uploads/images/bein-sports-13097.logowik.com.webp",
+  video: {
+    mpd: "https://aba5sdmaaaaaaaamooyrewxky2c4j.otte.live.cf.ww.aiv-cdn.net/syd-nitro/live/dash/enc/ghwcl6hv68/out/v1/83536910d8034e9b9895a20fbe1c1687/cenc.mpd",
+    key: "335dad778109954503dcbb21dc92015f:24bfd75d436cbf73168a2a2dccd40281"
+  },
+  category: "football"
+},
+{
+  title: "beIN SPORTS 1.0",
+  image: "https://logowik.com/content/uploads/images/bein-sports-13097.logowik.com.webp",
+  video: {
+    mpd: "https://linearjitp-playback.astro.com.my/dash-wv/linear/408/default_ott.mpd",
+    key: "1a655189ab5c49eb235308c2b1a9e710:3c4508af348844107f5e026a4fd6b16e"
+  },
+  category: "football"
+},
+{
+  title: "beIN SPORTS 2",
+  image: "https://logowik.com/content/uploads/images/bein-sports-25584.logowik.com.webp",
+  video: {
+    mpd: "https://aba5sdmaaaaaaaamdwujas5g6mg4r.otte.live.cf.ww.aiv-cdn.net/syd-nitro/live/dash/enc/8m8cd46i1t/out/v1/83985c68e4174e90a58a1f2c024be4c9/cenc.mpd",
+    key: "0b42be2664d7e811d04f3e504e0924c5:ae24090123b8c72ac5404dc152847cb8"
+  },
+  category: "football"
+},
+{
+  title: "beIN SPORTS 2.0",
+  image: "https://www.fetchtv.com.au/marketing/img/packages/special-interest/bein-sports/bein-sports-2.jpg",
+  video: {
+    mpd: "https://linearjitp-playback.astro.com.my/dash-wv/linear/5066/default_ott.mpd",
+    key: "39c175581e237eff9559607eb9b23c10:5102b12aac7756c65dcb46a101d960d3"
+  },
+  category: "football"
+},
+{
+  title: "beIN SPORTS 3",
+  image: "https://www.planetecsat.com/wp-content/uploads/2022/10/b3-1.png",
+  video: {
+    mpd: "https://aba5sdmaaaaaaaamhq2w5oosrf5ae.otte.live.cf.ww.aiv-cdn.net/syd-nitro/live/dash/enc/q4u5nwaogz/out/v1/18de6d3e65934f3a8de4358e69eab86c/cenc.mpd",
+    key: "7995c724a13748ed970840a8ab5bb9b3:67bdaf1e2175b9ff682fcdf0e2354b1e"
+  },
+  category: "football"
+},
+{
+  title: "beIN SPORTS 3.0",
+  image: "https://www.fetchtv.com.au/marketing/img/packages/special-interest/bein-sports/bein-sports-3.jpg",
+  video: {
+    mpd: "https://linearjitp-playback.astro.com.my/dash-wv/linear/2705/default_ott.mpd",
+    key: "20c884ef8ed26b2762f8b1a78f2d1910:042a21bf236ca729b1e343ed6e0a6337"
+  },
+  category: "football"
+},
+{
+    title: "beIN SPORTS XTRA",
+    video: "https://amg01334-beinsportsllc-beinxtra-samsungau-eiyvc.amagi.tv/playlist/amg01334-beinsportsllc-beinxtra-samsungau/playlist.m3u8",
+    image: "https://images-cdn3.welcomesoftware.com/assets/Bein.jpg/Zz1mNmExMWMyZWVlNmExMWVmOWJhNjRhYzEwMjk2ODg1YQ==?width=768&height=430",
+    category: "football",
+    language: "English",
+    isPopular: true
+  },
+{
+  title: "WILLOW Sports 1",
+  image: "https://cricstream4u.github.io/cinearena/willowsports.jpg",
+  video: {
+    mpd: "https://aba3uy3aaaaaaaamfjv2jyrjdxcj4.otte.live.cf.ww.aiv-cdn.net/sin-nitro/live/dash-sd/enc/sq3nwcl4j4/out/v1/41930b7349364099bb1b4ef153032937/cenc-sd.mpd",
+    key: "4ae41f5965180707b310360dc5060c09:f78d1ba450f7ff87f215eb472cb4e17e"
+  },
+  category: "sports"
+},
+{
+  title: "EUROSPORT 1",
+  image: "https://www.planetecsat.com/wp-content/uploads/2022/10/Eurosport-1.png",
+  video: {
+    mpd: "https://v4-pan-n79-cdn-01.live.cdn.cgates.lt/live/dash/561802/index.mpd",
+    key: "01a665d487aa4c1c898c9eb0ff1a21df:a0b9df5f92e6b218ddb6aa40a2cd996d"
+  },
+  category: "sports"
+},
+{
+  title: "EUROSPORT 2",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvYPWz0XrIhsgmrbk9gUdnEZ7SXAtvFXfCUA&s",
+  video: {
+    mpd: "https://dash2.antik.sk/stream/nvidia_eurosport2/playlist_cenc.mpd",
+    key: "11223344556677889900112233445566:4b80724d0ef86bcb2c21f7999d67739d"
+  },
+  category: "sports"
+},
+{
+    title: "Red Bull",
+    video: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master_3360.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSj41nwYgl5l1kmKq_Y6_Ax3ISo8MM_Ew3SNQ&s",
+    category: "sports",
+    language: "English",
+    isPopular: true
+  },
+  {
+    title: "F1 TV",
+    video: "https://amg12058-amg12058c1-vidaa-us-8693.playouts.now.amagi.tv/playlist/amg12058-c15medianetworkslimitedfast-formula1tv-vidaaus/playlist.m3u8",
+    image: "https://i.redd.it/ng7eepqbi0ra1.jpg",
+    category: "sports",
+  },
+  {
+    title: "Motorsport TV",
+    video: "https://4d946db4.wurl.com/master/f36d25e7e52f1ba8d7e56eb859c636563214f541/VmlkYWEtZ2JfTW90b3JzcG9ydHR2X0hMUw/playlist.m3u8?ads.wurl_channel=2018",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE9fkWTklnOWP0lHoOrpcUTyWVGNg4q48eBA&s",
+    category: "sports",
+  },
+  {
+    title: "Nascar",
+    video: "https://live-manifest.production-public.tubi.io/live/3404f25c-24bd-4ced-9d72-f2b4d5f63c57/playlist.m3u8",
+    image: "https://i.pinimg.com/236x/a9/fe/6e/a9fe6e206e39f9c4465e5df0bbe31f37.jpg",
+    category: "sports",
+  },
+  {
+    title: "Tennis Channel",
+    video: "https://cdn-ue1-prod.tsv2.amagi.tv/linear/amg01444-tennischannelth-tennischannelnl-samsungnl/playlist.m3u8",
+    image: "https://images.seeklogo.com/logo-png/30/1/tennis-channel-logo-png_seeklogo-301868.png",
+    category: "sports",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "H&C",
+    video: "https://hncfree-samsungau.amagi.tv/playlist.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAuSKPk_qfyUhZTdgT5NYN56RyH9z3FTRxWA&s",
+    category: "sports",
+    language: "English",
+    isPopular: true
+  },
+   {
+  title: "ESPN 1",
+  image: "https://thumbs.dreamstime.com/b/logo-icon-vector-logos-icons-set-social-media-flat-banner-vectors-svg-eps-jpg-jpeg-paper-texture-glossy-emblem-wallpaper-210442610.jpg",
+  video: {
+    mpd: "https://aca-live1-ott.izzigo.tv/6/out/u/dash/ESPNHDH265/default.mpd",
+    key: "3fb8167957692836eca1464b7f952b45:f31042e8167eb4b49ce8117c9e5f1e85"
+  },
+  category: "sports"
+},
+{
+  title: "ESPN 2",
+  image: "https://thumbs.dreamstime.com/b/logo-icon-vector-logos-icons-set-social-media-flat-banner-vectors-svg-eps-jpg-jpeg-paper-texture-glossy-emblem-wallpaper-210442610.jpg",
+  video: {
+    mpd: "https://aca-live1-ott.izzigo.tv/7/out/u/dash/ESPN2HDH265/default.mpd",
+    key: "faa2d2197cc44dc154650bbacb0dc238:9859d70c856660e20bbe6896f9cd3048"
+  },
+  category: "sports"
+},
+{
+  title: "ESPN 3",
+  image: "https://thumbs.dreamstime.com/b/logo-icon-vector-logos-icons-set-social-media-flat-banner-vectors-svg-eps-jpg-jpeg-paper-texture-glossy-emblem-wallpaper-210442610.jpg",
+  video: {
+    mpd: "https://aca-live1-ott.izzigo.tv/6/out/u/dash/ESPN3HDH265/default.mpd",
+    key: "10580600369dbd7ac029f7e737247917:24ef48adb31daa130675c2a502da6982"
+  },
+  category: "sports"
+},
+{
+  title: "ESPN 4",
+  image: "https://thumbs.dreamstime.com/b/logo-icon-vector-logos-icons-set-social-media-flat-banner-vectors-svg-eps-jpg-jpeg-paper-texture-glossy-emblem-wallpaper-210442610.jpg",
+  video: {
+    mpd: "https://aca-live1-ott.izzigo.tv/6/out/u/dash/ESPN4HDH265/default.mpd",
+    key: "1d2d7f1116eeec62d19943a892d721f7:033b809769a3c248af7383aa817fce72"
+  },
+  category: "sports"
+},
+ {
+  title: "Zee Marathi HD",
+  image: "https://upload.wikimedia.org/wikipedia/commons/3/31/Zee_marathi_logo_2025.jpg",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeemarathi/default/manifest.mpd",
+    key: "2a8d6c938ea647248f7a10eedc39f097:7d81feb84ed84bd88fdc5ca9de3c16da"
+  },
+  category: "entertainment"
+},
+{
+  title: "Zee Talkies",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4o1XkfE2JPhr1OMSFdi8kzVJaTxxx9_a3jw&s",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetalkies/default/manifest.mpd",
+    key: "f081f32756374c3d8265e1a1e029614e:356a3a6d8ce34d49a84ad464b20b1a3e"
+  },
+  category: "entertainment"
+},
+{
+  title: "& PICTURES HD",
+  image: "https://images.seeklogo.com/logo-png/45/1/pictures-hd-logo-png_seeklogo-457044.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andpictureshd/default/index.mpd",
+    key: "de8045e9f0fb4d03845dcc4a8bd7712a:6807bd09bda34ada83152908192af6d6"
+  },
+  category: "movie"
+},
+{
+  title: "& PICTURES SD",
+  image: "https://images.seeklogo.com/logo-png/45/1/pictures-hd-logo-png_seeklogo-457044.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andpictures/default/manifest.mpd",
+    key: "8dea532cabfe4f71ba20f62310e7949f:7a214a974e4f4d1d9bb66364d5f0cb92"
+  },
+  category: "movie"
+},
+{
+  title: "STAR GOLD HD",
+  image: "https://img-cdn.publive.online/fit-in/1200x675/afaqs/media/post_attachments/52a62839ab691a5758d601142a12791a3e44227bd46b3cb6f81a522f25d28531.jpg",
+  video: {
+    mpd: "https://delta45tatasky.akamaized.net/out/i/1633.mpd",
+    key: "6f715e0e16cf4b20bc94f6f85023974b:516785ded0aee1dafae22e2874528b2a"
+  },
+  category: "movie"
+},
+{
+    title: "Colors UK",
+    video: "https://catchup.yuppcdn.net/amazonv2/36/preview/colorsuk/master/chunklist.m3u8",
+    image: "https://d229kpbsb5jevy.cloudfront.net/tv/480/270/languages/colors-uk.jpg",
+    category: "entertainment",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Colors AU",
+    video: "https://catchup.yuppcdn.net/amazonv2/36/preview/colorsau/master/chunklist.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhKOJ2tysU4LpltZmZv0tv06a1DjpNh_ps2g&s",
+    category: "entertainment",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Colors Rishtey UK",
+    video: "https://catchup.yuppcdn.net/amazonv2/36/preview/rishteyuk/master/chunklist.m3u8",
+    image: "https://i.pinimg.com/736x/1c/38/42/1c38421deaab02fedd0aceb6603957fd.jpg",
+    category: "entertainment",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+    title: "Colors Rishtey AU",
+    video: "https://catchup.yuppcdn.net/amazonv2/36/preview/rishteyau/master/chunklist.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLcClMBrZBcRef8-oA7hU3Hmsi_JLkuONTKA&s",
+    category: "entertainment",
+    language: "Hindi",
+    isPopular: true
+  },
+  {
+  title: "Animal Planet HD",
+  image: "https://cdn.myportfolio.com/2cb0938e-1725-4a29-85cb-c492ab3859dd/fee47bfc-21d7-4c04-800d-fd19a857f2f2_rwc_589x0x735x1080x735.png?h=746438a96c8b8a7f46453eaeba986aa3",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Animalplanethd2/default/index.mpd",
+    key: "df81f15150f74c799fdde64ef49dfb75:05794a012ae74d77953f2b9fae6804c7"
+  },
+  category: "education"
+},
+{
+  title: "Discovery Channel",
+  image: "https://i.pinimg.com/736x/a1/99/74/a19974ce222a14ccfa0f26b47013c5e0.jpg",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverychannel2/default/manifest.mpd",
+    key: "b70a8cf9450c4d6484b4ac4d3c6761c0:0908be844260409cbac180bf0181da40"
+  },
+  category: "education"
+},
+{
+  title: "Discovery Science",
+  image: "https://seeklogo.com/images/D/discovery-science-logo-804ACEFF86-seeklogo.com.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoveryscience2/default/manifest.mpd",
+    key: "5458f45efedb4d6f8aa6ac76c85b621b:dbf8a0a306a64525ba3012fd225370c0"
+  },
+  category: "education"
+},
+{
+  title: "Discovery Turbo",
+  image: "https://yt3.googleusercontent.com/eDHY0vlnfXo54zY9mzT19nGFu3-3KBPv6dghDLj0WyMVxGSgD8UozY75YY85mV8DPQnm0QSrV6I=s900-c-k-c0x00ffffff-no-rj",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoveryturbo2/default/manifest.mpd",
+    key: "c011525969e44b99a86059dbb3cdf4e8:6700a5d93203417b8585f7de7dd1a09b"
+  },
+  category: "education"
+},
+{
+  title: "Zee TV",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/yHNSuG1V.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetv/default/manifest.mpd",
+    key: "ed068cf84f0640ccbc7c0e395c0a272e:bb722190f2bb446391020411a7d0828b"
+  },
+  category: "entertainment"
+},
+{
+  title: "Zee TV HD",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOnN8o6zixj9pxE1NKFgPDEw7nhWd8v5uhpw&s",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeetvhd/default/index.mpd",
+    key: "65c3633157574361b191059e46e72968:78450b11381340c297d96c13183d3744"
+  },
+  category: "entertainment"
+},
+{
+  title: "AND TV",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/T1CCvaAQ.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Andtv/default/manifest.mpd",
+    key: "26df86eeebb04d7fbc45c948f76e81fd:5f3a23f1a73c4c96ababce5fffe7b06b"
+  },
+  category: "entertainment"
+},
+{
+  title: "ZEE ANMOL HD",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/QjKdER9Z.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmol/default/manifest.mpd",
+    key: "4023613457774cbeb71a62c339970e63:1c3e9fce5f014542be9cd1f749181204"
+  },
+  category: "entertainment"
+},
+{
+  title: "ZEE ANMOL CINEMA",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/diYkUOnX.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeeanmolcinema/default/manifest.mpd",
+    key: "812411cba8bc42c79eb2b19cd78ad3f3:468a0b8d3d5d42d8a5c41bb875390a74"
+  },
+  category: "movie"
+},
+{
+  title: "ZEE BOLLYWOOD",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/EqDlflgi.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zeebollywood/default/manifest.mpd",
+    key: "e61523260c614746b25b9a5523fe9a39:72ddbf37f76f49acbb8e140e7279e7a1"
+  },
+  category: "movie"
+},
+{
+  title: "Sangeet Marathi",
+  video: "https://cdn-3.pishow.tv/live/1229/master.m3u8",
+  image: "https://yt3.googleusercontent.com/ytc/AIdro_krsl3aXY8SdNBmq2U_JLwb8OsIzHGOR1nbrlaq_h8MvRI=s900-c-k-c0x00ffffff-no-rj",
+  category: "music",
+},
+{
+  title: "ZOOM",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/jLvKrs62.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zoom2/default/manifest.mpd",
+    key: "86edec9e3b7d4042a4d4a1ca14f847ee:9def4315f0004019a3705bcb3cf30ca3"
+  },
+  category: "music"
+},
+{
+  title: "ZING",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/Nyi83z1G.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Zing/default/manifest.mpd",
+    key: "f0fb14eebe474a6ab74c8301d55a7224:f9f8b2e30704458b8db844a285ce32be"
+  },
+  category: "music"
+},
+{
+    title: "9X Jalwa",
+    video: "https://d35j504z0x2vu2.cloudfront.net/v1/master/0bc8e8376bd8417a1b6761138aa41c26c7309312/9x-jalwa/master.m3u8",
+    image: "https://yt3.googleusercontent.com/ytc/AIdro_m6XPXFgtJwZtiGgJ8hAG8uYP64x3rXyAMCZq7vRlBCtss=s900-c-k-c0x00ffffff-no-rj",
+    category: "music",
+  },
+{
+    title: "9X Jhakaas",
+    video: "https://amg01281-9xmediapvtltd-9xjhakaas-samsungin-ci2cs.amagi.tv/playlist/amg01281-9xmediapvtltd-9xjhakaas-samsungin/playlist.m3u8",
+    image: "https://yt3.googleusercontent.com/CzH6MkGHWTQoFz-IvBjlskbN4WMuhOiNzl76D75w5irObY72wJRGi6SzeSBgoIbcDysnUhCvcrw=s900-c-k-c0x00ffffff-no-rj",
+    category: "music",
+  },
+{
+    title: "B4U Music",
+    video: "https://cdnb4u.wiseplayout.com/B4U_Music/master.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/commons/7/74/B4U_Music_logo.png",
+    category: "music",
+  },
+{
+    title: "Music INDIA",
+    video: "https://cdn-2.pishow.tv/live/226/master.m3u8",
+    image: "https://yt3.googleusercontent.com/ytc/AIdro_nLdCAaH9x9Vf9sYm4vjY49sOL7PbDxf8dlAU1H5p-49A=s900-c-k-c0x00ffffff-no-rj",
+    category: "music",
+  },
+{
+  title: "INVESTIGATION DISCOVERY HD",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/mHhlDCiL.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Investigationdiscovery2/default/manifest.mpd",
+    key: "2828ea6f6a984505b0454da0c03f68b9:5d3b7195086544c2807aa8c1544e7379"
+  },
+  category: "education"
+},
+{
+  title: "DISCOVERY KIDS",
+  image: "https://imagesdishtvd2h.whatsonindia.com/dasimages/channel/landscape/360x270/RzedYhFG.png",
+  video: {
+    mpd: "https://d1g8wgjurz8via.cloudfront.net/bpk-tv/Discoverykids2/default/manifest.mpd",
+    key: "601f58d4b7094d2baf78c85d1d9cb6c9:609e0cc03198455fa36fd2cc3e7f940d"
+  },
+  category: "kid"
+},
+{
+    title: "Duck Tv",
+    video: "https://d2lmgfyblo9rak.cloudfront.net/playlist.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/en/5/53/Ducktv-logo.jpg",
+    category: "kid",
+  },
+  {
+    title: "Gubbare",
+    video: "https://epiconvh.akamaized.net/live/gubbare/master.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/en/0/01/Gubbare-TV_channel.jpg",
+    category: "kid",
+  },
+  {
+    title: "JUNGLEE BOOK",
+    video: "https://cc-4bhi5osabejc9.akamaized.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-4bhi5osabejc9/junglebook.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfHudsjV739RpeXtbXeqFCIKVt7P4MHRB8fg&s",
+    category: "kid",
+  },
+  {
+    title: "KidsFlix",
+    video: "https://stream-us-east-1.getpublica.com/playlist.m3u8?network_id=50",
+    image: "https://play-lh.googleusercontent.com/cPTAAvCeTEG6nu_ofBT-9xP1qfk6gU7AxM_z4Cwv_-zFQOLAND7ja6z1KnuMkWb3J-k",
+    category: "kid",
+  },
+  {
+    title: "ZooMoo",
+    video: "https://amg01553-blueantmediaasi-zoomoonz-samsungnz-rdufn.amagi.tv/playlist/amg01553-blueantmediaasi-zoomoonz-samsungnz/playlist.m3u8",
+    image: "https://mir-s3-cdn-cf.behance.net/projects/404/03549e27277257.5584ec82d8cba.png",
+    category: "kid",
+  },
+   {
+    title: "TV9 Marathi",
+    video: "https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9marlygv8h/liveabr/playlist.m3u8",
+    image: "https://yt3.googleusercontent.com/HB8cDZ8136P8A3e-YlAYHN8hsSIqfFweGFkXT_ZUi_3iRozZiLoUwCjTYHzFx10KSD1x7MMcKw=s900-c-k-c0x00ffffff-no-rj",
+    category: "news",
+  },
+  {
+    title: "Aaj Tak",
+    video: "https://aajtakhdlive-amd.akamaized.net/hls/live/2014415/aajtakhd/aajtakhdlive/live_720p/chunks.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0FgBSdI4TYVJyvq_QgXyb75TEeiszKJm6LQ&s",
+    category: "news",
+  },
+   {
+    title: "BBC News",
+    video: "https://cdn4.skygo.mn/live/disk1/BBC_News/HLSv3-FTA/BBC_News.m3u8",
+    image: "https://download.logo.wine/logo/BBC_News/BBC_News-Logo.wine.png",
+    category: "news",
+  }, 
+   {
+    title: "Bharat Samachar",
+    video: "https://idvd.multitvsolution.com/idvo/bharatsamachar.m3u8",
+    image: "https://play-lh.googleusercontent.com/YmVerksyTUtrshPJdqWj8gmmm-wO2u1ERTBv7ozmariNabopTOTZ6E34tcHNDQvl7Gw",
+    category: "news",
+  },
+  {
+    title: "INDIA TV",
+    video: "https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index_3.m3u8",
+    image: "https://m.media-amazon.com/images/I/511fgtxyiUL.png",
+    category: "news",
+  },
+  {
+    title: "INDIA TODAY",
+    video: "https://indiatodaylive.akamaized.net/hls/live/2014320/indiatoday/indiatodaylive/playlist.m3u8",
+    image: "https://upload.wikimedia.org/wikipedia/commons/b/be/India_Today_TV_Channel_logo.jpg",
+    category: "news",
+  },
+  {
+    title: "ZEE News",
+    video: "https://dknttpxmr0dwf.cloudfront.net/index_2.m3u8",
+    image: "https://i.pinimg.com/736x/1f/e6/17/1fe617fe71d1dda9cabb5a42e67cd955.jpg",
+    category: "news",
+  },
+  {
+    title: "TIMES NOW NAVBHARAT",
+    video: "https://dvvvc0h9v3hoz.cloudfront.net/master.m3u8",
+    image: "https://images.timesnownews.com/thumb/msid-99402135,width-1280,height-720,resizemode-75/99402135.jpg",
+    category: "news",
+  },
+  {
+    title: "Fakt Marathi",
+    video: "https://cdn-6.pishow.tv/live/10002/master.m3u8",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlpAAOw2H0QxGehcplJ8P8lpYHHbDen2XbKw&s",
+    category: "movie",
+  },
+  {
+    title: "Goldmines",
+    video: "https://cdn-2.pishow.tv/live/1459/master.m3u8",
+    image: "https://yt3.googleusercontent.com/Ls4lEH-dc1OkDysPqLKpeD5CFfUzzW4cTBTkZWAuax3npqrtFhTqC91wpfe02oSd9swnyQnb=s900-c-k-c0x00ffffff-no-rj",
+    category: "movie",
+  },
+  {
+    title: "Goldmines 2",
+    video: "https://cdn-2.pishow.tv/live/1460/master.m3u8",
+    image: "https://yt3.googleusercontent.com/Ls4lEH-dc1OkDysPqLKpeD5CFfUzzW4cTBTkZWAuax3npqrtFhTqC91wpfe02oSd9swnyQnb=s900-c-k-c0x00ffffff-no-rj",
+    category: "movie",
+  },
+  {
+    title: "Goldmines Movies",
+    video: "https://cdn-2.pishow.tv/live/1461/master.m3u8",
+    image: "https://yt3.googleusercontent.com/d66J-MMZ06-55gkF5maclPGB5f5j1L0SAs3iWnl3lhoswlWrJ67wD2a3mZGkgHgt-W3kMrIT=s900-c-k-c0x00ffffff-no-rj",
+    category: "movie",
+  },
+  
+];
+
+
+
+
+
+
+
+    /******************************
+     * DOM refs for modal controls
+     ******************************/
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalVideoId = 'modalVideo';
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+
+
+/******************************
+ * Type detection helpers
+ ******************************/
+function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+function isHls(url) {
+  if (!url) return false;
+  return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+}
+function isYouTube(url) {
+  if (!url) return false;
+  return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+}
+
+/******************************
+ * Reset player container
+ ******************************/
+function resetPlayerContainer() {
+  if (currentHls) {
+    try { currentHls.destroy(); } catch(e) {}
+    currentHls = null;
+  }
+  if (window.shakaPlayer) {
+    try { window.shakaPlayer.destroy(); } catch(e) {}
+    window.shakaPlayer = null;
+  }
+  playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+}
+
+function showModal() {
+  playbackModal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function hideModal() {
+  playbackModal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function showError(msg) {
+  console.warn(msg);
+}
+
+/******************************
+ * Core: open player (Illumination logic)
+ ******************************/
+async function openPlayer(list, index) {
+  if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
+    showError('Invalid playback request');
+    return;
+  }
+  currentFiltered = list;
+  currentIndex = index;
+  const movie = list[index];
+  if (!movie) { showError('Movie missing'); return; }
+
+  // metadata
+  modalTitle.textContent = movie.title || '';
+  modalDesc.textContent = movie.description || (movie.title || '');
+
+  // reset & show
+  resetPlayerContainer();
+  showModal();
+
+
+  if (typeof movie.video === 'object' && movie.video !== null) {
+    src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+  } else {
+    src = movie.video;
+  }
+  if (!src) {
+    showError('No video source');
+    setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+    return;
+  }
+
+  const lc = (src || '').toLowerCase();
+
+  /******************************
+ * LIVE TV RESOLVER (FINAL)
+ ******************************/
+if (movie.id && !movie.video) {
+  resetPlayerContainer();
+  showModal();
+
+  playerWrapper.innerHTML = `
+    <iframe
+      src="live-player.html?id=${movie.id}"
+      frameborder="0"
+      allow="autoplay; encrypted-media; picture-in-picture"
+      allowfullscreen
+      style="width:100%;height:100%;background:#000">
+    </iframe>
+  `;
+
+  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  return; // ⛔ HARD STOP
+}
+
+
+  /******************************
+   * 🔴 ADD: DASH / MPD + ClearKey (from test.html)
+   ******************************/
+  if (typeof movie.video === 'object' && movie.video.mpd) {
+    const v = document.getElementById(modalVideoId);
+    if (!v) {
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(movie.video.mpd)}`;
+      return;
+    }
+
+    try {
+      window.shakaPlayer = new shaka.Player(v);
+
+      if (movie.video.key) {
+        const [kid, key] = movie.video.key.split(':');
+        window.shakaPlayer.configure({
+          drm: {
+            clearKeys: {
+              [kid]: key
+            }
+          }
+        });
+      }
+
+      await window.shakaPlayer.load(movie.video.mpd);
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      return; // ⛔ STOP — do not continue to HLS/MP4
+    } catch (e) {
+      console.warn('DASH playback failed', e);
+    }
+  }
+
+  /******************************
+   * iframe-hosted common hosts
+   ******************************/
+  if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+    playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+    playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    return;
+  }
+
+      /******************************
+ * 🌐 FORCE OPEN NORMAL WEB LINKS IN IFRAME
+ ******************************/
+if (
+  lc.includes('waptv.wapka.xyz') || 
+  lc.includes('tv4wab.pages.dev') || 
+  lc.includes('24spn-webhost8.blogspot.com') ||
+  lc.includes('jiogo.pages.dev')   // ✅ Added this line
+) {
+  playerWrapper.innerHTML = `
+    <iframe 
+      src="${src}" 
+      width="100%" 
+      height="100%" 
+      frameborder="0" 
+      allowfullscreen 
+      allow="autoplay; encrypted-media"
+      style="background:#000">
+    </iframe>
+  `;
+  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+  return; // ⛔ STOP HERE
+}
+
+
+
+
+  // youtube
+  if (isYouTube(src)) {
+    let embed = src;
+    try {
+      if (src.includes('watch') && src.includes('v=')) {
+        const v = new URLSearchParams(src.split('?')[1]).get('v');
+        if (v) embed = `https://www.youtube.com/embed/${v}`;
+      } else if (src.includes('youtu.be/')) {
+        const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+        if (p) embed = `https://www.youtube.com/embed/${p}`;
+      }
+    } catch (e) {}
+    playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+    playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    return;
+  }
+
+  // HLS
+  if (isHls(src)) {
+    const v = document.getElementById(modalVideoId);
+    if (!v) { showError('Video element missing'); return; }
+    if (window.Hls && Hls.isSupported()) {
+      currentHls = new Hls();
+      try {
+        currentHls.loadSource(src);
+        currentHls.attachMedia(v);
+      } catch (e) { console.warn('HLS attach error', e); }
+      currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      });
+      currentHls.on(Hls.Events.ERROR, function(event, data) {
+        console.warn('HLS error', data);
+        if (data && data.fatal) {
+          try { currentHls.destroy(); } catch(e){}
+          currentHls = null;
+          showError('HLS fatal error — redirecting to player.html');
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+        }
+      });
+    } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+      v.src = src;
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    } else {
+      showError('HLS not supported — redirecting to player.html');
+      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+    }
+    return;
+  }
+
+  // MP4
+  if (isMP4(src)) {
+    const v = document.getElementById(modalVideoId);
+    if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+    v.src = src;
+    v.play().catch(()=>{});
+    playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    return;
+  }
+
+
+  // fallback
+  window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+}
+
+
+    /******************************
+     * Controls
+     ******************************/
+    function togglePlayPause() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return showError('No current video');
+      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+      else showError('No next video');
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return showError('No current video');
+      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+      else showError('No previous video');
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    /******************************
+     * Close modal & cleanup
+     ******************************/
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById(modalVideoId);
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+    }
+
+    /******************************
+     * Events wiring
+     ******************************/
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+
+    // close by clicking outside
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
+    });
+
+    // Touch events for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    playerWrapper.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+
+    playerWrapper.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+
+    function handleSwipe() {
+      if (touchEndX < touchStartX - 50) {
+        playNext(); // Swipe left
+      }
+      if (touchEndX > touchStartX + 50) {
+        playPrev(); // Swipe right
+      }
+    }
+
+    // Escape & keyboard
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
+        case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+        case 'n': playNext(); break;
+        case 'p': playPrev(); break;
+      }
+    });
+
+    /******************************
+     * Render movies and wire to openPlayer
+     ******************************/
+    const container = document.getElementById('movies');
+
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      moviesToRender.forEach((movie, index) => {
+        const delayClass = `delay-${(index % 5) * 100}`;
+
+        const div = document.createElement('div');
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-lg sm:rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden rounded-t-lg">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
+                <i class="fas fa-play mr-2"></i> Watch Now
+              </button>
+            </div>
+          </div>
+          <div class="p-4">
+            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-2 text-sm text-gray-400">
+              <span>${movie.year}</span>
+              <span>${movie.duration}</span>
+            </div>
+          </div>
+        `;
+
+        // Open modal and use movies array for prev/next
+        div.addEventListener('click', () => {
+          openPlayer(moviesToRender, index);
+        });
+
+        container.appendChild(div);
+      });
+    }
+
+    // Initial render
+    renderMovies(movies);
+
+    /******************************
+     * Backwards-compatible extras:
+     * Keep original search/category wiring but guard missing elements
+     ******************************/
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModalHandler);
+
+    // previous code referenced searchBar; guard that
+    const searchBarEl = document.getElementById('searchBar');
+    if (searchBarEl) {
+      searchBarEl.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const filteredMovies = movies.filter(movie => 
+          movie.title.toLowerCase().includes(searchTerm)
+        );
+        renderMovies(filteredMovies);
+      });
+    }
+
+    // Category tabs preservation (guard for existence)
+    document.querySelectorAll('.category-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Update active tab
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+
+        const category = this.dataset.category;
+        let filteredMovies;
+
+        if (category === 'all') {
+          filteredMovies = movies;
+        } else {
+          filteredMovies = movies.filter(movie => movie.category === category);
+        }
+
+        renderMovies(filteredMovies);
+      });
+    });
+
+    /******************************
+     * Create floating stars background (existing)
+     ******************************/
+    function createStars(container, count, sizeRange, durationRange) {
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'absolute rounded-full bg-white';
+
+        // Random position
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+
+        // Random size
+        const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
+
+        // Random animation duration
+        const duration = durationRange[0] + Math.random() * (durationRange[1] - durationRange[0]);
+
+        star.style.left = `${left}%`;
+        star.style.top = `${top}%`;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.opacity = Math.random() * 0.5 + 0.1;
+        star.style.animation = `float ${duration}s infinite ease-in-out alternate`;
+        star.style.animationDelay = `${Math.random() * 5}s`;
+
+        container.appendChild(star);
+      }
+    }
+
+    const starsContainer = document.querySelector('.stars');
+    const starsContainer2 = document.querySelector('.stars2');
+    if (starsContainer) createStars(starsContainer, 50, [1, 3], [5, 15]);
+    if (starsContainer2) createStars(starsContainer2, 30, [2, 4], [10, 20]);
+
+    // Add floating animation
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes float {
+        0% { transform: translateY(0) translateX(0); }
+        50% { transform: translateY(-20px) translateX(10px); }
+        100% { transform: translateY(0) translateX(0); }
+      }
+    `;
+    document.head.appendChild(style);
+
+</script>
+
+ 
+
+    
+</body>
+</html>
