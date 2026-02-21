@@ -183,7 +183,96 @@ html {
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen transition-colors duration-200">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- ☰ MENU BUTTON -->
+<div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+<div class="overlay" onclick="toggleMenu()"></div>
+
+<div class="sidebar" id="sidebar">
+
+  <!-- Main Links -->
+  <a href="https://ultron3000.github.io/ultron">Home</a>
+  <a href="https://swarajya.site/chhatrapati-shivaji-maharaj">स्वराज्य</a>
+  <a href="https://ultron3000.github.io/ultron/marathi-movies">Marathi Movies</a>
+  <a href="https://ultron3000.github.io/ultron/hindi-movies">Hindi Movies</a>
+
+  <!-- Animation Studios -->
+  <div class="menu-item" onclick="toggleSub('animationSub')">
+    🎨 Animation Studios ▾
+  </div>
+  <div class="submenu" id="animationSub">
+    <a href="https://ultron3000.github.io/ultron/pixar-animation">Pixar</a>
+    <a href="https://ultron3000.github.io/ultron/dreamworks-animation">DreamWorks</a>
+    <a href="https://ultron3000.github.io/ultron/sony-animation">Sony Animation</a>
+    <a href="https://ultron3000.github.io/ultron/illumination-animation">Illumination</a>
+    <a href="https://ultron3000.github.io/ultron/disney-animation">Disney</a>
+    <a href="https://ultron3000.github.io/ultron/other-animation">Other Studios</a>
+  </div>
+
+  <!-- Sequels -->
+  <div class="menu-item" onclick="toggleSub('sequelsSub')">
+    🔁 Sequels ▾
+  </div>
+  <div class="submenu" id="sequelsSub">
+    <a href="https://ultron3000.github.io/sequels/animation-sequels">Animation Sequels</a>
+    <a href="https://ultron3000.github.io/sequels/english-movie-sequels">Movie Sequels</a>
+  </div>
+
+  <!-- Web Series -->
+  <div class="menu-item" onclick="toggleSub('seriesSub')">
+    📺 Web Series ▾
+  </div>
+  <div class="submenu" id="seriesSub">
+    <a href="https://ultron3000.github.io/series/animated-series">Animated Series</a>
+    <a href="https://ultron3000.github.io/series/english-series">English Series</a>
+    <a href="https://ultron3000.github.io/series/hindi-series">Hindi Series</a>
+  </div>
+
+  <!-- Studios & Franchises -->
+<div class="menu-item" onclick="toggleSub('studioSub')">
+  🎬 Studios & Franchises ▾
+</div>
+<div class="submenu" id="studioSub">
+  <a href="https://ultron3000.github.io/ultron/marvel">Marvel Studios</a>
+  <a href="https://ultron3000.github.io/ultron/wb">Warner Bros</a>
+  <a href="https://ultron3000.github.io/ultron/x-men">X-Men</a>
+  <a href="https://ultron3000.github.io/ultron/evil">Resident Evil</a>
+  <a href="https://ultron3000.github.io/ultron/mi">Mission Impossible</a>
+  <a href="https://ultron3000.github.io/ultron/007">007 (James Bond)</a>
+  <a href="https://ultron3000.github.io/ultron/rocky">Rocky</a>
+</div>
+
+<!-- Live TV -->
+<div class="menu-item" onclick="toggleSub('liveSub')">
+  📡 Live TV ▾
+</div>
+<div class="submenu" id="liveSub">
+  <a href="https://ultron3000.infinityfree.me/index.html">Live TV Main</a>
+  <a href="https://ultron3000.infinityfree.me/channels.html">All Channels</a>
+  <a href="https://ultron3000.github.io/sports">Sports Channels</a>
+  <a href="https://tv.garden">Global TV</a>
+  <a href="https://radio.garden">Global Radio</a>
+</div>
+
+<!-- Cartoons -->
+<div class="menu-item" onclick="toggleSub('cartoonSub')">
+  🧸 Cartoons ▾
+</div>
+<div class="submenu" id="cartoonSub">
+  <a href="https://ultron3000.github.io/ultron/swat-kats">
+    SWAT Kats
+  </a>
+  <a href="https://ultron3000.github.io/ultron/he-man">
+    He-Man
+  </a>
+</div>
+
+  <!-- Network Stream -->
+  <a href="https://ultron3000.github.io/ultron/network-stream">
+    🌐 Network Stream
+  </a>
+
+</div>
 
 
   
@@ -259,6 +348,7 @@ html {
   </div>
 </nav>
 
+
 <style>
   body.dark {
     background-color: #111827;
@@ -268,6 +358,77 @@ html {
   .dark-mode-toggle i {
     transition: transform 0.3s;
   }
+  /* ===== SIDEBAR MENU ===== */
+
+.menu-btn {
+  position: fixed;
+  top: 80px;   /* ⬅ increase this */
+  left: 15px;
+  font-size: 26px;
+  cursor: pointer;
+  z-index: 9999;
+  background: rgba(0,0,0,0.7);
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.sidebar {
+  position: fixed;
+  top: 100px;       /* 👈 match your header height */
+  left: -280px;
+  width: 260px;
+  height: calc(100% - 100px);  /* 👈 important */
+  background: #111;
+  padding-top: 20px;
+  transition: 0.3s ease;
+  overflow-y: auto;
+  z-index: 9998;
+}
+
+.sidebar a,
+.menu-item {
+  display: block;
+  padding: 12px 20px;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar a:hover,
+.menu-item:hover {
+  background: #1f1f1f;
+}
+
+.submenu {
+  display: none;
+  background: #1a1a1a;
+}
+
+.submenu a {
+  padding-left: 35px;
+  font-size: 14px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 9997;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+.overlay.active {
+  display: block;
+}
 </style>
 
 <script>
@@ -3131,7 +3292,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
- 
+ <script>
+function toggleMenu() {
+  document.getElementById("sidebar").classList.toggle("active");
+  document.querySelector(".overlay").classList.toggle("active");
+}
+
+function toggleSub(id) {
+  const sub = document.getElementById(id);
+  sub.style.display =
+    sub.style.display === "block" ? "none" : "block";
+}
+</script>
 
 
 
