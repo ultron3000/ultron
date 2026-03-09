@@ -936,13 +936,20 @@ if (src.includes('m3u8') || src.includes('proxy.animanga.fun')) {
 
 
       // FORCE Workers MP4 streams to use HTML5 video
-if (src.includes('workers.dev/mp4/')) {
+if (src.includes('workers.dev/mp4')) {
   const v = document.getElementById(modalVideoId);
-  if (!v) { showError('Video element missing'); return; }
+  if (!v) { 
+    showError('Video element missing'); 
+    return; 
+  }
 
   v.src = src;
+  v.setAttribute("playsinline", "");
+  v.setAttribute("webkit-playsinline", "");
+
   v.load();
-  v.play().catch(()=>{});
+  v.play().catch(() => {});
+
   playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
   return;
 }
