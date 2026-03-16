@@ -145,31 +145,25 @@
     opacity: 1 !important;
   }
 }
-
-  /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
+/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
 video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
+video:-webkit-full-screen {
   width: 100vw !important;
   height: 100vh !important;
   max-width: 100vw !important;
   max-height: 100vh !important;
 
-  object-fit: contain !important;
+  object-fit: contain !important; /* default: NO cropping */
   background-color: black;
 }
 
-/* Only cover when video aspect is cinematic */
+/* Only cover when video aspect is cinematic (safe to crop) */
 @media (min-aspect-ratio: 16/9) {
   video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
+  video:-webkit-full-screen {
     object-fit: cover !important;
   }
 }
-
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
@@ -178,8 +172,7 @@ iframe:-webkit-full-screen {
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2 sm:space-x-3">
         <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
-         <i class="fas fa-skull text-white text-xl sm:text-2xl"></i>
-        </div>
+<i class="fas fa-skull text-white text-xl sm:text-2xl"></i>        </div>
         <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">रानबाजार</h1>
       </div>
       
@@ -246,7 +239,7 @@ iframe:-webkit-full-screen {
         <div class="flex items-center mb-2 sm:mb-4">
           <div class="flex items-center mr-2 sm:mr-4">
             <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
-            <span class="text-white text-xs sm:text-sm">7.4</span>
+            <span class="text-white text-xs sm:text-sm">6.5</span>
           </div>
           <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
         </div>
@@ -279,6 +272,7 @@ iframe:-webkit-full-screen {
         <div class="flex items-center space-x-2 min-w-max">
           <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
           <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
+          
 
         </div>
       </div>
@@ -343,9 +337,18 @@ iframe:-webkit-full-screen {
 
 // Quantum Leap (2022) – Season 1 & 2
 const movies = [
-  // Season 1 (8 eps)
- { title: 'Season 1 ', video:'https://main-mp4.randomrainever.workers.dev/mp4/Q0x2SW5XRlp3ckRVd0Nadys2ajJ0Zz09OlZUMUJrd0RhNnFXM2g1TWF4Z0VZRlpVWnpoSVhBZmRSSkhYTWFFaFRTbnk0dkVZbldUdFc3RlYxcDF5TmRDWTR4ZHowRWFYcjNnVXZMS3FxUEhqMDZuQ1ZFQTcwS0xsdnErbFRiK2NWSGZyNjdmOXlYUHhQZSsxWmpmbFBhVVhjTkwvMTBhMkxuWWxjWTV4Y1h1MkZsYUQrQytaWjdad1hOWjFQOWxzNUpBRU5pbFh0QkpxY2pEK3o0RnJBTlc3VTN5UzdVTWtybWs2L1ozUHI2LzZuQlpBdk1SL0VubFlXRGpJQjA5amtEK2ZvTmpabFJPeFRGSkJkQW1VRms5ZzdWTVNLdnhFUGIzY1RUYlh1R1RHaVFRPT0=', image:'https://upload.wikimedia.org/wikipedia/en/thumb/7/71/RaanBaazaar.jpeg/250px-RaanBaazaar.jpeg', season:1 },
-];
+      // Season 1 (6 eps)
+      { title: "All Episodes", season: 1,
+    video: "https://mega.nz/embed/6cc2XZ6T#DM4Nt6ZbWBmdY6auaEK9RL7KXRWb8W7mJe1bC2UcJhE",  // add video URL if you have it
+    image: "https://upload.wikimedia.org/wikipedia/en/thumb/7/71/RaanBaazaar.jpeg/250px-RaanBaazaar.jpeg",  // add image URL if you have it
+    description: "", 
+    duration: "420 min" },
+
+
+
+
+      
+    ];
 
     /* ------------------------
        Modal / playback implementation (Illumination-style)
@@ -427,25 +430,11 @@ const movies = [
       const lc = (src||'').toLowerCase();
 
       // iframe hosts
-      if (
-  src.includes('m3u8-proxy.m3u8') ||
-  lc.includes('streamtape.com') ||
-  lc.includes('dood') ||
-  lc.includes('vidcdn') ||
-  lc.includes('ok.ru')
-) {
-  playerWrapper.innerHTML = `
-    <iframe
-      src="${src}"
-      width="100%"
-      height="100%"
-      frameborder="0"
-      allowfullscreen
-      allow="autoplay"
-    ></iframe>`;
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
-}
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
 
       // youtube
       if (isYouTube(src)) {
@@ -497,56 +486,6 @@ const movies = [
         }
         return;
       }
-
-      // WORKERS MP4 STREAM (no .mp4 extension)
-if (src.includes('/mp4/')) {
-
-  const v = document.getElementById('modalVideo');
-  if (!v) {
-    showError('Video element missing');
-    return;
-  }
-
-  // Reset player first
-  v.pause();
-  v.removeAttribute("src");
-  v.load();
-
-  // Assign stream
-  v.src = src;
-
-  // Improve compatibility
-  v.crossOrigin = "anonymous";
-  v.setAttribute("playsinline", "");
-  v.setAttribute("webkit-playsinline", "");
-  v.preload = "auto";
-
-  // Start playback
-  const playPromise = v.play();
-
-  if (playPromise !== undefined) {
-    playPromise.catch(() => {});
-  }
-
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
-}
-
-      // MP4 (missing handler)
-if (src.includes('.mp4')) {
-  const v = document.getElementById('modalVideo');
-  if (!v) {
-    window.location.href =
-      `player.html?title=${encodeURIComponent(item.title || '')}&video=${encodeURIComponent(src)}`;
-    return;
-  }
-
-  v.src = src;
-  v.play().catch(() => {});
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
-}
-
 
       // MP4
       if (isMP4(src)) {
@@ -854,5 +793,6 @@ if (src.includes('.mp4')) {
     });
   </script>
  
+
 </body>
 </html>
