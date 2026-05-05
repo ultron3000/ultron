@@ -1,481 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Transformers</title>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<!-- HLS.js for HLS playback -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    
-    :root {
-      --primary: #ffcc00;
-      --secondary: #111827;
-      --accent: #f59e0b;
-      --muted: #9CA3AF;
-    }
-    
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: white;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-    
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    
-    .movie-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      transform-origin: center;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    
-    .movie-card:hover {
-      transform: translateY(-8px) scale(1.03);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    
-    .search-input {
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-    
-    .search-input:focus {
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5);
-    }
-    
-    .header-glow {
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
-    }
-    
-    .movie-poster {
-      aspect-ratio: 2/3;
-      transition: transform 0.5s ease;
-    }
-    
-    .movie-card:hover .movie-poster {
-      transform: scale(1.05);
-    }
-    
-    .category-tab {
-      transition: all 0.3s ease;
-    }
-    
-    .category-tab:hover {
-      transform: translateY(-2px);
-    }
-    
-    .category-tab.active {
-      background-color: var(--primary);
-      color: var(--secondary);
-      font-weight: 600;
-    }
-    
+  <meta charset="UTF-8">
+  <title>Transformers - All Movies</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- HLS.js (for HLS playback in modal) -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <style>
     /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
     }
-    
     ::-webkit-scrollbar-track {
-      background: #1e293b;
+      background: #111;
     }
-    
     ::-webkit-scrollbar-thumb {
       background: #ffcc00;
-      border-radius: 10px;
+      border-radius: 4px;
     }
-    
     ::-webkit-scrollbar-thumb:hover {
-      background: #f59e0b;
+      background: #ffdd33;
     }
-    
-    /* Animation */
+
+    /* Custom animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
-    .animate-fade-in {
-      animation: fadeIn 0.6s ease forwards;
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
     }
-    
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
-    .delay-400 { animation-delay: 0.4s; }
-    
-    /* Illumination modal styles (responsive) */
-    .modal-backdrop { 
-      position:fixed; 
-      inset:0; 
-      background: rgba(0,0,0,0.9); 
-      display:none; 
-      align-items:center; 
-      justify-content:center; 
-      z-index:9999; 
-      padding: 0;
-    }
-    .modal-backdrop.active { display:flex; }
-    .modal-card { 
-      width: 100%;
-      height: 100%;
-      max-width: 980px;
-      max-height: 90vh;
-      border-radius: 0;
-      overflow: hidden;
-      background: #0b1220;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
-      display: flex;
-      flex-direction: column;
-    }
-    .player-wrapper { 
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    /* Glow effect */
+    .glow-effect {
       position: relative;
-      flex: 1;
-      min-height: 0;
-      background: #000;
-    }
-    #topCloseBtn { 
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 10;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 1;
-      transition: all 0.2s ease;
-    }
-    #topCloseBtn:hover {
-      background: rgba(0,0,0,0.9);
-      transform: scale(1.1);
-    }
-    .player-wrapper video, 
-    .player-wrapper iframe { 
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
     }
 
-    .player-meta { 
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 12px;
-      color: #ddd;
-      background: #0b1220;
-    }
-    .player-meta .meta-left { 
-      width: 100%;
-    }
-    .player-meta h3 { 
-      margin: 0;
-      font-size: 1.125rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .player-meta p { 
-      margin: 6px 0 0 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    .glow-effect::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0);
+      transition: box-shadow 0.3s ease;
+      pointer-events: none;
     }
 
-    .controls-row { 
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
+    .glow-effect:hover::after {
+      box-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
     }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(90deg, #ffcc00, #ff9900);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* Mobile modal improvements */
+@media (max-width: 640px) {
+  .modal-card {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .player-meta {
+    padding: 10px;
+  }
+
+  .controls-row {
+    gap: 6px;
+  }
+
+  .btn {
+    padding: 6px 8px;
+  }
+}
+
+    /* --- Modal styles from Illumination (keeps modal look) --- */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-backdrop.active { display:flex; }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
+
+    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
+    .player-meta .meta-left { max-width:65%; }
+    .player-meta h3 { margin:0; font-size:1.125rem; }
+    .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
+
+    .controls-row { display:flex; gap:8px; align-items:center; }
 
     .btn {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 6px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      min-width: 40px;
-      flex: 1;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
+      background:transparent; border:1px solid #FED141; color:#FED141;
+      padding:8px 12px; border-radius:8px; cursor:pointer;
     }
-    @media (min-width: 768px) {
-      .btn {
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        min-width: 60px;
-        gap: 6px;
-      }
-    }
-    .btn:hover { 
-      background: rgba(254,209,65,0.06); 
-    }
-    .btn i {
-      font-size: 1rem;
-    }
+    .btn:hover { background: rgba(254,209,65,0.06); }
 
-    /* Responsive adjustments */
-    @media (min-width: 768px) {
-      .modal-card {
-        width: 92%;
-        height: auto;
-        border-radius: 12px;
-        max-height: 80vh;
-      }
-      .player-wrapper {
-        padding-bottom: 56.25%;
-        height: 0;
-      }
-      .player-meta {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-      }
-      .player-meta .meta-left {
-        max-width: 65%;
-      }
-      .controls-row {
-        flex-wrap: nowrap;
-        justify-content: flex-end;
-      }
-      .btn {
-        flex: 0;
-        min-width: auto;
-        padding: 8px 12px;
-      }
-      #topCloseBtn {
-        opacity: 0;
-      }
-      .player-wrapper:hover #topCloseBtn {
-        opacity: 1;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .btn {
-        padding: 8px;
-        font-size: 0;
-      }
-      .btn i {
-        font-size: 1rem;
-        margin: 0 !important;
-      }
-    }
-
-    /* Modal legacy styles (unused) */
-    .modal-overlay { display:none; }
-    /* ============================
-   DESKTOP FIX — DOES NOT TOUCH MOBILE
-   ============================ */
-
-@media (min-width: 768px) {
-
-  /* Fix video height so it doesn't cover controls */
-  .player-wrapper {
-    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
-    height: auto !important;
-    max-height: 60vh !important;       /* safe video height */
-    position: relative !important;
-  }
-
-  /* Ensure iframe/video stays inside wrapper */
-  .player-wrapper video,
-  .player-wrapper iframe {
-    height: 100% !important;
-    max-height: 60vh !important;
-    position: relative !important;
-  }
-
-  /* Make sure controls are ALWAYS visible above video */
-  .player-meta {
-    position: relative !important;
-    z-index: 100 !important;
-    background: #0b1220 !important;      /* solid background for visibility */
-    padding-top: 10px !important;
-  }
-
-  /* Controls row layout */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 12px !important;
-  }
-
-  /* Buttons behave normally */
-  .btn {
-    min-width: 95px !important;
-    padding: 10px 16px !important;
-    flex: unset !important;
-  }
-
-  /* Modal height adjustment to fit everything */
-  .modal-card {
-    max-height: 85vh !important;
-    overflow: visible !important;
-  }
-}
-
-/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-
-  object-fit: contain !important;
-  background-color: black;
-}
-
-/* Only cover when video aspect is cinematic */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
-    object-fit: cover !important;
-  }
-}
+    .hidden { display:none; }
 
   </style>
 </head>
-<body class="relative">
-<!-- Floating stars background -->
-<div class="fixed inset-0 overflow-hidden -z-10">
-<div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80"></div>
-<div class="stars"></div>
-<div class="stars2"></div>
-</div>
-<div class="container mx-auto px-4 py-8 max-w-7xl">
+<body class="bg-black text-gray-100 min-h-screen">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+          <i class="fas fa-robot text-black text-xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold gradient-text">TRANSFORMERS</h1>
+      </div>
 
-<!-- Full-Width Video Header with Animated Logo -->
-<div class="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] overflow-hidden">
-  <!-- YouTube Video Background -->
-  <iframe 
-    src="https://www.youtube.com/embed/XLYAz6yuJOk?autoplay=1&mute=1&loop=1&playlist=XLYAz6yuJOk&controls=0&modestbranding=1"
-    frameborder="0" 
-    allow="autoplay; fullscreen" 
-    class="absolute top-0 left-0 w-full h-full pointer-events-none">
-  </iframe>
+      <div class="flex items-center space-x-4">
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon text-yellow-500"></i>
+        </button>
+        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-search text-yellow-500"></i>
+        </button>
+      </div>
+    </div>
 
-  <!-- Animated Logo at Top-Left -->
-  <img 
-    src="https://logos-world.net/wp-content/uploads/2021/11/Transformers-Logo-1984-1989.png" 
-    alt="Transformers Logo" 
-    class="absolute top-2 left-2 sm:top-4 sm:left-4 h-10 sm:h-16 md:h-20 lg:h-24 animate-logo z-10"
-  />
-</div>
+    <!-- Search Bar (hidden by default) -->
+    <div id="search-bar" class="hidden px-4 pb-4">
+      <div class="relative">
+        <input id="globalSearch" type="text" placeholder="Search movies..." 
+               class="w-full bg-gray-900 border border-yellow-600/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+        <i class="fas fa-search absolute left-3 top-3 text-yellow-500"></i>
+      </div>
+    </div>
+  </header>
 
-<style>
-  /* Animated Logo */
-  .animate-logo {
-    animation: float-pulse 3s ease-in-out infinite, glow-logo 2s ease-in-out infinite alternate;
-  }
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-8">
+  <!-- Hero Section -->
+  <section class="mb-12 relative overflow-hidden rounded-xl aspect-video">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
 
-  @keyframes float-pulse {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
+    <!-- Responsive Video Wrapper -->
+    <div class="absolute inset-0 overflow-hidden">
+      <iframe
+        class="absolute top-1/2 left-1/2 w-[120%] h-[120%] -translate-x-1/2 -translate-y-1/2"
+        src="https://www.youtube.com/embed/yAu3YqQd-Bw?autoplay=1&mute=1&loop=1&playlist=XLYAz6yuJOk&controls=0&modestbranding=1&showinfo=0"
+        title="YouTube video player"
+        frameborder="0"
+        allow="autoplay; encrypted-media"
+        allowfullscreen>
+      </iframe>
+    </div>
 
-  @keyframes glow-logo {
-    0% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-    50% { filter: drop-shadow(0 0 6px #fffa65) drop-shadow(0 0 12px #ffba00); }
-    100% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-  }
+    <!-- Overlay Content -->
+    <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
+      <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text"></h2>
+      <p class="text-gray-300 mb-4 max-w-lg">
+        The complete collection of the Transformers live-action films. More than meets the eye.
+      </p>
+      <div class="flex space-x-3">
+        <button class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
+          <i class="fas fa-play mr-2"></i> Play All
+        </button>
+      </div>
+    </div>
+  </section>
 
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .animate-logo { height: 4rem; top: 1rem; left: 1rem; }
-  }
-</style>
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center justify-between mb-8 gap-4">
+      <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
 
-</div>
-</div>
-<!-- Movies Grid -->
-<div class="mb-12">
-<div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6" id="movies"></div>
-</div>
-<!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-6 sm:mt-8 pt-4 sm:pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
-  </div>
-</div>
+      </div>
 
-<!-- === REPLACED: Illumination-style Modal Player === -->
+      <div class="flex items-center space-x-2">
+        <span class="text-gray-400 text-sm">Sort by:</span>
+        <select class="bg-gray-900 border border-gray-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-yellow-500">
+          <option>Release Date</option>
+          <option>Chronological Order</option>
+          <option>Popularity</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Movies Grid -->
+    <section>
+      <h3 class="text-xl font-semibold mb-6 flex items-center">
+        <i class="fas fa-film text-yellow-500 mr-2"></i>
+        Movies
+      </h3>
+
+      <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <!-- Movie cards will be inserted here by JavaScript -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 border-t border-gray-800 mt-12 py-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+              <i class="fas fa-robot text-black text-sm"></i>
+            </div>
+            <span class="text-xl font-bold gradient-text">TRANSFORMERS</span>
+          </div>
+          <p class="text-gray-400 text-sm mt-2">© Transformers Productions. All rights reserved.</p>
+        </div>
+
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-twitter"></i></a>
+          <a href="https://image.tmdb.org/t/p/w500/jyzrfx2WaeY60kYZpPYepSjGz4S.jpg" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-yellow-500 transition"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- === UPDATED MOBILE-FRIENDLY MODAL === -->
 <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true">
-    <div class="player-wrapper" id="playerWrapper">
-      <!-- video or iframe injected here -->
-      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
-        <i class="fas fa-times text-xl"></i>
+
+    <!-- TOP BAR (NEW) -->
+    <div class="flex justify-between items-center px-4 py-3 border-b border-gray-800">
+      <h3 id="modalTitle" class="text-sm sm:text-lg font-semibold truncate">Title</h3>
+      <button id="closeBtn" class="btn text-red-400 border-red-400">
+        <i class="fas fa-times"></i>
       </button>
     </div>
 
-    <div class="player-meta">
-      <div class="meta-left">
-        <h3 id="modalTitle">Title</h3>
+    <!-- PLAYER -->
+    <div class="player-wrapper" id="playerWrapper">
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+    </div>
+
+    <!-- META + CONTROLS -->
+    <div class="player-meta flex-col sm:flex-row">
+      
+      <div class="meta-left w-full sm:w-auto">
         <p id="modalDesc" class="text-sm"></p>
       </div>
-      <div class="controls-row">
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+
+      <!-- CONTROLS -->
+      <div class="controls-row flex-wrap justify-center sm:justify-end mt-3 sm:mt-0">
+        <button id="prevBtn" class="btn text-xs sm:text-sm"><i class="fas fa-step-backward"></i></button>
+        <button id="playPauseBtn" class="btn text-xs sm:text-sm"><i class="fas fa-play"></i></button>
+        <button id="nextBtn" class="btn text-xs sm:text-sm"><i class="fas fa-step-forward"></i></button>
+        <button id="fullscreenBtn" class="btn text-xs sm:text-sm"><i class="fas fa-expand"></i></button>
+        <button id="muteBtn" class="btn text-xs sm:text-sm"><i class="fas fa-volume-up"></i></button>
       </div>
+
     </div>
   </div>
 </div>
 
 <script>
-    /******************************
-     * Existing movies array (unchanged)
-     ******************************/
-    const movies = [
-      { 
+  /******************************
+   * Keep existing Transformers movies array (unchanged)
+   * (This file's array remains - we did NOT copy Illumination's movies array.)
+   ******************************/
+  const movies = [
+    { 
       title: "Transformers", 
       year: 2007,
-      video: "https://skra.northfieldtrading.shop:443/v4/lf/lwesd/index-f2-v1-a1.txt", 
-      image: "https://image.tmdb.org/t/p/w500/4N4sipl8T72tNE4earcctQa2Kw2.jpg",
+      video: "https://mega.nz/embed/f8I0VLQC#EN12wtwuKHYlxFP1AawbwPmVAahUX7KYnBXSYCwg9EU", 
+      image: "https://blob.cede.ch/catalog/10260000/10260134_1_92.jpg?v=2",
       runtime: "144 min",
       rating: "7.0/10",
       description: "An ancient struggle between two Cybertronian races, the heroic Autobots and the evil Decepticons, comes to Earth, with a clue to the ultimate power held by a young teenager.",
@@ -485,7 +289,7 @@ iframe:-webkit-full-screen {
     { 
       title: "Transformers: Revenge of the Fallen", 
       year: 2009,
-      video: "https://spx.corvani.cyou:443/v4/9a/rghch/index-f1-v1-a1.txt", 
+      video: "https://mega.nz/embed/rxQSjJwC#URKPijk5yLn1ImTLm32Q4FpO08cXFKJHVIk2LSjCnN8", 
       image: "https://m.media-amazon.com/images/I/81mwDd1XxaL._AC_UF1000,1000_QL80_.jpg",
       runtime: "150 min",
       rating: "5.9/10",
@@ -496,7 +300,7 @@ iframe:-webkit-full-screen {
     { 
       title: "Transformers: Dark of the Moon", 
       year: 2011,
-      video: "https://shkn.merrivaleproject.store:443/v4/js/ozh1g/index-f2-v1-a1.txt", 
+      video: "https://mega.nz/embed/ek5CjL4I#Z36UePnI5bsH7SCItSJFoxCGdz21lepirUA8eyY19cY", 
       image: "https://medias.spotern.com/medias/posters/w290-poster/0/231-en.jpg",
       runtime: "154 min",
       rating: "6.2/10",
@@ -507,7 +311,7 @@ iframe:-webkit-full-screen {
     { 
       title: "Transformers: Age of Extinction", 
       year: 2014,
-      video: "https://s8v3.zenlithsustainables.cyou/v4/us/l3hod/index-f1-v1-a1.txt", 
+      video: "https://mega.nz/embed/78AThRaJ#7k3840YbLHeDUSttwMf7PoS0-zAA7Nsox1uYrDdsAKM", 
       image: "https://image.tmdb.org/t/p/w500/jyzrfx2WaeY60kYZpPYepSjGz4S.jpg",
       runtime: "165 min",
       rating: "5.6/10",
@@ -518,7 +322,7 @@ iframe:-webkit-full-screen {
     { 
       title: "Transformers: The Last Knight", 
       year: 2017,
-      video: "https://sxix.seawindphotography.space:443/v4/db/g8an9/index-f2-v1-a1.txt", 
+      video: "https://mega.nz/embed/uxxkmRLS#Xl9Muer7_126iWMLF2Y7LqdXYoVeP1vRjsita9WQVW4", 
       image: "https://i.pinimg.com/736x/ae/b1/16/aeb116b30b56f190a4c32d9c60484ede.jpg",
       runtime: "154 min",
       rating: "5.2/10",
@@ -529,8 +333,8 @@ iframe:-webkit-full-screen {
     { 
       title: "Bumblebee", 
       year: 2018,
-      video: "https://s6sy.horizonpurebranding.store:443/v4/lf/cgzcn/index-f1-v1-a1.txt", 
-      image: "https://image.tmdb.org/t/p/w500/fw02ONlDhrYjTSZV8XO6hhU3ds3.jpg",
+      video: "https://mega.nz/embed/elYVCSrI#2rH4OpsbiavATQwBO56B1pcDqXmTpHEgxiI9gx-8YB0", 
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBE2QUyZSAHKOOc5f_gpK3if-dHoXygjYpQyP7FW-8xuOWDRvgKLmEC9EKB-nST9UKfqE&usqp=CAU",
       runtime: "114 min",
       rating: "6.7/10",
       description: "On the run in the year 1987, Bumblebee finds refuge in a junkyard in a small California beach town. Charlie, on the cusp of turning 18 and trying to find her place in the world, discovers him.",
@@ -540,8 +344,8 @@ iframe:-webkit-full-screen {
     { 
       title: "Transformers: Rise of the Beasts", 
       year: 2023,
-      video: "https://sr81.obsidianfitnesslab.sbs:443/v4/ho/xsl8o/index-f2-v1-a1.txt", 
-      image: "https://image.tmdb.org/t/p/w500/gPbM0MK8CP8A174rmUwGsADNYKD.jpg",
+      video: "https://up-1.eat-peach.sbs/m3u8-proxy?url=https%3A%2F%2Fclaritybusinessacademy.site%2FwLd1wGvgR%2Fpl%2FH4sIAAAAAAAAAw3Oy5qCIBgA0FcCtKxZNoqTiU4oP.WOwOpDvIzTdOHpp_1ZnGV0JoEmZhWSaInOEW7RAiEdRafzaq1N.8GsGYrXTYFwfSlCwugmrAPDeGpKBs1tLx9z0QNTZPSqd_J40P5or7HyJuUdR7VNfCOeWWEZOVGD9_aK2qShOYa_UiyeVeA.dQeujRkxQszyAFvtxaL6ynIJmz14WObognnKHmA3u8Z3oYih5FJgRqnVsVHcw8_RGlRLEKpf3A3NoBpoWMuilt3lXg0uPUk8q2TK624MwF3fBnbSmom7BoshY7p2u0Zs70YW34UMveomr2Ty5O9zRX5nGMa5GqYXI3gECrQ9ZI3xaP0P9j_xyEEBAAA-%2Fmaster.m3u8&headers=%7B%22origin%22%3A%22https%3A%2F%2Fbrightpathsignals.com%22%2C%22referer%22%3A%22https%3A%2F%2Fbrightpathsignals.com%2F%22%7D", 
+      image: "https://i.ebayimg.com/00/s/MTYwMFgxMDgw/z/VQcAAOSw4pRkcN3s/$_57.JPG?set_id=880000500F",
       runtime: "127 min",
       rating: "6.1/10",
       description: "During the '90s, a new faction of Transformers - the Maximals - join the Autobots as allies in the battle for Earth against the evil Decepticons and their new leader, Scourge.",
@@ -551,402 +355,413 @@ iframe:-webkit-full-screen {
     { 
       title: "Transformers One", 
       year: 2024,
-      video: "https://s6sy.auroravisionfactory.shop/v4/ek/9jryo/index-f2-v1-a1.txt", 
-      image: "https://image.tmdb.org/t/p/w500/iRCgqpdVE4wyLQvGYU3ZP7pAtUc.jpg",
+      video: "https://mega.nz/embed/60IWGaIA#TJ8GjA_pkOLWeipE6xbGKhdbKebVHa4Db5iDuZZPzkc", 
+      image: "https://cdn.cinematerial.com/p/297x/j1m9dxzy/transformers-one-movie-poster-md.jpg?v=1721967433",
       runtime: "104 min",
       rating: "7.6/10",
       description: "An animated origin story of Optimus Prime and Megatron, showing how they went from brothers-in-arms to becoming sworn enemies in the legendary war for Cybertron.",
       director: "Josh Cooley",
       cast: "Chris Hemsworth, Brian Tyree Henry, Scarlett Johansson, Keegan-Michael Key"
     },
-    ];
+  ];
 
-    /******************************
-     * DOM refs for modal controls
-     ******************************/
-    const playbackModal = document.getElementById('playbackModal');
-    const playerWrapper = document.getElementById('playerWrapper');
-    const modalVideoId = 'modalVideo';
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
+  // DOM elements (modal-related)
+  const playbackModal = document.getElementById('playbackModal');
+  const playerWrapper = document.getElementById('playerWrapper');
+  const modalVideoId = 'modalVideo';
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
 
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const muteBtn = document.getElementById('muteBtn');
+  const closeBtn = document.getElementById('closeBtn');
 
-    let currentHls = null;
-    let currentFiltered = [];
-    let currentIndex = null;
+  // playback state
+  let currentHls = null;
+  let currentFiltered = [];
+  let currentIndex = null;
 
-    /******************************
-     * Type detection helpers
-     ******************************/
-    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
-    function isHls(url) {
-      if (!url) return false;
-      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+  /******************************
+   * Type detection helpers
+   ******************************/
+  function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+  function isHls(url) {
+    if (!url) return false;
+    return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+  }
+  function isYouTube(url) {
+    if (!url) return false;
+    return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+  }
+
+  /******************************
+   * Reset player container
+   ******************************/
+  function resetPlayerContainer() {
+    if (currentHls) {
+      try { currentHls.destroy(); } catch(e) {}
+      currentHls = null;
     }
-    function isYouTube(url) {
-      if (!url) return false;
-      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+    playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+  }
+
+  function showModal() {
+    playbackModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function hideModal() {
+    playbackModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function showError(msg) {
+    console.warn(msg);
+  }
+
+  /******************************
+   * Core: open player (Illumination logic transplanted)
+   ******************************/
+  function openPlayer(list, index) {
+    if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
+      showError('Invalid playback request');
+      return;
+    }
+    currentFiltered = list;
+    currentIndex = index;
+    const movie = list[index];
+    if (!movie) { showError('Movie missing'); return; }
+
+    // metadata
+    modalTitle.textContent = movie.title || '';
+    modalDesc.textContent = movie.description || (movie.title || '');
+
+    // reset & show
+    resetPlayerContainer();
+    showModal();
+
+    // pick src
+    let src = '';
+    if (typeof movie.video === 'object' && movie.video !== null) {
+      src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+    } else {
+      src = movie.video;
+    }
+    if (!src) {
+      showError('No video source');
+      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+      return;
     }
 
-    /******************************
-     * Reset player container
-     ******************************/
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    const lc = (src || '').toLowerCase();
+
+    // iframe-hosted common hosts
+    if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+      playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      return;
     }
 
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
+    // youtube
+    if (isYouTube(src)) {
+      let embed = src;
+      try {
+        if (src.includes('watch') && src.includes('v=')) {
+          const v = new URLSearchParams(src.split('?')[1]).get('v');
+          if (v) embed = `https://www.youtube.com/embed/${v}`;
+        } else if (src.includes('youtu.be/')) {
+          const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+          if (p) embed = `https://www.youtube.com/embed/${p}`;
+        }
+      } catch (e) {}
+      playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      return;
     }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
 
-    function showError(msg) {
-      console.warn(msg);
-    }
-
-    /******************************
-     * Core: open player (Illumination logic)
-     ******************************/
-    function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
-      currentFiltered = list;
-      currentIndex = index;
-      const movie = list[index];
-      if (!movie) { showError('Movie missing'); return; }
-
-      // metadata
-      modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.title || '');
-
-      // reset & show
-      resetPlayerContainer();
-      showModal();
-
-      // pick src
-      let src = '';
-      if (typeof movie.video === 'object' && movie.video !== null) {
-        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
-      } else {
-        src = movie.video;
-      }
-      if (!src) {
-        showError('No video source');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
-        return;
-      }
-
-      const lc = (src || '').toLowerCase();
-
-      // iframe-hosted common hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // youtube
-      if (isYouTube(src)) {
-        let embed = src;
+    // HLS
+    if (isHls(src)) {
+      const v = document.getElementById(modalVideoId);
+      if (!v) { showError('Video element missing'); return; }
+      if (window.Hls && Hls.isSupported()) {
+        currentHls = new Hls();
         try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch (e) {}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // HLS
-      if (isHls(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) { showError('Video element missing'); return; }
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-          currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-            }
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+        } catch (e) { console.warn('HLS attach error', e); }
+        currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
           v.play().catch(()=>{});
           playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-        }
-        return;
-      }
-
-      // MP4
-      if (isMP4(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+        });
+        currentHls.on(Hls.Events.ERROR, function(event, data) {
+          console.warn('HLS error', data);
+          if (data && data.fatal) {
+            try { currentHls.destroy(); } catch(e){}
+            currentHls = null;
+            showError('HLS fatal error — redirecting to player.html');
+            setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+          }
+        });
+      } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
         v.src = src;
         v.play().catch(()=>{});
         playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
-    }
-
-    /******************************
-     * Controls
-     ******************************/
-    function togglePlayPause() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
       } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+        showError('HLS not supported — redirecting to player.html');
+        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
       }
-    }
-    function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
-    }
-    function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
-    }
-    function toggleFullscreen() {
-      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
-      } else {
-        document.exitFullscreen();
-      }
-    }
-    function toggleMute() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+      return;
     }
 
-    /******************************
-     * Close modal & cleanup
-     ******************************/
-    function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
+    // MP4
+    if (isMP4(src)) {
       const v = document.getElementById(modalVideoId);
-      if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
-      }
-      resetPlayerContainer();
-      hideModal();
-      currentIndex = null;
-      currentFiltered = [];
+      if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+      v.src = src;
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      return;
+    }
+
+    // fallback
+    window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+  }
+
+  /******************************
+   * Controls
+   ******************************/
+  function togglePlayPause() {
+    const v = document.getElementById(modalVideoId);
+    if (!v) return;
+    if (v.paused) {
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+    } else {
+      v.pause();
       playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
     }
+  }
+  function playNext() {
+    if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+    if (currentIndex == null) return showError('No current video');
+    if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+    else showError('No next video');
+  }
+  function playPrev() {
+    if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+    if (currentIndex == null) return showError('No current video');
+    if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+    else showError('No previous video');
+  }
+  function toggleFullscreen() {
+    const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  function toggleMute() {
+    const v = document.getElementById(modalVideoId);
+    if (!v) return;
+    v.muted = !v.muted;
+    muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+  }
 
-    /******************************
-     * Events wiring
-     ******************************/
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
-    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
-    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+  /******************************
+   * Close modal & cleanup
+   ******************************/
+  function closeModalHandler() {
+    if (currentHls) {
+      try { currentHls.destroy(); } catch(e) {}
+      currentHls = null;
+    }
+    const v = document.getElementById(modalVideoId);
+    if (v) {
+      try { v.pause(); } catch(e){}
+      try { v.removeAttribute('src'); v.load(); } catch(e){}
+    }
+    resetPlayerContainer();
+    hideModal();
+    currentIndex = null;
+    currentFiltered = [];
+    playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+  }
 
-    // close by clicking outside
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
+  /******************************
+   * Events wiring for modal controls
+   ******************************/
+  playPauseBtn.addEventListener('click', togglePlayPause);
+  nextBtn.addEventListener('click', playNext);
+  prevBtn.addEventListener('click', playPrev);
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
+  muteBtn.addEventListener('click', toggleMute);
+  closeBtn.addEventListener('click', closeModalHandler);
 
-    // Escape & keyboard
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-        case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
-      }
-    });
+  // close by clicking outside
+  playbackModal.addEventListener('click', function(e){
+    if (e.target === playbackModal) closeModalHandler();
+  });
 
-    /******************************
-     * Render movies and wire to openPlayer
-     ******************************/
-    const container = document.getElementById('movies');
+  // Escape & keyboard
+  document.addEventListener('keydown', (e) => {
+    if (!playbackModal.classList.contains('active')) return;
+    switch (e.key.toLowerCase()) {
+      case 'escape': closeModalHandler(); break;
+      case ' ': e.preventDefault(); togglePlayPause(); break;
+      case 'arrowright': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
+      case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+      case 'f': toggleFullscreen(); break;
+      case 'm': toggleMute(); break;
+      case 'n': playNext(); break;
+      case 'p': playPrev(); break;
+    }
+  });
 
-    function renderMovies(moviesToRender) {
-      container.innerHTML = '';
-      moviesToRender.forEach((movie, index) => {
-        const delayClass = `delay-${(index % 5) * 100}`;
+  /******************************
+   * Page init (renders cards and wires clicks to openPlayer)
+   ******************************/
+  const container = document.getElementById('movies');
+  const searchBtn = document.getElementById('search-btn');
+  const searchBar = document.getElementById('search-bar');
+  const themeToggle = document.getElementById('theme-toggle');
 
-        const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-lg sm:rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
-        div.innerHTML = `
-          <div class="relative overflow-hidden rounded-t-lg">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2 sm:p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-1 px-2 sm:py-2 sm:px-4 rounded-full transition transform hover:scale-105 text-xs sm:text-sm">
-                <i class="fas fa-play mr-1 sm:mr-2"></i> Watch Now
-              </button>
+  function initPage() {
+    // Create movie cards
+    container.innerHTML = '';
+    movies.forEach((movie, index) => {
+      const card = document.createElement('div');
+      card.className = `movie-card fade-in delay-${index % 5} glow-effect`;
+      card.innerHTML = `
+        <div class="relative group overflow-hidden rounded-xl cursor-pointer">
+          <img src="${movie.image}" alt="${movie.title}" 
+               class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl transition duration-500 group-hover:scale-105">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+            <div>
+              <h3 class="text-white font-semibold text-lg">${movie.title}</h3>
+              <p class="text-gray-300 text-sm">${movie.runtime}</p>
             </div>
           </div>
-          <div class="p-2 sm:p-3 md:p-4">
-            <h3 class="font-semibold text-sm sm:text-base md:text-lg truncate">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-1 sm:mt-2 text-xs sm:text-sm text-gray-400">
-              <span>${movie.year}</span>
-              <span>${movie.duration}</span>
-            </div>
+          <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-yellow-500 rounded-full w-10 h-10 flex items-center justify-center">
+            <i class="fas fa-play"></i>
           </div>
-        `;
+          <div class="absolute top-3 left-3 bg-black bg-opacity-70 text-yellow-500 rounded-full px-2 py-1 text-xs">
+            ${movie.rating}
+          </div>
+        </div>
+        <div class="mt-3">
+          <h3 class="text-white font-medium">${movie.title}</h3>
+          <div class="flex items-center text-gray-400 text-sm mt-1">
+            <span>${movie.year}</span>
+            <span class="mx-2">•</span>
+            <span>${movie.runtime}</span>
+          </div>
+        </div>
+      `;
 
-        // Open modal and use movies array for prev/next
-        div.addEventListener('click', () => {
-          openPlayer(moviesToRender, index);
-        });
-
-        container.appendChild(div);
+      // --- Changed: open modal player instead of redirecting ---
+      card.addEventListener('click', () => {
+        // use current movies array as list (no scope filtering here)
+        openPlayer(movies, index);
       });
-    }
 
-    // Initial render
-    renderMovies(movies);
-
-    /******************************
-     * Backwards-compatible extras:
-     * Keep original search/category wiring but guard missing elements
-     ******************************/
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModalHandler);
-
-    // previous code referenced searchBar; guard that
-    const searchBarEl = document.getElementById('searchBar');
-    if (searchBarEl) {
-      searchBarEl.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const filteredMovies = movies.filter(movie => 
-          movie.title.toLowerCase().includes(searchTerm)
-        );
-        renderMovies(filteredMovies);
-      });
-    }
-
-    // Category tabs preservation (guard for existence)
-    document.querySelectorAll('.category-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Update active tab
-        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-
-        const category = this.dataset.category;
-        let filteredMovies;
-
-        if (category === 'all') {
-          filteredMovies = movies;
-        } else {
-          filteredMovies = movies.filter(movie => (movie.categories || []).includes(category));
-        }
-
-        renderMovies(filteredMovies);
-      });
+      container.appendChild(card);
     });
 
-    /******************************
-     * Create floating stars background (existing)
-     ******************************/
-    function createStars(container, count, sizeRange, durationRange) {
-      for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'absolute rounded-full bg-white';
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const active = document.querySelector('.filter-btn.active');
+        if (active) active.classList.remove('active', 'bg-yellow-600', 'text-black');
+        this.classList.add('active', 'bg-yellow-600', 'text-black');
+        // (We did not implement filter logic — left as-is)
+      });
+    });
+  }
 
-        // Random position
-        const left = Math.random() * 100;
-        const top = Math.random() * 100;
+  // Event listeners
+  searchBtn.addEventListener('click', () => {
+    searchBar.classList.toggle('hidden');
+  });
 
-        // Random size
-        const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('bg-gray-100');
+    document.body.classList.toggle('text-gray-900');
+    document.body.classList.toggle('bg-black');
+    document.body.classList.toggle('text-gray-100');
 
-        // Random animation duration
-        const duration = durationRange[0] + Math.random() * (durationRange[1] - durationRange[0]);
-
-        star.style.left = `${left}%`;
-        star.style.top = `${top}%`;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.opacity = Math.random() * 0.5 + 0.1;
-        star.style.animation = `float ${duration}s infinite ease-in-out alternate`;
-        star.style.animationDelay = `${Math.random() * 5}s`;
-
-        container.appendChild(star);
-      }
+    const icon = themeToggle.querySelector('i');
+    if (document.body.classList.contains('bg-black')) {
+      icon.classList.remove('fa-sun');
+      icon.classList.add('fa-moon');
+    } else {
+      icon.classList.remove('fa-moon');
+      icon.classList.add('fa-sun');
     }
+  });
 
-    const starsContainer = document.querySelector('.stars');
-    const starsContainer2 = document.querySelector('.stars2');
-    if (starsContainer) createStars(starsContainer, 50, [1, 3], [5, 15]);
-    if (starsContainer2) createStars(starsContainer2, 30, [2, 4], [10, 20]);
+  // Wire modal close from escape & by clicking outside already set above.
+  // Also add an explicit close button? Transformers original had a close; we keep escape/outside click.
 
-    // Add floating animation
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @keyframes float {
-        0% { transform: translateY(0) translateX(0); }
-        50% { transform: translateY(-20px) translateX(10px); }
-        100% { transform: translateY(0) translateX(0); }
-      }
-    `;
-    document.head.appendChild(style);
+  // Initialize
+  initPage();
 
 </script>
- 
-    
+
+    <!-- ========================================= -->
+<!--        ADSTERRA FULL GLOBAL AD BLOCK      -->
+<!-- ========================================= -->
+
+<!-- ===== Banner 300x250 (inside content / under video) ===== -->
+<div id="adsterra-banner-300x250" style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '267d846b24a4cdd5fd7ab140783cec90',
+      'format' : 'iframe',
+      'height' : 250,
+      'width' : 300,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="//bowlingprosperhalfbrother.com/267d846b24a4cdd5fd7ab140783cec90/invoke.js"></script>
+</div>
+
+
+<!-- ===== Banner 728x90 (header / between content) ===== -->
+<div id="adsterra-banner-728x90" style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://contentblanksupersede.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===== Social Bar (Site A) ===== -->
+<script type="text/javascript" src="//bowlingprosperhalfbrother.com/42/5b/58/425b58e61b66997ed4519d91d1f2dcf4.js"></script>
+
+<!-- ===== Social Bar (Site B) ===== -->
+<script type="text/javascript" src="https://contentblanksupersede.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+
+<!-- ===== PopUnder (Site A) – keep near </body> ===== -->
+<script type="text/javascript" src="//bowlingprosperhalfbrother.com/2d/95/e8/2d95e8d5c6532307745afa9b1be1162b.js"></script>
+
+<!-- ===== PopUnder (Site B) – keep LAST ===== -->
+<script src="https://contentblanksupersede.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- ========================================= -->
+<!--           END ADSTERRA BLOCK              -->
+<!-- ========================================= -->
+
+
 </body>
 </html>
