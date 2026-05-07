@@ -475,34 +475,10 @@
   },
    {
     title: "TATA IPL 2026",
-    video: "https://browserplaywillow.colfrazier1973.workers.dev/proxy.m3u8",
+    video: "https://allrounder-live6.pages.dev/channel/fox1",
     image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/163/1773990470163-s",
     category: "cricket",
     language: "Hindi",
-    isPopular: true
-  },
-   {
-    title: "Star Sports 1 Hindi",
-    video: "https://allinonereborn.online/opplex/live128.php?id=167573",
-    image: "https://cdn.smartads.in/images/product/television/Star-Sports-1-Hindi-HD.png",
-    category: "cricket",
-    language: "Hindi",
-    isPopular: true
-  },
-  {
-    title: "Star Sports 1 HD",
-    video: "https://mflixott.com/tv/plusbox/live/TSportsHD/index.m3u8",
-    image: "https://cdn.smartads.in/images/product/television/Star-Sports-1-HD.png",
-    category: "cricket",
-    language: "English",
-    isPopular: true
-  },
-  {
-    title: "Star Sports 2 HD",
-    video: "https://hls.ratanliton2.workers.dev/?url=http://stvlive.net:8080/starsports2/tracks-v1a1/mono.m3u8",
-    image: "https://cdn.smartads.in/images/product/television/Star-Sports-HD2.png",
-    category: "cricket",
-    language: "English",
     isPopular: true
   },
   {
@@ -1340,6 +1316,26 @@ if (
     playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
     return;
   }
+
+  // FORCE iframe for protected / unknown streams
+if (
+  src.includes('megacdn.co') ||
+  src.includes('fast3.vidplus.dev') ||
+  src.includes('akcloud.animanga.fun') ||
+  src.includes('allrounder-live6.pages.dev') ||
+  src.includes('livecricketsl.cc.nf')
+) {
+  playerWrapper.innerHTML = `
+    <iframe 
+      src="${src}" 
+      width="100%" 
+      height="100%" 
+      frameborder="0" 
+      allowfullscreen 
+      allow="autoplay; encrypted-media">
+    </iframe>`;
+  return;
+}
 
   // HLS
   if (isHls(src)) {
