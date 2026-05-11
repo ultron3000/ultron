@@ -1856,6 +1856,12 @@ if (
 
 <script>
 /* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
    Disable DevTools
 ========================= */
 DisableDevtool({
@@ -1866,12 +1872,19 @@ DisableDevtool({
     disableCopy: true,
     disableCut: true,
     disablePaste: true,
-    disableMobile: true,
-    interval: 50,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
 
     ondevtoolopen: function () {
-        document.body.innerHTML = "";
-        window.location.replace("about:blank");
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
     }
 });
 
@@ -1886,7 +1899,7 @@ document.addEventListener("keydown", function (e) {
         return false;
     }
 
-    // Ctrl+U (View Source)
+    // Ctrl+U
     if (e.ctrlKey && e.key.toLowerCase() === "u") {
         e.preventDefault();
         e.stopPropagation();
@@ -1973,23 +1986,36 @@ document.addEventListener("selectstart", function (e) {
    Disable Copy Actions
 ========================= */
 ["copy", "cut", "paste"].forEach(function(evt) {
+
     document.addEventListener(evt, function(e) {
         e.preventDefault();
     });
+
 });
 
 /* =========================
    Detect DevTools Window
+   (Desktop ONLY - FIXED)
 ========================= */
-setInterval(function () {
-    const widthThreshold = window.outerWidth - window.innerWidth > 160;
-    const heightThreshold = window.outerHeight - window.innerHeight > 160;
+if (!isMobile) {
 
-    if (widthThreshold || heightThreshold) {
-        document.body.innerHTML = "";
-        window.location.replace("about:blank");
-    }
-}, 1000);
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
 
 /* =========================
    Disable Console
@@ -2015,15 +2041,21 @@ setInterval(function () {
    Block "view-source:"
 ========================= */
 if (window.location.href.startsWith("view-source:")) {
+
     document.body.innerHTML = "";
     window.location.replace("about:blank");
+
 }
 
 /* =========================
    Prevent iframe inspection
 ========================= */
 if (window.top !== window.self) {
-    window.top.location = window.self.location;
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
 }
 </script>
 
