@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tom Clancy's Jack Ryan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            marvel: {
+              red: '#ED1D24',
+              gold: '#FFCC00',
+              dark: '#151515',
+              light: '#F0F0F0'
+            }
+          },
+          fontFamily: {
+            'marvel': ['"Marvel"', 'sans-serif'],
+            'bebas': ['"Bebas Neue"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+    body { font-family: 'Bebas Neue', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
+    .marvel-font { font-family: 'Bebas Neue', sans-serif; }
+    .movie-card { transition: all 0.3s ease; transform-style: preserve-3d; cursor: pointer; }
+    .movie-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 30px rgba(237,29,36,0.3); }
+    .movie-poster { transition: all 0.5s ease; }
+    .movie-card:hover .movie-poster { transform: scale(1.05); }
+    .search-input:focus { box-shadow: 0 0 0 3px rgba(237,29,36,0.5); }
+    .phase-badge { position: absolute; top: 10px; right: 10px; z-index: 10; }
+    .filter-btn.active { background-color: #ED1D24; color: white; }
+    .loading-spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { 0%{transform:rotate(0deg)}100%{transform:rotate(360deg)} }
+    .gradient-overlay { background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%); }
+    .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .hidden { display: none; }
+    /* Modal specific */
+    #playback-modal .aspect-video { aspect-ratio: 16/9; }
+    #playerError { display: none; }
+    .quality-btn { cursor: pointer; }
+
+    /* small modal tweaks */
+    #playback-modal .rounded-xl { background: linear-gradient(180deg,#0b0b0b,#111); }
+    #playback-modal .aspect-video iframe, #playback-modal .aspect-video video { width:100%; height:100%; object-fit:cover; background:black; }
+  </style>
+  <!-- HLS.js used by the Hawkeye player -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-black sticky top-0 z-50 border-b border-marvel-red/20">
+    <div class="container mx-auto px-4 py-3 sm:py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-marvel-red rounded-full flex items-center justify-center">
+            <span class="text-white font-bold text-lg sm:text-xl">JK</span>
+          </div>
+          <h1 class="text-xl sm:text-3xl font-bold text-marvel-red marvel-font tracking-wider">Tom Clancy's Jack Ryan</h1>
+        </div>
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <button id="theme-toggle" class="text-marvel-gold hover:text-marvel-red transition-colors">
+            <i class="fas fa-moon text-lg sm:text-xl"></i>
+          </button>
+          <button id="view-toggle" class="text-marvel-gold hover:text-marvel-red transition-colors">
+            <i class="fas fa-th-large text-lg sm:text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+
+
+
+ <!-- MAIN -->
+<main class="container mx-auto px-4 py-8">
+
+    
+
+
+        
+
+       
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MOVIES -->
+  <div
+    id="movies-container"
+    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+  </div>
+
+  <!-- LOADER -->
+  <div id="loading-spinner" class="flex justify-center py-12 hidden">
+    <div class="w-12 h-12 border-4 border-jack-amber border-t-transparent rounded-full loading-spinner"></div>
+  </div>
+
+</main>
+
+
+  <!-- Modal Player (Hawkeye/Tukaram-style integrated) -->
+  <div id="playback-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-90 px-2 sm:px-4">
+    <div class="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden p-2 sm:p-4">
+      <button id="close-modal" class="absolute top-3 right-3 z-50 text-white hover:text-yellow-500 text-2xl transition">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="aspect-video">
+        <!-- We'll swap between <video> and <iframe> inside this wrapper -->
+        <div id="player-container" class="w-full h-full bg-black">
+          <video id="modal-video" class="w-full h-full bg-black" controls playsinline></video>
+        </div>
+      </div>
+
+      <div id="qualityControls" class="flex justify-center mt-3"></div>
+      <div id="playerError" class="hidden bg-red-900 text-white p-2 rounded mt-2 text-center"></div>
+
+      <div class="flex justify-between mt-3">
+        <button id="prevBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+          <i class="fas fa-step-backward mr-1"></i> Prev
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="fullscreenBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+            <i class="fas fa-expand mr-1"></i> Fullscreen
+          </button>
+          <button id="muteBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+            <i class="fas fa-volume-up mr-1"></i> Mute
+          </button>
+        </div>
+        <button id="nextBtn" class="px-3 py-1 bg-gray-800 text-yellow-400 rounded hover:bg-gray-700">
+          Next <i class="fas fa-step-forward ml-1"></i>
+        </button>
+      </div>
+
+      <h3 id="modal-title" class="text-xl font-bold text-yellow-400 mt-3"></h3>
+      <div class="text-center text-gray-400 text-sm mt-1">Keyboard: Space=Play/Pause, ←/→ seek, F=Fullscreen, N=Next, P=Prev, M=Mute</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-black py-8 border-t border-marvel-red/20">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <div class="flex items-center space-x-2">
+            </div>
+          </div>
+        </div>
+        <div class="flex space-x-6">
+          <a href="#" class="text-marvel-gold/70 hover:text-marvel-red transition-colors"><i class="fab fa-facebook-f text-xl"></i></a>
+          <a href="#" class="text-marvel-gold/70 hover:text-marvel-red transition-colors"><i class="fab fa-twitter text-xl"></i></a>
+          <a href="https://www.instagram.com/stark_4152" class="text-marvel-gold/70 hover:text-marvel-red transition-colors"><i class="fab fa-instagram text-xl"></i></a>
+          <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-marvel-gold/70 hover:text-marvel-red transition-colors"><i class="fab fa-youtube text-xl"></i></a>
+        </div>
+      </div>
+      <div class="mt-8 pt-6 border-t border-marvel-red/10 text-center text-marvel-gold/50 text-sm">
+        <p>©  This is a fan-made project.</p>
+        <p class="mt-2"> </p>
+      </div>
+    </div>
+  </footer>
+
+ <script>
+
+const movies = [
+  {
+    title: "The Hunt for Red October",
+    description: "CIA analyst Jack Ryan investigates a Soviet submarine captain who may be planning to defect.",
+    video: "https://mega.nz/embed/c6hzRZxI#BftkCrfPSGDHW56CrF2lGhRe4xLsJLm3cLwp0O3skUg",
+    image: "https://image.tmdb.org/t/p/w500/yVl7zidse4KiWtGMqHFtZCx4X3N.jpg",
+    phase: "classic",
+    year: 1990,
+    rating: 4.5,
+    tags: ["classic","cia","russia"]
+  },
+
+  {
+    title: "Patriot Games",
+    description: "Jack Ryan becomes the target of an IRA terrorist after foiling an assassination attempt.",
+    video: "00",
+    image: "https://image.tmdb.org/t/p/w500/9IT7gnszrRthduYxCLqaIkM55Un.jpg",
+    phase: "classic",
+    year: 1992,
+    rating: 4.0,
+    tags: ["classic","terrorism","cia"]
+  },
+
+  {
+    title: "Clear and Present Danger",
+    description: "Jack Ryan uncovers corruption behind a covert war against Colombian drug cartels.",
+    video: "https://mega.nz/embed/s3AFSCAQ#vmShx6KgZVJB9VBIO7DCBb502eZclVvGg93ExegWAJs",
+    image: "https://image.tmdb.org/t/p/w500/6xTM8FPxrLRYwz6I3fqtwh7xybs.jpg",
+    phase: "classic",
+    year: 1994,
+    rating: 4.2,
+    tags: ["classic","cia"]
+  },
+
+  {
+    title: "The Sum of All Fears",
+    description: "Ryan must prevent nuclear war after terrorists detonate a bomb to provoke conflict.",
+    video: "https://mega.nz/embed/JjhGhTqI#hvIFYOXQWTYf244atoCf6P2H1lHG_vIOQDvL12EsmXo",
+    image: "https://image.tmdb.org/t/p/w500/3E4LW4bjRhEMDeeXeIsmkJ94v8K.jpg",
+    phase: "modern",
+    year: 2002,
+    rating: 3.9,
+    tags: ["modern","terrorism","russia"]
+  },
+
+  {
+    title: "Jack Ryan: Shadow Recruit",
+    description: "A young Jack Ryan discovers a Russian plan to destroy the U.S. economy.",
+    video: "https://mega.nz/embed/E7oj1TIY#9SDNkxulzDwX3Qnu9A88LXyfS17-VDtvsPFQ3TMFDkk",
+    image: "https://image.tmdb.org/t/p/w500/m7HcLUodrD4lM4s0Hui1tzO2pjO.jpg",
+    phase: "modern",
+    year: 2014,
+    rating: 3.5,
+    tags: ["modern","cia","russia"]
+  },
+
+  {
+    title: "Tom Clancy's Without Remorse",
+    description: "An elite Navy SEAL goes on a path to avenge his wife's murder only to find himself inside of a larger conspiracy.",
+    video: "https://mega.nz/embed/piRQ1KLI#ZLl9BBO69qYlzdyOAXTY3BudA99meTWfO7jCHHcIjNQ",
+    image: "https://image.tmdb.org/t/p/w500/6GCOpT8QcNzup09TAMmvvk22LTR.jpg",
+    phase: "modern",
+    year: 2021,
+    rating: 5.8,
+    tags: ["modern","cia"]
+  },
+
+  {
+    title: "Tom Clancy's Jack Ryan: Ghost War",
+    description: "Follows Jack Ryan who reunites with CIA operatives to navigate a treacherous web of betrayal.",
+    video: "https://mega.nz/embed/QixW2CTR#7TyPN6a5Q-OoEvaP5jcTnl537Y3ypoOj0VAYQFURzOw",
+    image: "https://image.tmdb.org/t/p/w500/vjUWJXdd275UYJDzblaNPZp9319.jpg",
+    phase: "modern",
+    year: 2026,
+    rating: 5.6,
+    tags: ["modern","cia"]
+  },
+];
+
+
+    // --- DOM refs ---
+    const moviesContainer = document.getElementById('movies-container');
+const searchInput = document.getElementById('search-input') || { value: "", addEventListener: () => {} };    const filterButtons = document.querySelectorAll('.filter-btn');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const themeToggle = document.getElementById('theme-toggle');
+    const viewToggle = document.getElementById('view-toggle');
+
+    // Modal refs
+    const playbackModal = document.getElementById('playback-modal');
+    const playerContainer = document.getElementById('player-container');
+    const modalVideo = document.getElementById('modal-video');
+    const modalTitle = document.getElementById('modal-title');
+    const qualityControls = document.getElementById('qualityControls');
+    const playerError = document.getElementById('playerError');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const closeModalBtn = document.getElementById('close-modal');
+
+    // State
+    let currentFilter = 'all';
+    let currentView = 'grid';
+    let currentVideo = null; // { index: number (within filtered), movie: {} }
+    let currentHls = null;
+
+    // --- Hawkeye-style helpers (copied/adapted) ---
+    function isHls(url) {
+      if (!url) return false;
+      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master.m3u8');
+    }
+    function isMP4(url) { return /\.mp4(\?|$)/i.test((url||'')); }
+    function isYouTube(url) {
+      if (!url) return false;
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+    }
+
+    // --- Rendering movies (kept behavior) ---
+    function getFilteredMovies() {
+      let filtered = [...movies];
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(m => {
+          if (currentFilter === 'phase1') return m.phase === 'phase1';
+          if (currentFilter === 'phase2') return m.phase === 'phase2';
+          if (currentFilter === 'phase3') return m.phase === 'phase3';
+          if (currentFilter === 'phase4') return m.phase === 'phase4';
+          if (currentFilter === 'phase5') return m.phase === 'phase5';
+          if (currentFilter === 'avengers') return m.tags && m.tags.includes('avengers');
+          if (currentFilter === 'spiderman') return m.tags && m.tags.includes('spiderman');
+          if (currentFilter === 'guardians') return m.tags && m.tags.includes('guardians');
+          return true;
+        });
+      }
+      const searchTerm = (searchInput.value || '').toLowerCase().trim();
+      if (searchTerm) filtered = filtered.filter(m => m.title.toLowerCase().includes(searchTerm));
+    
+      return filtered;
+    }
+
+    function createMovieCard(movie, indexInFiltered) {
+      const card = document.createElement('div');
+      card.className = `movie-card relative rounded-lg overflow-hidden shadow-lg bg-marvel-dark transition-all duration-300 h-48 sm:h-64 md:h-72 lg:h-80`;
+      let phaseText = '';
+      if (movie.phase === 'phase1') phaseText = 'Phase 1';
+      if (movie.phase === 'phase2') phaseText = 'Phase 2';
+      if (movie.phase === 'phase3') phaseText = 'Phase 3';
+      if (movie.phase === 'phase4') phaseText = 'Phase 4';
+      if (movie.phase === 'phase5') phaseText = 'Phase 5';
+
+      let stars = '';
+      if (movie.rating > 0) {
+        const fullStars = Math.floor(movie.rating);
+        const hasHalf = (movie.rating % 1) >= 0.5;
+        for (let i=0;i<fullStars;i++) stars += '<i class="fas fa-star text-marvel-gold"></i>';
+        if (hasHalf) stars += '<i class="fas fa-star-half-alt text-marvel-gold"></i>';
+        const empty = 5 - fullStars - (hasHalf?1:0);
+        for (let i=0;i<empty;i++) stars += '<i class="far fa-star text-marvel-gold"></i>';
+      } else {
+        stars = '<span class="text-marvel-gold/70">Not rated</span>';
+      }
+
+      card.innerHTML = `
+        <div class="absolute inset-0 gradient-overlay z-10"></div>
+        <img src="${movie.image || ''}" alt="${movie.title}" class="movie-poster absolute inset-0 w-full h-full object-cover transition-transform duration-500">
+        ${phaseText ? `<div class="phase-badge bg-marvel-red text-white text-xs px-2 py-1 rounded-full">${phaseText}</div>` : ''}
+        <div class="absolute bottom-0 left-0 right-0 z-20 p-4 text-white">
+          <h3 class="text-xl font-bold truncate">${movie.title}</h3>
+          <div class="flex items-center justify-between mt-1">
+            <span class="text-sm text-marvel-gold">${movie.year || ''}</span>
+            <div class="flex items-center space-x-1 text-sm">${stars}</div>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        const filtered = getFilteredMovies();
+        const idx = filtered.findIndex(m => m.title === movie.title && m.year === movie.year);
+        const indexToUse = idx >= 0 ? idx : indexInFiltered;
+        // Use Hawkeye-style modal playback (playInModal). This will decide modal vs iframe vs redirect fallback.
+        playInModal(filtered, indexToUse);
+      });
+
+      return card;
+    }
+
+    function renderMovies() {
+      loadingSpinner.classList.remove('hidden');
+      moviesContainer.innerHTML = '';
+      const filtered = getFilteredMovies();
+      if (filtered.length === 0) {
+        moviesContainer.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-film text-5xl text-yellow-400 mb-4"></i><h3 class="text-xl font-semibold">No movies found</h3><p class="text-gray-400">Try adjusting your search or filter</p></div>';
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
+      filtered.forEach((movie, idx) => {
+        const card = createMovieCard(movie, idx);
+        moviesContainer.appendChild(card);
+      });
+      loadingSpinner.classList.add('hidden');
+    }
+
+    // --- HAWKEYE-style modal playback implementation (integrated) ---
+    function showPlayerError(msg) {
+      playerError.textContent = msg;
+      playerError.classList.remove('hidden');
+      setTimeout(()=> playerError.classList.add('hidden'), 4000);
+    }
+
+    function resetPlayerContainer() {
+      // destroy existing HLS instance
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      // restore video element inside player-container
+      playerContainer.innerHTML = `<video id="modal-video" class="w-full h-full bg-black" controls playsinline></video>`;
+    }
+
+    // attach basic listeners to video element (timeupdate, ended)
+    function attachVideoListeners() {
+      const v = document.getElementById('modal-video');
+      if (!v) return;
+      v.addEventListener('timeupdate', () => {
+        // could update progress UI here
+      });
+      v.addEventListener('ended', () => {
+        // show replay state on UI if needed
+      });
+    }
+
+    // Core: playInModal copied/adapted from Hawkeye/Tukaram
+    function playInModal(filteredArray, index) {
+      const movie = filteredArray[index];
+      if (!movie) { showPlayerError('Movie data unavailable'); return; }
+
+      // Update metadata
+      modalTitle.textContent = movie.title || 'Video';
+      playerError.classList.add('hidden');
+
+      // prepare quality controls
+      qualityControls.innerHTML = '';
+      if (typeof movie.video === 'object' && movie.video !== null) {
+        const entries = Object.entries(movie.video);
+        entries.forEach(([quality, url]) => {
+          const b = document.createElement('button');
+          b.className = 'quality-btn px-3 py-1 mx-1 rounded bg-gray-700 hover:bg-gray-600 text-sm';
+          b.dataset.quality = quality;
+          b.dataset.url = url;
+          b.textContent = quality.toUpperCase();
+          qualityControls.appendChild(b);
+        });
+      }
+
+      // choose source string if object
+      let src = '';
+      if (typeof movie.video === 'object' && movie.video !== null) {
+        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+      } else {
+        src = movie.video;
+      }
+
+      // reset player and show modal
+      resetPlayerContainer();
+      playbackModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      currentVideo = { index, movie };
+
+      // No URL -> fallback to player.html
+      if (!src) {
+        showPlayerError('No playable URL provided — opening external player.');
+        setTimeout(()=> {
+          const link = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`;
+          window.location.href = link;
+        }, 600);
+        return;
+      }
+
+      const lc = (src||'').toLowerCase();
+
+      // Streamtape / common iframe-host players
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('openload') || lc.includes('ok.ru') || lc.includes('mega.nz')) {
+        playerContainer.innerHTML = `<iframe src="${src}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        // modalVideo element gone now; avoid HLS handling
+        currentHls = null;
+        // update UI
+        return;
+      }
+
+      // YouTube handling -> convert to embed
+      if (isYouTube(src)) {
+        let embedUrl = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const vid = new URLSearchParams(src.split('?')[1]).get('v');
+            if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
+          } else if (src.includes('youtu.be/')) {
+            const parts = src.split('youtu.be/');
+            if (parts[1]) {
+              const vid = parts[1].split(/[?&]/)[0];
+              embedUrl = `https://www.youtube.com/embed/${vid}`;
+            }
+          }
+        } catch (e) {}
+        playerContainer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        return;
+      }
+
+      // HLS handling
+      if (isHls(src)) {
+        const videoEl = document.getElementById('modal-video');
+        if (!videoEl) {
+          showPlayerError('Player element missing — opening external player.');
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 600);
+          return;
+        }
+
+        if (Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          try {
+            currentHls.loadSource(src);
+            currentHls.attachMedia(videoEl);
+          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            try { videoEl.play().catch(()=>{}); } catch(e){}
+          });
+          currentHls.on(Hls.Events.ERROR, function(event, data) {
+            console.warn('HLS error', data);
+            if (data && data.fatal) {
+              try { currentHls.destroy(); } catch(e){}
+              currentHls = null;
+              showPlayerError('HLS playback failed — opening external player.');
+              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+            }
+          });
+        } else if (videoEl.canPlayType && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+          videoEl.src = src;
+          videoEl.play().catch(()=>{});
+        } else {
+          // no HLS support -> fallback to player.html
+          showPlayerError('HLS not supported — opening external player.');
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+        }
+        attachVideoListeners();
+        return;
+      }
+
+      // MP4
+      if (isMP4(src)) {
+        const videoEl = document.getElementById('modal-video');
+        if (!videoEl) {
+          // no video element -> fallback
+          window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+          return;
+        }
+        videoEl.src = src;
+        videoEl.play().catch(()=>{});
+        attachVideoListeners();
+        return;
+      }
+
+      // Unknown type -> fallback to player.html (this mirrors Hawkeye fallback)
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+    }
+
+    function redirectToPlayerHtml(title, url) {
+      const link = `player.html?title=${encodeURIComponent(title||'')}&video=${encodeURIComponent(url||'')}`;
+      window.location.href = link;
+    }
+
+    // Prev/Next controls
+    function playNext() {
+      const filtered = getFilteredMovies();
+      if (!currentVideo) return showPlayerError('No current video');
+      const idx = currentVideo.index;
+      if (idx < filtered.length - 1) {
+        playInModal(filtered, idx + 1);
+      } else {
+        showPlayerError('No next video in this category.');
+      }
+    }
+    function playPrevious() {
+      const filtered = getFilteredMovies();
+      if (!currentVideo) return showPlayerError('No current video');
+      const idx = currentVideo.index;
+      if (idx > 0) {
+        playInModal(filtered, idx - 1);
+      } else {
+        showPlayerError('No previous video in this category.');
+      }
+    }
+
+    // UI control helpers
+    function toggleFullscreen() {
+      const el = document.getElementById('modal-video') || playerContainer.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerContainer.requestFullscreen).call(el).catch(err => showPlayerError('Fullscreen failed: ' + err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById('modal-video');
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute mr-1"></i> Unmute' : '<i class="fas fa-volume-up mr-1"></i> Mute';
+    }
+
+    // Close modal & cleanup
+    function closeModal() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById('modal-video');
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      playbackModal.classList.add('hidden');
+      document.body.style.overflow = '';
+      currentVideo = null;
+    }
+
+    // Bind controls
+    closeModalBtn.addEventListener('click', closeModal);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrevious);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+
+    // Clicking outside to close
+    playbackModal.addEventListener('click', (e) => {
+      if (e.target === playbackModal) closeModal();
+    });
+
+    // keyboard shortcuts when modal open
+    document.addEventListener('keydown', (e) => {
+      if (playbackModal.classList.contains('hidden')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModal(); break;
+        case ' ': e.preventDefault(); const v = document.getElementById('modal-video'); if (v) v.paused ? v.play() : v.pause(); break;
+        case 'arrowright': { const vv = document.getElementById('modal-video'); if (vv) vv.currentTime = Math.max(0, vv.currentTime + 10); break; }
+        case 'arrowleft': { const vv = document.getElementById('modal-video'); if (vv) vv.currentTime = Math.max(0, vv.currentTime - 10); break; }
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+        case 'n': playNext(); break;
+        case 'p': playPrevious(); break;
+      }
+    });
+
+    // Quality button click handling (delegation)
+    qualityControls.addEventListener('click', (e) => {
+      const btn = e.target.closest('.quality-btn');
+      if (!btn) return;
+      const url = btn.dataset.url;
+      if (!url) return;
+      const v = document.getElementById('modal-video');
+      const currentTime = (v && !v.paused) ? (v.currentTime || 0) : 0;
+      // switch source keeping currentTime where possible
+      if (isHls(url)) {
+        // destroy previous hls, create new
+        if (currentHls) {
+          try { currentHls.destroy(); } catch(e) {}
+          currentHls = null;
+        }
+        resetPlayerContainer(); // recreate video element
+        const vid = document.getElementById('modal-video');
+        if (Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          currentHls.loadSource(url);
+          currentHls.attachMedia(vid);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+            try { vid.currentTime = currentTime; vid.play().catch(()=>{}); } catch(e){}
+          });
+        } else {
+          vid.src = url;
+          try { vid.currentTime = currentTime; vid.play().catch(()=>{}); } catch(e){}
+        }
+      } else {
+        // mp4 or iframe
+        if (isMP4(url)) {
+          resetPlayerContainer();
+          const vid = document.getElementById('modal-video');
+          vid.src = url;
+          try { vid.currentTime = currentTime; vid.play().catch(()=>{}); } catch(e){}
+        } else {
+          // fallback to iframe
+          playerContainer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        }
+      }
+    });
+
+    // --- UI: filter/sort/search/theme/view handlers (kept) ---
+    searchInput.addEventListener('input', renderMovies);
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter || 'all';
+        renderMovies();
+      });
+    });
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('bg-gray-100');
+      document.body.classList.toggle('bg-black');
+      const icon = themeToggle.querySelector('i');
+      if (icon.classList.contains('fa-moon')) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+      else { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
+    });
+    viewToggle.addEventListener('click', () => {
+      currentView = currentView === 'grid' ? 'list' : 'grid';
+      const icon = viewToggle.querySelector('i');
+      if (currentView === 'grid') { icon.classList.remove('fa-list'); icon.classList.add('fa-th-large'); }
+      else { icon.classList.remove('fa-th-large'); icon.classList.add('fa-list'); }
+      renderMovies();
+    });
+
+    // init
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMovies();
+    });
+
+  </script>
+ <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+
+</body>
+</html>
