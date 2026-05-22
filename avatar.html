@@ -2,1037 +2,1642 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Avatar</title>
+<title>Avatar Universe</title>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
+
 <script src="https://cdn.tailwindcss.com"></script>
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<!-- HLS.js for HLS playback -->
+
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    
-    :root {
-      --primary: #ffcc00;
-      --secondary: #111827;
-      --accent: #f59e0b;
-      --muted: #9CA3AF;
-    }
-    
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: white;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-    
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    
-    .movie-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      transform-origin: center;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    
-    .movie-card:hover {
-      transform: translateY(-8px) scale(1.03);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    
-    .search-input {
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-    
-    .search-input:focus {
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5);
-    }
-    
-    .header-glow {
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
-    }
-    
-    .movie-poster {
-      aspect-ratio: 2/3;
-      transition: transform 0.5s ease;
-    }
-    
-    .movie-card:hover .movie-poster {
-      transform: scale(1.05);
-    }
-    
-    .category-tab {
-      transition: all 0.3s ease;
-    }
-    
-    .category-tab:hover {
-      transform: translateY(-2px);
-    }
-    
-    .category-tab.active {
-      background-color: var(--primary);
-      color: var(--secondary);
-      font-weight: 600;
-    }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: #1e293b;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: #ffcc00;
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: #f59e0b;
-    }
-    
-    /* Animation */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-fade-in {
-      animation: fadeIn 0.6s ease forwards;
-    }
-    
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
-    .delay-400 { animation-delay: 0.4s; }
-    
-    /* Illumination modal styles (responsive) */
-    .modal-backdrop { 
-      position:fixed; 
-      inset:0; 
-      background: rgba(0,0,0,0.9); 
-      display:none; 
-      align-items:center; 
-      justify-content:center; 
-      z-index:9999; 
-      padding: 0;
-    }
-    .modal-backdrop.active { display:flex; }
-    .modal-card { 
-      width: 100%;
-      height: 100%;
-      max-width: 980px;
-      max-height: 90vh;
-      border-radius: 0;
-      overflow: hidden;
-      background: #0b1220;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
-      display: flex;
-      flex-direction: column;
-    }
-    .player-wrapper { 
-      position: relative;
-      flex: 1;
-      min-height: 0;
-      background: #000;
-    }
-    #topCloseBtn { 
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 10;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 1;
-      transition: all 0.2s ease;
-    }
-    #topCloseBtn:hover {
-      background: rgba(0,0,0,0.9);
-      transform: scale(1.1);
-    }
-    .player-wrapper video, 
-    .player-wrapper iframe { 
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
-    .player-meta { 
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 12px;
-      color: #ddd;
-      background: #0b1220;
-    }
-    .player-meta .meta-left { 
-      width: 100%;
-    }
-    .player-meta h3 { 
-      margin: 0;
-      font-size: 1.125rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .player-meta p { 
-      margin: 6px 0 0 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+:root{
+  --primary:#00e5ff;
+  --secondary:#08131f;
+  --accent:#7cf7ff;
+  --text:#e6f7ff;
+  --muted:#8ca3b3;
 
-    .controls-row { 
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-    }
+  --glass:rgba(255,255,255,0.06);
+  --glass-border:rgba(255,255,255,0.12);
 
-    .btn {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 6px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      min-width: 40px;
-      flex: 1;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-    @media (min-width: 768px) {
-      .btn {
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        min-width: 60px;
-        gap: 6px;
-      }
-    }
-    .btn:hover { 
-      background: rgba(254,209,65,0.06); 
-    }
-    .btn i {
-      font-size: 1rem;
-    }
+  --pandora-blue:#00d9ff;
+  --pandora-purple:#8b5cf6;
+  --pandora-green:#00ffbf;
 
-    /* Responsive adjustments */
-    @media (min-width: 768px) {
-      .modal-card {
-        width: 92%;
-        height: auto;
-        border-radius: 12px;
-        max-height: 80vh;
-      }
-      .player-wrapper {
-        padding-bottom: 56.25%;
-        height: 0;
-      }
-      .player-meta {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-      }
-      .player-meta .meta-left {
-        max-width: 65%;
-      }
-      .controls-row {
-        flex-wrap: nowrap;
-        justify-content: flex-end;
-      }
-      .btn {
-        flex: 0;
-        min-width: auto;
-        padding: 8px 12px;
-      }
-      #topCloseBtn {
-        opacity: 0;
-      }
-      .player-wrapper:hover #topCloseBtn {
-        opacity: 1;
-      }
-    }
+  --card-bg:rgba(8,19,31,.72);
+}
 
-    @media (max-width: 480px) {
-      .btn {
-        padding: 8px;
-        font-size: 0;
-      }
-      .btn i {
-        font-size: 1rem;
-        margin: 0 !important;
-      }
-    }
+*{
+  box-sizing:border-box;
+}
 
-    /* Modal legacy styles (unused) */
-    .modal-overlay { display:none; }
-    /* ============================
-   DESKTOP FIX — DOES NOT TOUCH MOBILE
-   ============================ */
+body{
+  font-family:'Poppins',sans-serif;
 
-@media (min-width: 768px) {
+  background:
+    radial-gradient(circle at top left, rgba(0,229,255,.12), transparent 30%),
+    radial-gradient(circle at top right, rgba(139,92,246,.12), transparent 30%),
+    linear-gradient(135deg,#020617 0%,#071120 45%,#020617 100%);
 
-  /* Fix video height so it doesn't cover controls */
-  .player-wrapper {
-    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
-    height: auto !important;
-    max-height: 60vh !important;       /* safe video height */
-    position: relative !important;
+  color:var(--text);
+
+  min-height:100vh;
+
+  overflow-x:hidden;
+
+  position:relative;
+
+  margin:0;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+
+  background:url("https://www.transparenttextures.com/patterns/stardust.png");
+
+  opacity:.12;
+
+  animation:spaceMove 80s linear infinite;
+
+  pointer-events:none;
+
+  z-index:-1;
+}
+
+@keyframes spaceMove{
+  from{
+    transform:translateY(0);
+  }
+  to{
+    transform:translateY(-1000px);
+  }
+}
+
+::-webkit-scrollbar{
+  width:8px;
+}
+
+::-webkit-scrollbar-track{
+  background:#071120;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#00d9ff;
+  border-radius:20px;
+}
+
+.container-main{
+  width:100%;
+  max-width:1500px;
+  margin:auto;
+  padding:24px;
+}
+
+/* HERO */
+
+.hero{
+  position:relative;
+
+  width:100%;
+  height:680px;
+
+  overflow:hidden;
+
+  border-radius:34px;
+
+  border:1px solid rgba(0,229,255,.18);
+
+  box-shadow:
+    0 0 60px rgba(0,229,255,.08),
+    0 30px 80px rgba(0,0,0,.55);
+}
+
+.hero iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:none;
+  transform:scale(1.22);
+  pointer-events:none;
+}
+
+.hero-overlay{
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(2,6,23,1),
+      rgba(2,6,23,.4),
+      rgba(2,6,23,.2)
+    );
+
+  z-index:2;
+}
+
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:
+    radial-gradient(circle at center, rgba(0,229,255,.18), transparent 40%);
+
+  z-index:1;
+
+  animation:pulseGlow 5s ease infinite;
+}
+
+@keyframes pulseGlow{
+  0%,100%{
+    opacity:.5;
+  }
+  50%{
+    opacity:1;
+  }
+}
+
+.hero-content{
+  position:absolute;
+  bottom:70px;
+  left:60px;
+  z-index:5;
+  max-width:700px;
+}
+
+.hero-title{
+  font-size:5rem;
+  font-weight:900;
+  line-height:1;
+  color:white;
+
+  text-shadow:
+    0 0 15px rgba(0,229,255,.55),
+    0 0 40px rgba(0,229,255,.25);
+}
+
+.hero-text{
+  margin-top:20px;
+
+  color:#d7f9ff;
+
+  font-size:1.05rem;
+
+  line-height:1.8;
+}
+
+.hero-buttons{
+  display:flex;
+  gap:16px;
+  margin-top:30px;
+  flex-wrap:wrap;
+}
+
+.hero-btn{
+  padding:14px 28px;
+
+  border-radius:999px;
+
+  border:none;
+
+  cursor:pointer;
+
+  transition:.35s ease;
+
+  font-weight:700;
+
+  font-size:1rem;
+}
+
+.hero-btn.primary{
+  background:#00d9ff;
+  color:black;
+
+  box-shadow:
+    0 0 25px rgba(0,229,255,.55);
+}
+
+.hero-btn.primary:hover{
+  transform:translateY(-4px) scale(1.03);
+}
+
+.hero-btn.secondary{
+  background:rgba(255,255,255,.06);
+
+  border:1px solid rgba(255,255,255,.14);
+
+  color:white;
+
+  backdrop-filter:blur(16px);
+}
+
+.hero-btn.secondary:hover{
+  background:rgba(0,229,255,.15);
+}
+
+/* LOGO */
+
+.logo{
+  position:absolute;
+  top:35px;
+  left:40px;
+  z-index:5;
+  height:90px;
+
+  animation:
+    floatLogo 4s ease-in-out infinite,
+    glowLogo 3s ease-in-out infinite alternate;
+}
+
+@keyframes floatLogo{
+  0%,100%{
+    transform:translateY(0);
+  }
+  50%{
+    transform:translateY(-10px);
+  }
+}
+
+@keyframes glowLogo{
+  from{
+    filter:
+      drop-shadow(0 0 10px rgba(0,229,255,.4));
+  }
+  to{
+    filter:
+      drop-shadow(0 0 30px rgba(0,229,255,.95));
+  }
+}
+
+/* GRID */
+
+.movies-grid{
+  display:grid;
+
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+  gap:28px;
+
+  margin-top:45px;
+}
+
+/* MOVIE CARD */
+
+.movie-card{
+  position:relative;
+
+  overflow:hidden;
+
+  border-radius:24px;
+
+  background:var(--card-bg);
+
+  border:1px solid rgba(255,255,255,.08);
+
+  backdrop-filter:blur(18px);
+
+  transition:all .45s cubic-bezier(.2,.8,.2,1);
+
+  cursor:pointer;
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.4);
+}
+
+.movie-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0,229,255,.14),
+      transparent 40%,
+      rgba(139,92,246,.14)
+    );
+
+  opacity:0;
+
+  transition:.45s;
+
+  z-index:1;
+}
+
+.movie-card:hover::before{
+  opacity:1;
+}
+
+.movie-card:hover{
+  transform:
+    translateY(-14px)
+    scale(1.03);
+
+  border-color:rgba(0,229,255,.35);
+
+  box-shadow:
+    0 0 40px rgba(0,229,255,.18),
+    0 30px 60px rgba(0,0,0,.55);
+}
+
+.poster-wrap{
+  position:relative;
+  overflow:hidden;
+}
+
+.movie-poster{
+  width:100%;
+  aspect-ratio:2/3;
+  object-fit:cover;
+
+  transition:transform .8s ease;
+}
+
+.movie-card:hover .movie-poster{
+  transform:scale(1.08);
+}
+
+.poster-overlay{
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(2,6,23,1),
+      transparent 55%
+    );
+}
+
+.play-overlay{
+  position:absolute;
+  inset:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  opacity:0;
+
+  transition:.4s ease;
+
+  z-index:5;
+}
+
+.movie-card:hover .play-overlay{
+  opacity:1;
+}
+
+.play-btn{
+  width:70px;
+  height:70px;
+
+  border-radius:50%;
+
+  border:none;
+
+  background:#00d9ff;
+
+  color:black;
+
+  font-size:1.4rem;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 0 30px rgba(0,229,255,.8);
+
+  transition:.3s ease;
+}
+
+.play-btn:hover{
+  transform:scale(1.1);
+}
+
+.movie-year{
+  position:absolute;
+  top:14px;
+  right:14px;
+
+  z-index:5;
+
+  padding:6px 12px;
+
+  border-radius:999px;
+
+  background:rgba(0,0,0,.45);
+
+  backdrop-filter:blur(12px);
+
+  border:1px solid rgba(255,255,255,.12);
+
+  font-size:.8rem;
+}
+
+.movie-info{
+  padding:18px;
+  position:relative;
+  z-index:3;
+}
+
+.movie-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:white;
+}
+
+.movie-meta{
+  display:flex;
+  justify-content:space-between;
+  margin-top:12px;
+
+  color:#89eaff;
+
+  font-size:.9rem;
+}
+
+/* MODAL */
+
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+
+  background:rgba(0,0,0,.88);
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  z-index:9999;
+
+  padding:20px;
+}
+
+.modal-backdrop.active{
+  display:flex;
+}
+
+.modal-card{
+  width:95%;
+  max-width:1400px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(6,15,25,.96),
+      rgba(10,20,35,.92)
+    );
+
+  border:1px solid rgba(0,229,255,.16);
+
+  backdrop-filter:blur(24px);
+
+  border-radius:28px;
+
+  overflow:hidden;
+
+  box-shadow:
+    0 0 50px rgba(0,229,255,.16),
+    0 30px 80px rgba(0,0,0,.75);
+}
+
+.player-wrapper{
+  position:relative;
+  width:100%;
+  background:black;
+}
+
+.player-wrapper video,
+.player-wrapper iframe{
+  width:100%;
+  height:70vh;
+  border:none;
+  background:black;
+}
+
+.player-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  padding:22px;
+  flex-wrap:wrap;
+}
+
+.player-meta h3{
+  margin:0;
+  font-size:1.5rem;
+  color:white;
+}
+
+.player-meta p{
+  margin-top:10px;
+  color:#98b3c5;
+  line-height:1.6;
+}
+
+.controls-row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  position:relative;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(0,229,255,.08),
+      rgba(255,255,255,.03)
+    );
+
+  border:1px solid rgba(0,229,255,.25);
+
+  color:#dffcff;
+
+  padding:12px 18px;
+
+  border-radius:14px;
+
+  cursor:pointer;
+
+  transition:.35s ease;
+
+  backdrop-filter:blur(12px);
+
+  overflow:hidden;
+
+  font-weight:600;
+}
+
+.btn::before{
+  content:"";
+
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent,
+      rgba(255,255,255,.15),
+      transparent
+    );
+
+  transform:translateX(-100%);
+
+  transition:.6s;
+}
+
+.btn:hover::before{
+  transform:translateX(100%);
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+
+  border-color:rgba(0,229,255,.6);
+
+  box-shadow:
+    0 0 20px rgba(0,229,255,.22);
+}
+
+#topCloseBtn{
+  position:absolute;
+  top:14px;
+  right:14px;
+
+  z-index:10;
+
+  width:48px;
+  height:48px;
+
+  border:none;
+
+  border-radius:50%;
+
+  background:rgba(0,0,0,.55);
+
+  color:white;
+
+  cursor:pointer;
+
+  transition:.3s ease;
+}
+
+#topCloseBtn:hover{
+  background:black;
+  transform:scale(1.08);
+}
+
+/* FOOTER */
+
+.footer{
+  margin-top:70px;
+  text-align:center;
+  padding-bottom:40px;
+}
+
+.footer a{
+  color:#9fb6c5;
+  margin:0 10px;
+  font-size:1.2rem;
+  transition:.3s ease;
+}
+
+.footer a:hover{
+  color:#00d9ff;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+  .hero{
+    height:540px;
   }
 
-  /* Ensure iframe/video stays inside wrapper */
+  .hero-title{
+    font-size:3.5rem;
+  }
+
+  .hero-content{
+    left:30px;
+    bottom:40px;
+  }
+
+  .logo{
+    height:70px;
+  }
+
   .player-wrapper video,
-  .player-wrapper iframe {
-    height: 100% !important;
-    max-height: 60vh !important;
-    position: relative !important;
-  }
-
-  /* Make sure controls are ALWAYS visible above video */
-  .player-meta {
-    position: relative !important;
-    z-index: 100 !important;
-    background: #0b1220 !important;      /* solid background for visibility */
-    padding-top: 10px !important;
-  }
-
-  /* Controls row layout */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 12px !important;
-  }
-
-  /* Buttons behave normally */
-  .btn {
-    min-width: 95px !important;
-    padding: 10px 16px !important;
-    flex: unset !important;
-  }
-
-  /* Modal height adjustment to fit everything */
-  .modal-card {
-    max-height: 85vh !important;
-    overflow: visible !important;
+  .player-wrapper iframe{
+    height:50vh;
   }
 }
 
-/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
+@media(max-width:640px){
 
-  object-fit: contain !important;
-  background-color: black;
-}
+  .container-main{
+    padding:16px;
+  }
 
-/* Only cover when video aspect is cinematic */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
-    object-fit: cover !important;
+  .hero{
+    height:450px;
+    border-radius:24px;
+  }
+
+  .hero-title{
+    font-size:2.5rem;
+  }
+
+  .hero-content{
+    left:20px;
+    right:20px;
+    bottom:24px;
+  }
+
+  .hero-text{
+    font-size:.95rem;
+  }
+
+  .logo{
+    top:18px;
+    left:18px;
+    height:54px;
+  }
+
+  .movies-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+  }
+
+  .player-wrapper video,
+  .player-wrapper iframe{
+    height:35vh;
+  }
+
+  .btn{
+    flex:1;
+    justify-content:center;
+  }
+
+  .controls-row{
+    width:100%;
   }
 }
-
-  </style>
-</head>
-<body class="relative">
-<!-- Floating stars background -->
-<div class="fixed inset-0 overflow-hidden -z-10">
-<div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80"></div>
-<div class="stars"></div>
-<div class="stars2"></div>
-</div>
-<div class="container mx-auto px-4 py-8 max-w-7xl">
-
-<!-- Full-Width Video Header with Animated Logo -->
-<div class="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] overflow-hidden">
-  <!-- YouTube Video Background -->
-  <iframe 
-    src="https://www.youtube.com/embed/nb_fFj_0rq8?autoplay=1&mute=1&loop=1&playlist=nb_fFj_0rq8&controls=0&modestbranding=1"
-    frameborder="0" 
-    allow="autoplay; fullscreen" 
-    class="absolute top-0 left-0 w-full h-full pointer-events-none">
-  </iframe>
-
-  <!-- Animated Logo at Top-Left -->
-  <img 
-    src="https://images.squarespace-cdn.com/content/v1/5552f5d9e4b098f713cf5ef2/488146c8-4da2-4a2f-9099-b38749f365ca/Avatar-Logo.png" 
-    alt="Transformers Logo" 
-    class="absolute top-2 left-2 sm:top-4 sm:left-4 h-10 sm:h-16 md:h-20 lg:h-24 animate-logo z-10"
-  />
-</div>
-
-<style>
-  /* Animated Logo */
-  .animate-logo {
-    animation: float-pulse 3s ease-in-out infinite, glow-logo 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes float-pulse {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-
-  @keyframes glow-logo {
-    0% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-    50% { filter: drop-shadow(0 0 6px #fffa65) drop-shadow(0 0 12px #ffba00); }
-    100% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .animate-logo { height: 4rem; top: 1rem; left: 1rem; }
-  }
 </style>
+</head>
 
-</div>
-</div>
-<!-- Movies Grid -->
-<div class="mb-12">
-<div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6" id="movies"></div>
-</div>
-<!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-6 sm:mt-8 pt-4 sm:pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+<body>
+
+<div class="container-main">
+
+  <!-- HERO -->
+  <div class="hero">
+
+    <div class="hero-overlay"></div>
+
+    <iframe
+      src="https://www.youtube.com/embed/nb_fFj_0rq8?autoplay=1&mute=1&loop=1&playlist=nb_fFj_0rq8&controls=0&modestbranding=1"
+      allow="autoplay; fullscreen">
+    </iframe>
+
+    <img
+      src="https://images.squarespace-cdn.com/content/v1/5552f5d9e4b098f713cf5ef2/488146c8-4da2-4a2f-9099-b38749f365ca/Avatar-Logo.png"
+      class="logo"
+      alt="Avatar Logo">
+
+    <div class="hero-content">
+
+      <div class="hero-title">
+        ENTER<br>PANDORA
+      </div>
+
+      <div class="hero-text">
+        Experience the complete Avatar cinematic universe with immersive bioluminescent visuals, cinematic playback and next-generation streaming aesthetics.
+      </div>
+
+      <div class="hero-buttons">
+
+        <button class="hero-btn primary">
+          <i class="fas fa-play mr-2"></i>
+          Explore
+        </button>
+
+        <button class="hero-btn secondary">
+          <i class="fas fa-film mr-2"></i>
+          Collection
+        </button>
+
+      </div>
+
+    </div>
+
   </div>
+
+  <!-- MOVIES -->
+  <div class="movies-grid" id="movies"></div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+
+    <a href="#"><i class="fab fa-facebook-f"></i></a>
+
+    <a href="#"><i class="fab fa-twitter"></i></a>
+
+    <a href="https://www.instagram.com/stark_4152/reels"><i class="fab fa-instagram"></i></a>
+
+    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g"><i class="fab fa-youtube"></i></a>
+
+  </div>
+
 </div>
 
-<!-- === REPLACED: Illumination-style Modal Player === -->
-<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true">
+<!-- MODAL -->
+<div id="playbackModal" class="modal-backdrop">
+
+  <div class="modal-card">
+
     <div class="player-wrapper" id="playerWrapper">
-      <!-- video or iframe injected here -->
-      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
-        <i class="fas fa-times text-xl"></i>
+
+      <video id="modalVideo" controls playsinline></video>
+
+      <button id="topCloseBtn">
+        <i class="fas fa-times"></i>
       </button>
+
     </div>
 
     <div class="player-meta">
-      <div class="meta-left">
+
+      <div>
         <h3 id="modalTitle">Title</h3>
-        <p id="modalDesc" class="text-sm"></p>
+        <p id="modalDesc"></p>
       </div>
+
       <div class="controls-row">
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+
+        <button id="prevBtn" class="btn">
+          <i class="fas fa-step-backward"></i>
+        </button>
+
+        <button id="playPauseBtn" class="btn">
+          <i class="fas fa-play"></i>
+        </button>
+
+        <button id="nextBtn" class="btn">
+          <i class="fas fa-step-forward"></i>
+        </button>
+
+        <button id="fullscreenBtn" class="btn">
+          <i class="fas fa-expand"></i>
+        </button>
+
+        <button id="muteBtn" class="btn">
+          <i class="fas fa-volume-up"></i>
+        </button>
+
+        <button id="closeBtn" class="btn">
+          <i class="fas fa-times"></i>
+        </button>
+
       </div>
+
     </div>
+
   </div>
+
 </div>
 
 <script>
-    /******************************
-     * Existing movies array (unchanged)
-     ******************************/
-   const movies = [
-  {
-    title: "Avatar",
-    language: "English",
-    video: "https://mega.nz/embed/Jc0X1IQI#vcOVxskqnRJlZGyo1MyYPBABu8mEEYiqJv21VRKvJmE",
-    image: "https://image.tmdb.org/t/p/w500/gKY6q7SjCkAU6FqvqWybDYgUKIF.jpg",
-    year: 2009,
-    duration: "160 min",
-    description: "A paraplegic Marine dispatched to Pandora..."
-  },
-  {
-    title: "Avatar: The Way of Water",
-    language: "English",
-    video: "https://tik.xpass.top:443/playlist/VdHW5BAbAVo3YyBPPAS3Uf/index-f2-v1-a1.m3u8?v=",
-    image: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
-    year: 2022,
-    duration: "190 min",
-    description: "Jake Sully lives with his family..."
-  },
-  {
-    title: "Avatar: Fire and Ash",
-    language: "English",
-    video: "https://mega.nz/embed/gdtzBSKI#FvPWcAk-Ssk2l6SvdYHr5wd5JKTBOxxEIec6qjyFUsI",
-    image: "https://image.tmdb.org/t/p/w500/g96wHxU7EnoIFwemb2RgohIXrgW.jpg",
-    year: 2025,
-    duration: "190 min",
-    description: "Jake and Neytiri face Ash People..."
-  },
 
-  // Hindi
-  {
-    title: "(Hindi)",
-    language: "Hindi",
-    video: "https://mega.nz/embed/VYdGzYrb#W1JpGowM5N3lB7Dtiw3EvsCF0uNLMOavaLLYJ7g6ljY",
-    image: "https://m.media-amazon.com/images/I/61O8KP0CYVS.jpg",
-    year: 2009,
-    duration: "190 min",
-    description: "Hindi version..."
-  },
-  {
-    title: "(Hindi)",
-    language: "Hindi",
-    video: "https://mega.nz/embed/UN8iHTjS#EyES8ImHKm8mlAETupSpERY4tO05nbTOvdBWOM4Ghzs",
-    image: "https://wallpapercave.com/wp/wp11685736.jpg",
-    year: 2022,
-    duration: "190 min",
-    description: "Hindi version..."
-  },
-  {
-    title: "(Hindi)",
-    language: "Hindi",
-    video: "https://mega.nz/embed/sNtD2KQA#iAjs3QxE9ksR5Y2oVTZ-gDuDs_iR87-s3SK4XFHrSvo",
-    image: "https://m.media-amazon.com/images/I/71OioRQjVQL._AC_UF894,1000_QL80_.jpg",
-    year: 2025,
-    duration: "190 min",
-    description: "Hindi version..."
-  },
+const movies = [
+
+{
+title:"Avatar",
+language:"English",
+video:"https://mega.nz/embed/Jc0X1IQI#vcOVxskqnRJlZGyo1MyYPBABu8mEEYiqJv21VRKvJmE",
+image:"https://image.tmdb.org/t/p/w500/gKY6q7SjCkAU6FqvqWybDYgUKIF.jpg",
+year:2009,
+duration:"160 min",
+description:"A paraplegic Marine dispatched to Pandora..."
+},
+
+{
+title:"Avatar: The Way of Water",
+language:"English",
+video:"https://storrrrrrm.site/stream/75160113d5a4469b/1038p.m3u8",
+image:"https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
+year:2022,
+duration:"190 min",
+description:"Jake Sully lives with his family..."
+},
+
+{
+title:"Avatar: Fire and Ash",
+language:"English",
+video:"https://mega.nz/embed/gdtzBSKI#FvPWcAk-Ssk2l6SvdYHr5wd5JKTBOxxEIec6qjyFUsI",
+image:"https://image.tmdb.org/t/p/w500/g96wHxU7EnoIFwemb2RgohIXrgW.jpg",
+year:2025,
+duration:"190 min",
+description:"Jake and Neytiri face Ash People..."
+},
+
+{
+title:"Avatar (Hindi)",
+language:"Hindi",
+video:"https://mega.nz/embed/VYdGzYrb#W1JpGowM5N3lB7Dtiw3EvsCF0uNLMOavaLLYJ7g6ljY",
+image:"https://m.media-amazon.com/images/I/61O8KP0CYVS.jpg",
+year:2009,
+duration:"190 min",
+description:"Hindi version..."
+},
+
+{
+title:"Avatar 2 (Hindi)",
+language:"Hindi",
+video:"https://mega.nz/embed/UN8iHTjS#EyES8ImHKm8mlAETupSpERY4tO05nbTOvdBWOM4Ghzs",
+image:"https://wallpapercave.com/wp/wp11685736.jpg",
+year:2022,
+duration:"190 min",
+description:"Hindi version..."
+},
+
+{
+title:"Avatar 3 (Hindi)",
+language:"Hindi",
+video:"https://mega.nz/embed/sNtD2KQA#iAjs3QxE9ksR5Y2oVTZ-gDuDs_iR87-s3SK4XFHrSvo",
+image:"https://m.media-amazon.com/images/I/71OioRQjVQL._AC_UF894,1000_QL80_.jpg",
+year:2025,
+duration:"190 min",
+description:"Hindi version..."
+}
+
 ];
 
-    /******************************
-     * DOM refs for modal controls
-     ******************************/
-    const playbackModal = document.getElementById('playbackModal'); 
-    const playerWrapper = document.getElementById('playerWrapper');
-    const modalVideoId = 'modalVideo';
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
+const playbackModal=document.getElementById('playbackModal');
+const playerWrapper=document.getElementById('playerWrapper');
+const modalTitle=document.getElementById('modalTitle');
+const modalDesc=document.getElementById('modalDesc');
 
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
+const prevBtn=document.getElementById('prevBtn');
+const nextBtn=document.getElementById('nextBtn');
+const playPauseBtn=document.getElementById('playPauseBtn');
+const fullscreenBtn=document.getElementById('fullscreenBtn');
+const muteBtn=document.getElementById('muteBtn');
 
-    let currentHls = null;
-    let currentFiltered = [];
-    let currentIndex = null;
+let currentHls=null;
+let currentFiltered=[];
+let currentIndex=null;
 
-    /******************************
-     * Type detection helpers
-     ******************************/
-    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
-    function isHls(url) {
-      if (!url) return false;
-      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
-    }
-    function isYouTube(url) {
-      if (!url) return false;
-      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
-    }
-
-    /******************************
-     * Reset player container
-     ******************************/
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-    }
-
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function showError(msg) {
-      console.warn(msg);
-    }
-
-    /******************************
-     * Core: open player (Illumination logic)
-     ******************************/
-    function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
-      currentFiltered = list;
-      currentIndex = index;
-      const movie = list[index];
-      if (!movie) { showError('Movie missing'); return; }
-
-      // metadata
-      modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.title || '');
-
-      // reset & show
-      resetPlayerContainer();
-      showModal();
-
-      // pick src
-      let src = '';
-      if (typeof movie.video === 'object' && movie.video !== null) {
-        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
-      } else {
-        src = movie.video;
-      }
-      if (!src) {
-        showError('No video source');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
-        return;
-      }
-
-      const lc = (src || '').toLowerCase();
-
-      // iframe-hosted common hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // youtube
-      if (isYouTube(src)) {
-        let embed = src;
-        try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch (e) {}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // FORCE megacdn / playlist.m3u8 streams
-if (src.includes('megacdn.co') || src.includes('playlist.m3u8')) {
-
-  const v = document.getElementById(modalVideoId);
-  if (!v) { showError('Video element missing'); return; }
-
-  if (currentHls) {
-    currentHls.destroy();
-    currentHls = null;
-  }
-
-  if (Hls.isSupported()) {
-    currentHls = new Hls({
-      maxBufferLength: 30,
-      maxMaxBufferLength: 60,
-      enableWorker: true
-    });
-
-    currentHls.loadSource(src);
-    currentHls.attachMedia(v);
-
-    currentHls.on(Hls.Events.MANIFEST_PARSED, function () {
-      v.play().catch(()=>{});
-    });
-
-    currentHls.on(Hls.Events.ERROR, function (event, data) {
-      console.warn("MegaCDN HLS error:", data);
-    });
-
-  } 
-  else if (v.canPlayType('application/vnd.apple.mpegurl')) {
-    v.src = src;
-    v.load();
-    v.play().catch(()=>{});
-  }
-
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
+function isMP4(url){
+  return /\.mp4($|\?)/i.test((url||''));
 }
 
-      // HLS
-      if (isHls(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) { showError('Video element missing'); return; }
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-          currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-            }
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-        }
-        return;
-      }
+function isHls(url){
+  if(!url)return false;
 
-      // FORCE mp4-proxy (Workers) URLs with headers
-if (src.includes('workers.dev/mp4-proxy')) {
-  const v = document.getElementById(modalVideoId);
-  if (!v) { 
-    showError('Video element missing'); 
-    return; 
-  }
-
-  // reset HLS if any
-  if (currentHls) {
-    currentHls.destroy();
-    currentHls = null;
-  }
-
-  v.src = src;
-  v.crossOrigin = "anonymous"; // important for proxy streams
-  v.setAttribute("playsinline", "");
-  v.setAttribute("webkit-playsinline", "");
-
-  v.load();
-  v.play().catch(() => {});
-
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
+  return url.includes('.m3u8') ||
+         url.includes('index-') ||
+         /index.*\.txt/i.test(url) ||
+         url.includes('manifest') ||
+         url.includes('master');
 }
 
-       // FORCE Workers MP4 streams to use HTML5 video
-if (src.includes('workers.dev/mp4')) {
-  const v = document.getElementById(modalVideoId);
-  if (!v) { 
-    showError('Video element missing'); 
-    return; 
-  }
+function isYouTube(url){
+  if(!url)return false;
 
-  v.src = src;
-  v.setAttribute("playsinline", "");
-  v.setAttribute("webkit-playsinline", "");
-
-  v.load();
-  v.play().catch(() => {});
-
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
+  return url.includes('youtube.com') ||
+         url.includes('youtu.be') ||
+         url.includes('/embed/');
 }
 
-      // FORCE lizer123 /stream/ links to use HLS
-if (src.includes('lizer123.site') && src.includes('/stream/')) {
+function resetPlayerContainer(){
 
-  const v = document.getElementById(modalVideoId);
-  if (!v) { showError('Video element missing'); return; }
+  if(currentHls){
 
-  if (currentHls) {
-    currentHls.destroy();
-    currentHls = null;
+    try{
+      currentHls.destroy();
+    }catch(e){}
+
+    currentHls=null;
   }
 
-  if (Hls.isSupported()) {
-    currentHls = new Hls();
-    currentHls.loadSource(src);
-    currentHls.attachMedia(v);
-    currentHls.on(Hls.Events.MANIFEST_PARSED, function () {
-      v.play().catch(()=>{});
-    });
-  } 
-  else if (v.canPlayType('application/vnd.apple.mpegurl')) {
-    v.src = src;
-    v.load();
-    v.play().catch(()=>{});
-  }
+  playerWrapper.innerHTML=`
+    <video id="modalVideo" controls playsinline></video>
 
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
+    <button id="topCloseBtn">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+
+  document.getElementById('topCloseBtn')
+    .addEventListener('click',closeModalHandler);
 }
 
+function showModal(){
+  playbackModal.classList.add('active');
+  document.body.style.overflow='hidden';
+}
 
-      // MP4
-      if (isMP4(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
-        v.src = src;
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
+function hideModal(){
+  playbackModal.classList.remove('active');
+  document.body.style.overflow='';
+}
 
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
-    }
+function openPlayer(list,index){
 
-    /******************************
-     * Controls
-     ******************************/
-    function togglePlayPause() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-      }
-    }
-    function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
-    }
-    function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
-    }
-    function toggleFullscreen() {
-      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
-      } else {
-        document.exitFullscreen();
-      }
-    }
-    function toggleMute() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    }
+  currentFiltered=list;
+  currentIndex=index;
 
-    /******************************
-     * Close modal & cleanup
-     ******************************/
-    function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      const v = document.getElementById(modalVideoId);
-      if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
-      }
-      resetPlayerContainer();
-      hideModal();
-      currentIndex = null;
-      currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-    }
+  const movie=list[index];
 
-    /******************************
-     * Events wiring
-     ******************************/
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
-    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
-    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+  modalTitle.textContent=movie.title;
+  modalDesc.textContent=movie.description;
 
-    // close by clicking outside
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
+  resetPlayerContainer();
 
-    // Escape & keyboard
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-        case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
-      }
-    });
+  showModal();
 
-    /******************************
-     * Render movies and wire to openPlayer
-     ******************************/
-    const container = document.getElementById('movies');
+  let src='';
 
-    function renderMovies(moviesToRender) {
-      container.innerHTML = '';
-      moviesToRender.forEach((movie, index) => {
-        const delayClass = `delay-${(index % 5) * 100}`;
+  if(typeof movie.video==='object'){
+    src=movie.video.high ||
+        movie.video.medium ||
+        movie.video.low;
+  }else{
+    src=movie.video;
+  }
 
-        const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-lg sm:rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
-        div.innerHTML = `
-          <div class="relative overflow-hidden rounded-t-lg">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2 sm:p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-1 px-2 sm:py-2 sm:px-4 rounded-full transition transform hover:scale-105 text-xs sm:text-sm">
-                <i class="fas fa-play mr-1 sm:mr-2"></i> Watch Now
-              </button>
-            </div>
-          </div>
-          <div class="p-2 sm:p-3 md:p-4">
-            <h3 class="font-semibold text-sm sm:text-base md:text-lg truncate">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-1 sm:mt-2 text-xs sm:text-sm text-gray-400">
-              <span>${movie.year}</span>
-              <span>${movie.duration}</span>
-            </div>
-          </div>
-        `;
+  const lc=src.toLowerCase();
 
-        // Open modal and use movies array for prev/next
-        div.addEventListener('click', () => {
-          openPlayer(moviesToRender, index);
-        });
+  if(
+    lc.includes('mega.nz') ||
+    lc.includes('drive.google.com')
+  ){
 
-        container.appendChild(div);
-      });
-    }
+    playerWrapper.innerHTML=`
+      <iframe
+        src="${src}"
+        allowfullscreen
+        allow="autoplay; encrypted-media">
+      </iframe>
 
-    // Initial render
-    renderMovies(movies);
-
-    /******************************
-     * Backwards-compatible extras:
-     * Keep original search/category wiring but guard missing elements
-     ******************************/
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModalHandler);
-
-    // previous code referenced searchBar; guard that
-    const searchBarEl = document.getElementById('searchBar');
-    if (searchBarEl) {
-      searchBarEl.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const filteredMovies = movies.filter(movie => 
-          movie.title.toLowerCase().includes(searchTerm)
-        );
-        renderMovies(filteredMovies);
-      });
-    }
-
-    // Category tabs preservation (guard for existence)
-    document.querySelectorAll('.category-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Update active tab
-        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-
-        const category = this.dataset.category;
-        let filteredMovies;
-
-        if (category === 'all') {
-          filteredMovies = movies;
-        } else {
-          filteredMovies = movies.filter(movie => (movie.categories || []).includes(category));
-        }
-
-        renderMovies(filteredMovies);
-      });
-    });
-
-    /******************************
-     * Create floating stars background (existing)
-     ******************************/
-    function createStars(container, count, sizeRange, durationRange) {
-      for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'absolute rounded-full bg-white';
-
-        // Random position
-        const left = Math.random() * 100;
-        const top = Math.random() * 100;
-
-        // Random size
-        const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
-
-        // Random animation duration
-        const duration = durationRange[0] + Math.random() * (durationRange[1] - durationRange[0]);
-
-        star.style.left = `${left}%`;
-        star.style.top = `${top}%`;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.opacity = Math.random() * 0.5 + 0.1;
-        star.style.animation = `float ${duration}s infinite ease-in-out alternate`;
-        star.style.animationDelay = `${Math.random() * 5}s`;
-
-        container.appendChild(star);
-      }
-    }
-
-    const starsContainer = document.querySelector('.stars');
-    const starsContainer2 = document.querySelector('.stars2');
-    if (starsContainer) createStars(starsContainer, 50, [1, 3], [5, 15]);
-    if (starsContainer2) createStars(starsContainer2, 30, [2, 4], [10, 20]);
-
-    // Add floating animation
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @keyframes float {
-        0% { transform: translateY(0) translateX(0); }
-        50% { transform: translateY(-20px) translateX(10px); }
-        100% { transform: translateY(0) translateX(0); }
-      }
+      <button id="topCloseBtn">
+        <i class="fas fa-times"></i>
+      </button>
     `;
-    document.head.appendChild(style);
+
+    document.getElementById('topCloseBtn')
+      .addEventListener('click',closeModalHandler);
+
+    return;
+  }
+
+  if(isYouTube(src)){
+
+    playerWrapper.innerHTML=`
+      <iframe
+        src="${src}?autoplay=1"
+        allowfullscreen
+        allow="autoplay; encrypted-media">
+      </iframe>
+
+      <button id="topCloseBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+
+    document.getElementById('topCloseBtn')
+      .addEventListener('click',closeModalHandler);
+
+    return;
+  }
+
+  const v=document.getElementById('modalVideo');
+
+  if(isHls(src)){
+
+    if(Hls.isSupported()){
+
+      currentHls=new Hls();
+
+      currentHls.loadSource(src);
+
+      currentHls.attachMedia(v);
+
+      currentHls.on(Hls.Events.MANIFEST_PARSED,function(){
+
+        v.play().catch(()=>{});
+
+      });
+
+    }else if(v.canPlayType('application/vnd.apple.mpegurl')){
+
+      v.src=src;
+
+      v.play().catch(()=>{});
+    }
+
+  }else{
+
+    v.src=src;
+
+    v.play().catch(()=>{});
+  }
+}
+
+function togglePlayPause(){
+
+  const v=document.getElementById('modalVideo');
+
+  if(!v)return;
+
+  if(v.paused){
+
+    v.play().catch(()=>{});
+
+    playPauseBtn.innerHTML='<i class="fas fa-pause"></i>';
+
+  }else{
+
+    v.pause();
+
+    playPauseBtn.innerHTML='<i class="fas fa-play"></i>';
+  }
+}
+
+function playNext(){
+
+  if(currentIndex<currentFiltered.length-1){
+
+    openPlayer(currentFiltered,currentIndex+1);
+  }
+}
+
+function playPrev(){
+
+  if(currentIndex>0){
+
+    openPlayer(currentFiltered,currentIndex-1);
+  }
+}
+
+function toggleFullscreen(){
+
+  const el=document.getElementById('modalVideo') ||
+            playerWrapper.querySelector('iframe');
+
+  if(!el)return;
+
+  if(!document.fullscreenElement){
+
+    (el.requestFullscreen ||
+      playerWrapper.requestFullscreen)
+      .call(el);
+
+  }else{
+
+    document.exitFullscreen();
+  }
+}
+
+function toggleMute(){
+
+  const v=document.getElementById('modalVideo');
+
+  if(!v)return;
+
+  v.muted=!v.muted;
+
+  muteBtn.innerHTML=v.muted
+    ? '<i class="fas fa-volume-mute"></i>'
+    : '<i class="fas fa-volume-up"></i>';
+}
+
+function closeModalHandler(){
+
+  if(currentHls){
+
+    try{
+      currentHls.destroy();
+    }catch(e){}
+
+    currentHls=null;
+  }
+
+  const v=document.getElementById('modalVideo');
+
+  if(v){
+
+    try{
+      v.pause();
+    }catch(e){}
+
+    try{
+      v.removeAttribute('src');
+      v.load();
+    }catch(e){}
+  }
+
+  hideModal();
+
+  currentIndex=null;
+}
+
+playPauseBtn.addEventListener('click',togglePlayPause);
+nextBtn.addEventListener('click',playNext);
+prevBtn.addEventListener('click',playPrev);
+fullscreenBtn.addEventListener('click',toggleFullscreen);
+muteBtn.addEventListener('click',toggleMute);
+
+document.getElementById('closeBtn')
+  .addEventListener('click',closeModalHandler);
+
+document.getElementById('topCloseBtn')
+  .addEventListener('click',closeModalHandler);
+
+playbackModal.addEventListener('click',function(e){
+
+  if(e.target===playbackModal){
+
+    closeModalHandler();
+  }
+});
+
+document.addEventListener('keydown',(e)=>{
+
+  if(!playbackModal.classList.contains('active'))return;
+
+  switch(e.key.toLowerCase()){
+
+    case 'escape':
+      closeModalHandler();
+      break;
+
+    case ' ':
+      e.preventDefault();
+      togglePlayPause();
+      break;
+
+    case 'f':
+      toggleFullscreen();
+      break;
+
+    case 'm':
+      toggleMute();
+      break;
+
+    case 'n':
+      playNext();
+      break;
+
+    case 'p':
+      playPrev();
+      break;
+  }
+});
+
+const container=document.getElementById('movies');
+
+function renderMovies(moviesToRender){
+
+  container.innerHTML='';
+
+  moviesToRender.forEach((movie,index)=>{
+
+    const div=document.createElement('div');
+
+    div.className='movie-card';
+
+    div.innerHTML=`
+
+      <div class="poster-wrap">
+
+        <img
+          src="${movie.image}"
+          alt="${movie.title}"
+          class="movie-poster">
+
+        <div class="poster-overlay"></div>
+
+        <div class="play-overlay">
+
+          <button class="play-btn">
+            <i class="fas fa-play"></i>
+          </button>
+
+        </div>
+
+        <div class="movie-year">
+          ${movie.year}
+        </div>
+
+      </div>
+
+      <div class="movie-info">
+
+        <div class="movie-title">
+          ${movie.title}
+        </div>
+
+        <div class="movie-meta">
+
+          <span>${movie.language}</span>
+
+          <span>${movie.duration}</span>
+
+        </div>
+
+      </div>
+    `;
+
+    div.addEventListener('click',()=>{
+
+      openPlayer(moviesToRender,index);
+
+    });
+
+    container.appendChild(div);
+
+  });
+}
+
+renderMovies(movies);
 
 </script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
 
 
 
 
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
 
 </body>
 </html>
