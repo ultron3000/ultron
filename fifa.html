@@ -53,23 +53,23 @@
 
 <body>
 
-<div class="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
-  <header class="flex items-center justify-between mb-6 sm:mb-10 border-b border-gray-800 pb-4 sm:pb-5">
-    <a href="#" class="flex items-center gap-1.5 sm:gap-2">
-      <img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Logo" class="h-8 sm:h-10 drop-shadow-lg"/>
-      <span class="text-xs sm:text-sm font-bold tracking-wider text-gray-400 hidden sm:inline">Cloud TV</span>
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+  <header class="flex items-center justify-between mb-10 border-b border-gray-800 pb-5">
+    <a href="#" class="flex items-center gap-2">
+      <img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Logo" class="h-10 drop-shadow-lg"/>
+      <span class="text-sm font-bold tracking-wider text-gray-400 hidden sm:inline">Cloud TV</span>
     </a>
-    <h1 class="text-base sm:text-xl md:text-2xl font-bold text-yellow-400 flex items-center gap-1.5 sm:gap-2">
+    <h1 class="text-xl sm:text-2xl font-bold text-yellow-400 flex items-center gap-2">
       🏆 FIFA World Cup 2026 Match Center
     </h1>
-    <div class="w-8 sm:w-10"></div>
+    <div class="w-10"></div>
   </header>
 
   <div>
-    <h2 class="text-sm sm:text-lg font-semibold text-gray-400 mb-4 sm:mb-6 flex items-center gap-2">
+    <h2 class="text-lg font-semibold text-gray-400 mb-6 flex items-center gap-2">
       <i class="fas fa-calendar-alt text-yellow-400"></i> Tournament Fixtures & Replays
     </h2>
-    <div id="matchScheduleGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div id="matchScheduleGrid" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
     </div>
   </div>
 </div>
@@ -242,23 +242,23 @@
       let customCardClass = "";
 
       if (match.status === "COMPLETED") {
-        statusHtml = `<span class="bg-gray-700 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-semibold"><i class="fas fa-history mr-1"></i> FINISHED</span>`;
+        statusHtml = `<span class="bg-gray-700 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-semibold"><i class="fas fa-history mr-1"></i> REPLAY</span>`;
         actionButtonHtml = `
-          <button onclick="launchStream('${match.videoUrl}', '${match.teamA} vs ${match.teamB} (Replay)')" class="w-full mt-3 sm:mt-4 bg-gray-800 hover:bg-gray-700 text-yellow-400 font-bold py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm transition flex items-center justify-center gap-2 border border-yellow-400/20">
-            <i class="fas fa-play-circle text-[10px] sm:text-xs"></i> WATCH REPLAY
+          <button onclick="launchStream('${match.videoUrl}', '${match.teamA} vs ${match.teamB} (Replay)')" class="w-full mt-3 bg-gray-800 hover:bg-gray-700 text-yellow-400 font-bold py-2 rounded-lg text-xs transition flex items-center justify-center gap-1 border border-yellow-400/20">
+            <i class="fas fa-play-circle"></i> WATCH REPLAY
           </button>`;
       } else if (match.status === "LIVE") {
         customCardClass = "live-glow-card";
-        statusHtml = `<span class="bg-red-600 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold animate-pulse flex items-center gap-1.5"><span class="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-white block"></span> LIVE NOW</span>`;
+        statusHtml = `<span class="bg-red-600 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-bold animate-pulse flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-white block"></span> LIVE</span>`;
         actionButtonHtml = `
-          <button onclick="launchStream('${match.videoUrl}', '${match.teamA} vs ${match.teamB}')" class="w-full mt-3 sm:mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-2">
-            <i class="fas fa-play text-[10px] sm:text-xs"></i> WATCH LIVE
+          <button onclick="launchStream('${match.videoUrl}', '${match.teamA} vs ${match.teamB}')" class="w-full mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-lg shadow-red-600/30 flex items-center justify-center gap-1">
+            <i class="fas fa-play"></i> WATCH LIVE
           </button>`;
       } else {
-        statusHtml = `<span class="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium"><i class="fas fa-clock mr-1"></i> UPCOMING</span>`;
+        statusHtml = `<span class="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-medium"><i class="fas fa-clock mr-1"></i> UPCOMING</span>`;
         actionButtonHtml = `
-          <button disabled class="w-full mt-3 sm:mt-4 bg-gray-800 border border-gray-700 text-gray-500 font-medium py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm cursor-not-allowed">
-            COMING SOON
+          <button disabled class="w-full mt-3 bg-gray-800 border border-gray-700 text-gray-500 font-medium py-2 rounded-lg text-xs cursor-not-allowed uppercase">
+            SOON
           </button>`;
       }
 
@@ -266,25 +266,25 @@
         <div class="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden shadow-xl flex flex-col hover:border-yellow-400/30 transition-all duration-300 ${customCardClass}">
           <div class="relative aspect-video w-full bg-cover bg-center" style="background-image: url('${match.poster}')">
             <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent"></div>
-            <div class="absolute top-2.5 left-2.5 sm:top-3 sm:left-3">${statusHtml}</div>
+            <div class="absolute top-2 left-2">${statusHtml}</div>
           </div>
           <div class="p-3 sm:p-5 flex-1 flex flex-col justify-between">
             <div>
-              <div class="flex items-center justify-between gap-1 sm:gap-2 mb-3 sm:mb-4">
+              <div class="flex items-center justify-between gap-1 sm:gap-2 mb-3">
                 <div class="flex flex-col items-center flex-1 text-center min-w-0">
-                  <img src="${match.flagA}" class="w-7 h-5 sm:w-10 sm:h-7 object-cover rounded shadow-md border border-gray-800 mb-1" onerror="this.src='https://flagcdn.com/un.svg'" />
-                  <span class="text-xs sm:text-sm font-semibold text-white tracking-wide truncate w-full px-0.5">${match.teamA}</span>
+                  <img src="${match.flagA}" class="w-8 h-5 sm:w-10 sm:h-7 object-cover rounded shadow-md border border-gray-800 mb-1" onerror="this.src='https://flagcdn.com/un.svg'" />
+                  <span class="text-xs sm:text-sm font-semibold text-white tracking-wide truncate w-full">${match.teamA}</span>
                 </div>
-                <div class="flex flex-col items-center flex-shrink-0">
-                  <span class="text-xs sm:text-base font-black ${match.status === 'LIVE' ? 'text-red-500 bg-red-500/10' : 'text-yellow-400 bg-yellow-400/10'} px-2 sm:px-3 py-0.5 sm:py-1 rounded tracking-wide sm:tracking-widest">${match.score}</span>
+                <div class="flex flex-col items-center shrink-0">
+                  <span class="text-xs sm:text-base font-black ${match.status === 'LIVE' ? 'text-red-500 bg-red-500/10' : 'text-yellow-400 bg-yellow-400/10'} px-2 py-0.5 sm:px-3 sm:py-1 rounded tracking-wide sm:tracking-widest">${match.score}</span>
                 </div>
                 <div class="flex flex-col items-center flex-1 text-center min-w-0">
-                  <img src="${match.flagB}" class="w-7 h-5 sm:w-10 sm:h-7 object-cover rounded shadow-md border border-gray-800 mb-1" onerror="this.src='https://flagcdn.com/un.svg'" />
-                  <span class="text-xs sm:text-sm font-semibold text-white tracking-wide truncate w-full px-0.5">${match.teamB}</span>
+                  <img src="${match.flagB}" class="w-8 h-5 sm:w-10 sm:h-7 object-cover rounded shadow-md border border-gray-800 mb-1" onerror="this.src='https://flagcdn.com/un.svg'" />
+                  <span class="text-xs sm:text-sm font-semibold text-white tracking-wide truncate w-full">${match.teamB}</span>
                 </div>
               </div>
-              <p class="text-[10px] sm:text-xs text-gray-400 text-center border-t border-gray-800/60 pt-2.5 sm:pt-3">
-                <i class="far fa-calendar text-yellow-400/70 mr-1"></i> ${kickoff.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              <p class="text-[10px] sm:text-xs text-gray-400 text-center border-t border-gray-800/60 pt-2.5 truncate">
+                <i class="far fa-calendar text-yellow-400/70 mr-0.5"></i> ${kickoff.toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
             ${actionButtonHtml}
@@ -366,11 +366,23 @@
 
   window.onload = buildScheduleGrid;
 </script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
 
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
 <script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
 
+<!-- SOCIAL BAR -->
 <script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
 
+<!-- 160x600 BANNER -->
 <div style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
@@ -384,6 +396,7 @@
   <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
 </div>
 
+<!-- 728x90 BANNER -->
 <div style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
@@ -398,10 +411,17 @@
 </div>
 
 
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
 <script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
 
+<!-- SOCIAL BAR -->
 <script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
 
+<!-- 160x600 BANNER -->
 <div style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
@@ -415,6 +435,7 @@
   <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
 </div>
 
+<!-- 728x90 BANNER -->
 <div style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
@@ -428,6 +449,15 @@
   <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
 </div>
 
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
 <script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
 
 <script>
@@ -478,6 +508,7 @@ document.addEventListener("keydown", function (e) {
     // Ctrl+U
     if (e.ctrlKey && e.key.toLowerCase() === "u") {
         e.preventDefault();
+        e.stopPropagation();
         return false;
     }
 
