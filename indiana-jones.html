@@ -107,99 +107,101 @@
     .delay-300 { animation-delay: 0.2s; }
     .delay-400 { animation-delay: 0.3s; }
     
-    /* Illumination modal styles (responsive) */
+    /* Fixed & Upgraded Mobile Responsive Holographic Modal */
     .modal-backdrop { 
-      position:fixed; 
-      inset:0; 
+      position: fixed; 
+      inset: 0; 
       background: rgba(6, 4, 3, 0.95); 
-      display:none; 
-      align-items:center; 
-      justify-content:center; 
-      z-index:9999; 
-      padding: 0;
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 9999; 
+      padding: 12px;
       backdrop-filter: blur(10px);
     }
-    .modal-backdrop.active { display:flex; }
+    .modal-backdrop.active { display: flex; }
+    
     .modal-card { 
       width: 100%;
-      height: 100%;
       max-width: 1020px;
-      max-height: 100vh;
-      border-radius: 0;
-      overflow-y: auto;
       background: #0d0a07;
       border: 1px solid rgba(245, 158, 11, 0.25);
       box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+      border-radius: 16px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      max-height: 96vh;
     }
+    
     .player-wrapper { 
       position: relative;
       width: 100%;
       aspect-ratio: 16/9;
       background: #000;
     }
+    
     #topCloseBtn { 
       position: absolute;
       top: 12px;
       right: 12px;
-      z-index: 10;
+      z-index: 50;
       background: rgba(13, 10, 7, 0.85);
       color: #f59e0b;
       border: 1px solid rgba(245, 158, 11, 0.3);
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 1;
       transition: all 0.2s ease;
+      backdrop-filter: blur(4px);
     }
     #topCloseBtn:hover {
       background: #f59e0b;
       color: #0d0a07;
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
+    
     .player-wrapper video, 
     .player-wrapper iframe { 
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
+      border: none;
     }
 
     .player-meta { 
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      padding: 20px;
-      color: #f3f4f6;
+      gap: 12px;
+      padding: 14px;
       background: linear-gradient(to bottom, #16100b, #0d0a07);
       border-top: 1px solid rgba(161, 98, 7, 0.2);
+      overflow-y: auto;
     }
-    .player-meta .meta-left { 
-      width: 100%;
-    }
+    
     .player-meta h3 { 
       margin: 0;
       font-family: 'Cinzel', serif;
-      font-size: 1.35rem;
+      font-size: 1.15rem;
       color: var(--primary);
     }
+    
     .player-meta p { 
-      margin: 8px 0 0 0;
+      margin: 4px 0 0 0;
       color: #cbd5e1;
-      font-size: 0.95rem;
-      line-height: 1.5;
+      font-size: 0.8rem;
+      line-height: 1.4;
     }
 
+    /* Fixed Perfectly Proportioned Horizontal Grid Controls for Mobile */
     .controls-row { 
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: center;
+      display: grid;
+      grid-template-cols: repeat(3, 1fr);
+      gap: 6px;
       width: 100%;
     }
 
@@ -207,74 +209,75 @@
       background: rgba(22, 16, 11, 0.6);
       border: 1px solid var(--primary);
       color: var(--primary);
-      padding: 10px 16px;
-      border-radius: 8px;
+      padding: 8px 4px;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.7rem;
       font-weight: 500;
-      min-width: 65px;
-      flex: 1;
       text-align: center;
       display: flex;
+      flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 4px;
       transition: all 0.2s ease;
     }
+    
+    .btn i {
+      font-size: 0.8rem;
+    }
+
     .btn:hover { 
       background: var(--primary); 
       color: var(--secondary);
       box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
     }
-    .btn i {
-      font-size: 1rem;
+
+    /* Responsive Grid Adjustments */
+    @media (min-width: 640px) {
+      .controls-row {
+        grid-template-cols: repeat(6, 1fr);
+      }
+      .btn {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        gap: 6px;
+      }
+      .player-meta h3 { 
+        font-size: 1.25rem;
+      }
+      .player-meta p { 
+        font-size: 0.875rem;
+      }
     }
 
-    /* Responsive Grid and Modal Fixes */
     @media (min-width: 768px) {
-      .modal-card {
-        width: 90%;
-        height: auto;
-        border-radius: 16px;
-        max-height: 90vh;
-        overflow: hidden;
-      }
       .player-meta {
         flex-direction: row;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
+        padding: 20px;
       }
       .player-meta .meta-left {
-        max-width: 60%;
+        max-width: 45%;
       }
       .controls-row {
+        display: flex;
         flex-wrap: nowrap;
         justify-content: flex-end;
         width: auto;
+        gap: 8px;
       }
       .btn {
         flex: unset;
-        min-width: auto;
-        padding: 10px 16px;
+        min-width: 85px;
+        padding: 10px 14px;
       }
       #topCloseBtn {
         opacity: 0;
       }
       .player-wrapper:hover #topCloseBtn {
         opacity: 1;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .controls-row {
-        display: grid;
-        grid-template-cols: repeat(3, 1fr);
-      }
-      .btn {
-        padding: 12px 8px;
-        font-size: 0.8rem;
-        flex-direction: column;
-        gap: 4px;
       }
     }
 
@@ -353,32 +356,29 @@
   <div class="modal-card" role="dialog" aria-modal="true">
     <div class="player-wrapper" id="playerWrapper">
       <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
-        <i class="fas fa-times text-xl"></i>
+      <button id="topCloseBtn" aria-label="Dismiss Player">
+        <i class="fas fa-times"></i>
       </button>
     </div>
 
     <div class="player-meta">
-      <div class="meta-left">
+      <div class="meta-left mb-1 md:mb-0">
         <h3 id="modalTitle" class="adventure-heading">Title</h3>
-        <p id="modalDesc" class="text-sm text-gray-300"></p>
+        <p id="modalDesc" class="line-clamp-2 sm:line-clamp-none"></p>
       </div>
       <div class="controls-row">
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i>FS</button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i>Mute</button>
-        <button id="closeBtn" class="btn !border-red-700 !text-red-500 hover:!bg-red-700 hover:!text-white"><i class="fas fa-times"></i>Close</button>
+        <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i><span>Prev</span></button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i><span>Play</span></button>
+        <button id="nextBtn" class="btn"><i class="fas fa-step-forward"></i><span>Next</span></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i><span>FS</span></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i><span>Mute</span></button>
+        <button id="closeBtn" class="btn !border-red-700 !text-red-500 hover:!bg-red-700 hover:!text-white"><i class="fas fa-times"></i><span>Close</span></button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-    /******************************
-     * Movies array with your synopses mapped completely
-     ******************************/
     const movies = [
       { 
         title: "Raiders of the Lost Ark", 
@@ -422,9 +422,6 @@
       }  
     ];
 
-    /******************************
-     * DOM references
-     ******************************/
     const playbackModal = document.getElementById('playbackModal');
     const playerWrapper = document.getElementById('playerWrapper');
     const modalVideoId = 'modalVideo';
@@ -441,9 +438,6 @@
     let currentFiltered = [];
     let currentIndex = null;
 
-    /******************************
-     * Format detection utilities
-     ******************************/
     function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
     function isHls(url) {
       if (!url) return false;
@@ -454,15 +448,14 @@
       return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
     }
 
-    /******************************
-     * Reset Container Layer
-     ******************************/
     function resetPlayerContainer() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
         currentHls = null;
       }
-      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" aria-label="Dismiss Player"><i class="fas fa-times"></i></button>`;
+      document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
     }
 
     function showModal() {
@@ -474,9 +467,6 @@
       document.body.style.overflow = '';
     }
 
-    /******************************
-     * Open player core logic
-     ******************************/
     function openPlayer(list, index) {
       if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
       
@@ -485,7 +475,6 @@
       const movie = list[index];
       if (!movie) return;
 
-      // Inject your updated movie title and dynamic description layout here
       modalTitle.textContent = movie.title || '';
       modalDesc.textContent = movie.description || '';
 
@@ -505,14 +494,14 @@
 
       const lc = src.toLowerCase();
 
-      // Third-party cloud/iframe embed processing
       if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        <button id="topCloseBtn" aria-label="Dismiss Player"><i class="fas fa-times"></i></button>`;
+        document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
         return;
       }
 
-      // YouTube embeds
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -524,12 +513,13 @@
             if (p) embed = `https://www.youtube.com/embed/${p}`;
           }
         } catch (e) {}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        <button id="topCloseBtn" aria-label="Dismiss Player"><i class="fas fa-times"></i></button>`;
+        document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
         return;
       }
 
-      // HLS Engine processing
       if (isHls(src)) {
         const v = document.getElementById(modalVideoId);
         if (!v) return;
@@ -539,7 +529,7 @@
           currentHls.attachMedia(v);
           currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
             v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
           });
           currentHls.on(Hls.Events.ERROR, function(event, data) {
             if (data && data.fatal) {
@@ -551,38 +541,34 @@
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
         } else {
           setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
         }
         return;
       }
 
-      // Native MP4 processing
       if (isMP4(src)) {
         const v = document.getElementById(modalVideoId);
         if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
         v.src = src;
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
         return;
       }
 
       window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
-    /******************************
-     * Control UI Interactions
-     ******************************/
     function togglePlayPause() {
       const v = document.getElementById(modalVideoId);
       if (!v) return;
       if (v.paused) {
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
       } else {
         v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>Play';
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
       }
     }
     function playNext() {
@@ -608,7 +594,7 @@
       const v = document.getElementById(modalVideoId);
       if (!v) return;
       v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>Unmute' : '<i class="fas fa-volume-up"></i>Mute';
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i><span>Unmute</span>' : '<i class="fas fa-volume-up"></i><span>Mute</span>';
     }
 
     function closeModalHandler() {
@@ -625,19 +611,15 @@
       hideModal();
       currentIndex = null;
       currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play"></i>Play';
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
     }
 
-    /******************************
-     * Event Listeners Wiring
-     ******************************/
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
     prevBtn.addEventListener('click', playPrev);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     muteBtn.addEventListener('click', toggleMute);
     document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
-    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
 
     playbackModal.addEventListener('click', function(e){
       if (e.target === playbackModal) closeModalHandler();
@@ -655,9 +637,6 @@
       }
     });
 
-    /******************************
-     * Render functions
-     ******************************/
     const container = document.getElementById('movies');
 
     function renderMovies(moviesToRender) {
@@ -693,12 +672,8 @@
       });
     }
 
-    // Initial load call
     renderMovies(movies);
 
-    /******************************
-     * Ambient FX Setup
-     ******************************/
     function createDust() {
       const ambientContainer = document.getElementById('dust-ambient');
       if (!ambientContainer) return;
@@ -721,7 +696,327 @@
     }
     createDust();
 </script>
- 
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
 
 </body>
 </html>
