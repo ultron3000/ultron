@@ -104,8 +104,8 @@
     
     .delay-100 { animation-delay: 0.1s; }
     .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
-    .delay-400 { animation-delay: 0.4s; }
+    .delay-300 { animation-delay: 0.2s; }
+    .delay-400 { animation-delay: 0.3s; }
     
     /* Illumination modal styles (responsive) */
     .modal-backdrop { 
@@ -124,9 +124,9 @@
       width: 100%;
       height: 100%;
       max-width: 1020px;
-      max-height: 90vh;
+      max-height: 100vh;
       border-radius: 0;
-      overflow: hidden;
+      overflow-y: auto;
       background: #0d0a07;
       border: 1px solid rgba(245, 158, 11, 0.25);
       box-shadow: 0 30px 80px rgba(0,0,0,0.9);
@@ -135,8 +135,8 @@
     }
     .player-wrapper { 
       position: relative;
-      flex: 1;
-      min-height: 0;
+      width: 100%;
+      aspect-ratio: 16/9;
       background: #000;
     }
     #topCloseBtn { 
@@ -176,7 +176,7 @@
       padding: 20px;
       color: #f3f4f6;
       background: linear-gradient(to bottom, #16100b, #0d0a07);
-      border-t: 1px solid rgba(161, 98, 7, 0.2);
+      border-top: 1px solid rgba(161, 98, 7, 0.2);
     }
     .player-meta .meta-left { 
       width: 100%;
@@ -186,18 +186,12 @@
       font-family: 'Cinzel', serif;
       font-size: 1.35rem;
       color: var(--primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .player-meta p { 
       margin: 8px 0 0 0;
       color: #cbd5e1;
       font-size: 0.95rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      line-height: 1.5;
     }
 
     .controls-row { 
@@ -206,6 +200,7 @@
       gap: 10px;
       align-items: center;
       justify-content: center;
+      width: 100%;
     }
 
     .btn {
@@ -235,22 +230,19 @@
       font-size: 1rem;
     }
 
-    /* Responsive adjustments */
+    /* Responsive Grid and Modal Fixes */
     @media (min-width: 768px) {
       .modal-card {
         width: 90%;
         height: auto;
         border-radius: 16px;
-        max-height: 85vh;
-      }
-      .player-wrapper {
-        padding-bottom: 56.25%;
-        height: 0;
+        max-height: 90vh;
+        overflow: hidden;
       }
       .player-meta {
         flex-direction: row;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-start;
       }
       .player-meta .meta-left {
         max-width: 60%;
@@ -258,9 +250,10 @@
       .controls-row {
         flex-wrap: nowrap;
         justify-content: flex-end;
+        width: auto;
       }
       .btn {
-        flex: 0;
+        flex: unset;
         min-width: auto;
         padding: 10px 16px;
       }
@@ -273,60 +266,15 @@
     }
 
     @media (max-width: 480px) {
-      .btn {
-        padding: 10px;
-        font-size: 0;
-      }
-      .btn i {
-        font-size: 1.1rem;
-        margin: 0 !important;
-      }
-    }
-
-    /* Modal legacy styles (unused) */
-    .modal-overlay { display:none; }
-    
-   /* ============================
-   DESKTOP FIX — DOES NOT TOUCH MOBILE
-   ============================ */
-    @media (min-width: 768px) {
-      .player-wrapper {
-        padding-bottom: 0 !important;     
-        height: auto !important;
-        max-height: 55vh !important;       
-        position: relative !important;
-      }
-    
-      .player-wrapper video,
-      .player-wrapper iframe {
-        height: 100% !important;
-        max-height: 55vh !important;
-        position: relative !important;
-      }
-    
-      .player-meta {
-        position: relative !important;
-        z-index: 100 !important;
-        background: #110d09 !important;      
-        padding: 16px 24px !important;
-      }
-    
       .controls-row {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        gap: 12px !important;
+        display: grid;
+        grid-template-cols: repeat(3, 1fr);
       }
-    
       .btn {
-        min-width: 95px !important;
-        padding: 10px 16px !important;
-        flex: unset !important;
-      }
-    
-      .modal-card {
-        max-height: 85vh !important;
-        overflow: visible !important;
+        padding: 12px 8px;
+        font-size: 0.8rem;
+        flex-direction: column;
+        gap: 4px;
       }
     }
 
@@ -342,7 +290,7 @@
       border-radius: 50%;
       pointer-events: none;
     }
-  </style>
+</style>
 </head>
 <body class="relative">
 
@@ -352,7 +300,7 @@
 
 <div class="container mx-auto px-4 py-8 max-w-7xl">
 
-  <div class="relative w-full h-[320px] md:h-[480px] overflow-hidden rounded-2xl border border-amber-900/40 shadow-2xl mb-12">
+  <div class="relative w-full h-[240px] sm:h-[320px] md:h-[480px] overflow-hidden rounded-2xl border border-amber-900/40 shadow-2xl mb-8 md:mb-12">
     <iframe 
       src="https://www.youtube.com/embed/K1R4hHq8yr4?autoplay=1&mute=1&loop=1&playlist=K1R4hHq8yr4&controls=0&modestbranding=1&showinfo=0&rel=0"
       frameborder="0" 
@@ -363,14 +311,14 @@
     <div class="absolute inset-0 bg-gradient-to-t from-[#0d0a07] via-transparent to-black/40"></div>
     <div class="absolute inset-0 bg-gradient-to-r from-[#0d0a07]/80 via-transparent to-transparent"></div>
 
-    <div class="absolute bottom-0 left-0 p-6 md:p-12 z-10 max-w-2xl">
-      <span class="text-amber-500 uppercase tracking-widest font-semibold text-xs md:text-sm bg-amber-950/60 px-3 py-1 rounded-full border border-amber-800/40 backdrop-blur-sm inline-block mb-3">
+    <div class="absolute bottom-0 left-0 p-4 sm:p-6 md:p-12 z-10 max-w-2xl">
+      <span class="text-amber-500 uppercase tracking-widest font-semibold text-[10px] sm:text-xs bg-amber-950/60 px-3 py-1 rounded-full border border-amber-800/40 backdrop-blur-sm inline-block mb-2 sm:mb-3">
         Legendary Anthology
       </span>
-      <h1 class="adventure-heading header-glow text-4xl md:text-6xl font-black uppercase mb-3 leading-none">
+      <h1 class="adventure-heading header-glow text-3xl sm:text-4xl md:text-6xl font-black uppercase mb-2 sm:mb-3 leading-none">
         Indiana Jones
       </h1>
-      <p class="text-gray-300 text-sm md:text-base line-clamp-3 font-light drop-shadow-md">
+      <p class="text-gray-300 text-xs sm:text-sm md:text-base line-clamp-2 sm:line-clamp-3 font-light drop-shadow-md">
         Fortune and glory, kid. Revisit all the iconic archaeological expeditions, ancient traps, legendary artifacts, and timeless cliffhangers across the ultimate treasure hunting franchise.
       </p>
     </div>
@@ -378,14 +326,14 @@
 
   <div class="flex items-center gap-4 mb-8">
     <div class="h-px bg-gradient-to-r from-amber-500 to-transparent flex-1"></div>
-    <h2 class="adventure-heading text-amber-500 font-bold text-xl uppercase tracking-wider flex items-center gap-2">
-      <i class="fas fa-compass animate-spin-slow text-amber-600"></i> Complete Expedition Collection
+    <h2 class="adventure-heading text-amber-500 font-bold text-sm sm:text-base md:text-xl uppercase tracking-wider flex items-center gap-2">
+      <i class="fas fa-compass fa-spin text-amber-600" style="animation-duration: 20s;"></i> Complete Expedition Collection
     </h2>
     <div class="h-px bg-gradient-to-l from-amber-500 to-transparent flex-1"></div>
   </div>
 
   <div class="mb-16">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6" id="movies"></div>
   </div>
 
   <div class="border-t border-amber-950/60 mt-16 pt-8 pb-4 text-center">
@@ -395,7 +343,7 @@
       <a href="https://www.instagram.com/stark_4152/reels" target="_blank" class="text-amber-700 hover:text-amber-400 text-lg transition-colors"><i class="fab fa-instagram"></i></a>
       <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" target="_blank" class="text-amber-700 hover:text-amber-400 text-lg transition-colors"><i class="fab fa-youtube"></i></a>
     </div>
-    <p class="text-xs text-amber-800 tracking-widest uppercase font-medium">
+    <p class="text-[10px] sm:text-xs text-amber-800 tracking-widest uppercase font-medium">
       &copy; 2026 Archaeological Media Systems Inc.
     </p>
   </div>
@@ -412,16 +360,16 @@
 
     <div class="player-meta">
       <div class="meta-left">
-        <h3 id="modalTitle">Title</h3>
-        <p id="modalDesc" class="text-sm"></p>
+        <h3 id="modalTitle" class="adventure-heading">Title</h3>
+        <p id="modalDesc" class="text-sm text-gray-300"></p>
       </div>
       <div class="controls-row">
         <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i>Prev</button>
         <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i>Play</button>
         <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i>FS</button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i>Mute</button>
+        <button id="closeBtn" class="btn !border-red-700 !text-red-500 hover:!bg-red-700 hover:!text-white"><i class="fas fa-times"></i>Close</button>
       </div>
     </div>
   </div>
@@ -429,18 +377,53 @@
 
 <script>
     /******************************
-     * Existing movies array (unchanged)
+     * Movies array with your synopses mapped completely
      ******************************/
     const movies = [
-      { title: "Raiders of the Lost Ark", video: "https://mega.nz/embed/SoAFjSoZ#4w5K5V09mzh_faBJYGHJ62-A0F8ZqoFGp1kUxNzHyoY", image: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/13638a27784165.5636aaef0b9f2.jpg", category: "other", year: 1981 },
-      { title: "Indiana Jones and the Temple of Doom", video: "https://mega.nz/embed/ukZXka7B#YDBUvLfEbuVsH87Wl-coYUulMArf0amRCHxfuFdvxtI", image: "https://image.tmdb.org/t/p/w500/gpdVNUaa4LhRMLfJOPj1AZdhAZ3.jpg", category: "other", year: 1984 },
-      { title: "Indiana Jones and the Last Crusade", video: "https://mega.nz/embed/nsQDgbKK#4oDk8d7AzUR-PFT00NnnqO0Ps_Tzha4MCtLFodGb6DA", image: "https://image.tmdb.org/t/p/w500/sizg1AU8f8JDZX4QIgE4pjUMBvx.jpg", category: "other", year: 1989 },
-      { title: "Indiana Jones and the Kingdom of the Crystal Skull", video: "https://mega.nz/embed/O04VzCJZ#gCfE1IyhJouj9d6G2ZU2KAZOKn27jzw51VIVJ3oAEQM", image: "https://a.ltrbxd.com/resized/film-poster/5/1/8/3/9/51839-indiana-jones-and-the-kingdom-of-the-crystal-skull-0-230-0-345-crop.jpg?v=3dfe92e26e", category: "other", year: 2008 },
-      { title: "Indiana Jones and the Dial of Destiny", video: "https://mega.nz/embed/r1wgRaoC#db6G7pBdZ7GMvFndSKy0ei865SfmPldiE_pg-ZoXcoM", image: "https://image.tmdb.org/t/p/w500/Af4bXE63pVsb2FtbW8uYIyPBadD.jpg", category: "other", year: 2023 }  
+      { 
+        title: "Raiders of the Lost Ark", 
+        video: "https://mega.nz/embed/SoAFjSoZ#4w5K5V09mzh_faBJYGHJ62-A0F8ZqoFGp1kUxNzHyoY", 
+        image: "https://mir-s3-cdn-cf.behance.net/project_modules/1400/13638a27784165.5636aaef0b9f2.jpg", 
+        category: "other", 
+        year: 1981,
+        description: "In 1936, archaeologist Indiana Jones is tasked by Army Intelligence to help locate a legendary ancient power, the Ark of Covenant, before the Nazis get it first."
+      },
+      { 
+        title: "Indiana Jones and the Temple of Doom", 
+        video: "https://mega.nz/embed/ukZXka7B#YDBUvLfEbuVsH87Wl-coYUulMArf0amRCHxfuFdvxtI", 
+        image: "https://image.tmdb.org/t/p/w500/gpdVNUaa4LhRMLfJOPj1AZdhAZ3.jpg", 
+        category: "other", 
+        year: 1984,
+        description: "In 1935, Indiana Jones is tasked by Indian villagers with reclaiming a sacred stone stolen from them by a secret cult."
+      },
+      { 
+        title: "Indiana Jones and the Last Crusade", 
+        video: "https://mega.nz/embed/nsQDgbKK#4oDk8d7AzUR-PFT00NnnqO0Ps_Tzha4MCtLFodGb6DA", 
+        image: "https://image.tmdb.org/t/p/w500/sizg1AU8f8JDZX4QIgE4pjUMBvx.jpg", 
+        category: "other", 
+        year: 1989,
+        description: "In 1938, after his father goes missing while pursuing the Holy Grail, Indiana Jones finds himself up against the Nazis again to stop them from obtaining its powers."
+      },
+      { 
+        title: "Indiana Jones and the Kingdom of the Crystal Skull", 
+        video: "https://mega.nz/embed/O04VzCJZ#gCfE1IyhJouj9d6G2ZU2KAZOKn27jzw51VIVJ3oAEQM", 
+        image: "https://a.ltrbxd.com/resized/film-poster/5/1/8/3/9/51839-indiana-jones-and-the-kingdom-of-the-crystal-skull-0-230-0-345-crop.jpg?v=3dfe92e26e", 
+        category: "other", 
+        year: 2008,
+        description: "In 1957, Indiana Jones is called back into action when he becomes entangled in a Soviet plot to uncover the secret behind mysterious artifacts known as the Crystal Skulls."
+      },
+      { 
+        title: "Indiana Jones and the Dial of Destiny", 
+        video: "https://mega.nz/embed/r1wgRaoC#db6G7pBdZ7GMvFndSKy0ei865SfmPldiE_pg-ZoXcoM", 
+        image: "https://image.tmdb.org/t/p/w500/Af4bXE63pVsb2FtbW8uYIyPBadD.jpg", 
+        category: "other", 
+        year: 2023,
+        description: "Archaeologist Indiana Jones races against time to retrieve a legendary artifact that can change the course of history."
+      }  
     ];
 
     /******************************
-     * DOM refs for modal controls
+     * DOM references
      ******************************/
     const playbackModal = document.getElementById('playbackModal');
     const playerWrapper = document.getElementById('playerWrapper');
@@ -459,7 +442,7 @@
     let currentIndex = null;
 
     /******************************
-     * Type detection helpers
+     * Format detection utilities
      ******************************/
     function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
     function isHls(url) {
@@ -472,7 +455,7 @@
     }
 
     /******************************
-     * Reset player container
+     * Reset Container Layer
      ******************************/
     function resetPlayerContainer() {
       if (currentHls) {
@@ -491,32 +474,24 @@
       document.body.style.overflow = '';
     }
 
-    function showError(msg) {
-      console.warn(msg);
-    }
-
     /******************************
-     * Core: open player (Illumination logic)
+     * Open player core logic
      ******************************/
     function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      
       currentFiltered = list;
       currentIndex = index;
       const movie = list[index];
-      if (!movie) { showError('Movie missing'); return; }
+      if (!movie) return;
 
-      // metadata
+      // Inject your updated movie title and dynamic description layout here
       modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.title || '');
+      modalDesc.textContent = movie.description || '';
 
-      // reset & show
       resetPlayerContainer();
       showModal();
 
-      // pick src
       let src = '';
       if (typeof movie.video === 'object' && movie.video !== null) {
         src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
@@ -524,21 +499,20 @@
         src = movie.video;
       }
       if (!src) {
-        showError('No video source');
         setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
         return;
       }
 
-      const lc = (src || '').toLowerCase();
+      const lc = src.toLowerCase();
 
-      // iframe-hosted common hosts
+      // Third-party cloud/iframe embed processing
       if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
         playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
         return;
       }
 
-      // youtube
+      // YouTube embeds
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -551,89 +525,81 @@
           }
         } catch (e) {}
         playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
         return;
       }
 
-      // HLS
+      // HLS Engine processing
       if (isHls(src)) {
         const v = document.getElementById(modalVideoId);
-        if (!v) { showError('Video element missing'); return; }
+        if (!v) return;
         if (window.Hls && Hls.isSupported()) {
           currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
           currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
             v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
           });
           currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
             if (data && data.fatal) {
               try { currentHls.destroy(); } catch(e){}
               currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
               setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
             }
           });
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
         } else {
-          showError('HLS not supported — redirecting to player.html');
           setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
         }
         return;
       }
 
-      // MP4
+      // Native MP4 processing
       if (isMP4(src)) {
         const v = document.getElementById(modalVideoId);
         if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
         v.src = src;
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
         return;
       }
 
-      // fallback
       window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
     /******************************
-     * Controls
+     * Control UI Interactions
      ******************************/
     function togglePlayPause() {
       const v = document.getElementById(modalVideoId);
       if (!v) return;
       if (v.paused) {
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>Pause';
       } else {
         v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>Play';
       }
     }
     function playNext() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
+      if (currentIndex == null) return;
       if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
     }
     function playPrev() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
+      if (currentIndex == null) return;
       if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
     }
     function toggleFullscreen() {
       const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
       if (!el) return;
       if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
       } else {
         document.exitFullscreen();
       }
@@ -642,12 +608,9 @@
       const v = document.getElementById(modalVideoId);
       if (!v) return;
       v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>Unmute' : '<i class="fas fa-volume-up"></i>Mute';
     }
 
-    /******************************
-     * Close modal & cleanup
-     ******************************/
     function closeModalHandler() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -662,11 +625,11 @@
       hideModal();
       currentIndex = null;
       currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i>Play';
     }
 
     /******************************
-     * Events wiring
+     * Event Listeners Wiring
      ******************************/
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
@@ -676,12 +639,10 @@
     document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
     document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
 
-    // close by clicking outside
     playbackModal.addEventListener('click', function(e){
       if (e.target === playbackModal) closeModalHandler();
     });
 
-    // Escape & keyboard
     document.addEventListener('keydown', (e) => {
       if (!playbackModal.classList.contains('active')) return;
       switch (e.key.toLowerCase()) {
@@ -691,13 +652,11 @@
         case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
         case 'f': toggleFullscreen(); break;
         case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
       }
     });
 
     /******************************
-     * Render movies and wire to openPlayer
+     * Render functions
      ******************************/
     const container = document.getElementById('movies');
 
@@ -711,22 +670,21 @@
         div.innerHTML = `
           <div class="relative overflow-hidden rounded-t-xl aspect-[2/3]">
             <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0d0a07] via-[#0d0a07]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-4">
-              <button class="bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold py-2.5 px-5 rounded-full transition transform hover:scale-105 shadow-lg flex items-center gap-2 text-sm uppercase tracking-wider">
-                <i class="fas fa-play"></i> Explore
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0d0a07] via-[#0d0a07]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-3 sm:p-4">
+              <button class="bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold py-2 px-4 sm:px-5 rounded-full transition transform hover:scale-105 shadow-lg flex items-center gap-2 text-xs sm:text-sm uppercase tracking-wider">
+                <i class="fas fa-play"></i> Play
               </button>
             </div>
           </div>
-          <div class="p-4 bg-gradient-to-b from-transparent to-black/40">
-            <h3 class="font-semibold text-amber-100 group-hover:text-amber-400 transition-colors text-base truncate adventure-heading">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-1 text-xs text-amber-700 font-medium">
+          <div class="p-3 sm:p-4 bg-gradient-to-b from-transparent to-black/40">
+            <h3 class="font-semibold text-amber-100 group-hover:text-amber-400 transition-colors text-xs sm:text-sm md:text-base truncate adventure-heading">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-2 text-[10px] sm:text-xs text-amber-700 font-medium">
               <span class="bg-amber-950/40 px-2 py-0.5 rounded border border-amber-900/30">${movie.year}</span>
-              <span class="uppercase tracking-widest text-[10px] text-amber-600"><i class="fas fa-film mr-1"></i>Movie</span>
+              <span class="uppercase tracking-widest text-[9px] sm:text-[10px] text-amber-600"><i class="fas fa-film mr-1"></i>Movie</span>
             </div>
           </div>
         `;
 
-        // Open modal and use movies array for prev/next
         div.addEventListener('click', () => {
           openPlayer(moviesToRender, index);
         });
@@ -735,66 +693,28 @@
       });
     }
 
-    // Initial render
+    // Initial load call
     renderMovies(movies);
 
     /******************************
-     * Backwards-compatible extras:
-     * Keep original search/category wiring but guard missing elements
-     ******************************/
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModalHandler);
-
-    const searchBarEl = document.getElementById('searchBar');
-    if (searchBarEl) {
-      searchBarEl.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const filteredMovies = movies.filter(movie => 
-          movie.title.toLowerCase().includes(searchTerm)
-        );
-        renderMovies(filteredMovies);
-      });
-    }
-
-    document.querySelectorAll('.category-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-
-        const category = this.dataset.category;
-        let filteredMovies;
-
-        if (category === 'all') {
-          filteredMovies = movies;
-        } else {
-          filteredMovies = movies.filter(movie => (movie.categories || []).includes(category));
-        }
-
-        renderMovies(filteredMovies);
-      });
-    });
-
-    /******************************
-     * Create floating dust particles background
+     * Ambient FX Setup
      ******************************/
     function createDust() {
       const ambientContainer = document.getElementById('dust-ambient');
       if (!ambientContainer) return;
       
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 30; i++) {
         const particle = document.createElement('div');
         particle.className = 'dust-particle';
-        
-        const size = Math.random() * 6 + 2;
+        const size = Math.random() * 5 + 2;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
-        
         particle.style.left = `${Math.random() * 100}%`;
         particle.style.top = `${Math.random() * 100}%`;
         
         const duration = Math.random() * 12 + 8;
         particle.style.animation = `ArcheoFloat ${duration}s infinite ease-in-out alternate`;
-        particle.style.animationDelay = `${Math.random() * 6}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
         
         ambientContainer.appendChild(particle);
       }
