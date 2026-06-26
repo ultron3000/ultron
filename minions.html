@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>MINIONS</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+   :root{
+    --primary:#FFD400;          /* Minion Yellow */
+    --secondary:#165AA7;        /* Denim Blue */
+    --accent:#FFE566;           /* Banana Yellow */
+    --dark:#103A71;
+    --white:#ffffff;
+}
+    
+  body {
+  font-family:'Poppins',sans-serif;
+  background:
+      radial-gradient(circle at top,#fffbe8 0%,#ffe86c 40%,#ffd400 100%);
+  color:#103A71;
+  min-height:100vh;
+  margin:0;
+  padding:0;
+  overflow-x:hidden;
+}
+    
+    .super-heading {
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    /* Holographic Movie Cards */
+   .movie-card{
+
+position:relative;
+
+overflow:hidden;
+
+transition:.35s ease;
+
+background:rgba(255,255,255,.28);
+
+backdrop-filter:blur(14px);
+
+-webkit-backdrop-filter:blur(14px);
+
+border:2px solid rgba(255,255,255,.55);
+
+border-radius:22px;
+
+box-shadow:
+
+0 10px 30px rgba(0,0,0,.15);
+
+}
+    
+   .movie-card:hover{
+
+transform:translateY(-8px) scale(1.03);
+
+border-color:#165AA7;
+
+box-shadow:
+
+0 18px 35px rgba(0,0,0,.22),
+
+0 0 25px rgba(22,90,167,.3);
+
+}
+.movie-card::before{
+
+content:"";
+
+position:absolute;
+
+top:-120%;
+
+left:-70%;
+
+width:60%;
+
+height:300%;
+
+background:linear-gradient(
+
+90deg,
+
+transparent,
+
+rgba(255,255,255,.5),
+
+transparent
+
+);
+
+transform:rotate(25deg);
+
+animation:cardShine 5s linear infinite;
+
+pointer-events:none;
+
+}
+
+@keyframes cardShine{
+
+0%{
+
+left:-80%;
+
+}
+
+100%{
+
+left:180%;
+
+}
+
+}
+    
+    .holo-glow-text {
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.6), 0 0 25px rgba(255, 30, 39, 0.4);
+    }
+    
+   .movie-poster{
+
+aspect-ratio:2/3;
+
+transition:.4s;
+
+border-radius:18px;
+
+}
+    
+    .movie-card:hover .movie-poster {
+      transform: scale(1.04);
+    }
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #050814;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    }
+    
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    
+    /* Fixed & Upgraded Mobile Responsive Holographic Modal */
+    .modal-backdrop { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(2, 4, 10, 0.92); 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 9999; 
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 12px;
+    }
+    .modal-backdrop.active { display: flex; }
+    
+    .modal-card { 
+      width: 100%;
+      max-width: 960px;
+      background: rgba(10, 16, 30, 0.85);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(255, 30, 39, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 96vh;
+    }
+    
+    .player-wrapper { 
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    }
+
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    #topCloseBtn { 
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 50;
+      background: rgba(5, 8, 20, 0.8);
+      color: var(--primary);
+      border: 1px solid rgba(255, 30, 39, 0.4);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(4px);
+    }
+    #topCloseBtn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 0 15px var(--primary);
+    }
+
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px;
+      background: linear-gradient(to bottom, rgba(13, 21, 39, 0.95), rgba(5, 8, 20, 0.95));
+      border-top: 1px solid rgba(0, 240, 255, 0.15);
+      overflow-y: auto;
+    }
+
+    .player-meta h3 { 
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.15rem;
+      color: #ffffff;
+      font-weight: 800;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    .player-meta p { 
+      margin: 4px 0 0 0;
+      color: #9cb0d4;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    /* Fixed Perfectly Proportioned Horizontal Grid Controls for Mobile */
+    .controls-row { 
+      display: grid;
+      grid-template-cols: repeat(3, 1fr);
+      gap: 6px;
+      width: 100%;
+    }
+
+    .btn {
+      background: rgba(5, 8, 20, 0.6);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--accent);
+      padding: 8px 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-align: center;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+    
+    .btn i {
+      font-size: 0.8rem;
+    }
+
+    .btn{
+
+background:#165AA7;
+
+border:none;
+
+color:white;
+
+padding:8px 10px;
+
+border-radius:12px;
+
+cursor:pointer;
+
+font-size:.72rem;
+
+font-weight:700;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+gap:5px;
+
+transition:.25s;
+
+box-shadow:
+
+0 4px 12px rgba(0,0,0,.25);
+
+}
+
+    /* Responsive Grid Adjustments */
+    @media (min-width: 640px) {
+      .controls-row {
+        grid-template-cols: repeat(6, 1fr);
+      }
+      .btn {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        gap: 6px;
+      }
+      .player-meta h3 { 
+        font-size: 1.25rem;
+      }
+      .player-meta p { 
+        font-size: 0.875rem;
+      }
+    }
+
+    @media (min-width: 850px) {
+      .player-meta {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+      }
+      .player-meta .meta-left {
+        max-width: 45%;
+      }
+      .controls-row {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        width: auto;
+        gap: 8px;
+      }
+      .btn {
+        flex: unset;
+        min-width: 85px;
+        padding: 10px 14px;
+      }
+    }
+
+    @keyframes NodeFloat {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.1; }
+      50% { transform: translateY(-40px) translateX(20px) scale(1.4); opacity: 0.3; }
+      100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.1; }
+    }
+    .network-node {
+      position: absolute;
+      background: radial-gradient(circle at top,#102a58 0%,#08142b 60%,#03060f 100%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+</style>
+</head>
+<body class="relative">
+
+<div class="fixed inset-0 overflow-hidden -z-10" id="krypton-ambient">
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[#050814]/80 to-[#02040a]"></div>
+</div>
+<div class="banana-bg">
+
+<span>🍌</span>
+<span>🍌</span>
+<span>🍌</span>
+<span>🍌</span>
+<span>🍌</span>
+
+</div>
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+
+  <div class="relative w-full h-[220px] sm:h-[300px] md:h-[440px] overflow-hidden rounded-2xl border border-cyan-500/20 shadow-[0_0_40px_rgba(0,0,0,0.7)] mb-8">
+    <iframe 
+      src="https://www.youtube.com/embed/FgE0dL17Fnc?autoplay=1&mute=1&loop=1&playlist=V-O-uBaHk3c&controls=0&modestbranding=1&showinfo=0&rel=0"
+      frameborder="0" 
+      allow="autoplay; fullscreen" 
+      class="absolute top-0 left-0 w-full h-full object-cover scale-110 pointer-events-none opacity-40">
+    </iframe>
+    
+    <div class="absolute inset-0 bg-gradient-to-t from-[#050814] via-transparent to-black/20"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-[#050814]/95 via-transparent to-transparent"></div>
+
+    <div class="absolute top-4 left-4 z-20 flex items-center gap-3">
+      <img 
+        src="https://www.freelogovectors.net/wp-content/uploads/2023/04/minions-logo-03-freelogovectors.net_.png" 
+        alt="Spider-Man Multiverse Symbol" 
+        class="h-10 sm:h-14 md:h-18 rounded-full border border-cyan-400/30 p-0.5 bg-black/60 backdrop-blur-md shadow-[0_0_15px_rgba(0,240,255,0.2)]"
+      />
+    </div>
+
+    <div class="absolute bottom-0 left-0 p-4 sm:p-6 md:p-10 z-10 max-w-2xl">
+      <span class="text-cyan-400 uppercase tracking-widest font-bold text-[9px] sm:text-xs bg-cyan-950/50 px-3 py-1 rounded-full border border-cyan-500/30 backdrop-blur-md inline-block mb-2">
+        🍌 Illumination • Complete Collection
+      </span>
+      <h1 class="spider-heading holo-glow-text text-3xl sm:text-5xl md:text-6xl font-black uppercase mb-1 sm:mb-2 tracking-tighter leading-none text-white">
+MINIONS
+      </h1>
+      <p class="text-gray-400 text-xs sm:text-sm md:text-base line-clamp-2 sm:line-clamp-3 font-light">
+       "Bello! Banana? Every Minion adventure, movie, and short—streamed in one place."
+      </p>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-4 mb-8">
+    <div class="h-px bg-gradient-to-r from-cyan-500/50 to-transparent flex-1"></div>
+    <h2 class="spider-heading text-cyan-400 font-bold text-xs sm:text-sm md:text-lg uppercase tracking-widest flex items-center gap-2">
+      <i class="fas fa-star fa-spin text-red-500" style="animation-duration: 6s;"></i> The Complete Minions Vault
+    </h2>
+    <div class="h-px bg-gradient-to-l from-cyan-500/50 to-transparent flex-1"></div>
+  </div>
+
+  <div class="mb-12">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5" id="movies"></div>
+  </div>
+
+  <div class="border-t border-slate-900/60 mt-12 pt-6 pb-2 text-center">
+    <div class="flex justify-center gap-5 mb-4">
+      <a href="#" class="text-slate-500 hover:text-red-500 text-base transition-colors"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" class="text-slate-500 hover:text-cyan-400 text-base transition-colors"><i class="fab fa-twitter"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" target="_blank" class="text-slate-500 hover:text-red-500 text-base transition-colors"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" target="_blank" class="text-slate-500 hover:text-cyan-400 text-base transition-colors"><i class="fab fa-youtube"></i></a>
+    </div>
+    <p class="text-[9px] sm:text-[10px] text-slate-600 tracking-widest uppercase font-semibold">
+      🍌 © 2026 THE COMPLETE MINIONS COLLECTION • BELLO! 🍌
+    </p>
+  </div>
+</div>
+
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="player-wrapper" id="playerWrapper">
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" aria-label="Dismiss Player">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="player-meta">
+      <div class="meta-left mb-1 md:mb-0">
+        <h3 id="modalTitle" class="spider-heading text-white">Movie Title</h3>
+        <p id="modalDesc" class="line-clamp-2 sm:line-clamp-none"></p>
+      </div>
+      <div class="controls-row">
+        <button id="prevBtn" class="btn"><i class="fas fa-backward"></i><span>Prev</span></button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i><span>Play</span></button>
+        <button id="nextBtn" class="btn"><i class="fas fa-forward"></i><span>Next</span></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i><span>FS</span></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i><span>Mute</span></button>
+        <button id="closeBtn" class="btn !border-red-500/40 !text-red-400 hover:!bg-red-500/20 hover:!text-white"><i class="fas fa-times"></i><span>Close</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    const movies = [
+      { 
+        title: "Minions & Monsters", 
+        video: "https://mega.nz/embed/7gJk0AgY#aqrPP7ykGxpinsdvJEW5xfOR4PtZdz4uDx0_wwc-Syo", 
+        image: "https://image.tmdb.org/t/p/w500/nz7i42yhLIJ4ve9JKgM6NthoLHO.jpg",
+        year: 2026,
+        duration: "5 min",
+        rating: 4.0,
+        genre: "Animation, Short",
+        director: "Pierre Coffin",
+        description: "Laundry day goes cosplay when a Minion noob gets a seat at the table of some pro-role-playing gamers. Starting as a punching bag for monsters and punchline for peers, his perseverance unlocks bardacious skills just in time to save the day."
+      },
+     { 
+        title: "Minions", 
+        video: "https://mega.nz/embed/O3AW0D4I#GCZlpy2GHl1_f_rvCiseikDo92KzQR-Opah4B4ozIK0", 
+        image: "https://i.ebayimg.com/images/g/2-4AAOSwP2FZjWe0/s-l1200.jpg",
+        year: 2015,
+        duration: "91 min",
+        rating: 4.4,
+        genre: "Animation, Comedy",
+        director: "Pierre Coffin, Kyle Balda",
+        description: "Minions Stuart, Kevin, and Bob are recruited by Scarlet Overkill, a super-villain who, alongside her inventor husband Herb, hatches a plot to take over the world."
+      },
+      { 
+        title: "Minions: The Rise of Gru", 
+        video: "https://mega.nz/embed/f0JHWa4B#AxjHBt2cMpJ9p55RNbB87InVb35EqNgrdSE-Z8bsIHw", 
+        image: "https://image.tmdb.org/t/p/original/1WiUlJH7MMxWn2MIxW1hwMcYam6.jpg",
+        year: 2022,
+        duration: "88 min",
+        rating: 4.6,
+        genre: "Animation, Comedy",
+        director: "Kyle Balda",
+        description: "The untold story of one twelve-year-old's dream to become the world's greatest supervillain in 1970s suburbia, aided by his Minions."
+      },
+      { 
+        title: "Mower Minions", 
+        video: "https://mega.nz/embed/WjhgmIhR#79bM2hTd43g2qgusqG8gMf5mUUSSLVbUa0RbESR5GNk", 
+        image: "https://image.tmdb.org/t/p/original/fPg5pkhRff7IAVG1lx2vB17ssYR.jpg",
+        year: 2016,
+        duration: "5 min",
+        rating: 3.9,
+        genre: "Animation, Short",
+        director: "Eric Favre",
+        description: "The Minions try to earn money by mowing lawns, but their efforts lead to unexpected chaos."
+      },
+      { 
+        title: "Minions & More 1", 
+        video: "https://mega.nz/embed/S6pxSKRI#LS5IXUCpccavKPXTJFbbW3b8Zd-r5heVAcqoBC6XHwo", 
+        image: "https://image.tmdb.org/t/p/w500/hjVIpMS8gOEaLB87kpgEOqdDCrk.jpg",
+        year: 2022,
+        duration: "50 min",
+        rating: 4.1,
+        genre: "Animation, Collection",
+        director: "Multiple",
+        description: "This collection of Minions shorts from the Despicable Me franchise includes mini-movies like Training Wheels, Puppy and Yellow Is the New Black."
+      },
+      { 
+        title: "Minions & More 2", 
+        video: "https://spx.astroliteonline.online:443/v4/luy/an9c1/index-f1-v1-a1.txt", 
+        image: "https://occ-0-957-2568.1.nflxso.net/dnm/api/v6/mAcAr9TxZIVbINe88xb3Teg5_OA/AAAABdrUrpdPs_zFkqRUKVBgoKPfAg-t96gsuN5F-5Q-L7QGuL_hvhMenQ0ItYQfFbHlbXejldymnWgaxl1A95BgBZR5fFtnd0iiLZn7.jpg?r=936",
+        year: 2022,
+        duration: "50 min",
+        rating: 4.1,
+        genre: "Animation, Collection",
+        director: "Multiple",
+        description: "More short films featuring the Minions and other characters from the Despicable Me universe."
+      },
+      { 
+        title: "Minions Holiday Special", 
+        video: "https://mega.nz/embed/nwplVBrI#DQP7l0jMKe5qBdqpLi0FnTnvoI-yAKadK6HsCRPyqKI", 
+        image: "https://pbcdnw.aoneroom.com/image/2026/01/26/845ca70b6b6a24ff9861901e617fd5bc.jpg?x-oss-process=image/resize%2Cw_200",
+        year: 2020,
+        duration: "5 min",
+        rating: 3.8,
+        genre: "Animation, Short",
+        director: "Pierre Coffin",
+        description: "Illumination presents four new mini-movie escapades along with special guest appearances from some of Illumination's beloved characters from their The Secret Life of Pets and Sing franchises."
+      },
+      { 
+        title: "Competition", 
+        video: "https://www.youtube.com/watch?v=PMFHQXxqYOg", 
+        image: "https://m.media-amazon.com/images/M/MV5BMzY3MzliYjEtNjE0NC00MWJiLThjMzItZTNkMmE3MGJmZWRiXkEyXkFqcGc@._V1_.jpg",
+        year: 2011,
+        duration: "5 min",
+        rating: 3.9,
+        genre: "Animation, Short",
+        director: "Eric Favre",
+        description: "The Minions compete against each other in various challenges."
+      },
+      { 
+        title: "Minions & Monsters", 
+        video: "https://mega.nz/embed/fiZhjZwY#p_cJINzzib875oKXVB4VeMmD1LlL3w2BUemAVBW9KdQ", 
+        image: "https://m.media-amazon.com/images/M/MV5BZjZkNzgyYTUtNjA1Yy00OTNmLTg5YWEtNmU4ZGM0ZjkwMmZhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+        year: 2021,
+        duration: "5 min",
+        rating: 4.0,
+        genre: "Animation, Short",
+        director: "Pierre Coffin",
+        description: "Laundry day goes cosplay when a Minion noob gets a seat at the table of some pro-role-playing gamers. Starting as a punching bag for monsters and punchline for peers, his perseverance unlocks bardacious skills just in time to save the day."
+      },
+      { 
+        title: "Home Makeover", 
+        video: "https://spx.oakfieldwellnesscollect.sbs:443/v4/is3/s1vlis/index-f2-v1-a1.txt", 
+        image: "https://cdn.cinematerial.com/p/297x/qjjhwyp9/home-makeover-movie-poster-md.jpg?v=1456540418",
+        year: 2010,
+        duration: "5 min",
+        rating: 3.8,
+        genre: "Animation, Short",
+        director: "Eric Favre",
+        description: "The Minions attempt to redecorate Gru's house with hilarious results."
+      },
+      { 
+        title: "Orientation Day", 
+        video: "https://www.youtube.com/watch?v=UpvAqUiXz5s", 
+        image: "https://image.tmdb.org/t/p/original/yp6F4JqWeKMzd3N2fW10Ja3cBJK.jpg",
+        year: 2010,
+        duration: "5 min",
+        rating: 3.9,
+        genre: "Animation, Short",
+        director: "Pierre Coffin",
+        description: "The Minions go through orientation at their new workplace."
+      },
+      { 
+        title: "Puppy", 
+        video: "https://www.youtube.com/watch?v=fjvs7pABLys", 
+        image: "https://image.tmdb.org/t/p/original/f62rLpyiebBc6QfSTA4xGwwQkPY.jpg",
+        year: 2013,
+        duration: "5 min",
+        rating: 4.0,
+        genre: "Animation, Short",
+        director: "Eric Favre",
+        description: "The Minions encounter a cute but troublesome puppy."
+      },
+      { 
+        title: "Panic in the Mailroom", 
+        video: "https://www.youtube.com/watch?v=qlxk6oLzCTw", 
+        image: "https://image.tmdb.org/t/p/original/ylB6KNFNAkWH06j32EoUXGKOsGe.jpg",
+        year: 2013,
+        duration: "5 min",
+        rating: 3.8,
+        genre: "Animation, Short",
+        director: "Eric Favre",
+        description: "Chaos ensues when the Minions work in the mailroom."
+      },
+      { 
+        title: "Training Wheels", 
+        video: "https://www.youtube.com/watch?v=D4q9J9tskqw", 
+        image: "https://image.tmdb.org/t/p/original/rT1L9N1LD2S1OO8qwzSFrphw0Oe.jpg",
+        year: 2013,
+        duration: "5 min",
+        rating: 3.9,
+        genre: "Animation, Short",
+        director: "Eric Favre",
+        description: "The Minions learn to ride bikes with hilarious results."
+      }
+      
+    ];
+
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalVideoId = 'modalVideo';
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+    function isHls(url) {
+      if (!url) return false;
+      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+    }
+    function isYouTube(url) {
+      if (!url) return false;
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+    }
+
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" aria-label="Dismiss Player"><i class="fas fa-times"></i></button>`;
+      document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+    }
+
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      
+      currentFiltered = list;
+      currentIndex = index;
+      const movie = list[index];
+      if (!movie) return;
+
+      modalTitle.textContent = movie.title || '';
+      modalDesc.textContent = movie.description || '';
+
+      resetPlayerContainer();
+      showModal();
+
+      let src = '';
+      if (typeof movie.video === 'object' && movie.video !== null) {
+        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+      } else {
+        src = movie.video;
+      }
+      if (!src || src === 'cc') {
+        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+        return;
+      }
+
+      const lc = src.toLowerCase();
+
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        <button id="topCloseBtn" aria-label="Dismiss Player"><i class="fas fa-times"></i></button>`;
+        document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
+          }
+        } catch (e) {}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        <button id="topCloseBtn" aria-label="Dismiss Player"><i class="fas fa-times"></i></button>`;
+        document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      if (isHls(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) return;
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+          });
+          currentHls.on(Hls.Events.ERROR, function(event, data) {
+            if (data && data.fatal) {
+              try { currentHls.destroy(); } catch(e){}
+              currentHls = null;
+              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+            }
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        } else {
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+        }
+        return;
+      }
+
+      if (isMP4(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+    }
+
+    function togglePlayPause() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return;
+      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return;
+      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i><span>Unmute</span>' : '<i class="fas fa-volume-up"></i><span>Mute</span>';
+    }
+
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById(modalVideoId);
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+    }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.min(v.duration, v.currentTime + 10); break; }
+        case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+      }
+    });
+
+    const container = document.getElementById('movies');
+
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      moviesToRender.forEach((movie, index) => {
+        const delayClass = `delay-${(index % 5) * 100}`;
+
+        const div = document.createElement('div');
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden cursor-pointer relative group`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden aspect-[2/3]">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#050814] via-[#050814]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-3">
+              <button class="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-2 px-4 rounded-full transition transform hover:scale-105 shadow-lg flex items-center gap-2 text-xs uppercase tracking-wider">
+                <i class="fas fa-play"></i> Play
+              </button>
+            </div>
+          </div>
+          <div class="p-3 bg-gradient-to-b from-transparent to-black/40">
+            <h3 class="font-bold text-slate-200 group-hover:text-cyan-400 transition-colors text-xs sm:text-sm truncate spider-heading">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-2 text-[10px] font-semibold">
+              <span class="bg-cyan-950/40 text-cyan-400 px-2 py-0.5 rounded border border-cyan-800/30">${movie.year}</span>
+              <span class="uppercase tracking-widest text-[9px] text-red-500"><i class="fas fa-mask mr-1"></i>Hero</span>
+            </div>
+          </div>
+        `;
+
+        div.addEventListener('click', () => {
+          openPlayer(moviesToRender, index);
+        });
+
+        container.appendChild(div);
+      });
+    }
+
+    renderMovies(movies);
+
+    function createNodes() {
+      const ambientContainer = document.getElementById('spidey-ambient');
+      if (!ambientContainer) return;
+      
+      for (let i = 0; i < 20; i++) {
+        const node = document.createElement('div');
+        node.className = 'network-node';
+        const size = Math.random() * 5 + 2;
+        node.style.width = `${size}px`;
+        node.style.height = `${size}px`;
+        node.style.left = `${Math.random() * 100}%`;
+        node.style.top = `${Math.random() * 100}%`;
+        
+        const duration = Math.random() * 8 + 6;
+        node.style.animation = `NodeFloat ${duration}s infinite ease-in-out alternate`;
+        node.style.animationDelay = `${Math.random() * 3}s`;
+        
+        ambientContainer.appendChild(node);
+      }
+    }
+    createNodes();
+</script>
+
+<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = { 'key' : '32e2eca4a8cbe495b6e046fac6e1e00b', 'format' : 'iframe', 'height' : 600, 'width' : 160, 'params' : {} };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = { 'key' : '5a4dc7c6c5524517e3d815b39b121f28', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+<script>
+const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+    disableMobile: false,
+    interval: 100,
+    ondevtoolopen: function () {
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+document.addEventListener("keydown", function (e) {
+    if (e.key === "F12") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key.toLowerCase() === "u") { e.preventDefault(); e.stopPropagation(); return false; }
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key.toLowerCase() === "s") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key.toLowerCase() === "p") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key.toLowerCase() === "a") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key.toLowerCase() === "c") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key.toLowerCase() === "x") { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.key.toLowerCase() === "v") { e.preventDefault(); return false; }
+});
+
+document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+document.addEventListener("dragstart", function (e) { e.preventDefault(); });
+document.addEventListener("selectstart", function (e) { e.preventDefault(); });
+["copy", "cut", "paste"].forEach(function(evt) {
+    document.addEventListener(evt, function(e) { e.preventDefault(); });
+});
+
+if (!isMobile) {
+    setInterval(function () {
+        const widthThreshold = window.outerWidth - window.innerWidth > 220;
+        const heightThreshold = window.outerHeight - window.innerHeight > 220;
+        if (widthThreshold || heightThreshold) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }, 1500);
+}
+
+(function () {
+    console.clear();
+    function block() { return false; }
+    console.log = block; console.warn = block; console.error = block;
+    console.info = block; console.debug = block; console.table = block;
+})();
+
+if (window.location.href.startsWith("view-source:")) {
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+}
+if (window.top !== window.self) {
+    try { window.top.location = window.self.location; } catch (e) {}
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+::selection {
+    background: transparent;
+}
+/* Floating Bananas */
+
+.banana-bg{
+
+position:fixed;
+
+inset:0;
+
+pointer-events:none;
+
+overflow:hidden;
+
+z-index:-1;
+
+}
+
+.banana-bg span{
+
+position:absolute;
+
+font-size:34px;
+
+opacity:.12;
+
+animation:bananaFloat linear infinite;
+
+}
+
+.banana-bg span:nth-child(1){
+
+left:5%;
+
+top:15%;
+
+animation-duration:18s;
+
+}
+
+.banana-bg span:nth-child(2){
+
+left:22%;
+
+top:70%;
+
+animation-duration:22s;
+
+}
+
+.banana-bg span:nth-child(3){
+
+left:48%;
+
+top:25%;
+
+animation-duration:20s;
+
+}
+
+.banana-bg span:nth-child(4){
+
+left:70%;
+
+top:55%;
+
+animation-duration:25s;
+
+}
+
+.banana-bg span:nth-child(5){
+
+left:88%;
+
+top:10%;
+
+animation-duration:16s;
+
+}
+
+@keyframes bananaFloat{
+
+0%{
+
+transform:translateY(0) rotate(0deg);
+
+}
+
+50%{
+
+transform:translateY(-30px) rotate(15deg);
+
+}
+
+100%{
+
+transform:translateY(0) rotate(0deg);
+
+}
+
+}
+</style>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
