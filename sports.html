@@ -266,7 +266,7 @@ function renderChannels(){
   });
 }
 
-async function openPlayer(index){
+async function openPlayer(index) {
   currentIndex = index;
   document.getElementById("playerModal").style.display = "flex";
   updateStatus("Retrieving Stream Tokens...", "loading");
@@ -275,11 +275,23 @@ async function openPlayer(index){
   const container = document.getElementById('player-container');
   const chan = filtered[index];
 
-  // Async cookie fetching from working baseline
-  const activeCookie = await getCookieValue(chan.cookieUrl);
+  // Stop previous video playback and completely unload previous engine tracks
+  videoEl.pause();
+  videoEl.src = "";
+  videoEl.load();
 
-  if (shakaUiInstance) { shakaUiInstance.destroy(); shakaUiInstance = null; }
-  if (shakaPlayerInstance) { await shakaPlayerInstance.destroy(); shakaPlayerInstance = null; }
+  // Destroy both UI overlay and core player layers cleanly before re-binding
+  if (shakaUiInstance) { 
+    try { shakaUiInstance.destroy(); } catch(e){} 
+    shakaUiInstance = null; 
+  }
+  if (shakaPlayerInstance) { 
+    try { await shakaPlayerInstance.destroy(); } catch(e){} 
+    shakaPlayerInstance = null; 
+  }
+
+  // Fetch target session cookie asynchronously
+  const activeCookie = await getCookieValue(chan.cookieUrl);
 
   shakaPlayerInstance = new shaka.Player(videoEl);
   shakaUiInstance = new shaka.ui.Overlay(shakaPlayerInstance, container, videoEl);
@@ -298,7 +310,6 @@ async function openPlayer(index){
   }
   shakaPlayerInstance.configure(playerConfig);
 
-  // Synchronized Network Interceptor Matching Working Parameters Exactly
   if (activeCookie) {
     shakaPlayerInstance.getNetworkingEngine().registerRequestFilter((type, request) => {
       request.headers["Referer"] = "https://www.jiotv.com/";
@@ -339,9 +350,11 @@ async function openPlayer(index){
 async function closePlayer(){
   const videoEl = document.getElementById('video');
   videoEl.pause();
+  videoEl.src = "";
+  videoEl.load();
   
-  if (shakaUiInstance) { shakaUiInstance.destroy(); shakaUiInstance = null; }
-  if (shakaPlayerInstance) { await shakaPlayerInstance.destroy(); shakaPlayerInstance = null; }
+  if (shakaUiInstance) { try { shakaUiInstance.destroy(); } catch(e){} shakaUiInstance = null; }
+  if (shakaPlayerInstance) { try { await shakaPlayerInstance.destroy(); } catch(e){} shakaPlayerInstance = null; }
   
   statusEl.className = '';
   document.getElementById("playerModal").style.display = "none";
