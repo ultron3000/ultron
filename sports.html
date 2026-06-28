@@ -122,7 +122,7 @@ video { width:100%; height:100%; object-fit:contain; background:#000; outline: n
   
   <div class="shaka-video-container" id="player-container">
     <div id="debug-status">Ready</div>
-    <video id="video" autoplay playsinline preload="metadata"></video>
+    <video id="video" autoplay muted playsinline preload="metadata"></video>
   </div>
 
   <div id="controls">
@@ -142,6 +142,45 @@ let currentIndex = 0;
 let shakaPlayerInstance = null;
 let shakaUiInstance = null;
 
+const LOCAL_CHANNELS = {
+  english: {
+    streamUrl: "https://jiotvmblive.cdn.jio.com/bpk-tv/Ten_HD_MOB/WDVLive/index.mpd",
+    keyId: "3525c924e54154b39533d86b1c7a428a",
+    key: "8548b566fc6608a7d3bd601ee5f3d889",
+    cookieUrl: "https://allrounderid2.pages.dev/api/star-1.json"
+  },
+  hindi: {
+    streamUrl: "https://jiotvmblive.cdn.jio.com/bpk-tv/Ten3_HD_MOB/WDVLive/index.mpd",
+    keyId: "111e6908b965566e97139efddf7ef459",
+    key: "c87903abbc052e1f21e51ebd928d9cb1",
+    cookieUrl: "https://allrounderid2.pages.dev/api/star-1-hindi.json"
+  },
+  s1: {
+    streamUrl: "https://jiotvpllive.cdn.jio.com/bpk-tv/Ten_HD_BTS/WDVLive/index.mpd",
+    keyId: "523acf1f55485476817958a62a3f2ed9",
+    key: "52b3cea435ed25d445f9eae4883c7001",
+    cookieUrl: "https://raw.githubusercontent.com/Tvwap/links/refs/heads/main/s1"
+  },
+  s2: {
+    streamUrl: "https://jiotvpllive.cdn.jio.com/bpk-tv/Ten2_HD_BTS/WDVLive/index.mpd",
+    keyId: "7771cca923225ce08887cbae764e72c6",
+    key: "67d80b71f02d2cd1e4e0ee7b9b752841",
+    cookieUrl: "https://raw.githubusercontent.com/Tvwap/links/refs/heads/main/s2"
+  },
+  s3: {
+    streamUrl: "https://jiotvpllive.cdn.jio.com/bpk-tv/Ten3_HD_BTS/WDVLive/index.mpd",
+    keyId: "71719eea0bbb5319a4e854ac52ea7871",
+    key: "752ed8f45c43ed858af4c1716c05241a",
+    cookieUrl: "https://raw.githubusercontent.com/Tvwap/links/refs/heads/main/s3"
+  },
+  s5: {
+    streamUrl: "https://jiotvpllive.cdn.jio.com/bpk-tv/Six_HD_BTS/WDVLive/index.mpd",
+    keyId: "233d5f64b5b1547dae38f5a8b0b85efa",
+    key: "3b000618435f702db7d9910d8265584a",
+    cookieUrl: "https://raw.githubusercontent.com/Tvwap/links/refs/heads/main/s5"
+  }
+};
+
 const statusEl = document.getElementById('debug-status');
 function updateStatus(msg, type = 'info') {
     statusEl.innerText = msg;
@@ -154,33 +193,42 @@ window.addEventListener("load",()=>{
   loadChannels();
 });
 
-// Dynamic Data Fetching Syncing Properties Directly From Your Remote Target Layout
-async function loadChannels(){
+function loadChannels(){
   try {
-    const targetUrl = "https://sayan-json-3.pages.dev/Data/sports.json";
-    const res = await fetch(targetUrl);
-    const rawData = await res.json();
-    
-    let arrayData = Array.isArray(rawData) ? rawData : (rawData.channels || rawData.data || rawData.result || []);
-
-    channels = arrayData.map(ch => ({
-      ...ch,
-      id: ch.id || ch.channel_id || "",
-      name: ch.name || "Unknown Channel",
-      link: ch.url || ch.stream_url || ch.channel_url || "", 
-      logo: ch.logo || "https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png",
-      group: ch.group || "Sports",
-      key_id: ch.keyId || ch.key_id || "",
-      key: ch.key || ""
-    }));
+    channels = Object.keys(LOCAL_CHANNELS).map(key => {
+      const ch = LOCAL_CHANNELS[key];
+      return {
+        id: key,
+        name: key.toUpperCase(),
+        link: ch.streamUrl || "", 
+        logo: "https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png",
+        group: "Sports",
+        key_id: ch.keyId || "",
+        key: ch.key || "",
+        cookieUrl: ch.cookieUrl || ""
+      };
+    });
     
     filtered = channels;
     renderCategories();
     renderChannels();
   } catch (error) {
-    console.error("Fetch Failure: ", error);
-    updateStatus("Error Connecting To Source Links", "error");
+    console.error("Data Load Failure: ", error);
+    updateStatus("Error Loading Internal Channels", "error");
   }
+}
+
+async function getCookieValue(url) {
+  try {
+    const response = await fetch(url, { cache: "no-store" });
+    const textData = await response.text();
+    try {
+      const jsonData = JSON.parse(textData);
+      return jsonData.cookie || textData;
+    } catch(e) {
+      return textData.trim();
+    }
+  } catch(e) { return ""; }
 }
 
 function renderCategories(){
@@ -199,7 +247,6 @@ function renderCategories(){
   });
 }
 
-// Global Filter UI Execution
 function filterChannels(){
   const searchTerm = document.getElementById("searchBar").value.toLowerCase();
   filtered = channels.filter(c=>(currentGroup==="All"||c.group===currentGroup) && c.name.toLowerCase().includes(searchTerm));
@@ -222,10 +269,14 @@ function renderChannels(){
 async function openPlayer(index){
   currentIndex = index;
   document.getElementById("playerModal").style.display = "flex";
+  updateStatus("Retrieving Stream Tokens...", "loading");
   
   const videoEl = document.getElementById('video');
   const container = document.getElementById('player-container');
   const chan = filtered[index];
+
+  // Async cookie fetching from working baseline
+  const activeCookie = await getCookieValue(chan.cookieUrl);
 
   if (shakaUiInstance) { shakaUiInstance.destroy(); shakaUiInstance = null; }
   if (shakaPlayerInstance) { await shakaPlayerInstance.destroy(); shakaPlayerInstance = null; }
@@ -242,35 +293,32 @@ async function openPlayer(index){
        abr: { enabled: true }
   };
 
-  // Direct ClearKey Initialization Block
   if (chan.key_id && chan.key) {
       playerConfig.drm = { clearKeys: { [chan.key_id]: chan.key } };
   }
   shakaPlayerInstance.configure(playerConfig);
 
-  // Embedded Request Interceptor Configuration Matches Working Code Exactly
-  shakaPlayerInstance.getNetworkingEngine().registerRequestFilter((type, request) => {
-    request.headers['Referer'] = 'https://www.jiotv.com/';
-    request.headers['User-Agent'] = 'plaYtv/7.1.5 (Linux;Android 13) ExoPlayerLib/2.11.6';
-    
-    const hdneaRegex = /__hdnea__=[a-zA-Z0-9~=\-\_\/\*]+/;
-    let cookieStr = "";
-    if (chan.cookie && hdneaRegex.test(chan.cookie)) {
-        cookieStr = chan.cookie.match(hdneaRegex)[0];
-    } else if (hdneaRegex.test(chan.link)) {
-        cookieStr = chan.link.match(hdneaRegex)[0];
-    }
+  // Synchronized Network Interceptor Matching Working Parameters Exactly
+  if (activeCookie) {
+    shakaPlayerInstance.getNetworkingEngine().registerRequestFilter((type, request) => {
+      request.headers["Referer"] = "https://www.jiotv.com/";
+      request.headers["User-Agent"] = "plaYtv/7.1.5 (Linux;Android 13) ExoPlayerLib/2.11.6";
+      
+      const cleanCookie = activeCookie.startsWith("__hdnea__=") ? activeCookie : "__hdnea__=" + activeCookie;
+      request.headers["Cookie"] = cleanCookie;
 
-    if (cookieStr && (type === shaka.net.NetworkingEngine.RequestType.MANIFEST || type === shaka.net.NetworkingEngine.RequestType.SEGMENT)) {
-      const baseUri = request.uris[0].split('?')[0];
-      request.uris[0] = baseUri + '?' + cookieStr;
-    }
-  });
+      const rawToken = activeCookie.startsWith("__hdnea__=") ? activeCookie.substring(10) : activeCookie;
+
+      if ((type === shaka.net.NetworkingEngine.RequestType.MANIFEST || type === shaka.net.NetworkingEngine.RequestType.SEGMENT) && !request.uris[0].includes("__hdnea__")) {
+        const sep = request.uris[0].includes("?") ? "&" : "?";
+        request.uris[0] += sep + "__hdnea__=" + rawToken;
+      }
+    });
+  }
 
   try {
     updateStatus("Loading Stream...", "loading");
-    let cleanUrl = chan.link.split('?')[0];
-    await shakaPlayerInstance.load(cleanUrl);
+    await shakaPlayerInstance.load(chan.link);
     
     const tracks = shakaPlayerInstance.getVariantTracks().sort((a, b) => a.bandwidth - b.bandwidth);
     if (tracks.length > 0) {
@@ -278,7 +326,7 @@ async function openPlayer(index){
       shakaPlayerInstance.configure({ abr: { enabled: true } });
     }
 
-    videoEl.play();
+    videoEl.play().catch(()=>{});
     updateStatus("Live Stream Connected!", "success");
     videoEl.muted = false;
     document.getElementById("muteIcon").className = "fas fa-volume-up";
@@ -299,7 +347,6 @@ async function closePlayer(){
   document.getElementById("playerModal").style.display = "none";
 }
 
-/* ===== HANDLERS WITH THE REQUESTED MUTE & FULLSCREEN INTERFACES ===== */
 document.getElementById("muteBtn").onclick=()=>{
   const videoEl = document.getElementById('video');
   const icon = document.getElementById("muteIcon");
