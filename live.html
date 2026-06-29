@@ -61,9 +61,9 @@ header span{font-size:20px;font-weight:700;}
 
 /* MODAL PLAYER */
 #playerModal{
-  display:none; /* HIDE ON LOAD */
+  display: none; /* FIXED: Keeps modal hidden cleanly on load without JS delay */
   position:fixed;inset:0;background:rgba(0,0,0,0.95);
-  z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  z-index:9999;flex-direction:column;justify-content:center;align-items:center;
 }
 #playerFrame{
   width:90%;max-width:1100px;height:70vh;border:none;border-radius:12px;
@@ -99,7 +99,6 @@ video:fullscreen, video:-webkit-full-screen, iframe:fullscreen, iframe:-webkit-f
 
 <header style="display:flex; align-items:center; gap:15px;">
 
-  <!-- Clickable Logo + Title -->
   <a href="https://ultron3000.github.io/ultron" 
      style="display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit;">
     
@@ -112,7 +111,6 @@ video:fullscreen, video:-webkit-full-screen, iframe:fullscreen, iframe:-webkit-f
     <span>Cloud TV</span>
   </a>
 
-  <!-- Search Bar -->
   <input type="text" id="searchBar" placeholder="Search channels..." style="margin-left:auto;">
 
 </header>
@@ -120,7 +118,6 @@ video:fullscreen, video:-webkit-full-screen, iframe:fullscreen, iframe:-webkit-f
 <div id="categories"></div>
 <div id="channels" class="grid"></div>
 
-<!-- PLAYER MODAL -->
 <div id="playerModal">
   <button id="closeBtn" onclick="closePlayer()">✖</button>
   <iframe id="playerFrame" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
@@ -130,7 +127,7 @@ video:fullscreen, video:-webkit-full-screen, iframe:fullscreen, iframe:-webkit-f
     <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward"></i></button>
     <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
     <button id="muteBtn" class="btn"><i class="fas fa-volume-up" id="muteIcon"></i></button>
-    <button id="closeCtrlBtn" class="btn"><i class="fas fa-times"></i></button> <!-- CLOSE BUTTON NEXT TO VOLUME -->
+    <button id="closeCtrlBtn" class="btn"><i class="fas fa-times"></i></button>
   </div>
 </div>
 
@@ -139,12 +136,6 @@ let channels = [];
 let filtered = [];
 let currentGroup = "All";
 let currentIndex = 0;
-
-// HIDE modal on load
-window.addEventListener("load",()=>{
-  document.getElementById("playerModal").style.display="none";
-  document.getElementById("playerFrame").src="";
-});
 
 // Load channels.json
 async function loadChannels(){
@@ -197,7 +188,7 @@ function renderChannels(){
 function openPlayer(index){
   currentIndex=index;
   const modal=document.getElementById("playerModal");
-  modal.style.display="flex";
+  modal.style.display="flex"; // Properly applies flex layout upon opening
   const frame=document.getElementById("playerFrame");
   frame.src=filtered[index].link;
 
@@ -574,7 +565,6 @@ img {
     background: transparent;
 }
 </style>
-
 
 </body>
 </html>
