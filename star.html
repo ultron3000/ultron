@@ -260,12 +260,20 @@ async function openPlayer(index){
   // Optimized Live TV stall prevention configurations
   const playerConfig = {
        streaming: { 
-         lowLatencyMode: true, 
-         bufferingGoal: 8,
-         rebufferingGoal: 2,
-         safeSeekOffset: 5,
-         stallThreshold: 1,
-         infiniteLiveDelay: false
+          lowLatencyMode: true, 
+          bufferingGoal: 10,       // Keep 10 seconds ahead to lower network/CPU overhead
+          rebufferingGoal: 2,      // Fast resume on stall
+          bufferBehind: 5,         // Trim old buffered memory blocks to reduce lag
+          safeSeekOffset: 5,       // Protect seeking too near the live boundary edge
+          stallThreshold: 1,       // Unfreeze if stream hangs for more than 1s
+          jumpLargeGaps: true,     // CRITICAL: Forces player to jump gaps during timeline navigation
+          gapDetectionThreshold: 0.5,
+          infiniteLiveDelay: false
+       },
+       manifest: {
+          dash: {
+             autoCorrectDrift: true // Forces alignment between system clock and presentation timeline
+          }
        },
        abr: { enabled: true }
   };
