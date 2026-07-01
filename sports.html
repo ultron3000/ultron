@@ -294,11 +294,20 @@ async function openPlayer(index) {
   shakaUiInstance = new shaka.ui.Overlay(shakaPlayerInstance, container, videoEl);
 
   shakaUiInstance.configure({
-       controlPanelElements: ["mute", "play_pause", "time_and_duration", "spacer", "quality", "picture_in_picture", "fullscreen"]
+       controlPanelElements: ["rewind", "fast_forward", "mute", "play_pause", "time_and_duration", "spacer", "quality", "picture_in_picture", "fullscreen"]
   });
 
   const playerConfig = {
-       streaming: { lowLatencyMode: true },
+       streaming: { 
+         lowLatencyMode: true,
+         liveSyncMargin: 0,
+         safeSeekOffset: 5
+       },
+       manifest: {
+         dash: {
+           autoCorrectWithTimeOffset: true
+         }
+       },
        abr: { enabled: true }
   };
 
@@ -317,9 +326,12 @@ async function openPlayer(index) {
 
       const rawToken = activeCookie.startsWith("__hdnea__=") ? activeCookie.substring(10) : activeCookie;
 
-      if ((type === shaka.net.NetworkingEngine.RequestType.MANIFEST || type === shaka.net.NetworkingEngine.RequestType.SEGMENT) && !request.uris[0].includes("__hdnea__")) {
-        const sep = request.uris[0].includes("?") ? "&" : "?";
-        request.uris[0] += sep + "__hdnea__=" + rawToken;
+      if (type === shaka.net.NetworkingEngine.RequestType.MANIFEST || type === shaka.net.NetworkingEngine.RequestType.SEGMENT) {
+        let uri = request.uris[0];
+        // Strip out existing token signature to prevent duplicate strings
+        uri = uri.replace(/([\?&])__hdnea__=[^&]*/g, "");
+        const separator = uri.includes("?") ? "&" : "?";
+        request.uris[0] = uri + separator + "__hdnea__=" + rawToken;
       }
     });
   }
