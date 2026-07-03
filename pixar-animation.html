@@ -21,51 +21,42 @@
     
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
       color: white;
       min-height: 100vh;
     }
     
     .movie-card {
-      transition: all 0.3s ease;
-      transform-style: preserve-3d;
-      perspective: 1000px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
     }
     
     .movie-card:hover {
-      transform: translateY(-10px) scale(1.03);
-      box-shadow: 0 25px 50px -12px rgba(251, 191, 36, 0.25);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 30px -10px rgba(251, 191, 36, 0.3);
     }
     
     .movie-poster {
-      transition: all 0.5s ease;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s ease;
     }
     
     .movie-card:hover .movie-poster {
-      transform: rotateY(10deg);
-    }
-    
-    .search-glow {
-      box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+      filter: brightness(1.1);
     }
     
     .pixar-logo {
-      text-shadow: 0 0 10px rgba(251, 191, 36, 0.7);
+      text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+      letter-spacing: 2px;
     }
     
     .category-btn {
-      transition: all 0.2s ease;
-    }
-    
-    .category-btn:hover {
-      transform: scale(1.1);
+      transition: all 0.3s ease;
     }
     
     .category-btn.active {
       background-color: var(--pixar-yellow);
-      color: #111827;
+      color: #0f172a;
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
     }
     
     .loading-spinner {
@@ -78,11 +69,11 @@
     }
     
     .fade-in {
-      animation: fadeIn 0.5s ease-in;
+      animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(15px); }
       to { opacity: 1; transform: translateY(0); }
     }
     
@@ -91,31 +82,34 @@
       width: 8px;
       height: 8px;
     }
-    
     ::-webkit-scrollbar-track {
-      background: #1e293b;
+      background: #0f172a;
     }
-    
     ::-webkit-scrollbar-thumb {
-      background: var(--pixar-yellow);
+      background: #334155;
       border-radius: 4px;
     }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--pixar-yellow);
+    }
     
-    /* Modal styles (Hawkeye-style integration) */
+    /* Modal styles */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0, 0, 0, 0.9);
+      background-color: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
       z-index: 1000;
       display: flex;
       justify-content: center;
       align-items: center;
       opacity: 0;
       visibility: hidden;
-      transition: all 0.25s ease;
+      transition: all 0.3s ease;
+      padding: 12px;
     }
     
     .modal-overlay.active {
@@ -124,27 +118,31 @@
     }
     
     .modal-container {
-      width: 92%;
-      max-width: 1100px;
-      background: #0b1220;
-      border-radius: 12px;
+      width: 100%;
+      max-width: 960px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 16px;
       overflow: hidden;
-      transform: translateY(0);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
     }
 
     .modal-top {
       position: relative;
       background: black;
+      width: 100%;
     }
 
-    /* flexible player container similar to Hawkeye */
     .modal-player {
       position: relative;
-      padding-bottom: 56.25%;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
       height: 0;
       background: black;
+      width: 100%;
     }
+    
     .modal-player video,
     .modal-player iframe {
       position: absolute;
@@ -152,148 +150,148 @@
       left: 0;
       width: 100%;
       height: 100%;
+      border: none;
       background: black;
     }
 
     .modal-controls {
-      padding: 14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      background: #1e293b;
     }
 
-    .btn {
-      background: #111827;
-      color: #fbbf24;
-      padding: 8px 12px;
+    .btn-control {
+      background: #334155;
+      color: white;
+      padding: 10px 14px;
       border-radius: 8px;
       border: none;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .btn:hover { filter: brightness(1.05); }
-
-    #playerError { display: none; padding: 8px 12px; margin: 0 14px 14px; border-radius: 8px; background: #7f1d1d; color: #fff; }
-
-    @media (max-width: 640px) {
-      .modal-container { width: 96%; }
-      .modal-controls { flex-direction: column; align-items:stretch; gap:8px; }
+    .btn-control:hover { 
+      background: var(--pixar-yellow);
+      color: #0f172a;
     }
-    /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
 
-  object-fit: contain !important; /* default: NO cropping */
-  background-color: black;
-}
+    #playerError { 
+      display: none; 
+      padding: 12px; 
+      margin: 0 20px 20px; 
+      border-radius: 8px; 
+      background: #7f1d1d; 
+      color: #fff; 
+      font-size: 0.9rem;
+    }
 
-/* Only cover when video aspect is cinematic (safe to crop) */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen {
-    object-fit: cover !important;
-  }
-}
+    @media (max-width: 768px) {
+      .modal-controls { 
+        flex-direction: column; 
+        align-items: stretch; 
+        gap: 16px; 
+        padding: 16px;
+      }
+      .controls-group {
+        justify-content: center;
+      }
+    }
+
+    video:fullscreen,
+    video:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      object-fit: contain !important;
+      background-color: black;
+    }
   </style>
 </head>
 <body class="pb-16">
 
 <!-- Header -->
-<header class="relative overflow-hidden">
-  <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-yellow-600 to-red-900 opacity-20 animate-gradient"></div>
+<header class="relative overflow-hidden mb-4">
+  <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-yellow-600 to-red-900 opacity-10"></div>
   <div class="container mx-auto px-4 py-8 relative z-10">
-    <div class="flex flex-col items-center justify-center text-center mb-8">
-      <div class="flex items-center mb-4">
-        <i class="fas fa-film text-4xl text-yellow-400 mr-3"></i>
-        <h1 class="text-4xl md:text-5xl font-bold pixar-logo">
+    <div class="flex flex-col items-center justify-center text-center">
+      <div class="flex items-center mb-2">
+        <i class="fas fa-lamp text-3xl text-yellow-400 mr-3 animate-pulse"></i>
+        <h1 class="text-3xl md:text-5xl font-extrabold pixar-logo tracking-wider">
           <span class="text-yellow-400">PIXAR</span> UNIVERSE
         </h1>
       </div>
-      <p class="text-gray-300 max-w-2xl">A curated collection of Pixar shorts and features.</p>
+      <p class="text-gray-400 text-sm md:text-base max-w-2xl">A curated ultimate collection of Pixar shorts and classic feature animations.</p>
     </div>
   </div>
 </header>
 
 <!-- Search & categories -->
-<section class="container mx-auto px-4">
+<section class="container mx-auto px-4 max-w-7xl">
   <div class="flex gap-3 mb-6">
-    <input id="searchBar" class="w-full py-3 px-4 rounded-lg bg-[#0f1724] placeholder:text-gray-400" placeholder="Search Pixar movies..."/>
-    <button id="clearSearch" class="btn">Clear</button>
+    <div class="relative w-full">
+      <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
+      <input id="searchBar" class="w-full py-3.5 pl-12 pr-4 rounded-xl bg-[#0f172a] border border-gray-700 focus:border-yellow-400 focus:outline-none text-white placeholder:text-gray-500 transition-all" placeholder="Search Pixar universes..."/>
+    </div>
+    <button id="clearSearch" class="px-5 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-white rounded-xl transition-all">Clear</button>
   </div>
 
-  <div class="flex gap-2 overflow-x-auto mb-6">
-    <button class="category-btn active px-4 py-2 rounded-full bg-[#0f1724] text-yellow-400" data-category="all">All</button>
-    <button class="category-btn px-4 py-2 rounded-full bg-[#0f1724] text-yellow-400" data-category="feature">Features</button>
-    <button class="category-btn px-4 py-2 rounded-full bg-[#0f1724] text-yellow-400" data-category="short">Shorts</button>
-    <button class="category-btn px-4 py-2 rounded-full bg-[#0f1724] text-yellow-400" data-category="sequel">Sequels</button>
+  <div class="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
+    <button class="category-btn active px-5 py-2 rounded-full bg-[#0f172a] border border-gray-700 text-gray-300 font-medium text-sm whitespace-nowrap" data-category="all">All</button>
+    <button class="category-btn px-5 py-2 rounded-full bg-[#0f172a] border border-gray-700 text-gray-300 font-medium text-sm whitespace-nowrap" data-category="feature">Features</button>
+    <button class="category-btn px-5 py-2 rounded-full bg-[#0f172a] border border-gray-700 text-gray-300 font-medium text-sm whitespace-nowrap" data-category="short">Shorts</button>
+    <button class="category-btn px-5 py-2 rounded-full bg-[#0f172a] border border-gray-700 text-gray-300 font-medium text-sm whitespace-nowrap" data-category="sequel">Sequels</button>
   </div>
 </section>
 
 <!-- Movies Grid -->
-<main class="container mx-auto px-4">
-  <div id="loading" class="text-center py-8"><div class="w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full loading-spinner inline-block"></div></div>
-  <div id="noResults" class="hidden text-center py-12 text-gray-300">No results found</div>
-  <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mt-6"></div>
+<main class="container mx-auto px-4 max-w-7xl">
+  <div id="loading" class="text-center py-12"><div class="w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full loading-spinner inline-block"></div></div>
+  <div id="noResults" class="hidden text-center py-16 text-gray-400 text-lg">No magical items found matches your search.</div>
+  <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mt-2"></div>
 </main>
 
 <!-- Footer -->
-<footer class="mt-20 py-6 bg-gray-900 bg-opacity-50">
-<div class="container mx-auto px-4 text-center text-gray-400">
-<div class="flex justify-center space-x-6 mb-4">
-<a class="hover:text-yellow-400 transition-colors" href="#">
-<i class="fab fa-facebook-f"></i>
-</a>
-<a class="hover:text-yellow-400 transition-colors" href="#">
-<i class="fab fa-twitter"></i>
-</a>
-<a class="hover:text-yellow-400 transition-colors" href="https://www.instagram.com/stark_4152">
-<i class="fab fa-instagram"></i>
-</a>
-<a class="hover:text-yellow-400 transition-colors" href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw">
-<i class="fab fa-youtube"></i>
-</a>
-</div>
-<p>© Pixar Universe. All rights reserved.</p>
-<p class="text-sm mt-2">This is a fan-made project and not affiliated with Pixar Animation Studios.</p>
-</div>
+<footer class="mt-24 py-8 bg-black bg-opacity-40 border-t border-gray-800">
+  <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+    <div class="flex justify-center space-x-6 mb-4 text-base">
+      <a class="hover:text-yellow-400 transition-colors" href="#"><i class="fab fa-facebook-f"></i></a>
+      <a class="hover:text-yellow-400 transition-colors" href="#"><i class="fab fa-twitter"></i></a>
+      <a class="hover:text-yellow-400 transition-colors" href="https://www.instagram.com/stark_4152"><i class="fab fa-instagram"></i></a>
+      <a class="hover:text-yellow-400 transition-colors" href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw"><i class="fab fa-youtube"></i></a>
+    </div>
+    <p>© Pixar Universe. All rights reserved.</p>
+    <p class="text-xs mt-1 text-gray-600">This is a fan-made portfolio project and is not affiliated with Pixar Animation Studios.</p>
+  </div>
 </footer>
 
-<!-- === Hawkeye-style modal player (inserted) === -->
+<!-- === Fine-tuned Modal Video Player System === -->
 <div id="video-modal" class="modal-overlay" aria-hidden="true">
   <div class="modal-container">
     <div class="modal-top">
-      <button id="close-video-modal"
-  style="position:absolute; top:12px; right:12px; z-index:10;
-         background:#111827; color:#fbbf24; border-radius:50%;
-         width:36px; height:36px; border:none; cursor:pointer;">
-  ✕
-</button>
-      <button id="close-video-modal" class="btn" style="position:absolute; right:12px; top:12px;"><i class="fas fa-times"></i></button>
+      <button id="close-video-modal" class="absolute top-4 right-4 z-50 bg-black/60 hover:bg-yellow-400 hover:text-black text-white rounded-full w-9 h-9 flex items-center justify-center transition-all border border-white/20">
+        <i class="fas fa-times"></i>
+      </button>
       <div id="modal-player" class="modal-player">
-        <!-- Will inject <video id="modal-video"> or <iframe> here -->
-        <video id="modal-video" class="" controls playsinline>
+        <video id="modal-video" controls playsinline>
           Your browser does not support the video element.
         </video>
       </div>
     </div>
 
     <div class="modal-controls">
-      <div>
-        <h3 id="modal-title" class="text-lg font-bold text-white">Title</h3>
-        <div id="modal-meta" class="text-sm text-gray-300">Year • Category</div>
+      <div class="text-center md:text-left">
+        <h3 id="modal-title" class="text-lg font-bold text-white tracking-wide">Title</h3>
+        <div id="modal-meta" class="text-xs font-medium text-yellow-400/80 uppercase tracking-wider mt-0.5">Year • Category</div>
       </div>
 
-      <div style="display:flex; gap:8px; align-items:center;">
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i></button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i></button>
-        <button id="nextBtn" class="btn"><i class="fas fa-step-forward"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+      <div class="controls-group flex gap-2 items-center justify-between">
+        <button id="prevBtn" class="btn-control" title="Previous"><i class="fas fa-step-backward"></i></button>
+        <button id="playPauseBtn" class="btn-control w-11 h-10" title="Play/Pause"><i class="fas fa-play"></i></button>
+        <button id="nextBtn" class="btn-control" title="Next"><i class="fas fa-step-forward"></i></button>
+        <button id="fullscreenBtn" class="btn-control" title="Fullscreen"><i class="fas fa-expand"></i></button>
+        <button id="muteBtn" class="btn-control" title="Mute/Unmute"><i class="fas fa-volume-up"></i></button>
       </div>
     </div>
 
@@ -301,13 +299,7 @@ video:-webkit-full-screen {
   </div>
 </div>
 
-<!-- Script: rendering + modal playback logic -->
 <script>
-/* ===========================
-   PIXAR page data & elements
-   =========================== */
-
-/* NOTE: movies array left as in original file (skipped editing) */
 const movies = [
      { title: "Hoppers", video: "https://mega.nz/embed/nnIBQBCK#m3jU0qhxDKgbWDM5EzAlOY6jSrpeiDDI0kdv2t8WAxc", image: "https://image.tmdb.org/t/p/w500/xjtWQ2CL1mpmMNwuU5HeS4Iuwuu.jpg", category: "feature", year: 2026 },
      { title: "WALL·E", video: "https://mega.nz/embed/q2Q0HbbL#u_a5WicBsXyrQt9e_IG85DaZ1djpmUrUQjm_T1qIauk", image: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/05c77b66174149.5b0d6304d6a65.jpg", category: "feature", year: 2008 },
@@ -386,15 +378,10 @@ const playerError = document.getElementById('playerError');
 let currentCategory = 'all';
 let currentSearch = '';
 let currentHls = null;
-let currentIndex = null; // index within filtered array
+let currentIndex = null;
 let currentFiltered = [];
 
-/* ------------------------
-   Helper detection utils
-   ------------------------ */
-function isMP4(url) {
-  return /\.mp4(\?|$)/i.test((url||''));
-}
+function isMP4(url) { return /\.mp4(\?|$)/i.test((url||'')); }
 function isHls(url) {
   if (!url) return false;
   return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('master') || url.includes('manifest');
@@ -409,17 +396,17 @@ function isYouTube(url) {
    ========================= */
 function filterMovies() {
   loading.style.display = 'block';
-  setTimeout(() => {
-    const term = (currentSearch || '').toLowerCase();
-    let filtered = movies.filter(m => {
-      const matchesSearch = !term || (m.title || '').toLowerCase().includes(term);
-      const matchesCategory = (currentCategory === 'all') || (m.category === currentCategory);
-      return matchesSearch && matchesCategory;
-    });
-    currentFiltered = filtered;
-    displayMovies(filtered);
-    loading.style.display = 'none';
-  }, 100);
+  const term = (currentSearch || '').toLowerCase();
+  
+  let filtered = movies.filter(m => {
+    const matchesSearch = !term || (m.title || '').toLowerCase().includes(term);
+    const matchesCategory = (currentCategory === 'all') || (m.category === currentCategory);
+    return matchesSearch && matchesCategory;
+  });
+  
+  currentFiltered = filtered;
+  displayMovies(filtered);
+  loading.style.display = 'none';
 }
 
 function displayMovies(filteredMovies) {
@@ -433,55 +420,52 @@ function displayMovies(filteredMovies) {
 
   filteredMovies.forEach((movie, idx) => {
     const div = document.createElement('div');
-    div.className = 'movie-card fade-in';
+    div.className = 'movie-card fade-in bg-[#0f172a] rounded-xl overflow-hidden border border-gray-800';
     div.innerHTML = `
-      <div class="relative overflow-hidden rounded-xl h-full">
-        <img src="${movie.image || ''}" alt="${movie.title || ''}" class="movie-poster w-full h-80 object-cover rounded-xl">
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 pt-10">
-          <h3 class="text-lg font-bold text-white">${movie.title}</h3>
-          <div class="flex items-center text-sm text-gray-300 mt-1">
-            <span class="bg-gray-800 px-2 py-1 rounded mr-2">${movie.year || ''}</span>
-            <span class="bg-gray-800 px-2 py-1 rounded flex items-center">
-              <i class="fas ${movie.category === 'short' ? 'fa-clock' : 'fa-film'} text-xs mr-1"></i>
-              ${movie.category === 'short' ? 'Short' : 'Feature'}
+      <div class="relative overflow-hidden h-full group">
+        <div class="aspect-[2/3] w-full bg-gray-900">
+          <img src="${movie.image || ''}" alt="${movie.title || ''}" class="movie-poster w-full h-full object-cover" loading="lazy">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 p-4 flex flex-col justify-end">
+          <h3 class="text-sm md:text-base font-bold text-white line-clamp-2">${movie.title}</h3>
+          <div class="flex items-center text-xs text-gray-300 mt-1.5 gap-2">
+            <span class="bg-gray-800/80 px-1.5 py-0.5 rounded">${movie.year || ''}</span>
+            <span class="bg-gray-800/80 px-1.5 py-0.5 rounded flex items-center capitalize">
+              <i class="fas ${movie.category === 'short' ? 'fa-clock' : 'fa-film'} mr-1 text-[10px] text-yellow-400"></i>
+              ${movie.category}
             </span>
           </div>
         </div>
-        <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
-          <i class="fas fa-play text-4xl text-yellow-400"></i>
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-sm">
+          <div class="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
+            <i class="fas fa-play text-black text-lg ml-0.5"></i>
+          </div>
         </div>
       </div>
     `;
-    div.onclick = () => handleMovieClick(movie, idx);
+    div.onclick = () => handleMovieClick(movie);
     container.appendChild(div);
   });
 }
 
 /* ===========================
    Modal player core functions
-   (Hawkeye / Tukaram style)
    =========================== */
+function getModalVideo() { return document.getElementById('modal-video'); }
 
-function getModalVideo() {
-  return document.getElementById('modal-video');
-}
-
-/* Replace modal-player content with a fresh <video id="modal-video"> */
 function resetPlayerContainer() {
   if (currentHls) {
     try { currentHls.destroy(); } catch(e) {}
     currentHls = null;
   }
   modalPlayer.innerHTML = `
-    <video id="modal-video" controls playsinline style="width:100%; height:100%;">
+    <video id="modal-video" controls playsinline>
       Your browser does not support the video element.
     </video>
   `;
 }
 
-/* Close modal and cleanup */
 function closeVideoModal() {
-  // destroy hls
   if (currentHls) {
     try { currentHls.destroy(); } catch(e) {}
     currentHls = null;
@@ -494,65 +478,50 @@ function closeVideoModal() {
   resetPlayerContainer();
   videoModal.classList.remove('active');
   document.body.style.overflow = '';
-  currentIndex = null;
-  currentFiltered = [];
-  playerError.classList.add('hidden');
   playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
 }
 
-/* Show an error message briefly */
 function showPlayerError(msg) {
   playerError.textContent = msg;
   playerError.classList.remove('hidden');
   setTimeout(()=> playerError.classList.add('hidden'), 3500);
 }
 
-/* Core playInModal (exact Hawkeye/Tukaram behavior) */
 function playInModal(filteredArray, index) {
+  if (index < 0 || index >= filteredArray.length) return;
+  
   const movie = filteredArray[index];
   if (!movie) {
     showPlayerError('Movie data not found');
     return;
   }
 
-  // Set metadata
+  currentIndex = index;
   modalTitle.textContent = movie.title || 'Untitled';
   modalMeta.textContent = `${movie.year || ''} • ${movie.category || ''}`;
 
-  // Ensure fresh player
   resetPlayerContainer();
-
-  // Show modal
   videoModal.classList.add('active');
   document.body.style.overflow = 'hidden';
-  currentIndex = index;
-  currentFiltered = filteredArray;
 
-  // Determine source URL (movie.video may be string or object)
-  let src = '';
-  if (typeof movie.video === 'object' && movie.video !== null) {
-    // prefer high / main keys or first available
-    src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
-  } else {
-    src = movie.video;
-  }
+  let src = (typeof movie.video === 'object' && movie.video !== null) 
+    ? (movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0]) 
+    : movie.video;
 
-  if (!src) {
-    showPlayerError('No playable URL — opening player page.');
-    setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 600);
+  if (!src || src === "00" || src === "cc") {
+    showPlayerError('Playback link unavailable for this layout format.');
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
     return;
   }
 
-  const urlLower = (src || '').toLowerCase();
+  const urlLower = src.toLowerCase();
 
-  // iframe-hosted players (streamtape, dood, vidcdn, ok.ru, mega)
   if (urlLower.includes('streamtape.com') || urlLower.includes('dood') || urlLower.includes('vidcdn') || urlLower.includes('ok.ru') || urlLower.includes('mega.nz') || urlLower.includes('openload')) {
-    modalPlayer.innerHTML = `<iframe src="${src}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    modalPlayer.innerHTML = `<iframe src="${src}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
     playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     return;
   }
 
-  // YouTube -> embed
   if (isYouTube(src)) {
     let embedUrl = src;
     try {
@@ -561,99 +530,54 @@ function playInModal(filteredArray, index) {
         if (v) embedUrl = `https://www.youtube.com/embed/${v}`;
       } else if (src.includes('youtu.be/')) {
         const parts = src.split('youtu.be/');
-        if (parts[1]) {
-          const vid = parts[1].split(/[?&]/)[0];
-          embedUrl = `https://www.youtube.com/embed/${vid}`;
-        }
+        if (parts[1]) embedUrl = `https://www.youtube.com/embed/${parts[1].split(/[?&]/)[0]}`;
       }
     } catch (e) {}
-    modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+    modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
     playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     return;
   }
 
-  // HLS handling (.m3u8 / index*.txt / manifest etc.)
   if (isHls(src)) {
     const videoEl = getModalVideo();
-    if (!videoEl) {
-      showPlayerError('Player missing — opening external player.');
-      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 600);
-      return;
-    }
-
     if (window.Hls && Hls.isSupported()) {
       currentHls = new Hls();
-      try {
-        currentHls.loadSource(src);
-        currentHls.attachMedia(videoEl);
-      } catch (e) {
-        console.warn('HLS attach error', e);
-      }
+      currentHls.loadSource(src);
+      currentHls.attachMedia(videoEl);
       currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-        try { videoEl.play().catch(()=>{}); } catch(e) {}
+        videoEl.play().catch(()=>{});
         playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
       });
       currentHls.on(Hls.Events.ERROR, function(event, data) {
-        console.warn('HLS error', data);
-        if (data && data.fatal) {
-          try { currentHls.destroy(); } catch(e) {}
-          currentHls = null;
-          showPlayerError('HLS failed — opening external player.');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-        }
+        if (data && data.fatal) showPlayerError('HLS Stream error occurred.');
       });
     } else if (videoEl.canPlayType && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-      // Safari native HLS
       videoEl.src = src;
-      try { videoEl.play().catch(()=>{}); } catch(e){}
+      videoEl.play().catch(()=>{});
       playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-    } else {
-      // no HLS support: fallback to player.html
-      showPlayerError('HLS not supported — opening external player.');
-      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
     }
     return;
   }
 
-  // MP4 direct
   if (isMP4(src)) {
     const videoEl = getModalVideo();
-    if (!videoEl) {
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
-      return;
-    }
     videoEl.src = src;
-    try { videoEl.play().catch(()=>{}); } catch(e){}
+    videoEl.play().catch(()=>{});
     playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
     return;
   }
-
-  // Unknown -> fallback to player.html (matches Hawkeye behavior)
-  window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
 }
 
-/* ============================
-   Controls & event bindings
-   ============================ */
-
-/* Click handler for each movie tile */
-function handleMovieClick(movie, idxInAll) {
-  // Find index in the filtered array so next/prev use the visible list
-  const idxInFiltered = currentFiltered.indexOf(movie);
-  const indexToUse = idxInFiltered >= 0 ? idxInFiltered : idxInAll;
-  playInModal(currentFiltered.length ? currentFiltered : movies, indexToUse);
+function handleMovieClick(movie) {
+  const targetArray = currentFiltered.length ? currentFiltered : movies;
+  const idxInTarget = targetArray.findIndex(m => m.title === movie.title);
+  playInModal(targetArray, idxInTarget >= 0 ? idxInTarget : 0);
 }
 
-/* Modal close */
+/* Event listeners */
 closeModalBtn.addEventListener('click', closeVideoModal);
+videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoModal(); });
 
-/* clicking outside the modal container closes */
-videoModal.addEventListener('click', (e) => {
-  if (e.target === videoModal) closeVideoModal();
-});
-
-/* Play/Pause toggle (for HTML5 video only) */
 playPauseBtn.addEventListener('click', () => {
   const v = getModalVideo();
   if (!v) return;
@@ -666,38 +590,34 @@ playPauseBtn.addEventListener('click', () => {
   }
 });
 
-/* Next / Prev */
 nextBtn.addEventListener('click', () => {
-  if (!currentFiltered.length) currentFiltered = movies;
-  if (currentIndex == null) return showPlayerError('No current item');
-  if (currentIndex < currentFiltered.length - 1) {
-    playInModal(currentFiltered, currentIndex + 1);
+  const targetArray = currentFiltered.length ? currentFiltered : movies;
+  if (currentIndex !== null && currentIndex < targetArray.length - 1) {
+    playInModal(targetArray, currentIndex + 1);
   } else {
-    showPlayerError('No next video');
-  }
-});
-prevBtn.addEventListener('click', () => {
-  if (!currentFiltered.length) currentFiltered = movies;
-  if (currentIndex == null) return showPlayerError('No current item');
-  if (currentIndex > 0) {
-    playInModal(currentFiltered, currentIndex - 1);
-  } else {
-    showPlayerError('No previous video');
+    showPlayerError('End of collection playlist reached');
   }
 });
 
-/* Fullscreen */
+prevBtn.addEventListener('click', () => {
+  const targetArray = currentFiltered.length ? currentFiltered : movies;
+  if (currentIndex !== null && currentIndex > 0) {
+    playInModal(targetArray, currentIndex - 1);
+  } else {
+    showPlayerError('First element selected');
+  }
+});
+
 fullscreenBtn.addEventListener('click', () => {
   const el = getModalVideo() || modalPlayer.querySelector('iframe');
   if (!el) return;
   if (!document.fullscreenElement) {
-    (el.requestFullscreen || modalPlayer.requestFullscreen).call(el).catch(err => showPlayerError('Fullscreen failed'));
+    (el.requestFullscreen || modalPlayer.requestFullscreen || el.webkitRequestFullscreen).call(el).catch(() => showPlayerError('Fullscreen block error'));
   } else {
     document.exitFullscreen();
   }
 });
 
-/* Mute toggle */
 muteBtn.addEventListener('click', () => {
   const v = getModalVideo();
   if (!v) return;
@@ -705,33 +625,17 @@ muteBtn.addEventListener('click', () => {
   muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
 });
 
-/* Keyboard shortcuts when modal active */
-document.addEventListener('keydown', (e) => {
-  if (!videoModal.classList.contains('active')) return;
-  switch (e.key.toLowerCase()) {
-    case 'escape': closeVideoModal(); break;
-    case ' ': e.preventDefault(); { const v = getModalVideo(); if (v) v.paused ? v.play() : v.pause(); break; }
-    case 'arrowright': { const v = getModalVideo(); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-    case 'arrowleft': { const v = getModalVideo(); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
-    case 'f': fullscreenBtn.click(); break;
-    case 'm': muteBtn.click(); break;
-    case 'n': nextBtn.click(); break;
-    case 'p': prevBtn.click(); break;
-  }
-});
-
-/* -------------------------
-   Search / category bindings
-   ------------------------- */
 searchBar.addEventListener('input', (e) => {
-  currentSearch = e.target.value.trim().toLowerCase();
+  currentSearch = e.target.value.trim();
   filterMovies();
 });
+
 clearSearch.addEventListener('click', () => {
   searchBar.value = '';
   currentSearch = '';
   filterMovies();
 });
+
 categoryBtns.forEach(btn => {
   btn.addEventListener('click', function() {
     categoryBtns.forEach(b=>b.classList.remove('active'));
@@ -741,17 +645,333 @@ categoryBtns.forEach(btn => {
   });
 });
 
-/* Initial render */
 document.addEventListener('DOMContentLoaded', () => {
-  // initial filtered list
-  currentFiltered = movies.slice();
+  currentFiltered = [...movies];
   displayMovies(currentFiltered);
   loading.style.display = 'none';
 });
 </script>
- 
+    <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
 
 
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
 
 </body>
 </html>
