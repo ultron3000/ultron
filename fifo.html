@@ -39,7 +39,6 @@
       width: 100%; max-width: 980px; background: #0b1220; display: flex; flex-direction: column;
     }
     .player-wrapper { position: relative; width: 100%; padding-bottom: 56.25%; background: #000; }
-    .player-wrapper video { position: absolute; inset: 0; width: 100%; height: 100%; }
     .btn { border: 1px solid var(--primary); color: var(--primary); padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
     .btn:hover { background: rgba(254,209,65,0.1); }
     
@@ -77,8 +76,11 @@
 <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
   <div class="modal-card">
     <div class="player-wrapper">
-      <video id="modalVideo" controls playsinline autocomplete="off"></video>
-      <button id="topCloseBtn" onclick="closePlayer()" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center">
+      <!-- Media container explicitly handles isolation between native HTML5 video player and external Iframes -->
+      <div id="mediaContainer" class="absolute inset-0 w-full h-full">
+        <video id="modalVideo" class="w-full h-full" controls playsinline autocomplete="off"></video>
+      </div>
+      <button id="topCloseBtn" onclick="closePlayer()" class="absolute top-4 right-4 z-50 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center">
         <i class="fas fa-times text-xl"></i>
       </button>
     </div>
@@ -1169,7 +1171,7 @@
 
   function buildScheduleGrid() {
     const grid = document.getElementById("matchScheduleGrid");
-    grid.innerHTML = "";
+    let fullGridHtml = ""; // Use a localized accumulator string to prevent heavy iterative DOM re-render lag
 
     fifaMatches.forEach((match, index) => {
       const kickoff = new Date(match.kickoffTime);
@@ -1227,8 +1229,10 @@
           </div>
         </div>`;
         
-      grid.innerHTML += matchCard;
+      fullGridHtml += matchCard;
     });
+
+    grid.innerHTML = fullGridHtml;
   }
 
   function launchStreamByIndex(index, title) {
@@ -1239,13 +1243,14 @@
   async function launchStream(url, title, matchObj = {}) {
     if(!url || url === "#" || url === "00") return alert("No video link configured for this match yet.");
     const modal = document.getElementById("playbackModal");
-    const video = document.getElementById("modalVideo");
     document.getElementById("modalTitle").innerText = title;
     
     modal.classList.add("active");
 
+    const mediaContainer = document.getElementById("mediaContainer");
+
     // ==========================================
-    // EXTRA IFRAME OVERRIDE FOR EMIBED/EXTERNAL LINKS (MEGA)
+    // EXTRA IFRAME OVERRIDE FOR EMBED/EXTERNAL LINKS (MEGA)
     // ==========================================
     if (
       url.includes('mega.nz') ||
@@ -1256,9 +1261,7 @@
       url.includes('https://m3u8-proxy.digitalcinemaos.workers.dev') ||
       url.includes('livecricketsl.cc.nf')
     ) {
-      // Hide standard video element view container and load iframe inside wrapper instead
-      const playerWrapper = video.parentElement;
-      playerWrapper.innerHTML = `
+      mediaContainer.innerHTML = `
         <iframe 
           src="${url}" 
           width="100%" 
@@ -1266,16 +1269,14 @@
           frameborder="0" 
           allowfullscreen 
           allow="autoplay; encrypted-media"
-          style="position: absolute; top:0; left:0; width:100%; height:100%;">
+          style="width:100%; height:100%;">
         </iframe>`;
-      return; // Stop function execution right here!
+      return; // Stop processing native configurations if it's an Iframe
     }
 
-    // Restore standard video element fallback if previous match run used an iframe
-    if (!document.getElementById("modalVideo")) {
-      const playerWrapper = video ? video.parentElement : document.querySelector(".modal-body-wrapper-class-or-id"); 
-      // Note: If you close and re-open an iframe match, ensure closePlayer resets the innerHTML back to standard <video id="modalVideo">
-    }
+    // Default Fallback: Guarantee an HTML5 video component is initialized
+    mediaContainer.innerHTML = `<video id="modalVideo" class="w-full h-full" controls playsinline autocomplete="off"></video>`;
+    const video = document.getElementById("modalVideo");
 
     if (typeof shaka !== 'undefined') shaka.polyfill.installAll();
 
@@ -1335,15 +1336,8 @@
 
   async function closePlayer() {
     const modal = document.getElementById("playbackModal");
-    
     modal.classList.remove("active");
     
-    // If an iframe replaced the video element, reset the layout back to a standard video player element on close
-    const playerWrapper = document.getElementById("modalVideo") ? document.getElementById("modalVideo").parentElement : modal.querySelector(".aspect-video"); // ADJUST selector to target your player wrap container
-    if (playerWrapper) {
-       playerWrapper.innerHTML = `<video id="modalVideo" class="w-full h-full object-cover" controls playsinline></video>`;
-    }
-
     const video = document.getElementById("modalVideo");
     if(video) video.pause();
     
@@ -1355,12 +1349,17 @@
       hlsInstance.destroy();
       hlsInstance = null;
     }
-    if(video) video.src = "";
+    
+    // Completely nuke inner content of mediaContainer to terminate running internal frames immediately
+    const mediaContainer = document.getElementById("mediaContainer");
+    if (mediaContainer) {
+       mediaContainer.innerHTML = `<video id="modalVideo" class="w-full h-full" controls playsinline autocomplete="off"></video>`;
+    }
   }
 
   window.onload = buildScheduleGrid;
 </script>
-<!-- ========================================================= -->
+  <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -1680,4 +1679,7 @@ img {
 ::selection {
     background: transparent;
 }
-</style> 
+</style>
+
+</body>
+</html>
