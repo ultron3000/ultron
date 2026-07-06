@@ -2,173 +2,151 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Hitman</title>
+<title>Hitman Collection</title>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <!-- HLS.js for HLS playback -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Teko:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
     
     :root {
-      --primary: #ffcc00;
-      --secondary: #111827;
-      --accent: #f59e0b;
-      --muted: #9CA3AF;
+      --primary: #e50914; /* Crimson Blood Red */
+      --primary-hover: #b20710;
+      --bg-dark: #0a0a0c;
+      --card-bg: #121216;
+      --accent-glow: rgba(229, 9, 20, 0.4);
+      --text-muted: #9ca3af;
     }
     
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(180deg, #0d0d11 0%, #050507 100%);
       color: white;
       min-height: 100vh;
       margin: 0;
       padding: 0;
       overflow-x: hidden;
     }
-    
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
+
+    h1, h2, h3, .heading-font {
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
     
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    /* Tactical Crosshair Background Overlay Pattern */
+    .tactical-grid {
+      background-image: 
+        radial-gradient(circle at center, transparent 2px, var(--bg-dark) 2px),
+        linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+      background-position: center;
     }
     
     .movie-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      transform-origin: center;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
     }
     
     .movie-card:hover {
-      transform: translateY(-8px) scale(1.03);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    
-    .search-input {
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-    
-    .search-input:focus {
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5);
-    }
-    
-    .header-glow {
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+      transform: translateY(-6px);
+      border-color: rgba(229, 9, 20, 0.5);
+      box-shadow: 0 12px 30px rgba(229, 9, 20, 0.2);
     }
     
     .movie-poster {
       aspect-ratio: 2/3;
-      transition: transform 0.5s ease;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     .movie-card:hover .movie-poster {
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
-    
-    .category-tab {
-      transition: all 0.3s ease;
-    }
-    
-    .category-tab:hover {
-      transform: translateY(-2px);
-    }
-    
-    .category-tab.active {
-      background-color: var(--primary);
-      color: var(--secondary);
-      font-weight: 600;
-    }
-    
-    /* Custom scrollbar */
+
+    /* Custom tactical scrollbar */
     ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
     }
-    
     ::-webkit-scrollbar-track {
-      background: #1e293b;
+      background: #0a0a0c;
     }
-    
     ::-webkit-scrollbar-thumb {
-      background: #ffcc00;
-      border-radius: 10px;
+      background: var(--primary);
+      border-radius: 3px;
     }
-    
     ::-webkit-scrollbar-thumb:hover {
-      background: #f59e0b;
+      background: var(--primary-hover);
     }
     
-    /* Animation */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* Animation entries */
+    @keyframes tacticalFade {
+      from { opacity: 0; transform: translateY(15px); filter: brightness(0.5); }
+      to { opacity: 1; transform: translateY(0); filter: brightness(1); }
     }
     
-    .animate-fade-in {
-      animation: fadeIn 0.6s ease forwards;
+    .animate-tactical {
+      animation: tacticalFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
-    .delay-400 { animation-delay: 0.4s; }
-    
-    /* Illumination modal styles (responsive) */
+    /* Illumination modal styles */
     .modal-backdrop { 
       position:fixed; 
       inset:0; 
-      background: rgba(0,0,0,0.9); 
+      background: rgba(4, 4, 6, 0.95); 
+      backdrop-filter: blur(8px);
       display:none; 
       align-items:center; 
       justify-content:center; 
       z-index:9999; 
-      padding: 0;
     }
     .modal-backdrop.active { display:flex; }
+    
     .modal-card { 
       width: 100%;
       height: 100%;
-      max-width: 980px;
-      max-height: 90vh;
-      border-radius: 0;
-      overflow: hidden;
-      background: #0b1220;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      max-width: 1024px;
+      max-height: 100vh;
+      background: #0e0e12;
+      border: 1px solid rgba(255,255,255,0.05);
       display: flex;
       flex-direction: column;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
     }
+
     .player-wrapper { 
       position: relative;
       flex: 1;
       min-height: 0;
       background: #000;
     }
+
     #topCloseBtn { 
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 12px;
+      right: 12px;
       z-index: 10;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.2);
       color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 1;
       transition: all 0.2s ease;
     }
     #topCloseBtn:hover {
-      background: rgba(0,0,0,0.9);
-      transform: scale(1.1);
+      background: var(--primary);
+      border-color: var(--primary);
+      transform: rotate(90deg);
     }
+
     .player-wrapper video, 
     .player-wrapper iframe { 
       position: absolute;
@@ -180,93 +158,90 @@
     .player-meta { 
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding: 12px;
-      color: #ddd;
-      background: #0b1220;
-    }
-    .player-meta .meta-left { 
-      width: 100%;
+      gap: 16px;
+      padding: 16px;
+      background: #0a0a0c;
+      border-top: 1px solid rgba(255,255,255,0.05);
     }
     .player-meta h3 { 
       margin: 0;
-      font-size: 1.125rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .player-meta p { 
-      margin: 6px 0 0 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      font-size: 1.4rem;
+      color: #fff;
     }
 
+    /* Tactical Specialized Buttons Grid Context */
     .controls-row { 
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-cols: repeat(3, 1fr);
       gap: 8px;
-      align-items: center;
-      justify-content: center;
+      width: 100%;
     }
 
+    /* Tactical Buttons Styling */
     .btn {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 10px 14px;
-      border-radius: 8px;
+      background: #14141a;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #eee;
+      padding: 12px 10px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 0.9rem;
-      min-width: 60px;
-      flex: 1;
-      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
+      transition: all 0.2s ease;
     }
     .btn:hover { 
-      background: rgba(254,209,65,0.06); 
+      background: #1c1c24;
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
     }
-    .btn i {
-      font-size: 1rem;
+    
+    /* Highlight Main Play Action Button */
+    .btn-play-accent {
+      background: var(--primary) !important;
+      border-color: var(--primary) !important;
+      color: white !important;
+      font-weight: 600;
+    }
+    .btn-play-accent:hover {
+      background: var(--primary-hover) !important;
+      box-shadow: 0 0 15px var(--accent-glow);
     }
 
-    /* Responsive adjustments */
+    /* Layout Responsive Adaptations */
     @media (min-width: 768px) {
       .modal-card {
-        width: 92%;
+        width: 90%;
         height: auto;
-        border-radius: 12px;
-        max-height: 80vh;
+        border-radius: 8px;
+        max-height: 85vh;
       }
       .player-wrapper {
-        padding-bottom: 56.25%;
+        padding-bottom: 56.25%; /* Fixed aspect ratio on desktop setup */
         height: 0;
       }
       .player-meta {
         flex-direction: row;
         justify-content: space-between;
-        align-items: flex-start;
-      }
-      .player-meta .meta-left {
-        max-width: 65%;
+        align-items: center;
+        padding: 20px;
       }
       .controls-row {
-        flex-wrap: nowrap;
-        justify-content: flex-end;
+        display: flex;
+        width: auto;
+        gap: 10px;
       }
       .btn {
-        flex: 0;
-        min-width: auto;
-        padding: 8px 12px;
+        padding: 10px 18px;
+        font-size: 0.9rem;
       }
       #topCloseBtn {
-        opacity: 0;
+        opacity: 0.7;
       }
       .player-wrapper:hover #topCloseBtn {
         opacity: 1;
@@ -274,183 +249,102 @@
     }
 
     @media (max-width: 480px) {
+      /* Keep text labels visible but tight for structured fit */
       .btn {
-        padding: 8px;
-        font-size: 0;
-      }
-      .btn i {
-        font-size: 1rem;
-        margin: 0 !important;
+        font-size: 0.75rem;
+        gap: 4px;
+        padding: 10px 4px;
       }
     }
 
-   /* Modal legacy styles (unused) */
-    .modal-overlay { display:none; }
-    /* ============================
-   DESKTOP FIX — DOES NOT TOUCH MOBILE
-   ============================ */
-
-@media (min-width: 768px) {
-
-  /* Fix video height so it doesn't cover controls */
-  .player-wrapper {
-    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
-    height: auto !important;
-    max-height: 60vh !important;       /* safe video height */
-    position: relative !important;
-  }
-
-  /* Ensure iframe/video stays inside wrapper */
-  .player-wrapper video,
-  .player-wrapper iframe {
-    height: 100% !important;
-    max-height: 60vh !important;
-    position: relative !important;
-  }
-
-  /* Make sure controls are ALWAYS visible above video */
-  .player-meta {
-    position: relative !important;
-    z-index: 100 !important;
-    background: #0b1220 !important;      /* solid background for visibility */
-    padding-top: 10px !important;
-  }
-
-  /* Controls row layout */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 12px !important;
-  }
-
-  /* Buttons behave normally */
-  .btn {
-    min-width: 95px !important;
-    padding: 10px 16px !important;
-    flex: unset !important;
-  }
-
-  /* Modal height adjustment to fit everything */
-  .modal-card {
-    max-height: 85vh !important;
-    overflow: visible !important;
-  }
-}
-/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-
-  object-fit: contain !important;
-  background-color: black;
-}
-
-/* Only cover when video aspect is cinematic */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
-    object-fit: cover !important;
-  }
-}
-
+    /* Fullscreen Core Engine Adaptations */
+    video:fullscreen, iframe:fullscreen {
+      object-fit: contain !important;
+      background-color: black;
+    }
   </style>
 </head>
-<body class="relative">
-<!-- Floating stars background -->
-<div class="fixed inset-0 overflow-hidden -z-10">
-<div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80"></div>
-<div class="stars"></div>
-<div class="stars2"></div>
-</div>
-<div class="container mx-auto px-4 py-8 max-w-7xl">
+<body class="relative tactical-grid">
 
-<!-- Full-Width Video Header with Animated Logo -->
-<div class="relative w-full h-[400px] md:h-[500px] overflow-hidden">
-  <!-- YouTube Video Background -->
-  <iframe 
-    src="https://www.youtube.com/embed/pAMy7IhOVQE?autoplay=1&mute=1&loop=1&playlist=pAMy7IhOVQE&controls=0&modestbranding=1"
-    frameborder="0" 
-    allow="autoplay; fullscreen" 
-    class="absolute top-0 left-0 w-full h-full pointer-events-none">
-  </iframe>
+<div class="container mx-auto px-4 py-6 max-w-7xl">
 
-  <!-- Animated Logo at Top-Left -->
-  <img 
-    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl5KD3zyL6BJuSWJHLQCJ_OrH5Pg-Nl9dm4oQu_R8yh8hSUnALM1O99k8PY-5BmJCb3uQ&usqp=CAU" 
-    alt="Despicable Me Logo" 
-    class="absolute top-4 left-4 h-16 md:h-24 animate-logo z-10"
-  />
-</div>
+  <!-- Cinematic Full-Width Header Block Banner -->
+  <div class="relative w-full h-[220px] sm:h-[320px] md:h-[420px] overflow-hidden rounded-xl border border-red-900/30 mb-10 shadow-2xl shadow-black">
+    <!-- Embedded ambient looping war zone background asset -->
+    <iframe 
+      src="https://www.youtube.com/embed/pAMy7IhOVQE?autoplay=1&mute=1&loop=1&playlist=pAMy7IhOVQE&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3"
+      frameborder="0" 
+      allow="autoplay; fullscreen" 
+      class="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none object-cover opacity-60 scale-110">
+    </iframe>
 
-<style>
-  /* Animated Logo */
-  .animate-logo {
-    animation: float-pulse 3s ease-in-out infinite, glow-logo 2s ease-in-out infinite alternate;
-  }
+    <!-- Absolute Overlay Layer Gradient Context -->
+    <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d11] via-black/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent"></div>
 
-  @keyframes float-pulse {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
+    <!-- Red Theme Title Block Interface Layer -->
+    <div class="absolute bottom-0 left-0 p-6 md:p-10 z-10">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded tracking-widest uppercase">Agent 47</span>
+        <span class="text-gray-400 text-sm font-medium"><i class="fas fa-crosshairs text-red-500 mr-1"></i> Classified Contract</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight drop-shadow-md">
+        Hitman <span class="text-red-600 drop-shadow-[0_0_10px_rgba(225,9,20,0.6)]">Collection</span>
+      </h1>
+      <p class="text-gray-400 text-xs sm:text-sm mt-2 max-w-xl hidden sm:block font-light">
+        Access critical mission archives. Track deployment logs, target profiles, and absolute operational media data stream directives seamlessly across terminal viewports.
+      </p>
+    </div>
+  </div>
 
-  @keyframes glow-logo {
-    0% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-    50% { filter: drop-shadow(0 0 6px #fffa65) drop-shadow(0 0 12px #ffba00); }
-    100% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-  }
+  <!-- Dynamic Movies Grid Section Context (Strict 2 Columns Mobile, Scales Nicely Upwards) -->
+  <div class="mb-16">
+    <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-6">
+      <h2 class="text-xl sm:text-2xl font-semibold tracking-wide text-gray-200"><i class="fas fa-film text-red-600 mr-2"></i>Available Operations</h2>
+      <span class="text-xs text-gray-500 font-mono" id="movieCount">2 Contracts Loaded</span>
+    </div>
+    
+    <!-- Configured Grid Layout Pattern mapping instructions exactly -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6" id="movies"></div>
+  </div>
 
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .animate-logo { height: 4rem; top: 1rem; left: 1rem; }
-  }
-</style>
-
-</div>
-</div>
-<!-- Movies Grid -->
-<div class="mb-12">
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
-</div>
-<!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  <!-- Footer Asset Links Components -->
+  <div class="border-t border-gray-900 mt-16 pt-8 pb-4 text-center">
+    <div class="flex justify-center gap-6 mb-4 text-lg">
+      <a href="#" class="text-gray-600 hover:text-red-600 transition duration-300"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" class="text-gray-600 hover:text-red-600 transition duration-300"><i class="fab fa-twitter"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-600 hover:text-red-600 transition duration-300"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-600 hover:text-red-600 transition duration-300"><i class="fab fa-youtube"></i></a>
+    </div>
+    <p class="text-xs font-mono tracking-widest text-gray-700">&copy; 2026 ICA TERMINAL SYSTEM DATA SYSTEMS</p>
   </div>
 </div>
 
-<!-- === REPLACED: Illumination-style Modal Player === -->
+<!-- === Enhanced Illumination-style Modal Player UI Framework === -->
 <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true">
     <div class="player-wrapper" id="playerWrapper">
-      <!-- video or iframe injected here -->
+      <!-- video or iframe content runtime node injections target -->
       <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
-        <i class="fas fa-times text-xl"></i>
+      <button id="topCloseBtn" title="Close Control Terminal">
+        <i class="fas fa-times"></i>
       </button>
     </div>
 
     <div class="player-meta">
-      <div class="meta-left">
-        <h3 id="modalTitle">Title</h3>
-        <p id="modalDesc" class="text-sm"></p>
+      <div class="flex-1 min-w-0 pr-2">
+        <h3 id="modalTitle" class="truncate font-semibold text-lg">Mission Document</h3>
+        <p id="modalDesc" class="text-gray-400 text-xs sm:text-sm truncate mt-1 font-light"></p>
       </div>
+      
+      <!-- Balanced Grid UI Action Row Controls Panel -->
       <div class="controls-row">
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+        <button id="prevBtn" class="btn"><i class="fas fa-backward"></i><span>Prev</span></button>
+        <button id="playPauseBtn" class="btn btn-play-accent"><i class="fas fa-play"></i><span>Play</span></button>
+        <button id="nextBtn" class="btn"><span>Next</span><i class="fas fa-forward"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i><span>Size</span></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i><span>Mute</span></button>
+        <button id="closeBtn" class="btn !bg-red-950/40 !border-red-900/40 hover:!bg-red-900 text-red-400 hover:text-white"><i class="fas fa-power-off"></i><span>Exit</span></button>
       </div>
     </div>
   </div>
@@ -458,25 +352,27 @@ iframe:-webkit-full-screen {
 
 <script>
     /******************************
-     * Existing movies array (unchanged)
+     * Movies Database Array
      ******************************/
     const movies = [
-   { 
-    title: "Hitman", 
-    video: "https://r63hfpdmodtc.pinegrovedesignstudio.shop/kxvc1nznlhcdfemm/hls3/01/00355/bftiydhrptnv_h/master.txt",
-    image: "https://images.moviesanywhere.com/b97e72f89c6bfef139b3b84589224358/cf99c922-b444-452a-9acf-2bc88ae899cc.jpg",
-    year: 2007
-  },
-  { 
-    title: "Hitman: Agent 47", 
-    video: "https://sipt.harmonyfieldstudio.shop/v4/36/tg1hq/cf-master.txt?v=1732328673",
-    image: "https://images.moviesanywhere.com/5880bb6d6d696a49446d9a46240a6eaf/dd19f235-f119-4896-aa65-d287fbbd0adb.jpg",
-    year: 2015
-  },
+      { 
+        title: "Hitman", 
+        video: "https://mega.nz/embed/T0BFCLSS#sXMqq1fjxcxrhIs4cyXDSM2xp83ekW646SMSyyg2YPc",
+        image: "https://images.moviesanywhere.com/b97e72f89c6bfef139b3b84589224358/cf99c922-b444-452a-9acf-2bc88ae899cc.jpg",
+        year: 2007,
+        duration: "1h 32m"
+      },
+      { 
+        title: "Hitman: Agent 47", 
+        video: "https://mega.nz/embed/bkRmDRrD#Vo14bqOTphIqCNDUFyV6WPW7HdOJdYYBhpZj_XthsJ4",
+        image: "https://images.moviesanywhere.com/5880bb6d6d696a49446d9a46240a6eaf/dd19f235-f119-4896-aa65-d287fbbd0adb.jpg",
+        year: 2015,
+        duration: "1h 36m"
+      }
     ];
 
     /******************************
-     * DOM refs for modal controls
+     * DOM Access Node Cache References
      ******************************/
     const playbackModal = document.getElementById('playbackModal');
     const playerWrapper = document.getElementById('playerWrapper');
@@ -494,9 +390,6 @@ iframe:-webkit-full-screen {
     let currentFiltered = [];
     let currentIndex = null;
 
-    /******************************
-     * Type detection helpers
-     ******************************/
     function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
     function isHls(url) {
       if (!url) return false;
@@ -507,9 +400,6 @@ iframe:-webkit-full-screen {
       return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
     }
 
-    /******************************
-     * Reset player container
-     ******************************/
     function resetPlayerContainer() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -527,54 +417,34 @@ iframe:-webkit-full-screen {
       document.body.style.overflow = '';
     }
 
-    function showError(msg) {
-      console.warn(msg);
-    }
-
-    /******************************
-     * Core: open player (Illumination logic)
-     ******************************/
     function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      
       currentFiltered = list;
       currentIndex = index;
       const movie = list[index];
-      if (!movie) { showError('Movie missing'); return; }
+      if (!movie) return;
 
-      // metadata
       modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.title || '');
+      modalDesc.textContent = `${movie.year} • Operational Record Entry Logs Deployment`;
 
-      // reset & show
       resetPlayerContainer();
       showModal();
 
-      // pick src
-      let src = '';
-      if (typeof movie.video === 'object' && movie.video !== null) {
-        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
-      } else {
-        src = movie.video;
-      }
-      if (!src) {
-        showError('No video source');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
-        return;
-      }
+      let src = (typeof movie.video === 'object' && movie.video !== null) ? 
+                (movie.video.high || movie.video.medium || Object.values(movie.video)[0]) : movie.video;
+      if (!src) return;
 
-      const lc = (src || '').toLowerCase();
+      const lc = src.toLowerCase();
 
-      // iframe-hosted common hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+      // Third-party standard iframe integrations
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('drive.google.com')) {
         playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
         return;
       }
 
-      // youtube
+      // YouTube streaming parameters
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -587,123 +457,96 @@ iframe:-webkit-full-screen {
           }
         } catch (e) {}
         playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
         return;
       }
 
-      // HLS
+      // Live HLS processing streams
       if (isHls(src)) {
         const v = document.getElementById(modalVideoId);
-        if (!v) { showError('Video element missing'); return; }
+        if (!v) return;
         if (window.Hls && Hls.isSupported()) {
           currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
           currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
             v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-          currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-            }
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
           });
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
         }
         return;
       }
 
-      // MP4
+      // Local MP4 Direct Assets Execution
       if (isMP4(src)) {
         const v = document.getElementById(modalVideoId);
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+        if (!v) return;
         v.src = src;
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
         return;
       }
-
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
     /******************************
-     * Controls
+     * Control Interface Events Orchestration
      ******************************/
     function togglePlayPause() {
       const v = document.getElementById(modalVideoId);
       if (!v) return;
       if (v.paused) {
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
       } else {
         v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
       }
     }
+    
     function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
+      if (!currentFiltered.length) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex < currentFiltered.length - 1) {
+        openPlayer(currentFiltered, currentIndex + 1);
+      }
     }
+    
     function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
+      if (!currentFiltered.length) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex > 0) {
+        openPlayer(currentFiltered, currentIndex - 1);
+      }
     }
+    
     function toggleFullscreen() {
       const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
       if (!el) return;
       if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
       } else {
         document.exitFullscreen();
       }
     }
+    
     function toggleMute() {
       const v = document.getElementById(modalVideoId);
       if (!v) return;
       v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i><span>Muted</span>' : '<i class="fas fa-volume-up"></i><span>Mute</span>';
     }
 
-    /******************************
-     * Close modal & cleanup
-     ******************************/
     function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
+      if (currentHls) { try { currentHls.destroy(); } catch(e){} currentHls = null; }
       const v = document.getElementById(modalVideoId);
-      if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
-      }
+      if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e){} }
       resetPlayerContainer();
       hideModal();
-      currentIndex = null;
-      currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
     }
 
-    /******************************
-     * Events wiring
-     ******************************/
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
     prevBtn.addEventListener('click', playPrev);
@@ -712,156 +555,370 @@ iframe:-webkit-full-screen {
     document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
     document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
 
-    // close by clicking outside
     playbackModal.addEventListener('click', function(e){
       if (e.target === playbackModal) closeModalHandler();
     });
 
-    // Escape & keyboard
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-        case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
-      }
-    });
-
     /******************************
-     * Render movies and wire to openPlayer
+     * Collection Render Target Function (Two-Columns Grid Output Setup)
      ******************************/
     const container = document.getElementById('movies');
 
     function renderMovies(moviesToRender) {
       container.innerHTML = '';
       moviesToRender.forEach((movie, index) => {
-        const delayClass = `delay-${(index % 5) * 100}`;
-
         const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+        div.className = `movie-card animate-tactical rounded-lg overflow-hidden bg-[#111115] cursor-pointer relative group flex flex-col justify-between`;
         div.innerHTML = `
-          <div class="relative overflow-hidden rounded-t-lg">
+          <div class="relative overflow-hidden bg-black aspect-[2/3]">
             <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
-                <i class="fas fa-play mr-2"></i> Watch Now
-              </button>
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center p-4">
+              <div class="bg-red-600 text-white font-semibold text-xs uppercase tracking-wider py-2.5 px-4 rounded shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                <i class="fas fa-play mr-1.5 text-[10px]"></i> Launch Video
+              </div>
             </div>
           </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-2 text-sm text-gray-400">
+          <div class="p-3 sm:p-4 bg-[#111115]">
+            <h3 class="font-medium text-sm sm:text-base text-gray-200 group-hover:text-red-500 transition duration-200 truncate">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-1.5 text-xs text-gray-500 font-mono">
               <span>${movie.year}</span>
-              <span>${movie.duration}</span>
+              <span class="border border-gray-800 px-1 py-0.5 rounded text-[10px]">${movie.duration || 'N/A'}</span>
             </div>
           </div>
         `;
 
-        // Open modal and use movies array for prev/next
-        div.addEventListener('click', () => {
-          openPlayer(moviesToRender, index);
-        });
-
+        div.addEventListener('click', () => openPlayer(moviesToRender, index));
         container.appendChild(div);
       });
+      
+      const countEl = document.getElementById('movieCount');
+      if (countEl) countEl.textContent = `${moviesToRender.length} Targets Verified`;
     }
 
-    // Initial render
+    // Initialize execution pipeline
     renderMovies(movies);
+</script>
+    <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
 
-    /******************************
-     * Backwards-compatible extras:
-     * Keep original search/category wiring but guard missing elements
-     ******************************/
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModalHandler);
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
 
-    // previous code referenced searchBar; guard that
-    const searchBarEl = document.getElementById('searchBar');
-    if (searchBarEl) {
-      searchBarEl.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const filteredMovies = movies.filter(movie => 
-          movie.title.toLowerCase().includes(searchTerm)
-        );
-        renderMovies(filteredMovies);
-      });
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
     }
 
-    // Category tabs preservation (guard for existence)
-    document.querySelectorAll('.category-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Update active tab
-        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
 
-        const category = this.dataset.category;
-        let filteredMovies;
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
 
-        if (category === 'all') {
-          filteredMovies = movies;
-        } else {
-          filteredMovies = movies.filter(movie => (movie.categories || []).includes(category));
-        }
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
 
-        renderMovies(filteredMovies);
-      });
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
     });
 
-    /******************************
-     * Create floating stars background (existing)
-     ******************************/
-    function createStars(container, count, sizeRange, durationRange) {
-      for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'absolute rounded-full bg-white';
+});
 
-        // Random position
-        const left = Math.random() * 100;
-        const top = Math.random() * 100;
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
 
-        // Random size
-        const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
+    setInterval(function () {
 
-        // Random animation duration
-        const duration = durationRange[0] + Math.random() * (durationRange[1] - durationRange[0]);
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
 
-        star.style.left = `${left}%`;
-        star.style.top = `${top}%`;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.opacity = Math.random() * 0.5 + 0.1;
-        star.style.animation = `float ${duration}s infinite ease-in-out alternate`;
-        star.style.animationDelay = `${Math.random() * 5}s`;
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
 
-        container.appendChild(star);
-      }
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
     }
 
-    const starsContainer = document.querySelector('.stars');
-    const starsContainer2 = document.querySelector('.stars2');
-    if (starsContainer) createStars(starsContainer, 50, [1, 3], [5, 15]);
-    if (starsContainer2) createStars(starsContainer2, 30, [2, 4], [10, 20]);
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
 
-    // Add floating animation
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @keyframes float {
-        0% { transform: translateY(0) translateX(0); }
-        50% { transform: translateY(-20px) translateX(10px); }
-        100% { transform: translateY(0) translateX(0); }
-      }
-    `;
-    document.head.appendChild(style);
+})();
 
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
 </script>
 
- 
-    
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
 </body>
 </html>
