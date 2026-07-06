@@ -80,16 +80,37 @@
       <div id="mediaContainer" class="absolute inset-0 w-full h-full">
         <video id="modalVideo" class="w-full h-full" controls playsinline autocomplete="off"></video>
       </div>
+      
       <button id="topCloseBtn" onclick="closePlayer()" class="absolute top-4 right-4 z-50 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center">
         <i class="fas fa-times text-xl"></i>
       </button>
     </div>
-    <div class="p-4 bg-[#0b1220] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="p-4 bg-[#0b1220] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-t border-gray-800">
       <div>
         <h3 id="modalTitle" class="text-lg font-bold text-white">Match Stream</h3>
         <p id="modalDesc" class="text-sm text-gray-400">FIFA World Cup 2026 Video Feed</p>
       </div>
-      <button onclick="closePlayer()" class="btn px-6"><i class="fas fa-times mr-2"></i>Close</button>
+      
+      <!-- Integrated Media Controls & Close Layout Alignment -->
+      <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+        <div class="flex items-center gap-1 bg-gray-900 border border-gray-800 rounded-lg p-1">
+          <button onclick="playAdjacentMatch(-1)" title="Previous Match" class="text-white hover:text-yellow-400 w-9 h-9 flex items-center justify-center transition rounded-md hover:bg-gray-800">
+            <i class="fas fa-step-backward text-sm"></i>
+          </button>
+          <button onclick="togglePlayPause()" title="Play/Pause" class="text-white hover:text-yellow-400 w-9 h-9 flex items-center justify-center transition rounded-md hover:bg-gray-800">
+            <i id="modalPlayIcon" class="fas fa-pause text-sm"></i>
+          </button>
+          <button onclick="playAdjacentMatch(1)" title="Next Match" class="text-white hover:text-yellow-400 w-9 h-9 flex items-center justify-center transition rounded-md hover:bg-gray-800">
+            <i class="fas fa-step-forward text-sm"></i>
+          </button>
+          <div class="w-[1px] h-4 bg-gray-800 mx-1"></div>
+          <button onclick="toggleFullScreen()" title="Fullscreen" class="text-white hover:text-yellow-400 w-9 h-9 flex items-center justify-center transition rounded-md hover:bg-gray-800">
+            <i class="fas fa-expand text-sm"></i>
+          </button>
+        </div>
+        
+        <button onclick="closePlayer()" class="btn px-6 shrink-0"><i class="fas fa-times mr-2"></i>Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1235,7 +1256,10 @@
     grid.innerHTML = fullGridHtml;
   }
 
+ let currentMatchIndex = 0;
+
   function launchStreamByIndex(index, title) {
+    currentMatchIndex = index;
     const match = fifaMatches[index];
     launchStream(match.videoUrl, title, match);
   }
@@ -1356,10 +1380,49 @@
        mediaContainer.innerHTML = `<video id="modalVideo" class="w-full h-full" controls playsinline autocomplete="off"></video>`;
     }
   }
+  function togglePlayPause() {
+    const video = document.getElementById("modalVideo");
+    const icon = document.getElementById("modalPlayIcon");
+    if (!video) return;
+    
+    if (video.paused) {
+      video.play();
+      icon.className = "fas fa-pause text-sm";
+    } else {
+      video.pause();
+      icon.className = "fas fa-play text-sm ml-0.5";
+    }
+  }
 
+  function toggleFullScreen() {
+    const container = document.getElementById("mediaContainer");
+    if (!container) return;
+    
+    if (!document.fullscreenElement) {
+      container.requestFullscreen().catch(err => {
+        console.error(`Fullscreen Error: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  function playAdjacentMatch(direction) {
+    let nextIndex = currentMatchIndex + direction;
+    
+    if (nextIndex < 0) {
+      nextIndex = fifaMatches.length - 1; 
+    } else if (nextIndex >= fifaMatches.length) {
+      nextIndex = 0; 
+    }
+    
+    const match = fifaMatches[nextIndex];
+    const suffix = match.status === "COMPLETED" ? " (Replay)" : "";
+    launchStreamByIndex(nextIndex, `${match.teamA} vs ${match.teamB}${suffix}`);
+  }
   window.onload = buildScheduleGrid;
 </script>
-  <!-- ========================================================= -->
+ <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -1680,6 +1743,6 @@ img {
     background: transparent;
 }
 </style>
-  
+   
 </body>
 </html>
