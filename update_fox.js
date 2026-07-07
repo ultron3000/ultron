@@ -5,9 +5,11 @@ const puppeteer = require('puppeteer');
 const TARGET_URL = "https://pandastreams.shop/player/stream-54.php";
 const JSON_FILE_PATH = path.join(__dirname, 'channels.json');
 
-async function fetchFreshBrowserToken() {
+async function fetchStreamViaNetworkInterception() {
   console.log("Launching headless automated browser runner...");
   let browser;
+  let targetM3u8Url = null;
+
   try {
     browser = await puppeteer.launch({
       headless: "new",
@@ -16,37 +18,56 @@ async function fetchFreshBrowserToken() {
 
     const page = await browser.newPage();
     
-    // Set matching spoofing headers to bypass page security blocks
+    // Set matching spoofing headers to bypass security walls
     await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
     await page.setExtraHTTPHeaders({
       "Referer": "https://pandastreams.shop/"
     });
 
-    console.log(`Navigating to target player canvas page...`);
-    await page.goto(TARGET_URL, { waitUntil: 'networkidle2', timeout: 30000 });
+    // CRITICAL: Enable request interception to listen to the network traffic
+    await page.setRequestInterception(true);
 
-    // Look for the live text link inside the generated scripts
-    const extractedUrl = await page.evaluate(() => {
-      const html = document.documentElement.innerHTML;
-      const regex = /(https?:\/\/[^\s"'`]+\.m3u8\?md5=[^\s"'`&\\]+&expires=\d+)/i;
-      const match = html.match(regex);
-      return match ? match[0] : null;
+    page.on('request', interceptedRequest => {
+      const url = interceptedRequest.url();
+      
+      // Look for any request going to a .m3u8 file that contains the md5 token
+      if (url.includes('.m3u8') && url.includes('md5=') && url.includes('expires=')) {
+        console.log(`🎯 Successfully intercepted target stream link from network!`);
+        targetM3u8Url = url;
+      }
+      
+      // Always allow the request to continue loading normally
+      interceptedRequest.continue();
     });
 
-    return extractedUrl;
+    console.log(`Navigating to target player canvas page...`);
+    // Wait up to 30 seconds for network activity to go idle so streams can load
+    await page.goto(TARGET_URL, { waitUntil: 'networkidle0', timeout: 30000 });
+
+    // Give it an extra 5 seconds just in case the player delays initializing
+    if (!targetM3u8Url) {
+      console.log("Stream not caught instantly. Waiting a few seconds for player playback initialization...");
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+
+    return targetM3u8Url;
+
   } catch (error) {
-    console.error("Browser extraction routine crashed:", error);
+    console.error("Browser network interception routine crashed:", error);
     return null;
   } finally {
-    if (browser) await browser.close();
+    if (browser) {
+      await browser.close();
+      console.log("Browser instance closed.");
+    }
   }
 }
 
 async function updateChannelList() {
-  const freshUrl = await fetchFreshBrowserToken();
+  const freshUrl = await fetchStreamViaNetworkInterception();
   
   if (!freshUrl) {
-    console.log("Process aborted: Fresh active token link could not be parsed via browser runtime.");
+    console.log("Process aborted: Fresh active token link could not be captured from the network layer.");
     process.exit(1);
   }
 
@@ -67,11 +88,9 @@ async function updateChannelList() {
   const targetIndex = channels.findIndex(item => item.title === "FOX FIFA");
 
   if (targetIndex !== -1) {
-    // Clean backslashes out of url strings if present
-    const cleanUrl = freshUrl.replace(/\\/g, '');
     console.log(`Found channel "FOX FIFA". Prior URL: ${channels[targetIndex].video}`);
-    channels[targetIndex].video = cleanUrl;
-    console.log(`Updated to fresh stream URL: ${cleanUrl}`);
+    channels[targetIndex].video = freshUrl;
+    console.log(`Updated to fresh intercepted stream URL: ${freshUrl}`);
 
     fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(channels, null, 2), 'utf8');
     console.log("channels.json has been updated successfully.");
