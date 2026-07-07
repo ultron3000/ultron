@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// Target source URL containing the tokenized streaming link
 const TARGET_URL = "https://pandastreams.shop/player/stream-54.php";
 const JSON_FILE_PATH = path.join(__dirname, 'channels.json');
 
@@ -10,20 +9,39 @@ async function fetchFreshTokenLink() {
     console.log("Fetching live webpage to extract fresh tokens...");
     const response = await fetch(TARGET_URL, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Referer": "https://pandastreams.shop/"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Referer": "https://pandastreams.shop/",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"
       }
     });
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const htmlText = await response.text();
     
-    // Regular expression targeting the specific .m3u8 link pattern with its md5 and expires signatures
-    const regex = /(https:\/\/vomos\.phantemlis\.top\/premium54\/[^\s"\']+mono\.m3u8\?md5=[^&"\']+\&expires=\d+)/;
-    const match = htmlText.match(regex);
+    // Broad search pattern to find the .m3u8 configuration regardless of domain adjustments
+    const broadRegex = /(https?:\/\/[^\s"'`]+\.m3u8\?md5=[^\s"'`&\\]+&expires=\d+)/i;
+    let match = htmlText.match(broadRegex);
     
+    // Fallback parser if the URL is broken into separate layout variables inside the script block
+    if (!match) {
+      console.log("Broad match failed. Attempting script variable parameter extraction...");
+      const md5Match = htmlText.match(/md5\s*=\s*["']([^"']+)["']/);
+      const expiresMatch = htmlText.match(/expires\s*=\s*["']?(\d+)["']?/);
+      const hostMatch = htmlText.match(/(https?:\/\/[a-z0-9.-]+\/premium54\/[^\s"'\n]+)/);
+      
+      if (md5Match && expiresMatch && hostMatch) {
+        let baseStream = hostMatch[1].split('?')[0];
+        if (!baseStream.endsWith('mono.m3u8') && !baseStream.endsWith('.m3u8')) {
+          baseStream = baseStream.replace(/\/$/, '') + '/mono.m3u8';
+        }
+        const rebuiltUrl = `${baseStream}?md5=${md5Match[1]}&expires=${expiresMatch[1]}`;
+        return rebuiltUrl;
+      }
+    }
+
     if (match && match[0]) {
-      return match[0];
+      // Remove any escaping backslashes inserted by character encoders
+      return match[0].replace(/\\/g, '');
     } else {
       console.error("Could not find the streaming URL pattern inside the HTML source code.");
       return null;
@@ -41,13 +59,11 @@ async function updateChannelList() {
     process.exit(1);
   }
 
-  // Verify the channels.json file exists
   if (!fs.existsSync(JSON_FILE_PATH)) {
-    console.error(`Error: ${JSON_FILE_PATH} not found in root directory.`);
+    console.error(`Error: ${JSON_FILE_PATH} not found.`);
     process.exit(1);
   }
 
-  // Read and parse the existing channels list safely
   let channels = [];
   try {
     const rawData = fs.readFileSync(JSON_FILE_PATH, 'utf8');
@@ -57,20 +73,17 @@ async function updateChannelList() {
     process.exit(1);
   }
 
-  // Locate the target channel object named "FOX FIFA"
   const targetIndex = channels.findIndex(item => item.title === "FOX FIFA");
 
   if (targetIndex !== -1) {
-    // Modify ONLY the video link of the target channel
-    console.log(`Found channel "FOX FIFA". Updating stream URL...`);
+    console.log(`Found channel "FOX FIFA". Prior URL: ${channels[targetIndex].video}`);
     channels[targetIndex].video = freshUrl;
+    console.log(`Updated to new stream URL: ${freshUrl}`);
 
-    // Write back the updated array to channels.json with clean formatting
     fs.writeFileSync(JSON_FILE_PATH, JSON.stringify(channels, null, 2), 'utf8');
     console.log("channels.json has been updated successfully.");
   } else {
     console.error('Target channel named "FOX FIFA" was not found in channels.json.');
-    console.log('Please verify that the "title" parameter in your JSON file matches "FOX FIFA" exactly.');
     process.exit(1);
   }
 }
