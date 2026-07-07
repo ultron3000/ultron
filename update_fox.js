@@ -1,49 +1,53 @@
 const fs = require('fs');
 const path = require('path');
 
-const TARGET_URL = "https://pandastreams.shop/player/stream-54.php";
+// Utilizing a public CORS/impersonation proxy to bypass the data-center challenge page
+const TARGET_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://pandastreams.shop/player/stream-54.php");
 const JSON_FILE_PATH = path.join(__dirname, 'channels.json');
 
 async function fetchFreshTokenLink() {
   try {
-    console.log("Requesting page context via clean browser impersonation layer...");
+    console.log("Requesting page context via proxy bypass engine...");
     
-    // We fetch the player source using headers designed to avoid bot-flagging thresholds
     const response = await fetch(TARGET_URL, {
       method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://pandastreams.shop/",
-        "Cache-Control": "max-age=0"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
       }
     });
 
     if (!response.ok) throw new Error(`Server returned HTTP Status Code: ${response.status}`);
     const htmlText = await response.text();
 
-    // Look for patterns where the token configuration string variables are set inside the script segments
-    // Even if hidden or split, standard parameters appear inline in clear text patterns
-    const pattern = /["'](https?:\/\/[^"'\s<>]+?\.m3u8\?md5=[^"'\s<>&\\]+&expires=\d+)["']/i;
+    // Look for patterns where the token configuration strings are defined inside script tags
+    const pattern = /(https?:\/\/[^\s"'`<>]+?\.m3u8\?md5=[^\s"'`<>&\\]+&expires=\d+)/i;
     let match = htmlText.match(pattern);
 
     if (!match) {
-      // Secondary flexible matching block checking for variations in streaming endpoints
-      const flexiblePattern = /(https?:\/\/[^"'\s<>]+?\/premium54\/[^"'\s<>]+?\.m3u8[^"'\s<>]*)/i;
+      console.log("Primary pattern failed. Checking for multi-line configurations...");
+      // Flexible fallback matching line targeting alternative premium stream paths
+      const flexiblePattern = /(https?:\/\/[^\s"'`<>]+?\/premium54\/[^\s"'<>]+?\.m3u8[^"'\s<>]*)/i;
       match = htmlText.match(flexiblePattern);
     }
 
     if (match && match[1]) {
-      let finalUrl = match[1].replace(/\\/g, ''); // Clear any backslash escape notation
+      let finalUrl = match[1].replace(/\\/g, ''); // Clear escaping markers
       return finalUrl;
     }
 
-    console.error("The link parameters were obscured or blocked by an anti-bot challenge page.");
+    // Try extracting via token splits if hidden as variable parameters
+    const md5Match = htmlText.match(/md5\s*=\s*["']([^"']+)["']/);
+    const expiresMatch = htmlText.match(/expires\s*=\s*["']?(\d+)["']?/);
+    if (md5Match && expiresMatch) {
+      const rebuiltUrl = `https://vomos.phantemlis.top/premium54/tracks-v1a1/mono.m3u8?md5=${md5Match[1]}&expires=${expiresMatch[1]}`;
+      return rebuiltUrl;
+    }
+
+    console.error("The streaming link was obscured, or the page response structure was altered.");
     return null;
 
   } catch (error) {
-    console.error("Network collection request failed:", error);
+    console.error("Collection request failed:", error);
     return null;
   }
 }
@@ -73,7 +77,7 @@ async function updateChannelList() {
   const targetIndex = channels.findIndex(item => item.title === "FOX FIFA");
 
   if (targetIndex !== -1) {
-    console.log(`Found channel "FOX FIFA". Modifying stream reference target...`);
+    console.log(`Found channel "FOX FIFA". Prior URL: ${channels[targetIndex].video}`);
     channels[targetIndex].video = freshUrl;
     console.log(`Updated to fresh stream URL: ${freshUrl}`);
 
