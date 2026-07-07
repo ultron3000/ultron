@@ -406,61 +406,7 @@
       let src = (typeof movie.video === 'object' && movie.video !== null) ? (movie.video.high || Object.values(movie.video)[0]) : movie.video;
       if (!src) return;
 
-      // ==========================================
-      // IMPROVED DYNAMIC TOKENS INTERCEPTOR BLOCK
-      // ==========================================
-      if (src === "DYNAMIC_FETCH_FOX") {
-        try {
-          console.log("Resolving fresh streaming token via Worker proxy...");
-          const proxyTarget = "https://master-proxy.wispy-boat-fc77.workers.dev/?url=" + encodeURIComponent("https://pandastreams.shop/player/stream-54.php");
-          
-          const response = await fetch(proxyTarget);
-          if (!response.ok) {
-            throw new Error(`Proxy responded with status: ${response.status}`);
-          }
-          
-          const htmlText = await response.text();
-          
-          // Debugging fallback: check if we actually got the player HTML page or an error wall
-          if (htmlText.includes("Cloudflare") || htmlText.includes("Challenge")) {
-            console.error("The Worker proxy was blocked by Cloudflare's challenge wall.");
-          }
-
-          // 1. Broadest possible regex to capture the .m3u8 link with tokens
-          const pattern = /(https?:\/\/[^\s"'`<>]+?\.m3u8\?md5=[^\s"'`<>&\\]+&expires=\d+)/i;
-          let match = htmlText.match(pattern);
-          
-          if (match && match[0]) {
-            src = match[0].replace(/\\/g, '');
-            console.log("🎯 Token resolved successfully via broad pattern: ", src);
-          } else {
-            // 2. Fallback pattern if the link doesn't use standard formatting
-            const loosePattern = /https?:\/\/[^\s"'`<>]+?\/premium54\/[^\s"'<>]+?\.m3u8[^\s"'<>~]*/i;
-            let looseMatch = htmlText.match(loosePattern);
-            
-            if (looseMatch && looseMatch[0]) {
-              src = looseMatch[0].replace(/\\/g, '');
-              console.log("🎯 Token resolved via loose fallback pattern: ", src);
-            } else {
-              // 3. Fallback tracking to manually reconstruct it from script variables
-              const md5Match = htmlText.match(/md5\s*=\s*["']([^"']+)["']/);
-              const expiresMatch = htmlText.match(/expires\s*=\s*["']?(\d+)["']?/);
-              
-              if (md5Match && expiresMatch) {
-                src = `https://vomos.phantemlis.top/premium54/tracks-v1a1/mono.m3u8?md5=${md5Match[1]}&expires=${expiresMatch[1]}`;
-                console.log("🎯 Token reconstructed manually from split variables: ", src);
-              } else {
-                console.error("Could not find any stream signatures inside the proxy response text.");
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Failed to dynamically resolve stream token:", error);
-        }
-      }
-      // ==========================================
-      // END OF DYNAMIC TOKENS INTERCEPTOR BLOCK
-      // ==========================================
+    
 
       const lc = src.toLowerCase();
 
