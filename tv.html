@@ -406,6 +406,36 @@
       let src = (typeof movie.video === 'object' && movie.video !== null) ? (movie.video.high || Object.values(movie.video)[0]) : movie.video;
       if (!src) return;
 
+      // ==========================================
+      // START OF DYNAMIC TOKENS INTERCEPTOR BLOCK
+      // ==========================================
+      if (src === "DYNAMIC_FETCH_FOX") {
+        try {
+          const proxyTarget = "https://master-proxy.wispy-boat-fc77.workers.dev/?url=" + encodeURIComponent("https://pandastreams.shop/player/stream-54.php");
+          const response = await fetch(proxyTarget);
+          if (response.ok) {
+            const htmlText = await response.text();
+            const pattern = /(https?:\/\/[^\s"'`<>]+?\.m3u8\?md5=[^\s"'`<>&\\]+&expires=\d+)/i;
+            let match = htmlText.match(pattern);
+            
+            if (match && match[0]) {
+              src = match[0].replace(/\\/g, '');
+            } else {
+              const md5Match = htmlText.match(/md5\s*=\s*["']([^"']+)["']/);
+              const expiresMatch = htmlText.match(/expires\s*=\s*["']?(\d+)["']?/);
+              if (md5Match && expiresMatch) {
+                src = `https://vomos.phantemlis.top/premium54/tracks-v1a1/mono.m3u8?md5=${md5Match[1]}&expires=${expiresMatch[1]}`;
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to dynamically resolve stream token:", error);
+        }
+      }
+      // ==========================================
+      // END OF DYNAMIC TOKENS INTERCEPTOR BLOCK
+      // ==========================================
+
       const lc = src.toLowerCase();
 
       // Native Element Error Hook for global fallback handling
