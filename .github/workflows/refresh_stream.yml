@@ -11,6 +11,7 @@ permissions:
 jobs:
   update-link:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout Repository Content
       uses: actions/checkout@v4
@@ -18,9 +19,12 @@ jobs:
     - name: Setup Node.js Environment
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 24
 
-    - name: Run Token Scraper Script
+    - name: Install Puppeteer Module Dependencies
+      run: npm install puppeteer
+
+    - name: Run Token Browser Scraper
       run: node update_fox.js
 
     - name: Check for Modifications
@@ -34,5 +38,5 @@ jobs:
         git config --global user.name "GitHub Action Bot"
         git config --global user.email "actions@github.com"
         git add channels.json
-        git commit -m "Automated Sync: Updated FOX FIFA stream token"
+        git commit -m "Automated Sync: Updated FOX FIFA stream token via Browser Automation"
         git push
