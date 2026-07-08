@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Top Gun Collection</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- HLS.js for HLS playback -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Teko:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
+    
+    :root {
+      --primary: #0f3d7a; /* Naval Aviation Blue */
+      --primary-hover: #0a2952;
+      --bg-dark: #070b12; /* Deep Sky After-dark */
+      --card-bg: #0f1622;
+      --accent-glow: rgba(15, 61, 122, 0.4);
+      --text-muted: #94a3b8;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(180deg, #0b132b 0%, #050814 100%);
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .heading-font {
+      font-family: 'Oswald', sans-serif;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    
+    /* Flight HUD / Radar Crosshair Background Overlay Pattern */
+    .tactical-grid {
+      background-image: 
+        radial-gradient(circle at center, transparent 2px, var(--bg-dark) 2px),
+        linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+      background-position: center;
+    }
+    
+    .movie-card {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(59, 130, 246, 0.5);
+      box-shadow: 0 12px 30px rgba(15, 61, 122, 0.4);
+    }
+    
+    .movie-poster {
+      aspect-ratio: 2/3;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: scale(1.04);
+    }
+
+    /* Custom flight scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #050814;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #1d4ed8;
+    }
+    
+    /* Animation entries */
+    @keyframes tacticalFade {
+      from { opacity: 0; transform: translateY(15px); filter: brightness(0.5); }
+      to { opacity: 1; transform: translateY(0); filter: brightness(1); }
+    }
+    
+    .animate-tactical {
+      animation: tacticalFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    /* Illumination modal styles */
+    .modal-backdrop { 
+      position:fixed; 
+      inset:0; 
+      background: rgba(3, 7, 18, 0.95); 
+      backdrop-filter: blur(8px);
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index:9999; 
+    }
+    .modal-backdrop.active { display:flex; }
+    
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 1024px;
+      max-height: 100vh;
+      background: #0b111e;
+      border: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+    }
+
+    .player-wrapper { 
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #000;
+    }
+
+    #topCloseBtn { 
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+      background: rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    #topCloseBtn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      transform: rotate(90deg);
+    }
+
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+      background: #060b13;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .player-meta h3 { 
+      margin: 0;
+      font-size: 1.4rem;
+      color: #fff;
+    }
+
+    /* Tactical Specialized Buttons Grid Context */
+    .controls-row { 
+      display: grid;
+      grid-template-cols: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    /* Tactical Buttons Styling */
+    .btn {
+      background: #111a2e;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #eee;
+      padding: 12px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn:hover { 
+      background: #182542;
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    
+    /* Highlight Main Play Action Button */
+    .btn-play-accent {
+      background: var(--primary) !important;
+      border-color: var(--primary) !important;
+      color: white !important;
+      font-weight: 600;
+    }
+    .btn-play-accent:hover {
+      background: #1d4ed8 !important;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    /* Layout Responsive Adaptations */
+    @media (min-width: 768px) {
+      .modal-card {
+        width: 90%;
+        height: auto;
+        border-radius: 8px;
+        max-height: 85vh;
+      }
+      .player-wrapper {
+        padding-bottom: 56.25%; /* Fixed aspect ratio on desktop setup */
+        height: 0;
+      }
+      .player-meta {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+      }
+      .controls-row {
+        display: flex;
+        width: auto;
+        gap: 10px;
+      }
+      .btn {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+      }
+      #topCloseBtn {
+        opacity: 0.7;
+      }
+      .player-wrapper:hover #topCloseBtn {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 480px) {
+      /* Keep text labels visible but tight for structured fit */
+      .btn {
+        font-size: 0.75rem;
+        gap: 4px;
+        padding: 10px 4px;
+      }
+    }
+
+    /* Fullscreen Core Engine Adaptations */
+    video:fullscreen, iframe:fullscreen {
+      object-fit: contain !important;
+      background-color: black;
+    }
+  </style>
+</head>
+<body class="relative tactical-grid">
+
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+
+  <!-- Cinematic Full-Width Header Block Banner -->
+  <div class="relative w-full h-[220px] sm:h-[320px] md:h-[420px] overflow-hidden rounded-xl border border-blue-900/30 mb-10 shadow-2xl shadow-black">
+    <!-- Embedded ambient looping jet flight background asset -->
+    <iframe 
+      src="https://www.youtube.com/embed/g4U4BQW9OEk?autoplay=1&mute=1&loop=1&playlist=g4U4BQW9OEk&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3"
+      frameborder="0" 
+      allow="autoplay; fullscreen" 
+      class="absolute top-1/2 left-1/2 min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none object-cover opacity-60 scale-110">
+    </iframe>
+
+    <!-- Absolute Overlay Layer Gradient Context -->
+    <div class="absolute inset-0 bg-gradient-to-t from-[#0b132b] via-black/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent"></div>
+
+    <!-- Flight Theme Title Block Interface Layer -->
+    <div class="absolute bottom-0 left-0 p-6 md:p-10 z-10">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded tracking-widest uppercase">TOPGUN</span>
+        <span class="text-gray-300 text-sm font-medium"><i class="fas fa-jet-fighter text-blue-400 mr-1"></i> Strike Fighter Tactics Flight</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight drop-shadow-md">
+        Top Gun <span class="text-blue-500 drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">Collection</span>
+      </h1>
+      <p class="text-gray-400 text-xs sm:text-sm mt-2 max-w-xl hidden sm:block font-light">
+        Access elite pilot flight archives. Track supersonic deployment sorties, combat training logs, and advanced aerial maneuvering media stream directives directly from the HUD interface.
+      </p>
+    </div>
+  </div>
+
+  <!-- Dynamic Movies Grid Section Context (Strict 2 Columns Mobile, Scales Nicely Upwards) -->
+  <div class="mb-16">
+    <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-6">
+      <h2 class="text-xl sm:text-2xl font-semibold tracking-wide text-gray-200"><i class="fas fa-jet-fighter text-blue-500 mr-2"></i>Flight Missions</h2>
+      <span class="text-xs text-gray-500 font-mono" id="movieCount">2 Flights Initialized</span>
+    </div>
+    
+    <!-- Configured Grid Layout Pattern mapping instructions exactly -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6" id="movies"></div>
+  </div>
+
+  <!-- Footer Asset Links Components -->
+  <div class="border-t border-gray-900 mt-16 pt-8 pb-4 text-center">
+    <div class="flex justify-center gap-6 mb-4 text-lg">
+      <a href="#" class="text-gray-600 hover:text-blue-500 transition duration-300"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" class="text-gray-600 hover:text-blue-500 transition duration-300"><i class="fab fa-twitter"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-600 hover:text-blue-500 transition duration-300"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-600 hover:text-blue-500 transition duration-300"><i class="fab fa-youtube"></i></a>
+    </div>
+    <p class="text-xs font-mono tracking-widest text-gray-700">&copy; 2026 NAVAL AIR STATION STRIKE COMMAND TERMINAL</p>
+  </div>
+</div>
+
+<!-- === Enhanced Illumination-style Modal Player UI Framework === -->
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="player-wrapper" id="playerWrapper">
+      <!-- video or iframe content runtime node injections target -->
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" title="Close Flight Recorder">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="player-meta">
+      <div class="flex-1 min-w-0 pr-2">
+        <h3 id="modalTitle" class="truncate font-semibold text-lg">Flight Document</h3>
+        <p id="modalDesc" class="text-gray-400 text-xs sm:text-sm truncate mt-1 font-light"></p>
+      </div>
+      
+      <!-- Balanced Grid UI Action Row Controls Panel -->
+      <div class="controls-row">
+        <button id="prevBtn" class="btn"><i class="fas fa-backward"></i><span>Prev</span></button>
+        <button id="playPauseBtn" class="btn btn-play-accent"><i class="fas fa-play"></i><span>Play</span></button>
+        <button id="nextBtn" class="btn"><span>Next</span><i class="fas fa-forward"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i><span>Size</span></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i><span>Mute</span></button>
+        <button id="closeBtn" class="btn !bg-blue-950/40 !border-blue-900/40 hover:!bg-blue-900 text-blue-400 hover:text-white"><i class="fas fa-power-off"></i><span>Eject</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    /******************************
+     * Movies Database Array
+     ******************************/
+    const movies = [
+      { 
+        title: "Top Gun", 
+        video: "YOUR_TOP_GUN_1_STREAM_OR_EMBED_URL_HERE",
+        image: "https://image.tmdb.org/t/p/w500/xUuHj3CgmZQ9P2cMaqQs4J0d4Zc.jpg",
+        year: 1986,
+        duration: "1h 50m"
+      },
+      { 
+        title: "Top Gun: Maverick", 
+        video: "https://mega.nz/embed/j2gB0IIB#3Id16gYP6DE0untFbAt7TxIJFs0-DX6_Rw3mVlqPwnc",
+        image: "https://image.tmdb.org/t/p/w500/n0YuM4f5lvGAP6MAW2kBIzugXnc.jpg",
+        year: 2022,
+        duration: "2h 10m"
+      }
+    ];
+
+    /******************************
+     * DOM Access Node Cache References
+     ******************************/
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalVideoId = 'modalVideo';
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+    function isHls(url) {
+      if (!url) return false;
+      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+    }
+    function isYouTube(url) {
+      if (!url) return false;
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+    }
+
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
+
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      
+      currentFiltered = list;
+      currentIndex = index;
+      const movie = list[index];
+      if (!movie) return;
+
+      modalTitle.textContent = movie.title || '';
+      modalDesc.textContent = `${movie.year} • Flight Log Mission Documentation Data`;
+
+      resetPlayerContainer();
+      showModal();
+
+      let src = (typeof movie.video === 'object' && movie.video !== null) ? 
+                (movie.video.high || movie.video.medium || Object.values(movie.video)[0]) : movie.video;
+      if (!src) return;
+
+      const lc = src.toLowerCase();
+
+      // Third-party standard iframe integrations
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      // YouTube streaming parameters
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
+          }
+        } catch (e) {}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      // Live HLS processing streams
+      if (isHls(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) return;
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        }
+        return;
+      }
+
+      // Local MP4 Direct Assets Execution
+      if (isMP4(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) return;
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+    }
+
+    /******************************
+     * Control Interface Events Orchestration
+     ******************************/
+    function togglePlayPause() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+      }
+    }
+    
+    function playNext() {
+      if (!currentFiltered.length) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex < currentFiltered.length - 1) {
+        openPlayer(currentFiltered, currentIndex + 1);
+      }
+    }
+    
+    function playPrev() {
+      if (!currentFiltered.length) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex > 0) {
+        openPlayer(currentFiltered, currentIndex - 1);
+      }
+    }
+    
+    function toggleFullscreen() {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    
+    function toggleMute() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i><span>Muted</span>' : '<i class="fas fa-volume-up"></i><span>Mute</span>';
+    }
+
+    function closeModalHandler() {
+      if (currentHls) { try { currentHls.destroy(); } catch(e){} currentHls = null; }
+      const v = document.getElementById(modalVideoId);
+      if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e){} }
+      resetPlayerContainer();
+      hideModal();
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+    }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
+    });
+
+    /******************************
+     * Collection Render Target Function (Two-Columns Grid Output Setup)
+     ******************************/
+    const container = document.getElementById('movies');
+
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      moviesToRender.forEach((movie, index) => {
+        const div = document.createElement('div');
+        div.className = `movie-card animate-tactical rounded-lg overflow-hidden bg-[#0d1527] cursor-pointer relative group flex flex-col justify-between`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden bg-black aspect-[2/3]">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center p-4">
+              <div class="bg-blue-600 text-white font-semibold text-xs uppercase tracking-wider py-2.5 px-4 rounded shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                <i class="fas fa-play mr-1.5 text-[10px]"></i> Fly Mission
+              </div>
+            </div>
+          </div>
+          <div class="p-3 sm:p-4 bg-[#0d1527]">
+            <h3 class="font-medium text-sm sm:text-base text-gray-200 group-hover:text-blue-400 transition duration-200 truncate">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-1.5 text-xs text-gray-500 font-mono">
+              <span>${movie.year}</span>
+              <span class="border border-gray-800 px-1 py-0.5 rounded text-[10px]">${movie.duration || 'N/A'}</span>
+            </div>
+          </div>
+        `;
+
+        div.addEventListener('click', () => openPlayer(moviesToRender, index));
+        container.appendChild(div);
+      });
+      
+      const countEl = document.getElementById('movieCount');
+      if (countEl) countEl.textContent = `${moviesToRender.length} Flight Squadrons Ready`;
+    }
+
+    // Initialize execution pipeline
+    renderMovies(movies);
+</script>
+  <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+  
+</body>
+</html>
