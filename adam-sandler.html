@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Adam Sandler Collection</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- HLS.js for HLS playback -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #f59e0b; /* Comedy Gold Amber */
+      --secondary: #0b0f19; /* Deep Midnight Canvas */
+      --accent: #38bdf8; /* Sunny Sky Blue */
+      --muted: #9CA3AF;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0b0f19 0%, #111827 100%);
+      color: white;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    .tech-font {
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    .movie-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(245, 158, 11, 0.05);
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.2);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    
+    .movie-poster {
+      aspect-ratio: 2/3;
+      transition: transform 0.5s ease;
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: scale(1.05);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #f59e0b;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #38bdf8;
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+    
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+    .delay-500 { animation-delay: 0.5s; }
+    
+    /* Original fixed layout architecture preserved */
+    .modal-backdrop { 
+      position:fixed; 
+      inset:0; 
+      background: rgba(0,0,0,0.95); 
+      display:none; 
+      align-items:center; 
+      justify-content:center; 
+      z-index:9999; 
+      padding: 0;
+      backdrop-filter: blur(4px);
+    }
+    .modal-backdrop.active { display:flex; }
+    
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 980px;
+      max-height: 100vh;
+      border-radius: 0;
+      overflow: hidden;
+      background: #111827;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .player-wrapper { 
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #000;
+      width: 100%;
+    }
+    
+    #topCloseBtn { 
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: all 0.2s ease;
+    }
+    #topCloseBtn:hover {
+      background: #ef4444;
+      transform: scale(1.1);
+    }
+    
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      color: #ddd;
+      background: #111827;
+      border-top: 2px solid rgba(245, 158, 11, 0.25);
+      flex-shrink: 0; /* Keeps controls locked within layout view constraints */
+    }
+    .player-meta .meta-left { 
+      width: 100%;
+    }
+    .player-meta h3 { 
+      margin: 0;
+      font-size: 1.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #fff;
+    }
+    .player-meta p { 
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .controls-row { 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Premium Theme Interactive Buttons Framework */
+    .btn {
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 60px;
+      flex: 1;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-transform: uppercase;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-nav {
+      border: 1px solid #374151 !important;
+      color: #e5e7eb !important;
+      background: #1f2937 !important;
+    }
+    .btn-nav:hover {
+      background: #374151 !important;
+    }
+    
+    .btn-play {
+      border: 1px solid #fbbf24 !important;
+      color: #0b0f19 !important;
+      background: #f59e0b !important;
+      font-weight: 700 !important;
+    }
+    .btn-play:hover {
+      background: #d97706 !important;
+      color: #fff !important;
+    }
+    
+    .btn-expand {
+      border: 1px solid #4b5563 !important;
+      color: #f9fafb !important;
+      background: #374151 !important;
+    }
+    .btn-expand:hover {
+      background: #4b5563 !important;
+    }
+    
+    .btn-volume {
+      border: 1px solid #38bdf8 !important;
+      color: #ffffff !important;
+      background: #0284c7 !important;
+    }
+    .btn-volume:hover {
+      background: #0369a1 !important;
+    }
+    
+    .btn-dismiss {
+      border: 1px solid rgba(239, 68, 68, 0.4) !important;
+      color: #ef4444 !important;
+      background: #111827 !important;
+    }
+    .btn-dismiss:hover {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+    }
+
+    .btn i {
+      font-size: 1rem;
+    }
+
+    /* Desktop Adjustments Layer (Explicitly Maintained Changes) */
+    @media (min-width: 768px) {
+      .modal-card {
+        width: 90%;
+        height: 90vh; /* Fixed viewport constraint prevents panels falling off screen */
+        border-radius: 12px;
+      }
+      .player-meta {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .player-meta .meta-left {
+        max-width: 45%;
+      }
+      .controls-row {
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        width: auto;
+        flex: 1;
+      }
+      .btn {
+        flex: 0 1 auto;
+        min-width: auto;
+        padding: 8px 14px;
+        white-space: nowrap;
+      }
+      #topCloseBtn {
+        opacity: 0;
+      }
+      .player-wrapper:hover #topCloseBtn {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn {
+        padding: 8px;
+      }
+      .btn span {
+        display: none;
+      }
+      .btn i {
+        font-size: 1rem;
+        margin: 0 !important;
+      }
+    }
+
+    video:fullscreen,
+    video:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      object-fit: contain !important;
+      background-color: black;
+    }
+</style>
+</head>
+<body class="relative">
+
+<!-- Clean subtle golden grid overlay -->
+<div class="fixed inset-0 overflow-hidden -z-10 pointer-events-none opacity-5">
+  <div class="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.08)_1px,transparent_1px)] [background-size:40px_40px]"></div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+
+  <!-- Full-Width Video Header Frame -->
+  <div class="relative w-full h-[240px] md:h-[450px] overflow-hidden rounded-2xl mb-8 shadow-2xl border border-slate-900">
+    <iframe 
+      src="https://www.youtube.com/embed/LNz5J5W32_U?autoplay=1&mute=1&loop=1&playlist=LNz5J5W32_U&controls=0&modestbranding=1&rel=0"
+      frameborder="0" 
+      allow="autoplay; fullscreen" 
+      class="absolute top-0 left-0 w-full h-full pointer-events-none scale-105">
+    </iframe>
+
+    <div class="absolute inset-0 bg-gradient-to-t from-[#0b0f19] via-transparent to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-[#0b0f19] via-transparent to-transparent"></div>
+
+    <div class="absolute bottom-6 left-6 z-10 flex flex-col items-start">
+      <h1 class="text-3xl sm:text-5xl font-black tech-font text-white uppercase drop-shadow-[0_0_15px_rgba(245,158,11,0.4)] tracking-tight">
+        ADAM <span class="text-amber-400">SANDLER</span>
+      </h1>
+      <p class="mt-2 text-[10px] sm:text-xs font-bold tracking-widest text-sky-400 bg-slate-950/80 px-3 py-1 rounded border border-sky-900/50 uppercase">
+        <i class="fas fa-film mr-1.5 text-xs"></i> Comedy Collection Vault
+      </p>
+    </div>
+  </div>
+
+  <!-- Header Category Line -->
+  <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-3">
+    <div class="w-2 h-6 bg-amber-500 rounded-sm"></div>
+    <h2 class="text-lg sm:text-xl font-bold tech-font text-white uppercase">Featured Movies</h2>
+  </div>
+
+  <!-- Movies Display Layout Grid -->
+  <div class="mb-12">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6" id="movies"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="border-t border-slate-800 mt-8 pt-6 text-center text-slate-500 text-sm">
+    <div class="flex justify-center gap-4 text-lg mb-4">
+      <a href="#" class="text-slate-400 hover:text-amber-400 transition px-2"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" class="text-slate-400 hover:text-amber-400 transition px-2"><i class="fab fa-twitter"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" class="text-slate-400 hover:text-amber-400 transition px-2"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-slate-400 hover:text-amber-400 transition px-2"><i class="fab fa-youtube"></i></a>
+    </div>
+    <p class="text-xs text-slate-600">&copy; 2026 Happy Madison Archive. Private Fan Network.</p>
+  </div>
+</div>
+
+<!-- Modal Module Player Layout -->
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="player-wrapper" id="playerWrapper">
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="player-meta">
+      <div class="meta-left">
+        <h3 id="modalTitle">Title</h3>
+        <p id="modalDesc" class="text-sm"></p>
+      </div>
+      <div class="controls-row">
+        <button id="prevBtn" class="btn btn-nav"><i class="fas fa-step-backward"></i><span>Prev</span></button>
+        <button id="playPauseBtn" class="btn btn-play"><i class="fas fa-play"></i><span>Play</span></button>
+        <button id="nextBtn" class="btn btn-nav"><span>Next</span><i class="fas fa-step-forward"></i></button>
+        <button id="fullscreenBtn" class="btn btn-expand"><i class="fas fa-expand"></i><span>View</span></button>
+        <button id="muteBtn" class="btn btn-volume"><i class="fas fa-volume-up"></i><span>Audio</span></button>
+        <button id="closeBtn" class="btn btn-dismiss"><i class="fas fa-power-off"></i><span>Close</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    const movies = [
+      { 
+        title: "The Longest Yard", 
+        video: "https://mega.nz/embed/V6QmjARI#lal_wquDSOo84nv2_RsRWjLHSWFBtnHfkJ5B6gQtSxc", 
+        image: "https://image.tmdb.org/t/p/w500/nbKcVBcxF96ARW2oKHqDYAcLdu.jpg", 
+        year: 2005,
+        duration: "114 min",
+        description: "Disgraced pro quarterback Paul Crewe recruits a team of inmates to take on the prison guards in a high-stakes football game."
+      },
+      { 
+        title: "Grown Ups", 
+        video: "https://mega.nz/embed/17IliZpA#AuZxCDJrUOJsPL6mZ5A3lUMtyGsxy9JHpta-qlLbxsE", 
+        image: "https://image.tmdb.org/t/p/w500/cQGM5k1NtU85n4TUlrOrwijSCcm.jpg", 
+        year: 2010,
+        duration: "102 min",
+        description: "Five childhood friends reunite over a Fourth of July weekend thirty years after graduating high school to honor their late basketball coach."
+      },
+      { 
+        title: "Grown Ups 2", 
+        video: "https://mega.nz/embed/9zpwjSjC#q5etjijRNy9rg84br6aUJjOpBcvb9ze-jr4jYaKWhQc", 
+        image: "https://image.tmdb.org/t/p/w500/hT6ijOtjtYrnyDhN7VA2QWyGFAm.jpg", 
+        year: 2013,
+        duration: "101 min",
+        description: "Lenny Feder moves his family back to his hometown to be near his friends, but finds out crazy follows you everywhere."
+      },
+      { 
+        title: "Just Go with It", 
+        video: "https://mega.nz/embed/g3QBCJZR#sYlbXH_wWrQRQIEP9q89c7HFphVP5W8mNnvlgKVPsRg", 
+        image: "https://image.tmdb.org/t/p/w500/3rz7bfGsPGcI6cfY002n9VrUgao.jpg", 
+        year: 2011,
+        duration: "117 min",
+        description: "A plastic surgeon convinces his loyal assistant to pose as his soon-to-be-divorced wife during a weekend trip to Hawaii to cover up a lie."
+      },
+      { 
+        title: "Blended", 
+        video: "https://mega.nz/embed/YrZlDBpA#rT48sX_wWrQRQIEP9q89c7HFphVP5W8mNnvlgKVPsRz", 
+        image: "https://image.tmdb.org/t/p/w500/o2YrH9jS7CAfWjETHFeL0tth79E.jpg", 
+        year: 2014,
+        duration: "117 min",
+        description: "After a disastrous blind date, a single mom and dad find themselves stuck together with their kids at an African family resort vacation."
+      }
+    ];
+
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalVideoId = 'modalVideo';
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+    function isHls(url) {
+      if (!url) return false;
+      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+    }
+    function isYouTube(url) {
+      if (!url) return false;
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+    }
+
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
+
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      
+      currentFiltered = list;
+      currentIndex = index;
+      const movie = list[index];
+      if (!movie) return;
+
+      modalTitle.textContent = movie.title || '';
+      modalDesc.textContent = movie.description || (movie.title || '');
+
+      resetPlayerContainer();
+      showModal();
+
+      let src = (typeof movie.video === 'object' && movie.video !== null) 
+        ? (movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0]) 
+        : movie.video;
+
+      if (!src) {
+        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+        return;
+      }
+
+      const lc = src.toLowerCase();
+
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
+          }
+        } catch (e) {}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      if (isHls(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) return;
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          try {
+            currentHls.loadSource(src);
+            currentHls.attachMedia(v);
+          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+          });
+          currentHls.on(Hls.Events.ERROR, function(event, data) {
+            if (data && data.fatal) {
+              try { currentHls.destroy(); } catch(e){}
+              currentHls = null;
+              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+            }
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        } else {
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+        }
+        return;
+      }
+
+      if (isMP4(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) return;
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+    }
+
+    function togglePlayPause() {
+      const v = document.getElementById(modalVideoId);
+      const isIframe = playerWrapper.querySelector('iframe') !== null;
+      
+      if (playPauseBtn.innerHTML.includes('Play')) {
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        if(v && !isIframe) v.play().catch(()=>{});
+      } else {
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+        if(v && !isIframe) v.pause();
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return;
+      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex == null) return;
+      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i><span>Muted</span>' : '<i class="fas fa-volume-up"></i><span>Audio</span>';
+    }
+
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById(modalVideoId);
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+    }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+      }
+    });
+
+    const container = document.getElementById('movies');
+
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      moviesToRender.forEach((movie, index) => {
+        const delayClass = `delay-${(index % 5) * 100}`;
+
+        const div = document.createElement('div');
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-slate-900 cursor-pointer relative group flex flex-col justify-between`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden aspect-[2/3]">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2">
+              <button class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs sm:text-sm py-2 px-4 rounded shadow-lg transition transform translate-y-2 group-hover:translate-y-0 duration-300 uppercase tracking-wider tech-font">
+                <i class="fas fa-play mr-1.5"></i> STREAM
+              </button>
+            </div>
+          </div>
+          <div class="p-4 bg-slate-900/90 border-t border-slate-800">
+            <h3 class="font-bold text-sm sm:text-base tracking-wide text-white truncate">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
+              <span class="bg-slate-950 border border-slate-800 px-2 py-0.5 rounded text-amber-400 tech-font">${movie.year}</span>
+              <span class="text-slate-500">${movie.duration}</span>
+            </div>
+          </div>
+        `;
+
+        div.addEventListener('click', () => {
+          openPlayer(moviesToRender, index);
+        });
+
+        container.appendChild(div);
+      });
+    }
+
+    renderMovies(movies);
+</script>
+  <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
