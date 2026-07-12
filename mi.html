@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Mission Impossible</title>
+<title>Mission: Impossible Collection</title>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
@@ -12,15 +12,15 @@
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
     
     :root {
-      --primary: #ffcc00;
-      --secondary: #111827;
-      --accent: #f59e0b;
+      --primary: #dc2626; /* IMF Red */
+      --secondary: #0b0f19; /* Deep Stealth Dark */
+      --accent: #f97316; /* Fuse Orange */
       --muted: #9CA3AF;
     }
     
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      background: linear-gradient(135deg, #070a13 0%, #111827 100%);
       color: white;
       min-height: 100vh;
       margin: 0;
@@ -40,12 +40,12 @@
     .movie-card {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       transform-origin: center;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
     }
     
     .movie-card:hover {
       transform: translateY(-8px) scale(1.03);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
     }
     
     .search-input {
@@ -54,11 +54,11 @@
     }
     
     .search-input:focus {
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.5);
     }
     
     .header-glow {
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+      text-shadow: 0 0 15px rgba(220, 38, 38, 0.8);
     }
     
     .movie-poster {
@@ -80,7 +80,7 @@
     
     .category-tab.active {
       background-color: var(--primary);
-      color: var(--secondary);
+      color: white;
       font-weight: 600;
     }
     
@@ -91,16 +91,16 @@
     }
     
     ::-webkit-scrollbar-track {
-      background: #1e293b;
+      background: #111827;
     }
     
     ::-webkit-scrollbar-thumb {
-      background: #ffcc00;
+      background: #dc2626;
       border-radius: 10px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-      background: #f59e0b;
+      background: #f97316;
     }
     
     /* Animation */
@@ -118,11 +118,11 @@
     .delay-300 { animation-delay: 0.3s; }
     .delay-400 { animation-delay: 0.4s; }
     
-    /* Illumination modal styles (responsive) */
+    /* IMF Player Modal styles */
     .modal-backdrop { 
       position:fixed; 
       inset:0; 
-      background: rgba(0,0,0,0.9); 
+      background: rgba(0,0,0,0.95); 
       display:none; 
       align-items:center; 
       justify-content:center; 
@@ -137,10 +137,11 @@
       max-height: 90vh;
       border-radius: 0;
       overflow: hidden;
-      background: #0b1220;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      background: #080c14;
+      box-shadow: 0 30px 80px rgba(220, 38, 38, 0.1);
       display: flex;
       flex-direction: column;
+      border: 1px solid rgba(220, 38, 38, 0.2);
     }
     .player-wrapper { 
       position: relative;
@@ -166,7 +167,7 @@
       transition: all 0.2s ease;
     }
     #topCloseBtn:hover {
-      background: rgba(0,0,0,0.9);
+      background: var(--primary);
       transform: scale(1.1);
     }
     .player-wrapper video, 
@@ -181,9 +182,10 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      padding: 12px;
+      padding: 16px;
       color: #ddd;
-      background: #0b1220;
+      background: #080c14;
+      border-top: 1px solid rgba(220, 38, 38, 0.2);
     }
     .player-meta .meta-left { 
       width: 100%;
@@ -194,6 +196,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: white;
     }
     .player-meta p { 
       margin: 6px 0 0 0;
@@ -216,7 +219,7 @@
     .btn {
       background: transparent;
       border: 1px solid var(--primary);
-      color: var(--primary);
+      color: white;
       padding: 10px 14px;
       border-radius: 8px;
       cursor: pointer;
@@ -228,9 +231,11 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
+      transition: all 0.2s ease;
     }
     .btn:hover { 
-      background: rgba(254,209,65,0.06); 
+      background: var(--primary); 
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
     }
     .btn i {
       font-size: 1rem;
@@ -284,141 +289,127 @@
       }
     }
 
-    /* Modal legacy styles (unused) */
-    .modal-overlay { display:none; }
-    /* ============================
-   DESKTOP FIX — DOES NOT TOUCH MOBILE
-   ============================ */
-
-@media (min-width: 768px) {
-
-  /* Fix video height so it doesn't cover controls */
-  .player-wrapper {
-    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
-    height: auto !important;
-    max-height: 60vh !important;       /* safe video height */
-    position: relative !important;
-  }
-
-  /* Ensure iframe/video stays inside wrapper */
-  .player-wrapper video,
-  .player-wrapper iframe {
-    height: 100% !important;
-    max-height: 60vh !important;
-    position: relative !important;
-  }
-
-  /* Make sure controls are ALWAYS visible above video */
-  .player-meta {
-    position: relative !important;
-    z-index: 100 !important;
-    background: #0b1220 !important;      /* solid background for visibility */
-    padding-top: 10px !important;
-  }
-
-  /* Controls row layout */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 12px !important;
-  }
-
-  /* Buttons behave normally */
-  .btn {
-    min-width: 95px !important;
-    padding: 10px 16px !important;
-    flex: unset !important;
-  }
-
-  /* Modal height adjustment to fit everything */
-  .modal-card {
-    max-height: 85vh !important;
-    overflow: visible !important;
-  }
-}
-
-  </style>
+    /* DESKTOP FIX */
+    @media (min-width: 768px) {
+      .player-wrapper {
+        padding-bottom: 0 !important;
+        height: auto !important;
+        max-height: 60vh !important;
+        position: relative !important;
+      }
+      .player-wrapper video,
+      .player-wrapper iframe {
+        height: 100% !important;
+        max-height: 60vh !important;
+        position: relative !important;
+      }
+      .player-meta {
+        position: relative !important;
+        z-index: 100 !important;
+        background: #080c14 !important;
+        padding-top: 10px !important;
+      }
+      .controls-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 12px !important;
+      }
+      .btn {
+        min-width: 95px !important;
+        padding: 10px 16px !important;
+        flex: unset !important;
+      }
+      .modal-card {
+        max-height: 85vh !important;
+        overflow: visible !important;
+      }
+    }
+</style>
 </head>
 <body class="relative">
+
 <!-- Floating stars background -->
 <div class="fixed inset-0 overflow-hidden -z-10">
-<div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80"></div>
-<div class="stars"></div>
-<div class="stars2"></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/90"></div>
+  <div class="stars"></div>
+  <div class="stars2"></div>
 </div>
+
 <div class="container mx-auto px-4 py-8 max-w-7xl">
 
-<!-- Full-Width Video Header with Animated Logo -->
-<div class="relative w-full h-[400px] md:h-[500px] overflow-hidden">
-  <!-- YouTube Video Background -->
-  <iframe 
-    src="https://www.youtube.com/embed/fsQgc9pCyDU?autoplay=1&mute=1&loop=1&playlist=fsQgc9pCyDU&controls=0&modestbranding=1"
-    frameborder="0" 
-    allow="autoplay; fullscreen" 
-    class="absolute top-0 left-0 w-full h-full pointer-events-none">
-  </iframe>
+  <!-- Full-Width Video Header with Animated IMF Logo -->
+  <div class="relative w-full h-[300px] md:h-[450px] overflow-hidden rounded-2xl border border-gray-800 shadow-2xl mb-12">
+    <!-- IMF Action YouTube Video Background -->
+    <iframe 
+      src="https://www.youtube.com/embed/2m1dRLJ56Ut?autoplay=1&mute=1&loop=1&playlist=NsMtId_KZY8&controls=0&modestbranding=1"
+      frameborder="0" 
+      allow="autoplay; fullscreen" 
+      class="absolute top-0 left-0 w-full h-full object-cover pointer-events-none scale-105">
+    </iframe>
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
 
-  <!-- Animated Logo at Top-Left -->
-  <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Mi-logo.svg/1024px-Mi-logo.svg.png" 
-    alt="Despicable Me Logo" 
-    class="absolute top-4 left-4 h-16 md:h-24 animate-logo z-10"
-  />
-</div>
+    <!-- Mission Impossible Header Title Overlay -->
+    <div class="absolute bottom-8 left-8 z-10 max-w-xl">
+      <span class="text-red-500 font-bold tracking-widest text-sm uppercase block mb-2">// IMF SECURE ACCESS</span>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-2 uppercase header-glow">Mission: Impossible</h1>
+      <p class="text-gray-300 text-sm md:text-base hidden sm:block">Your mission, should you choose to accept it, is to stream the complete cinematic chronicle of Ethan Hunt.</p>
+    </div>
 
-<style>
-  /* Animated Logo */
-  .animate-logo {
-    animation: float-pulse 3s ease-in-out infinite, glow-logo 2s ease-in-out infinite alternate;
-  }
+    <!-- Animated Logo Theme Integration at Top-Right -->
+    <img 
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFUyvPh1L3vTSsxOUgEZIQ6og8DMf0PksTfsdGxEnpfQ&s=10" 
+      alt="Mission Impossible Logo" 
+      class="absolute top-6 right-6 h-12 md:h-20 animate-logo z-10"
+    />
+  </div>
 
-  @keyframes float-pulse {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
+  <style>
+    /* Animated IMF Glow Logo */
+    .animate-logo {
+      animation: float-pulse 4s ease-in-out infinite, glow-logo 2.5s ease-in-out infinite alternate;
+    }
 
-  @keyframes glow-logo {
-    0% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-    50% { filter: drop-shadow(0 0 6px #fffa65) drop-shadow(0 0 12px #ffba00); }
-    100% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-  }
+    @keyframes float-pulse {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
 
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .animate-logo { height: 4rem; top: 1rem; left: 1rem; }
-  }
-</style>
+    @keyframes glow-logo {
+      0% { filter: drop-shadow(0 0 2px rgba(220, 38, 38, 0.6)) drop-shadow(0 0 5px rgba(249, 115, 22, 0.4)); }
+      50% { filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.9)) drop-shadow(0 0 15px rgba(249, 115, 22, 0.6)); }
+      100% { filter: drop-shadow(0 0 2px rgba(220, 38, 38, 0.6)) drop-shadow(0 0 5px rgba(249, 115, 22, 0.4)); }
+    }
+  </style>
 
-</div>
-</div>
-<!-- Movies Grid -->
-<div class="mb-12">
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
-</div>
-<!-- Footer / Social -->
+  <!-- Movies Grid -->
+  <div class="mb-12">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
+  </div>
+
+  <!-- Footer / Social Links -->
   <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#dc2626] transition px-3"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-[#dc2626] transition px-3"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#dc2626] transition px-3"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#dc2626] transition px-3"><i class="fab fa-youtube"></i></a>
   </div>
 </div>
 
-<!-- === REPLACED: Illumination-style Modal Player === -->
+<!-- === IMF Tactical Media Player Modal === -->
 <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
   <div class="modal-card" role="dialog" aria-modal="true">
     <div class="player-wrapper" id="playerWrapper">
-      <!-- video or iframe injected here -->
+      <!-- Media Engine Injection Window -->
       <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
+      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
         <i class="fas fa-times text-xl"></i>
       </button>
     </div>
 
     <div class="player-meta">
       <div class="meta-left">
-        <h3 id="modalTitle">Title</h3>
+        <h3 id="modalTitle">Secure Stream Access</h3>
         <p id="modalDesc" class="text-sm"></p>
       </div>
       <div class="controls-row">
@@ -435,29 +426,21 @@
 
 <script>
     /******************************
-     * Existing movies array (unchanged)
+     * Updated Secure Film Array [source: 4]
      ******************************/
     const movies = [
-    { title: "Mission: Impossible (1996)", video: "https://vip.opstream14.com/20220307/909_b89235f9/index.m3u8", 
-        image: "https://m.media-amazon.com/images/M/MV5BMTc3NjI2MjU0Nl5BMl5BanBnXkFtZTgwNDk3ODYxMTE@._V1_.jpg", category: "other", year: 1996 },
-            { title: "Mission: Impossible II (2000)", video: "https://vip.opstream12.com/20220310/2931_99c0ee4a/index.m3u8",
-        image: "https://image.tmdb.org/t/p/original/2njB2A85Ni7bRR7vIOrfv6TBPeC.jpg", category: "other", year: 2000 },
-            { title: "Mission: Impossible III (2006)", video: "https://vip.opstream14.com/20220307/917_0a223f43/index.m3u8", 
-        image: "https://i.pinimg.com/736x/65/0a/78/650a780ff9923f34a05f592e96b15fad.jpg", category: "other", year: 2006 },
-            { title: "Mission: Impossible - Ghost Protocol (2011)", video: "https://vip.opstream15.com/20230112/31635_9cbd3d2c/index.m3u8", 
-        image: "https://m.media-amazon.com/images/M/MV5BMTY4MTUxMjQ5OV5BMl5BanBnXkFtZTcwNTUyMzg5Ng@@._V1_.jpg", category: "other", year: 2011 },
-            { title: "Mission: Impossible - Rogue Nation (2015)", video: "https://vip.opstream15.com/20230417/38011_c6cf0b7a/index.m3u8", 
-        image: "https://m.media-amazon.com/images/M/MV5BOTFmNDA3ZjMtN2Y0MC00NDYyLWFlY2UtNTQ4OTQxMmY1NmVjXkEyXkFqcGdeQXVyNTg4NDQ4NDY@._V1_.jpg", category: "other", year: 2015 },
-            { title: "Mission: Impossible - Fallout (2018)", video: "https://vip.opstream14.com/20220318/1605_475ce283/index.m3u8", 
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTf8cPHA7bgSVlZyF7Y_-DZA2_05P4Wi6nVMQ&s", category: "other", year: 2018 },
-            { title: "Mission: Impossible - Dead Reckoning Part One (2023)", video: "https://vip.opstream13.com/20231003/1197_01a51e5d/index.m3u8", 
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRXiksrk7SZ_jAcPwi9SdeytpSxhZmGoJ5eQ&s", category: "other", year: 2023 },
-            { title: "Mission: Impossible - The Final Reckoning (2025)", video: "https://syr.auroriacollective.cyou:443/v4/hld/hjd6o/index-f2-v1-a1.txt", 
-        image: "https://m.media-amazon.com/images/M/MV5BZGQ5NGEyYTItMjNiMi00Y2EwLTkzOWItMjc5YjJiMjMyNTI0XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "other", year: 2025 }, 
-        ];
+        { title: "Mission: Impossible", video: "00", image: "https://image.tmdb.org/t/p/w500/l5uxY5m5OInWpcExIpKG6AR3rgL.jpg", category: "other", year: 1996 },
+        { title: "Mission: Impossible II", video: "00", image: "https://image.tmdb.org/t/p/original/2njB2A85Ni7bRR7vIOrfv6TBPeC.jpg", category: "other", year: 2000 },
+        { title: "Mission: Impossible III", video: "00", image: "https://image.tmdb.org/t/p/w500/vKGYCpmQyV9uHybWDzXuII8Los5.jpg", category: "other", year: 2006 },
+        { title: "Mission: Impossible - Ghost Protocol", video: "00", image: "https://image.tmdb.org/t/p/w500/eRZTGx7GsiKqPch96k27LK005ZL.jpg", category: "other", year: 2011 },
+        { title: "Mission: Impossible - Rogue Natio)", video: "00", image: "https://image.tmdb.org/t/p/w500/fRJLXQBHK2wyznK5yZbO7vmsuVK.jpg", category: "other", year: 2015 },
+        { title: "Mission: Impossible - Fallout", video: "00", image: "https://image.tmdb.org/t/p/w500/AkJQpZp9WoNdj7pLYSj1L0RcMMN.jpg", category: "other", year: 2018 },
+        { title: "Mission: Impossible - Dead Reckoning Part One", video: "00", image: "https://image.tmdb.org/t/p/w500/NNxYkU70HPurnNCSiCjYAmacwm.jpg", category: "other", year: 2023 },
+        { title: "Mission: Impossible - The Final Reckoning", video: "00", image: "https://image.tmdb.org/t/p/w500/z53D72EAOxGRqdr7KXXWp9dJiDe.jpg", category: "other", year: 2025 }
+    ];
 
     /******************************
-     * DOM refs for modal controls
+     * DOM elements setup
      ******************************/
     const playbackModal = document.getElementById('playbackModal');
     const playerWrapper = document.getElementById('playerWrapper');
@@ -476,7 +459,7 @@
     let currentIndex = null;
 
     /******************************
-     * Type detection helpers
+     * Type verification mechanics
      ******************************/
     function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
     function isHls(url) {
@@ -488,9 +471,6 @@
       return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
     }
 
-    /******************************
-     * Reset player container
-     ******************************/
     function resetPlayerContainer() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -513,7 +493,7 @@
     }
 
     /******************************
-     * Core: open player (Illumination logic)
+     * Core: openPlayer
      ******************************/
     function openPlayer(list, index) {
       if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
@@ -525,37 +505,34 @@
       const movie = list[index];
       if (!movie) { showError('Movie missing'); return; }
 
-      // metadata
       modalTitle.textContent = movie.title || '';
       modalDesc.textContent = movie.description || (movie.title || '');
 
-      // reset & show
       resetPlayerContainer();
       showModal();
 
-      // pick src
       let src = '';
       if (typeof movie.video === 'object' && movie.video !== null) {
         src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
       } else {
         src = movie.video;
       }
-      if (!src) {
-        showError('No video source');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+      
+      if (!src || src === "00") {
+        // Fallback or custom action if token stream value is "00"
+        playerWrapper.innerHTML = `<div class="flex items-center justify-center h-full text-gray-400 p-6 text-center flex-col"><i class="fas fa-user-secret text-4xl text-red-500 mb-2"></i><span>IMF Stream Encrypted (${src}). Connecting to system fallback...</span></div>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
         return;
       }
 
       const lc = (src || '').toLowerCase();
 
-      // iframe-hosted common hosts
       if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
         playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
         playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
       }
 
-      // youtube
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -572,7 +549,6 @@
         return;
       }
 
-      // HLS
       if (isHls(src)) {
         const v = document.getElementById(modalVideoId);
         if (!v) { showError('Video element missing'); return; }
@@ -606,7 +582,6 @@
         return;
       }
 
-      // MP4
       if (isMP4(src)) {
         const v = document.getElementById(modalVideoId);
         if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
@@ -616,12 +591,11 @@
         return;
       }
 
-      // fallback
       window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
     /******************************
-     * Controls
+     * Control Layout Actions
      ******************************/
     function togglePlayPause() {
       const v = document.getElementById(modalVideoId);
@@ -662,9 +636,6 @@
       muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
-    /******************************
-     * Close modal & cleanup
-     ******************************/
     function closeModalHandler() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -683,7 +654,7 @@
     }
 
     /******************************
-     * Events wiring
+     * Events Wiring
      ******************************/
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
@@ -693,12 +664,10 @@
     document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
     document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
 
-    // close by clicking outside
     playbackModal.addEventListener('click', function(e){
       if (e.target === playbackModal) closeModalHandler();
     });
 
-    // Escape & keyboard
     document.addEventListener('keydown', (e) => {
       if (!playbackModal.classList.contains('active')) return;
       switch (e.key.toLowerCase()) {
@@ -714,7 +683,7 @@
     });
 
     /******************************
-     * Render movies and wire to openPlayer
+     * UI Grid Engine Rendering
      ******************************/
     const container = document.getElementById('movies');
 
@@ -724,26 +693,25 @@
         const delayClass = `delay-${(index % 5) * 100}`;
 
         const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-900 border border-gray-800 hover:border-red-600 cursor-pointer relative group`;
         div.innerHTML = `
-          <div class="relative overflow-hidden rounded-t-lg">
+          <div class="relative overflow-hidden aspect-[2/3]">
             <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
-                <i class="fas fa-play mr-2"></i> Watch Now
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg w-full text-sm tracking-wide uppercase transition transform hover:scale-105 shadow-lg shadow-red-600/30">
+                <i class="fas fa-play mr-2 text-xs"></i> Secure Link
               </button>
             </div>
           </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-2 text-sm text-gray-400">
+          <div class="p-3 bg-gradient-to-b from-gray-900 to-black">
+            <h3 class="font-medium text-sm text-gray-200 group-hover:text-red-500 transition-colors duration-200 truncate">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-1 text-xs text-gray-500">
               <span>${movie.year}</span>
-              <span>${movie.duration}</span>
+              <span class="text-[10px] bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded border border-gray-700 uppercase tracking-widest">IMF</span>
             </div>
           </div>
         `;
 
-        // Open modal and use movies array for prev/next
         div.addEventListener('click', () => {
           openPlayer(moviesToRender, index);
         });
@@ -752,17 +720,11 @@
       });
     }
 
-    // Initial render
     renderMovies(movies);
 
     /******************************
-     * Backwards-compatible extras:
-     * Keep original search/category wiring but guard missing elements
+     * Input & Filters Fallback Layer
      ******************************/
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModalHandler);
-
-    // previous code referenced searchBar; guard that
     const searchBarEl = document.getElementById('searchBar');
     if (searchBarEl) {
       searchBarEl.addEventListener('input', function() {
@@ -774,49 +736,34 @@
       });
     }
 
-    // Category tabs preservation (guard for existence)
     document.querySelectorAll('.category-tab').forEach(tab => {
       tab.addEventListener('click', function() {
-        // Update active tab
         document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
         this.classList.add('active');
 
         const category = this.dataset.category;
-        let filteredMovies;
-
-        if (category === 'all') {
-          filteredMovies = movies;
-        } else {
-          filteredMovies = movies.filter(movie => (movie.categories || []).includes(category));
-        }
-
+        let filteredMovies = category === 'all' ? movies : movies.filter(movie => (movie.categories || []).includes(category));
         renderMovies(filteredMovies);
       });
     });
 
     /******************************
-     * Create floating stars background (existing)
+     * Cinematic Background Atoms
      ******************************/
     function createStars(container, count, sizeRange, durationRange) {
       for (let i = 0; i < count; i++) {
         const star = document.createElement('div');
         star.className = 'absolute rounded-full bg-white';
-
-        // Random position
         const left = Math.random() * 100;
         const top = Math.random() * 100;
-
-        // Random size
         const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
-
-        // Random animation duration
         const duration = durationRange[0] + Math.random() * (durationRange[1] - durationRange[0]);
 
         star.style.left = `${left}%`;
         star.style.top = `${top}%`;
         star.style.width = `${size}px`;
         star.style.height = `${size}px`;
-        star.style.opacity = Math.random() * 0.5 + 0.1;
+        star.style.opacity = Math.random() * 0.3 + 0.05;
         star.style.animation = `float ${duration}s infinite ease-in-out alternate`;
         star.style.animationDelay = `${Math.random() * 5}s`;
 
@@ -826,23 +773,340 @@
 
     const starsContainer = document.querySelector('.stars');
     const starsContainer2 = document.querySelector('.stars2');
-    if (starsContainer) createStars(starsContainer, 50, [1, 3], [5, 15]);
-    if (starsContainer2) createStars(starsContainer2, 30, [2, 4], [10, 20]);
+    if (starsContainer) createStars(starsContainer, 40, [1, 2], [8, 18]);
+    if (starsContainer2) createStars(starsContainer2, 20, [2, 3], [12, 24]);
 
-    // Add floating animation
     const style = document.createElement('style');
     style.innerHTML = `
       @keyframes float {
         0% { transform: translateY(0) translateX(0); }
-        50% { transform: translateY(-20px) translateX(10px); }
+        50% { transform: translateY(-15px) translateX(8px); }
         100% { transform: translateY(0) translateX(0); }
       }
     `;
     document.head.appendChild(style);
+</script>
+    <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
 
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
 </script>
 
- 
-    
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
 </body>
 </html>
