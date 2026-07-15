@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lucky</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js for full live/HLS stream support -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #07060b; }
+    ::-webkit-scrollbar-thumb { background: #ffffff; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes arrowBounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(5px);} }
+
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .pulse-hover:hover { animation: pulse 1.5s infinite; }
+    .arrow-bounce { animation: arrowBounce 2s infinite; }
+
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
+
+    .glow-effect { position: relative; transition: transform 0.3s ease; }
+    .glow-effect:hover { transform: translateY(-5px); }
+    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(255,255,255,0); transition:box-shadow 0.3s; pointer-events:none;}
+    .glow-effect:hover::after { box-shadow:0 0 20px rgba(255,255,255,0.25); }
+
+    .gradient-text { background: linear-gradient(90deg, #ffffff, #a1a1aa); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .marvel-font { font-family: 'Marvel', sans-serif; }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
+    @media (max-width: 400px) { .movie-card { width: 100%; } }
+
+    /* Modal Player Layout Framework */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-backdrop.active { display:flex; }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#121214; box-shadow:0 30px 80px rgba(0,0,0,0.7); position: relative; }
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
+
+    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
+    .player-meta .meta-left { max-width:65%; }
+    .player-meta h3 { margin:0; font-size:1.125rem; }
+    .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
+
+    .controls-row { display:flex; gap:8px; align-items:center; }
+
+    .btn {
+      background:transparent; border:1px solid #ffffff; color:#ffffff;
+      padding:8px 12px; border-radius:8px; cursor:pointer; display: inline-flex; align-items: center;
+    }
+    .btn:hover { background: rgba(255,255,255,0.06); }
+
+    .hidden { display:none; }
+
+    /* Header & Theme mappings */
+    header { background: linear-gradient(90deg,#0a0a0c,#121214); }
+    .loki-accent { color: #ffffff; }
+    .btn-loki { background: #ffffff; color: #000000; }
+    .btn-loki:hover { filter: brightness(0.90); }
+
+    body { background: #0a0a0c; color: #e4e4e7; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
+
+    /* Mobile Fluid Layout Support - Leaves Desktop Untouched */
+    @media (max-width: 767px) {
+      .player-wrapper {
+        padding-bottom: 56.25% !important;
+        height: 0 !important;
+        position: relative !important;
+      }
+      .player-wrapper video,
+      .player-wrapper iframe {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+      .player-meta {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 12px !important;
+        background: #121214 !important;
+        z-index: 20 !important;
+      }
+      .controls-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        width: 100%;
+      }
+      .btn {
+        padding: 8px !important;
+        font-size: 0 !important;
+        min-width: 48px !important;
+        height: 44px !important;
+        justify-content: center !important;
+      }
+      .btn i {
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen font-roboto">
+
+  <!-- Header Section -->
+  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-zinc-800 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#27272a] to-[#ffffff] rounded-full flex items-center justify-center pulse-hover">
+         <i class="fab fa-apple text-xl"></i>+
+        </div>
+        <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">Lucky</h1>
+      </div>
+      
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <button id="watchlist-btn" class="p-2 rounded-full hover:bg-gray-800 transition relative">
+          <i class="fas fa-bookmark loki-accent"></i>
+        </button>
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon loki-accent"></i>
+        </button>
+        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-search loki-accent"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Collapsible Search Panel -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
+      <div class="relative">
+        <input id="global-search" type="text" placeholder="Search episodes..." 
+               class="w-full bg-gray-900 border border-white/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-white placeholder-gray-400">
+        <i class="fas fa-search absolute left-3 top-3 text-white"></i>
+      </div>
+    </div>
+    
+    <!-- Watchlist Dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-700">
+        <h3 class="font-semibold loki-accent">My Watchlist</h3>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
+        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Content Frame -->
+  <main class="container mx-auto px-4 py-6">
+    <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
+      
+      <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/8ZYhuvIv1pA?autoplay=1&mute=1&loop=1&playlist=GAbT5qCTXR8&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          ></iframe>
+        </div>
+        
+        <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
+          <div class="flex items-center mb-1 sm:mb-2">
+            <span class="bg-white text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2">Apple TV+</span>
+            <span class="text-white text-xs sm:text-sm">Seasons 1-3</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">Lucky</h2>
+          <div class="flex items-center mb-2 sm:mb-4">
+            <div class="flex items-center mr-2 sm:mr-4">
+              <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
+              <span class="text-white text-xs sm:text-sm">8.0</span>
+            </div>
+            <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
+          </div>
+          <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">When a multi-million-dollar heist goes sideways, con artist Lucky is forced to go on the run. Pursued by both the FBI and a ruthless crime boss, Lucky must fight for her life—and a way out.</p>
+          <div class="flex space-x-2 sm:space-x-3">
+            <button id="play-all" class="btn-loki font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
+              <i class="fas fa-play mr-2"></i> Play All
+            </button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
+              <i class="fas fa-info-circle mr-2"></i> Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Season Navigation Framework -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4">
+      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
+        <i class="fas fa-tv loki-accent mr-2"></i>
+        <span class="marvel-font">EPISODES</span>
+      </h3>
+      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max">
+          <button class="season-btn active bg-zinc-700 text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
+          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dynamic Content Grid -->
+    <section>
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+        <!-- Content parsed via Javascript -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer Elements -->
+  <footer class="border-t border-gray-800 mt-8 pt-6 pb-6 text-center text-gray-500 container mx-auto px-4">
+    <a href="#" class="text-gray-400 hover:text-white transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-400 hover:text-white transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-white transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-white transition px-2"><i class="fab fa-youtube"></i></a>
+  </footer>
+
+  <!-- Universal Media Engine Layer Modal -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-zinc-400 text-2xl bg-black/50 rounded-full p-2">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      </div>
+
+      <div class="player-meta">
+        <div class="meta-left">
+          <h3 id="modalTitle">Episode Title</h3>
+          <p id="modalDesc" class="text-sm">Episode description details.</p>
+        </div>
+        <div class="controls-row">
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Animation Element -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white"></div>
+  </div>
+
+  <script>
+    // ==========================================
+    // DATA LAYER FRAMEWORK (SEASONS 1-3)
+    // ==========================================
+    const movies = [
+      // SEASON 1
+{ 
+    title: 'S1E01 - No Shortcuts', 
+    video: 'https://mega.nz/embed/AjExlCwC#UEXxkRWNeE9NM752zehKRMTV9mcJG0dhW9kW7ZNISPs', 
+    image: 'https://is1-ssl.mzstatic.com/image/thumb/wrTONuhvAALecpwvGinR_Q/580x466KF.TVALC02.webp?color=84A79B&style=l', 
+    season: 1, 
+    episode: 1, 
+    duration: '48m', 
+    rating: '8.1', 
+    airDate: 'July 15, 2026',
+    description: 'After a wild night in Vegas, Lucky wakes up to discover her world has been turned upside down as a multimillion-dollar heist goes sideways.' 
+  },
+  { 
+    title: 'S1E02 - Make \'em Dance', 
+    video: 'https://mega.nz/embed/NmUgULrJ#G32bG1x72CnodboMioU4-wrD-R-U0c8-iP_cahVfB3E', 
+    image: 'https://is1-ssl.mzstatic.com/image/thumb/h_Q1qL1XDiELAxibyUMnWQ/580x466KF.TVALC02.webp?color=1C1E1A&style=l', 
+    season: 1, 
+    episode: 2, 
+    duration: '48m', 
+    rating: '7.9', 
+    airDate: 'July 15, 2026',
+    description: 'Seeking shelter while on the run, Lucky takes refuge with an unsuspecting family. Meanwhile, Priscilla pays a visit to Lucky\'s father.' 
+  },
+  { 
+    title: 'S1E03 - Read the Room', 
+    video: '00', 
+    image: 'https://is1-ssl.mzstatic.com/image/thumb/vz0tY8X8ESje0AyjOYOH8w/580x466KF.TVALC02.webp?color=5091CB&style=l', 
+    season: 1, 
+    episode: 3, 
+    duration: '45m', 
+    rating: 'Upcoming-July 22', 
+    airDate: 'July 22, 2026',
+    description: 'Lucky attempts to track down Cary—and her missing money. Concurrently, Agent Rand closely investigates Lucky\'s recent movements.' 
+  },
+  { 
+    title: 'S1E04 - Too Close to See It', 
+    video: '00', 
+    image: 'https://placehold.co/600x400/0d1117/ffffff?text=Airing+July+29,+2026', 
+    season: 1, 
+    episode: 4, 
+    duration: 'TBA', 
+    rating: 'Upcoming', 
+    airDate: 'July 29, 2026',
+    description: 'Lucky is forced to embrace her darker, criminal side one final time as the net tightens around her past.' 
+  },
+  { 
+    title: 'S1E05 - Are We Bad People?', 
+    video: '00', 
+    image: 'https://placehold.co/600x400/0d1117/ffffff?text=Airing+August+5,+2026', 
+    season: 1, 
+    episode: 5, 
+    duration: 'TBA', 
+    rating: 'Upcoming', 
+    airDate: 'August 5, 2026',
+    description: 'The high-stakes chase escalates as the lines blur between the con artists, the FBI, and the underground bosses tracking them.' 
+  },
+  { 
+    title: 'S1E06 - Wherever You Go, There You Are', 
+    video: '00', 
+    image: 'https://placehold.co/600x400/0d1117/ffffff?text=Airing+August+12,+2026', 
+    season: 1, 
+    episode: 6, 
+    duration: 'TBA', 
+    rating: 'Upcoming', 
+    airDate: 'August 12, 2026',
+    description: 'Lucky attempts to outmaneuver a ruthless crime boss while hidden flashbacks expose the childhood roots of her grand deception.' 
+  },
+  { 
+    title: 'S1E07 - All Good Things', 
+    video: '00', 
+    image: 'https://placehold.co/600x400/0d1117/ffffff?text=Airing+August+19,+2026', 
+    season: 1, 
+    episode: 7, 
+    duration: 'TBA', 
+    rating: 'Upcoming', 
+    airDate: 'August 19, 2026',
+    description: 'The thrilling conclusion to the limited series where Lucky makes her final calculation to secure her freedom and escape her past forever.' 
+  }
+
+         ];
+
+    // ==========================================
+    // INJECT ENGINE - HANDLES UPCOMING CONTENT
+    // ==========================================
+    const container = document.getElementById('movies');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const playbackModal = document.getElementById('playbackModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+    function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
+    function isHls(u) {
+      if (!u) return false;
+      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master');
+    }
+    function isYouTube(u) {
+      if (!u) return false;
+      return u.includes('youtube.com') || u.includes('youtu.be') || u.includes('/embed/');
+    }
+
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
+
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function renderMovies(list) {
+  container.innerHTML = '';
+  list.forEach((movie, index) => {
+    const card = document.createElement('div');
+    card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
+    
+    const badgeBg = movie.isUpcoming ? 'bg-zinc-800 border border-zinc-700 text-zinc-400' : 'bg-black bg-opacity-70 text-white';
+    const actionableIcon = movie.isUpcoming ? '<i class="fas fa-clock text-zinc-500"></i>' : '<i class="fas fa-play"></i>';
+
+    card.innerHTML = `
+      <div class="relative group overflow-hidden rounded-xl">
+        <!-- Image with conditional backdrop-blur and grayscale filters for unreleased episodes -->
+        <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl ${movie.isUpcoming ? 'opacity-40 grayscale blur-[2px]' : ''}">
+        
+        <!-- Hover Information State Layout Panel -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 z-10">
+          <div>
+            <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
+            <p class="text-gray-300 text-xs sm:text-sm">${movie.isUpcoming ? 'Releasing: ' + movie.releaseDate : movie.duration}</p>
+          </div>
+        </div>
+
+        <!-- Right Hand Corner Top Status Actionable Circle Icon Indicator -->
+        <div class="absolute top-3 right-3 ${badgeBg} rounded-full w-10 h-10 flex items-center justify-center z-10">
+          ${actionableIcon}
+        </div>
+
+        <!-- CONDITIONAL BLOCK: Centers the Date overlay text exactly in the center of unreleased items, or renders standard top rating metadata badge -->
+        ${movie.isUpcoming ? `
+          <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 p-2 text-center pointer-events-none">
+            <span class="text-xs font-bold text-white uppercase tracking-widest bg-zinc-900/90 px-3 py-1.5 rounded-md border border-zinc-700/50 shadow-md">
+              ${movie.releaseDate}
+            </span>
+          </div>
+        ` : `
+          <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full z-10">
+            <i class="fas fa-star text-white text-xs mr-1"></i>
+            <span class="text-white text-xs">${movie.rating || '8.0'}</span>
+          </div>
+        `}
+      </div>
+      
+      <!-- Text details below image structure box context layout -->
+      <div class="mt-3">
+        <h3 class="text-white font-medium">${movie.title}</h3>
+        <div class="flex items-center text-gray-400 text-sm mt-1">
+          <span>S${movie.season} • E${movie.episode}</span>
+          <span class="mx-2">•</span>
+          <span>${movie.isUpcoming ? 'Coming Soon' : movie.duration}</span>
+
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      if (movie.isUpcoming) {
+        alert(`"${movie.title}" is scheduled to premiere on ${movie.releaseDate}. Stay tuned!`);
+        return;
+      }
+      const loadingSpinner = document.getElementById('loading-spinner');
+      if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+      openPlayer(list, index);
+      setTimeout(() => attachVideoListeners(), 200);
+      if (loadingSpinner) loadingSpinner.classList.add('hidden');
+    });
+    
+    container.appendChild(card);
+  });
+}
+
+    function openPlayer(list, index) {
+      currentFiltered = list;
+      currentIndex = index;
+      const item = list[index];
+      if (!item) return;
+
+      modalTitle.textContent = item.title || '';
+      modalDesc.textContent = item.description || '';
+
+      resetPlayerContainer();
+      showModal();
+
+      let src = item.video;
+      const lc = (src||'').toLowerCase();
+
+      if (lc.includes('mega.nz') || lc.includes('streamtape.com') || lc.includes('ok.ru') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          }
+        } catch(e){}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      if (isHls(src)) {
+        const v = document.getElementById('modalVideo');
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+        }
+        return;
+      }
+
+      if (isMP4(src)) {
+        const v = document.getElementById('modalVideo');
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+    }
+
+    function togglePlayPause() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      }
+    }
+
+    function playNext() {
+      if (currentIndex < currentFiltered.length - 1) {
+        const nextTarget = currentFiltered[currentIndex + 1];
+        if (nextTarget && nextTarget.isUpcoming) {
+          alert("Next item is an unreleased episode.");
+          return;
+        }
+        openPlayer(currentFiltered, currentIndex + 1);
+      }
+    }
+
+    function playPrev() {
+      if (currentIndex > 0) {
+        openPlayer(currentFiltered, currentIndex - 1);
+      }
+    }
+
+    function toggleFullscreen() {
+      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function toggleMute() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      resetPlayerContainer();
+      hideModal();
+    }
+
+    function attachVideoListeners() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.addEventListener('ended', () => {
+        playPauseBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
+      });
+    }
+
+    function initPage() {
+      renderMovies(movies);
+
+      const seasonBtns = document.querySelectorAll('.season-btn');
+      seasonBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          seasonBtns.forEach(b => b.classList.remove('active', 'bg-zinc-700', 'text-white'));
+          this.classList.add('active', 'bg-zinc-700', 'text-white');
+          const season = this.dataset.season;
+          let filtered = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+          renderMovies(filtered);
+        });
+      });
+
+      const playAllBtn = document.getElementById('play-all');
+      if (playAllBtn) {
+        playAllBtn.addEventListener('click', () => {
+          openPlayer(movies.filter(m => !m.isUpcoming), 0);
+        });
+      }
+
+      const globalSearch = document.getElementById('global-search');
+      if (globalSearch) {
+        globalSearch.addEventListener('input', (e) => {
+          const q = e.target.value.trim().toLowerCase();
+          let list = movies.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
+          renderMovies(list);
+        });
+      }
+    }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    closeModalBtn.addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', (e) => { if (e.target === playbackModal) closeModalHandler(); });
+
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+
+    searchBtn.addEventListener('click', () => { searchBar.classList.toggle('hidden'); watchlistDropdown.classList.add('hidden'); });
+    watchlistBtn.addEventListener('click', (e) => { e.stopPropagation(); watchlistDropdown.classList.toggle('hidden'); searchBar.classList.add('hidden'); });
+    document.addEventListener('click', () => { watchlistDropdown.classList.add('hidden'); });
+
+    window.addEventListener('DOMContentLoaded', initPage);
+  </script>
+  <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
