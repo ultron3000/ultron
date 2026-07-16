@@ -1,5 +1,4 @@
-<!-- 007-updated.html -->
-<!-- Caption: 007 Cinematic Universe — modal player integrated (HLS/MP4/YouTube/iframe). -->
+<!-- 007 Cinematic Universe — modal player integrated (HLS/MP4/YouTube/iframe). -->
 <!-- Hashtags: #007 #Bond #ModalPlayer #HLS #Streaming #TukaramIntegration -->
 
 <!DOCTYPE html>
@@ -14,19 +13,19 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
-    /* Custom scrollbar */
+    /* Custom scrollbar matching luxurious gold/gunmetal */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #111827; }
-    ::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #d97706; }
+    ::-webkit-scrollbar-track { background: #070a0f; }
+    ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #aa8c2c; }
 
     /* Custom animations */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    .delay-1 { animation-delay: 0.05s; } .delay-2 { animation-delay: 0.1s; } .delay-3 { animation-delay: 0.15s; }
 
-    /* Custom glow effect */
-    .glow { box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+    /* Custom tactical gun-barrel glow effect */
+    .glow { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
 
     /* Aspect ratio for movie cards */
     .movie-card { aspect-ratio: 2/3; }
@@ -35,63 +34,70 @@
       .movie-card::before { content: ""; display: block; padding-top: 150%; }
     }
 
-    /* Hawkeye-style modal/player styles */
-    .modal-overlay { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.9); z-index: 9999; opacity:0; visibility:hidden; transition: all .25s ease; }
+    /* Cinematic modal/player styles */
+    .modal-overlay { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(3, 4, 6, 0.95); z-index: 9999; opacity:0; visibility:hidden; transition: all .25s ease; }
     .modal-overlay.active { opacity:1; visibility:visible; }
-    .modal-card { width:95%; max-width:980px; border-radius:12px; overflow:hidden; background: linear-gradient(180deg,#0b0b0b,#151515); box-shadow: 0 30px 80px rgba(0,0,0,0.7); }
-    .player-area { position: relative; padding-bottom: 56.25%; height:0; background:black; }
-    .player-area video, .player-area iframe { position:absolute; inset:0; width:100%; height:100%; background:black; }
-    .progress-bar { height:6px; background: rgba(255,255,255,0.06); position: relative; width:100%; }
-    .progress-fill { position:absolute; left:0; top:0; bottom:0; width:0%; background:#f59e0b; transition: width .2s linear; }
+    .modal-card { width:95%; max-width:980px; border-radius:12px; overflow:hidden; background: linear-gradient(180deg,#0d0f14,#07080b); border: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 30px 80px rgba(0,0,0,0.9); }
+    .player-area { position: relative; padding-bottom: 56.25%; height:0; background:#000; }
+    .player-area video, .player-area iframe { position:absolute; inset:0; width:100%; height:100%; background:#000; }
+    .progress-bar { height:4px; background: rgba(255,255,255,0.06); position: relative; width:100%; }
+    .progress-fill { position:absolute; left:0; top:0; bottom:0; width:0%; background:#d4af37; transition: width .2s linear; }
     .controls { display:flex; gap:8px; align-items:center; }
-    .btn { background: #1f1f1f; color:#fff; padding:8px 12px; border-radius:8px; }
-    .btn.primary { background:#f59e0b; color:#111827; }
+    .btn { background: #161a22; color:#fff; padding:8px 14px; border-radius:8px; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease; }
+    .btn:hover { background: #222936; border-color: rgba(212, 175, 55, 0.3); }
+    .btn.primary { background:#d4af37; color:#070a0f; border-color:#d4af37; font-weight: 600; }
+    .btn.primary:hover { background:#f3cf55; }
     @media (max-width:640px){ .modal-card { width:98%; } }
 
     /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
+    video:fullscreen,
+    video:-webkit-full-screen,
+    iframe:fullscreen,
+    iframe:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      object-fit: contain !important;
+      background-color: black;
+    }
 
-  object-fit: contain !important;
-  background-color: black;
-}
-
-/* Only cover when video aspect is cinematic */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
-    object-fit: cover !important;
-  }
-}
-
+    /* Only cover when video aspect is cinematic */
+    @media (min-aspect-ratio: 16/9) {
+      video:fullscreen,
+      video:-webkit-full-screen,
+      iframe:fullscreen,
+      iframe:-webkit-full-screen {
+        object-fit: cover !important;
+      }
+    }
   </style>
 </head>
-<body class="bg-gray-900 text-amber-400 min-h-screen">
+<body class="bg-[#070a0f] text-[#d4af37] min-h-screen font-sans">
   <!-- Header with search -->
-  <header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur-sm border-b border-amber-400/20">
+  <header class="sticky top-0 z-50 bg-[#070a0f]/95 backdrop-blur-sm border-b border-[#d4af37]/20">
     <div class="container mx-auto px-4 py-4">
       <div class="flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-3">
-          <i class="fas fa-gun text-2xl text-amber-400"></i>
-          <h1 class="text-2xl md:text-3xl font-bold tracking-wider">007 CINEMATIC UNIVERSE</h1>
+          <!-- Gun logo & Laser Dot Target Indicator -->
+          <div class="relative">
+            <i class="fas fa-gun text-2xl text-[#d4af37]"></i>
+            <span class="absolute -top-1 -right-1 flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+            </span>
+          </div>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-[0.18em] text-white">007 <span class="text-[#d4af37] font-light">CINEMATIC UNIVERSE</span></h1>
         </div>
 
-        <div class="relative w-full md:w-64">
+        <div class="relative w-full md:w-80">
           <input 
             type="text" 
             id="search" 
-            placeholder="Search movies..." 
-            class="w-full bg-gray-800 text-white px-4 py-2 rounded-full border border-amber-400/30 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+            placeholder="Search missions, actors, plots..." 
+            class="w-full bg-[#111622] text-white px-5 py-2.5 rounded-full border border-[#d4af37]/30 focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent placeholder-gray-500 text-sm transition-all"
           >
-          <i class="fas fa-search absolute right-3 top-2.5 text-amber-400/70"></i>
+          <i class="fas fa-search absolute right-4 top-3 text-[#d4af37]/70"></i>
         </div>
       </div>
     </div>
@@ -100,59 +106,59 @@ iframe:-webkit-full-screen {
   <!-- Main content -->
   <main class="container mx-auto px-4 py-8">
     <!-- Stats bar -->
-    <div class="flex flex-wrap justify-between items-center mb-8 gap-4 bg-gray-800/50 p-4 rounded-xl border border-amber-400/20">
+    <div class="flex flex-wrap justify-between items-center mb-8 gap-4 bg-[#111622]/60 p-4 rounded-xl border border-[#d4af37]/20">
       <div class="flex items-center gap-2">
-        <i class="fas fa-film text-amber-400"></i>
-        <span class="font-medium">Total Movies: <span id="total-movies" class="font-bold">0</span></span>
+        <i class="fas fa-film text-[#d4af37]"></i>
+        <span class="font-medium text-gray-300">Total Missions: <span id="total-movies" class="font-bold text-[#d4af37]">25</span></span>
       </div>
       <div class="flex items-center gap-2">
-        <i class="fas fa-calendar-alt text-amber-400"></i>
-        <span class="font-medium">Years: <span class="font-bold">—</span></span>
+        <i class="fas fa-calendar-alt text-[#d4af37]"></i>
+        <span class="font-medium text-gray-300">Timeline: <span class="font-bold text-[#d4af37]">1962 – 2021</span></span>
       </div>
       <div class="flex items-center gap-2">
-        <i class="fas fa-user-secret text-amber-400"></i>
-        <span class="font-medium">Actors: <span class="font-bold">—</span></span>
+        <i class="fas fa-user-secret text-[#d4af37]"></i>
+        <span class="font-medium text-gray-300">Agents: <span class="font-bold text-[#d4af37]">6 Official Portrayers</span></span>
       </div>
     </div>
 
     <!-- Movies grid -->
     <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"></div>
 
-    <!-- Loading spinner (hidden by default) -->
+    <!-- Loading spinner -->
     <div id="loading" class="hidden flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-400"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#d4af37]"></div>
     </div>
   </main>
 
   <!-- Footer -->
-  <footer class="bg-gray-800/50 border-t border-amber-400/20 py-6 mt-12">
+  <footer class="bg-[#05070a] border-t border-[#d4af37]/15 py-8 mt-16">
     <div class="container mx-auto px-4 text-center">
-      <div class="flex justify-center gap-4 mb-4">
-        <a href="#" class="text-amber-400 hover:text-white transition-colors"><i class="fab fa-imdb text-2xl"></i></a>
-        <a href="#" class="text-amber-400 hover:text-white transition-colors"><i class="fab fa-wikipedia-w text-2xl"></i></a>
-        <a href="#" class="text-amber-400 hover:text-white transition-colors"><i class="fab fa-github text-2xl"></i></a>
+      <div class="flex justify-center gap-6 mb-4">
+        <a href="#" class="text-[#d4af37] hover:text-white transition-colors"><i class="fab fa-imdb text-2xl"></i></a>
+        <a href="#" class="text-[#d4af37] hover:text-white transition-colors"><i class="fab fa-wikipedia-w text-2xl"></i></a>
+        <a href="#" class="text-[#d4af37] hover:text-white transition-colors"><i class="fab fa-github text-2xl"></i></a>
       </div>
-      <p class="text-gray-400 text-sm">© 2025 007 Cinematic Universe. All rights reserved. James Bond and related elements are trademarks of EON Productions.</p>
+      <p class="text-gray-500 text-xs tracking-wide">© 2026 007 Cinematic Universe. James Bond, 007 gun logo and related elements are trademarks of EON Productions & Danjaq LLC.</p>
     </div>
   </footer>
 
   <!-- =========================
-       Playback Modal (Hawkeye-style)
+       Playback Modal (MI6 Tactical Style)
        ========================= -->
   <div id="playback-modal" class="modal-overlay" aria-hidden="true">
     <div class="modal-card">
-      <div class="relative p-4 border-b border-gray-800 flex items-start justify-between">
+      <div class="relative p-4 border-b border-[#d4af37]/15 flex items-start justify-between bg-[#0b0e14]">
         <div>
-          <div id="modal-title" class="text-xl font-bold text-amber-400"></div>
-          <div id="modal-sub" class="text-sm text-gray-400 mt-1"></div>
+          <div id="modal-title" class="text-xl font-extrabold tracking-wide text-white"></div>
+          <div id="modal-sub" class="text-xs font-semibold uppercase text-[#d4af37] mt-1 tracking-wider"></div>
         </div>
         <div class="flex items-center gap-3">
-          <button id="close-modal" class="text-white p-2 rounded bg-gray-800 hover:bg-gray-700"><i class="fas fa-times"></i></button>
+          <button id="close-modal" class="text-white p-2 rounded bg-[#161a22] hover:bg-red-700/80 hover:text-white transition-all border border-white/10" title="Close Mission"><i class="fas fa-times"></i></button>
         </div>
       </div>
 
       <div id="player-area" class="player-area">
-        <!-- default video element (replaced/used by JS) -->
+        <!-- default video element -->
         <video id="modal-video" controls playsinline preload="metadata"></video>
       </div>
 
@@ -160,52 +166,283 @@ iframe:-webkit-full-screen {
         <div id="progress-fill" class="progress-fill"></div>
       </div>
 
-      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <p id="modal-desc" class="text-gray-300 text-sm"></p>
-        </div>
-        <div class="controls">
-          <button id="prevBtn" class="btn" title="Previous"><i class="fas fa-step-backward"></i></button>
-          <button id="modal-play" class="btn primary" title="Play/Pause"><i class="fas fa-play mr-2"></i><span id="playText">Play</span></button>
-          <button id="nextBtn" class="btn" title="Next"><i class="fas fa-step-forward"></i></button>
-          <button id="muteBtn" class="btn" title="Mute"><i class="fas fa-volume-up"></i></button>
-          <button id="fullscreenBtn" class="btn" title="Fullscreen"><i class="fas fa-expand"></i></button>
+      <!-- Action Panel & Description -->
+      <div class="p-4 bg-[#090b0f] flex flex-col gap-4">
+        <p id="modal-desc" class="text-gray-400 text-sm leading-relaxed"></p>
+        
+        <div class="flex flex-wrap items-center justify-between border-t border-[#d4af37]/10 pt-4 gap-3">
+          <!-- Mission Tags/Stats -->
+          <div id="modal-meta-stats" class="text-xs text-gray-500 flex gap-4">
+            <!-- Dynamically loaded details -->
+          </div>
+          
+          <!-- Master Panel Button Layout -->
+          <div class="controls">
+            <button id="prevBtn" class="btn" title="Previous Mission"><i class="fas fa-step-backward"></i></button>
+            <button id="modal-play" class="btn primary" title="Initialize Broadcast"><i class="fas fa-play mr-2"></i><span id="playText">PLAY</span></button>
+            <button id="nextBtn" class="btn" title="Next Mission"><i class="fas fa-step-forward"></i></button>
+            <button id="muteBtn" class="btn" title="Toggle Audio"><i class="fas fa-volume-up"></i></button>
+            <button id="fullscreenBtn" class="btn" title="Tactical Fullscreen View"><i class="fas fa-expand"></i></button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    /***** MOVIES ARRAY SKIPPED (empty placeholder) *****/
-    // You requested the movies list to be skipped — paste your list here later in the same format:
-    // const movies = [{ title, video, image, year, rating, description, series }, ...];
+    /* 25 Official EON Productions 007 Movies with enhanced descriptions and metadata */
     const movies = [
-      { title: "Dr. No", video: "https://mega.nz/embed/I79nSI4Q#Bx7nvrQDvYkNvmdGad7ZWtLbD4A2TM3F0wbNfQ6Upfs", image: "https://alternativemovieposters.com/wp-content/uploads/2023/06/Ash-Weaver_DRNO.jpg" },
-{ title: "From Russia with Love", video: "https://mega.nz/embed/JQcQHR4b#YYJiQ1oYjsTiq0mx3LpsnMDBkRczKfJZOIv-Y0cW5G4", image: "https://m.media-amazon.com/images/I/71M+yet93tL.jpg" },
-{ title: "Goldfinger", video: "https://mega.nz/embed/0Vl0SbbK#wyE55KlkarW4v3q7rcfPDPS4o9UOn9RU0jN5q87Bt5Y", image: "https://i.etsystatic.com/14140434/r/il/f4e478/1486444070/il_fullxfull.1486444070_20a2.jpg" },
-{ title: "Thunderball", video: "https://mega.nz/embed/JzFi3ajJ#Y2GpZduaq9TD-dbYVcWkF85Rz-8TnyKAF9gT0DVhKCY", image: "https://posterspy.com/wp-content/uploads/2023/06/TB_WEB_TEMPLATE_1000x1500px.jpg" },
-{ title: "You Only Live Twice", video: "https://mega.nz/embed/JmM01aaL#2y29QjStv0xyQiMhEq873YgQ_VcUcVkkOIVjkeQdeF4", image: "https://goauctionomega.blob.core.windows.net/stock/35781-1-medium.jpg?v=63826656829657" },
-{ title: "On Her Majesty's Secret Service", video: "https://mega.nz/embed/gFlkhaTS#LprsRW5a5di6b6xrSGBndBdbrwePSf8mq81zIJCKtog", image: "https://media-cache.cinematerial.com/p/500x/ztunectl/on-her-majestys-secret-service-movie-poster.jpg?v=1456639344" },
-{ title: "Diamonds Are Forever", video: "https://mega.nz/embed/AuURSCqJ#Wh-ivq27xAg0nBWK9zSCgHxhgSQN5OFGR787zYc-th0", image: "https://posterspy.com/wp-content/uploads/2023/06/DAF_WEB_TEMPLATE_1000x1500px.jpg" },
-{ title: "Live and Let Die", video: "https://mega.nz/embed/0UdxxaKb#VrYgyWlngAI0d0mx4FZa7NbBqkO1FWGu2fBZUE2puSA", image: "https://alternativemovieposters.com/wp-content/uploads/2022/12/Robert-Watts_LiveLetDie.jpg" },
-{ title: "The Man with the Golden Gun", video: "https://mega.nz/embed/B78BlBIL#KhCkvtJKtddfrYsovR5ctlqEY9Zftsomjc0eqjSMXT0", image: "https://image.tmdb.org/t/p/original/itH4xI6TbJtJSqcZ43B3MkpL1gy.jpg" },
-{ title: "The Spy Who Loved Me", video: "https://mega.nz/embed/gzNwmCDC#qBGsUXAFkDuBkWWbnC_cAtIdn-M7eIw6zF-TcYB2zGM", image: "https://posterspy.com/wp-content/uploads/2022/11/tswlm-poster.jpg" },
-{ title: "Moonraker", video: "https://mega.nz/embed/lUdknSYB#uroE2gqqr50Y90D1VSdAEQPYiE0M5p5WzyHa67wpqG8", image: "https://image.tmdb.org/t/p/original/uYLS9uMZmP6iXAh0jhWUZI2Nk3e.jpg" },
-{ title: "For Your Eyes Only", video: "https://mega.nz/embed/4Zs1CYID#XzGPn_GkWvdaMxbeSvBGEOtDGQdD8oT0cUfJvXB_rTY", image: "https://i.pinimg.com/736x/9e/16/41/9e1641d6057cfae2e77879866f54a8a3.jpg" },
-{ title: "Octopussy", video: "https://mega.nz/embed/JFMXWIRQ#2QShwiBg7oDhNl9xxmWHCyIwG075gGnc5HJE1Brc698", image: "https://cdn.posteritati.com/posters/000/000/061/237/octopussy-md-web.jpg" },
-{ title: "A View to a Kill", video: "https://mega.nz/embed/93slXDSa#LUkc0JEyXKM9-R2TLer2ytzccCSnhDUEMbpkAuwIV5M", image: "https://i.pinimg.com/736x/cb/36/82/cb3682872fc7b9042b505e884f5e5d54.jpg" },
-{ title: "The Living Daylights", video: "https://mega.nz/embed/Ir9VDJIT#INX1RGeK5Jy0h643E_saSMEFBJ0HbptUF_4yNiZQFlA", image: "https://posterspy.com/wp-content/uploads/2023/06/TLD_WEB_TEMPLATE_1000x1500px.jpg" },
-{ title: "Licence to Kill", video: "https://mega.nz/embed/Ed9xTBgb#5waUHK7xwkjDxdPDrjGrG6IoppZD0iC5ZWCs-UuJ71A", image: "https://i.pinimg.com/736x/d8/45/27/d84527d6f1c4cba168b690a59454bf36.jpg" },
-{ title: "GoldenEye", video: "https://mega.nz/embed/tZE3iQDK#uIlkRkrhPln9bf4F4cKvZj2fqnleO-OiqTugZeeN9qc", image: "https://i.pinimg.com/736x/96/0e/f3/960ef3339761fc03969d9e37ec60d2d5.jpg" },
-{ title: "Tomorrow Never Dies", video: "https://mega.nz/embed/BrMFHLII#12NhpdDQGDjV-HS5ZbF01TFOnRrg5pfFJ6jWERJ-hJQ", image: "https://cdn11.bigcommerce.com/s-yzgoj/images/stencil/1280x1280/products/3234392/6220705/GBEFPO431__06020.1709712291.jpg?c=2" },
-{ title: "The World Is Not Enough", video: "https://mega.nz/embed/AvEF0S5R#szrE_jqqQG1XnRrZGLw3UetvS4sup6LrhPC59t3hCnA", image: "https://i.pinimg.com/474x/a5/fc/8f/a5fc8fa3feb3ea9f3f6316cb8c01e9b6.jpg" },
-{ title: "Die Another Day", video: "https://mega.nz/embed/JjEzUZLK#KjPbs2lXguxdIZT4YSfRJifNk2iKiaR_Zm1rzMZlHZ8", image: "https://cdn11.bigcommerce.com/s-yzgoj/images/stencil/500x659/products/2911891/5955577/MOVAJ0534__87882.1679599595.jpg?c=2" },
-{ title: "Casino Royale", video: "https://mega.nz/embed/kyUGBYZQ#aF2cP8Wb80VwKPW6q7RyNSM4mmcoLZhJieWd9bnXUFQ", image: "https://i.redd.it/6tkj6vkehct81.jpg" },
-{ title: "Quantum of Solace", video: "https://mega.nz/embed/h78HVLwY#dMy7I_FcbzZu6ni4414jJMibO6dm19SS7hxdMWHK0Vg", image: "https://artofthemovies.co.uk/cdn/shop/files/IMG_4340_300x300.jpg?v=1697040084" },
-{ title: "Skyfall", video: "https://mega.nz/embed/h7VWjLDY#lmnkXOSKxhPGmSkrQK62VjyWiqrZGcbW_ji-o_DJd94", image: "https://i.pinimg.com/474x/25/5b/02/255b02262ef74228723fc79c87625abc.jpg" },
-{ title: "Spectre", video: "https://mega.nz/embed/g3szTKoC#6Czpogsf7J5NzROFzxqNuqDaQmy3u8JSIcVu2SHOOSY", image: "https://image.tmdb.org/t/p/w500/zj8ongFhtWNsVlfjOGo8pSr7PQg.jpg" },
-{ title: "No Time to Die", video: "https://mega.nz/embed/BN1BAbLA#4n3J8vM2FJtuhav1d558eATU0lGeglZTLD-mbV6SoDk", image: "https://preview.redd.it/4a8rd5658g161.jpg?width=640&crop=smart&auto=webp&s=8c16f3cd4b0a985f791de5507f7d2b1c411eda02" },
-         ]; // <-- paste your movies array here later
+      { 
+        title: "Dr. No", 
+        video: "https://mega.nz/embed/I79nSI4Q#Bx7nvrQDvYkNvmdGad7ZWtLbD4A2TM3F0wbNfQ6Upfs", 
+        image: "https://alternativemovieposters.com/wp-content/uploads/2023/06/Ash-Weaver_DRNO.jpg",
+        year: 1962,
+        actor: "Sean Connery",
+        rating: "7.2",
+        duration: "109m",
+        description: "James Bond's legendary first cinematic mission takes him to Jamaica to investigate the disappearance of a British intelligence chief, leading to the mysterious Crab Key island ruled by the eccentric nuclear scientist, Dr. Julius No."
+      },
+      { 
+        title: "From Russia with Love", 
+        video: "https://mega.nz/embed/JQcQHR4b#YYJiQ1oYjsTiq0mx3LpsnMDBkRczKfJZOIv-Y0cW5G4", 
+        image: "https://m.media-amazon.com/images/I/71M+yet93tL.jpg",
+        year: 1963,
+        actor: "Sean Connery",
+        rating: "7.4",
+        duration: "115m",
+        description: "Agent 007 is sent to assist in the defection of a Soviet consulate clerk in Istanbul, but falls headfirst into a deadly, elaborate trap set up by the global crime organization SPECTRE."
+      },
+      { 
+        title: "Goldfinger", 
+        video: "https://mega.nz/embed/0Vl0SbbK#wyE55KlkarW4v3q7rcfPDPS4o9UOn9RU0jN5q87Bt5Y", 
+        image: "https://i.etsystatic.com/14140434/r/il/f4e478/1486444070/il_fullxfull.1486444070_20a2.jpg",
+        year: 1964,
+        actor: "Sean Connery",
+        rating: "7.7",
+        duration: "110m",
+        description: "Investigating the illegal smuggling operations of international gold tycoon Auric Goldfinger, James Bond discovers a catastrophic plot to contaminate the United States Bullion Depository at Fort Knox."
+      },
+      { 
+        title: "Thunderball", 
+        video: "https://mega.nz/embed/JzFi3ajJ#Y2GpZduaq9TD-dbYVcWkF85Rz-8TnyKAF9gT0DVhKCY", 
+        image: "https://posterspy.com/wp-content/uploads/2023/06/TB_WEB_TEMPLATE_1000x1500px.jpg",
+        year: 1965,
+        actor: "Sean Connery",
+        rating: "6.9",
+        duration: "130m",
+        description: "James Bond travels to the Bahamas to locate two NATO atomic warheads stolen by SPECTRE's eye-patched mastermind, Emilio Largo, in a nuclear extortion threat."
+      },
+      { 
+        title: "You Only Live Twice", 
+        video: "https://mega.nz/embed/JmM01aaL#2y29QjStv0xyQiMhEq873YgQ_VcUcVkkOIVjkeQdeF4", 
+        image: "https://goauctionomega.blob.core.windows.net/stock/35781-1-medium.jpg?v=63826656829657",
+        year: 1967,
+        actor: "Sean Connery",
+        rating: "6.8",
+        duration: "117m",
+        description: "When American and Soviet spacecraft go missing mid-orbit, Bond fakes his death and travels to Japan to track down the hidden volcanic lair of Ernst Stavro Blofeld."
+      },
+      { 
+        title: "On Her Majesty's Secret Service", 
+        video: "https://mega.nz/embed/gFlkhaTS#LprsRW5a5di6b6xrSGBndBdbrwePSf8mq81zIJCKtog", 
+        image: "https://media-cache.cinematerial.com/p/500x/ztunectl/on-her-majestys-secret-service-movie-poster.jpg?v=1456639344",
+        year: 1969,
+        actor: "George Lazenby",
+        rating: "6.7",
+        duration: "142m",
+        description: "George Lazenby steps into the tuxedo as Bond goes undercover in the Swiss Alps to halt Blofeld's devastating biological warfare agenda while falling in love with Tracy di Vicenzo."
+      },
+      { 
+        title: "Diamonds Are Forever", 
+        video: "https://mega.nz/embed/AuURSCqJ#Wh-ivq27xAg0nBWK9zSCgHxhgSQN5OFGR787zYc-th0", 
+        image: "https://posterspy.com/wp-content/uploads/2023/06/DAF_WEB_TEMPLATE_1000x1500px.jpg",
+        year: 1971,
+        actor: "Sean Connery",
+        rating: "6.5",
+        duration: "120m",
+        description: "Sean Connery returns to hunt a global diamond-smuggling ring in Las Vegas, only to discover his arch-nemesis is utilizing the gems to construct a deadly space laser."
+      },
+      { 
+        title: "Live and Let Die", 
+        video: "https://mega.nz/embed/0UdxxaKb#VrYgyWlngAI0d0mx4FZa7NbBqkO1FWGu2fBZUE2puSA", 
+        image: "https://alternativemovieposters.com/wp-content/uploads/2022/12/Robert-Watts_LiveLetDie.jpg",
+        year: 1973,
+        actor: "Roger Moore",
+        rating: "6.7",
+        duration: "121m",
+        description: "Roger Moore makes his debut as 007, heading to New Orleans and San Monique to dismantle a heroin-trafficking ring masterminded by dictator Kananga and the mysterious tarot reader Solitaire."
+      },
+      { 
+        title: "The Man with the Golden Gun", 
+        video: "https://mega.nz/embed/B78BlBIL#KhCkvtJKtddfrYsovR5ctlqEY9Zftsomjc0eqjSMXT0", 
+        image: "https://image.tmdb.org/t/p/original/itH4xI6TbJtJSqcZ43B3MkpL1gy.jpg",
+        year: 1974,
+        actor: "Roger Moore",
+        rating: "6.7",
+        duration: "125m",
+        description: "Bond is targeted by Francisco Scaramanga, a legendary million-dollar assassin who uses a golden gun, leading to a deadly duel on a remote island."
+      },
+      { 
+        title: "The Spy Who Loved Me", 
+        video: "https://mega.nz/embed/gzNwmCDC#qBGsUXAFkDuBkWWbnC_cAtIdn-M7eIw6zF-TcYB2zGM", 
+        image: "https://posterspy.com/wp-content/uploads/2022/11/tswlm-poster.jpg",
+        year: 1977,
+        actor: "Roger Moore",
+        rating: "7.0",
+        duration: "125m",
+        description: "In Roger Moore's definitive classic, Bond teams up with beautiful Soviet agent Anya Amasova to stop shipping magnate Karl Stromberg from destroying human civilization to create an underwater kingdom."
+      },
+      { 
+        title: "Moonraker", 
+        video: "https://mega.nz/embed/lUdknSYB#uroE2gqqr50Y90D1VSdAEQPYiE0M5p5WzyHa67wpqG8", 
+        image: "https://image.tmdb.org/t/p/original/uYLS9uMZmP6iXAh0jhWUZI2Nk3e.jpg",
+        year: 1979,
+        actor: "Roger Moore",
+        rating: "6.2",
+        duration: "126m",
+        description: "James Bond is launched into space to investigate the hijacking of an American space shuttle, encountering industrialist Hugo Drax's global genocide plan."
+      },
+      { 
+        title: "For Your Eyes Only", 
+        video: "https://mega.nz/embed/4Zs1CYID#XzGPn_GkWvdaMxbeSvBGEOtDGQdD8oT0cUfJvXB_rTY", 
+        image: "https://i.pinimg.com/736x/9e/16/41/9e1641d6057cfae2e77879866f54a8a3.jpg",
+        year: 1981,
+        actor: "Roger Moore",
+        rating: "6.7",
+        duration: "127m",
+        description: "007 returns to a gritty, grounded spy format as he races against time in Greece to retrieve ATAC, a lost British naval communication system sought by the Soviets."
+      },
+      { 
+        title: "Octopussy", 
+        video: "https://mega.nz/embed/JFMXWIRQ#2QShwiBg7oDhNl9xxmWHCyIwG075gGnc5HJE1Brc698", 
+        image: "https://cdn.posteritati.com/posters/000/000/061/237/octopussy-md-web.jpg",
+        year: 1983,
+        actor: "Roger Moore",
+        rating: "6.5",
+        duration: "131m",
+        description: "A fake Fabergé egg leads Bond to investigate a jewel-smuggling ring led by the mysterious cult leader Octopussy, masking a rogue Soviet general's nuclear agenda."
+      },
+      { 
+        title: "A View to a Kill", 
+        video: "https://mega.nz/embed/93slXDSa#LUkc0JEyXKM9-R2TLer2ytzccCSnhDUEMbpkAuwIV5M", 
+        image: "https://i.pinimg.com/736x/cb/36/82/cb3682872fc7b9042b505e884f5e5d54.jpg",
+        year: 1985,
+        actor: "Roger Moore",
+        rating: "6.3",
+        duration: "131m",
+        description: "In Roger Moore's final mission, Bond goes toe-to-toe with Max Zorin, a psychotic microchip magnate planning to trigger a catastrophic earthquake in Silicon Valley."
+      },
+      { 
+        title: "The Living Daylights", 
+        video: "https://mega.nz/embed/Ir9VDJIT#INX1RGeK5Jy0h643E_saSMEFBJ0HbptUF_4yNiZQFlA", 
+        image: "https://posterspy.com/wp-content/uploads/2023/06/TLD_WEB_TEMPLATE_1000x1500px.jpg",
+        year: 1987,
+        actor: "Timothy Dalton",
+        rating: "6.7",
+        duration: "130m",
+        description: "Timothy Dalton introduces a dark, intense realism to the role. Bond defends a defecting Soviet general in a Cold War plot extending from Gibraltar to Afghanistan."
+      },
+      { 
+        title: "Licence to Kill", 
+        video: "https://mega.nz/embed/Ed9xTBgb#5waUHK7xwkjDxdPDrjGrG6IoppZD0iC5ZWCs-UuJ71A", 
+        image: "https://i.pinimg.com/736x/d8/45/27/d84527d6f1c4cba168b690a59454bf36.jpg",
+        year: 1989,
+        actor: "Timothy Dalton",
+        rating: "6.6",
+        duration: "133m",
+        description: "When his close friend Felix Leiter is brutally attacked, Bond goes rogue, stripping his '00' status to seek personal vengeance against drug lord Franz Sanchez."
+      },
+      { 
+        title: "GoldenEye", 
+        video: "https://mega.nz/embed/tZE3iQDK#uIlkRkrhPln9bf4F4cKvZj2fqnleO-OiqTugZeeN9qc", 
+        image: "https://i.pinimg.com/736x/96/0e/f3/960ef3339761fc03969d9e37ec60d2d5.jpg",
+        year: 1995,
+        actor: "Pierce Brosnan",
+        rating: "7.2",
+        duration: "130m",
+        description: "Pierce Brosnan storms into the franchise in a masterpiece action thriller. Bond fights a former ally who hijacked a Soviet EMP satellite weapon to cripple London."
+      },
+      { 
+        title: "Tomorrow Never Dies", 
+        video: "https://mega.nz/embed/BrMFHLII#12NhpdDQGDjV-HS5ZbF01TFOnRrg5pfFJ6jWERJ-hJQ", 
+        image: "https://cdn11.bigcommerce.com/s-yzgoj/images/stencil/1280x1280/products/3234392/6220705/GBEFPO431__06020.1709712291.jpg?c=2",
+        year: 1997,
+        actor: "Pierce Brosnan",
+        rating: "6.5",
+        duration: "119m",
+        description: "Bond joins forces with Chinese agent Wai Lin to combat media mogul Elliot Carver, who attempts to manufacture a war between China and the UK for ratings."
+      },
+      { 
+        title: "The World Is Not Enough", 
+        video: "https://mega.nz/embed/AvEF0S5R#szrE_jqqQG1XnRrZGLw3UetvS4sup6LrhPC59t3hCnA", 
+        image: "https://i.pinimg.com/474x/a5/fc/8f/a5fc8fa3feb3ea9f3f6316cb8c01e9b6.jpg",
+        year: 1999,
+        actor: "Pierce Brosnan",
+        rating: "6.4",
+        duration: "128m",
+        description: "007 is assigned to protect oil heiress Elektra King from Renard, a bizarre terrorist incapable of feeling physical pain due to a bullet in his brain."
+      },
+      { 
+        title: "Die Another Day", 
+        video: "https://mega.nz/embed/JjEzUZLK#KjPbs2lXguxdIZT4YSfRJifNk2iKiaR_Zm1rzMZlHZ8", 
+        image: "https://cdn11.bigcommerce.com/s-yzgoj/images/stencil/500x659/products/2911891/5955577/MOVAJ0534__87882.1679599595.jpg?c=2",
+        year: 2002,
+        actor: "Pierce Brosnan",
+        rating: "6.1",
+        duration: "132m",
+        description: "Following 14 months of torture in North Korea, a released Bond uncovers a conspiracy involving DNA therapy, diamond magnates, and a satellite solar weapon."
+      },
+      { 
+        title: "Casino Royale", 
+        video: "https://mega.nz/embed/kyUGBYZQ#aF2cP8Wb80VwKPW6q7RyNSM4mmcoLZhJieWd9bnXUFQ", 
+        image: "https://i.redd.it/6tkj6vkehct81.jpg",
+        year: 2006,
+        actor: "Daniel Craig",
+        rating: "8.0",
+        duration: "144m",
+        description: "A breathtaking reboot introducing Daniel Craig's gritty, raw 007. Newly promoted, Bond enters a high-stakes poker game at Casino Royale to bankrupt terrorist financier Le Chiffre."
+      },
+      { 
+        title: "Quantum of Solace", 
+        video: "https://mega.nz/embed/h78HVLwY#dMy7I_FcbzZu6ni4414jJMibO6dm19SS7hxdMWHK0Vg", 
+        image: "https://artofthemovies.co.uk/cdn/shop/files/IMG_4340_300x300.jpg?v=1697040084",
+        year: 2008,
+        actor: "Daniel Craig",
+        rating: "6.6",
+        duration: "106m",
+        description: "Driven by grief, Bond pursues the enigmatic organization Quantum, leading him to Bolivia where Dominic Greene plans to monopolize the nation's water supply."
+      },
+      { 
+        title: "Skyfall", 
+        video: "https://mega.nz/embed/h7VWjLDY#lmnkXOSKxhPGmSkrQK62VjyWiqrZGcbW_ji-o_DJd94", 
+        image: "https://i.pinimg.com/474x/25/5b/02/255b02262ef74228723fc79c87625abc.jpg",
+        year: 2012,
+        actor: "Daniel Craig",
+        rating: "7.8",
+        duration: "143m",
+        description: "When MI6 is compromised and M's leadership is challenged, Bond returns from exile to hunt Raoul Silva, an ex-agent seeking absolute personal revenge."
+      },
+      { 
+        title: "Spectre", 
+        video: "https://mega.nz/embed/g3szTKoC#6Czpogsf7J5NzROFzxqNuqDaQmy3u8JSIcVu2SHOOSY", 
+        image: "https://image.tmdb.org/t/p/w500/zj8ongFhtWNsVlfjOGo8pSr7PQg.jpg",
+        year: 2015,
+        actor: "Daniel Craig",
+        rating: "6.8",
+        duration: "148m",
+        description: "A cryptic message from M's past sends 007 to Mexico and Rome, unearthing the dark connections of SPECTRE and confronting his own childhood ghosts."
+      },
+      { 
+        title: "No Time to Die", 
+        video: "https://mega.nz/embed/BN1BAbLA#4n3J8vM2FJtuhav1d558eATU0lGeglZTLD-mbV6SoDk", 
+        image: "https://preview.redd.it/4a8rd5658g161.jpg?width=640&crop=smart&auto=webp&s=8c16f3cd4b0a985f791de5507f7d2b1c411eda02",
+        year: 2021,
+        actor: "Daniel Craig",
+        rating: "7.3",
+        duration: "163m",
+        description: "Bond's emotionally charged final chapter. Pulled from retirement, he must face Lyutsifer Safin, a biological terrorist threatening global extinction."
+      }
+    ];
 
     /* DOM references */
     const container = document.getElementById('movies');
@@ -220,6 +457,7 @@ iframe:-webkit-full-screen {
     const modalTitle = document.getElementById('modal-title');
     const modalSub = document.getElementById('modal-sub');
     const modalDesc = document.getElementById('modal-desc');
+    const modalMetaStats = document.getElementById('modal-meta-stats');
     const progressFill = document.getElementById('progress-fill');
     const modalPlayBtn = document.getElementById('modal-play');
     const playText = document.getElementById('playText');
@@ -260,9 +498,9 @@ iframe:-webkit-full-screen {
         const pct = (v.currentTime / v.duration) * 100;
         progressFill.style.width = pct + '%';
       });
-      v.addEventListener('play', () => { modalPlayBtn.innerHTML = '<i class="fas fa-pause mr-2"></i><span id="playText">Pause</span>'; });
-      v.addEventListener('pause', () => { modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>'; });
-      v.addEventListener('ended', () => { modalPlayBtn.innerHTML = '<i class="fas fa-redo mr-2"></i><span id="playText">Replay</span>'; });
+      v.addEventListener('play', () => { modalPlayBtn.innerHTML = '<i class="fas fa-pause mr-2"></i><span id="playText">PAUSE</span>'; });
+      v.addEventListener('pause', () => { modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">PLAY</span>'; });
+      v.addEventListener('ended', () => { modalPlayBtn.innerHTML = '<i class="fas fa-redo mr-2"></i><span id="playText">REPLAY</span>'; });
     }
 
     /* Show/hide modal */
@@ -281,24 +519,33 @@ iframe:-webkit-full-screen {
       progressFill.style.width = '0%';
       currentIndex = null;
       hideModal();
-      modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>';
+      modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">PLAY</span>';
     }
 
-    /* Core playback function (Hawkeye-style) */
+    /* Core playback function */
     function playInModalByIndex(list, index){
       if(!list || typeof index !== 'number' || index < 0 || index >= list.length) return;
       const movie = list[index];
       currentIndex = index;
+      
       modalTitle.textContent = movie.title || 'Untitled';
-      modalSub.textContent = (movie.year ? movie.year + ' • ' : '') + (movie.series ? movie.series : '');
+      modalSub.textContent = `${movie.year || 'Unknown'} • Actor: ${movie.actor || '007'}`;
       modalDesc.textContent = movie.description || '';
-      progressFill.style.width = '0%';
+      
+      // Load tactical stats into meta footer
+      modalMetaStats.innerHTML = `
+        <span><i class="fas fa-star text-[#d4af37] mr-1"></i> ${movie.rating || '—'}/10</span>
+        <span><i class="fas fa-clock text-gray-500 mr-1"></i> ${movie.duration || '—'}</span>
+        <span class="text-xs uppercase text-[#d4af37] tracking-wider"><i class="fas fa-shield-halved mr-1"></i> Active Mission</span>
+      `;
 
+      progressFill.style.width = '0%';
       resetPlayerContainer();
       const url = movie.video;
+      
       if(!url){
         showModal();
-        modalDesc.textContent = 'No playable URL provided for this item.';
+        modalDesc.textContent = 'Mission video broadcast link currently offline.';
         return;
       }
 
@@ -322,12 +569,10 @@ iframe:-webkit-full-screen {
           }
           playerArea.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
           showModal(); updateNavButtons(); return;
-        }catch(e){
-          // fallthrough
-        }
+        }catch(e){}
       }
 
-      // Expecting to use <video>
+      // Expected native <video> operations
       const v = getModalVideo();
 
       // HLS handling
@@ -363,28 +608,32 @@ iframe:-webkit-full-screen {
         return;
       }
 
-      // Unknown: fallback to player.html
+      // Unknown fallback
       window.location.href = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(url)}`;
     }
 
     /* Play/pause control */
     modalPlayBtn.addEventListener('click', () => {
-      if(playerArea.querySelector('iframe')) return; // iframe playback handled inside iframe
+      if(playerArea.querySelector('iframe')) return;
       const v = getModalVideo();
       if(!v) return;
       if(v.paused) v.play().catch(()=>{});
       else v.pause();
     });
 
-    /* Prev/Next */
+    /* Navigation button alignment state triggers */
     function updateNavButtons(){
       prevBtn.disabled = (currentIndex === null || currentIndex <= 0);
       nextBtn.disabled = (currentIndex === null || currentIndex >= (currentList.length - 1));
+      
+      // Visual feedback for disabled buttons
+      prevBtn.style.opacity = prevBtn.disabled ? "0.3" : "1";
+      nextBtn.style.opacity = nextBtn.disabled ? "0.3" : "1";
     }
     prevBtn.addEventListener('click', () => { if(currentIndex > 0) playInModalByIndex(currentList, currentIndex - 1); });
     nextBtn.addEventListener('click', () => { if(currentIndex < currentList.length - 1) playInModalByIndex(currentList, currentIndex + 1); });
 
-    /* Mute / Fullscreen */
+    /* Control options */
     muteBtn.addEventListener('click', () => {
       const v = getModalVideo();
       if(!v) return;
@@ -398,7 +647,7 @@ iframe:-webkit-full-screen {
       else document.exitFullscreen().catch(()=>{});
     });
 
-    /* Close handlers & keyboard */
+    /* Keyboard binds */
     closeModalBtn.addEventListener('click', closeAndCleanup);
     playbackModal.addEventListener('click', (e) => { if(e.target === playbackModal) closeAndCleanup(); });
     document.addEventListener('keydown', (e) => {
@@ -411,15 +660,15 @@ iframe:-webkit-full-screen {
       if(e.key.toLowerCase() === 'p') prevBtn.click();
     });
 
-    /* Render movie cards (UI kept same). Because movies array is empty, will show placeholder */
+    /* Rendering Grid logic with refined, gorgeous cards */
     function renderMovies(list){
       container.innerHTML = '';
       if(!list || list.length === 0){
         container.innerHTML = `
-          <div class="col-span-full text-center py-12">
-            <i class="fas fa-search text-4xl text-amber-400/50 mb-4"></i>
-            <h3 class="text-xl font-medium text-gray-400">No movies available</h3>
-            <p class="text-gray-500">Paste your movies array into the top of this file (const movies = [ ... ]) to populate the grid.</p>
+          <div class="col-span-full text-center py-16">
+            <i class="fas fa-user-secret text-5xl text-[#d4af37]/30 mb-4"></i>
+            <h3 class="text-xl font-bold text-white">No Missions Found</h3>
+            <p class="text-gray-500 mt-2 text-sm">Review your filter keywords and attempt another search query.</p>
           </div>`;
         totalMoviesEl.textContent = 0;
         return;
@@ -428,16 +677,25 @@ iframe:-webkit-full-screen {
       list.forEach((movie, index) => {
         const delayClass = `delay-${index % 3 + 1}`;
         const div = document.createElement('div');
-        div.className = `fade-in ${delayClass}`;
+        div.className = `fade-in ${delayClass} cursor-pointer`;
         div.innerHTML = `
-          <div class="movie-card group relative overflow-hidden rounded-lg border border-amber-400/20 bg-gray-800 shadow-lg transition-all duration-300 hover:scale-105 hover:glow">
-            <img src="${movie.image || ''}" alt="${movie.title || 'Untitled'}" class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-90" loading="lazy">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="absolute bottom-0 left-0 right-0 p-4 text-white translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-              <h3 class="font-bold text-lg truncate">${movie.title || 'Untitled'}</h3>
-              <div class="flex justify-between items-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span class="text-xs bg-amber-400/90 text-gray-900 px-2 py-1 rounded">007</span>
-                <button class="play-button bg-amber-400 hover:bg-amber-500 text-gray-900 rounded-full w-8 h-8 flex items-center justify-center">
+          <div class="movie-card group relative overflow-hidden rounded-xl border border-[#d4af37]/15 bg-[#111622] shadow-lg transition-all duration-300 hover:scale-[1.03] hover:glow">
+            <img src="${movie.image || ''}" alt="${movie.title || 'Untitled'}" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+            
+            <!-- Sleek Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/30 opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
+            
+            <!-- Year Badge top right -->
+            <span class="absolute top-3 right-3 text-[10px] bg-black/75 text-[#d4af37] border border-[#d4af37]/40 px-2 py-0.5 rounded font-mono font-bold">${movie.year}</span>
+
+            <!-- Tactical Content Info -->
+            <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+              <p class="text-[10px] uppercase tracking-wider text-[#d4af37] font-semibold truncate mb-1">${movie.actor}</p>
+              <h3 class="font-extrabold text-base md:text-lg tracking-wide truncate group-hover:text-[#d4af37] transition-colors">${movie.title}</h3>
+              
+              <div class="flex justify-between items-center mt-3 pt-2 border-t border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span class="text-[10px] bg-[#d4af37] text-[#070a0f] font-extrabold px-2 py-0.5 rounded tracking-widest">007</span>
+                <button class="play-button bg-[#d4af37] hover:bg-white text-[#070a0f] rounded-full w-8 h-8 flex items-center justify-center transition-all">
                   <i class="fas fa-play text-xs"></i>
                 </button>
               </div>
@@ -445,11 +703,10 @@ iframe:-webkit-full-screen {
           </div>
         `;
 
-        // clicking anywhere opens modal playback (Hawkeye behavior)
+        // Action handles for desktop/mobile consistency
         div.querySelector('.play-button').addEventListener('click', (e) => {
           e.stopPropagation();
-          // prepare currentList and index for navigation
-          currentList = list.slice(); // shallow copy
+          currentList = list.slice();
           playInModalByIndex(currentList, index);
         });
         div.addEventListener('click', () => {
@@ -463,30 +720,32 @@ iframe:-webkit-full-screen {
       totalMoviesEl.textContent = list.length;
     }
 
-    /* Search filtering */
+    /* Search filtering against titles, actors and descriptions */
     searchInput.addEventListener('input', (e) => {
       const q = (e.target.value || '').trim().toLowerCase();
-      const filtered = movies.filter(m => (m.title || '').toLowerCase().includes(q) || (m.description || '').toLowerCase().includes(q));
+      const filtered = movies.filter(m => 
+        (m.title || '').toLowerCase().includes(q) || 
+        (m.actor || '').toLowerCase().includes(q) || 
+        (m.description || '').toLowerCase().includes(q)
+      );
       renderMovies(filtered);
     });
 
-    /* Initial load simulation */
+    /* Initialization */
     document.addEventListener('DOMContentLoaded', () => {
-      // show loader briefly for effect
       loadingSpinner.classList.remove('hidden');
       setTimeout(() => {
         loadingSpinner.classList.add('hidden');
-        renderMovies(movies); // movies is empty placeholder for now
-      }, 300);
+        renderMovies(movies);
+      }, 250);
     });
 
-    /* Expose helpers for debugging */
+    /* Expose helpers */
     window.playInModalByIndex = playInModalByIndex;
     window.closeAndCleanup = closeAndCleanup;
     window.resetPlayerContainer = resetPlayerContainer;
   </script>
-  
-<!-- ========================================================= -->
+  <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -807,7 +1066,6 @@ img {
     background: transparent;
 }
 </style>
-
 
 </body>
 </html>
