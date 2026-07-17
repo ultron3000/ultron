@@ -9,19 +9,19 @@
 <!-- HLS.js for HLS playback -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Poppins:wght@300;400;500;600;700&display=swap');
     
     :root {
-      --primary: #ffcc00;
-      --secondary: #111827;
-      --accent: #f59e0b;
-      --muted: #9CA3AF;
+      --primary: #ff003c; /* Cyber Laser Red */
+      --secondary: #050811; /* Cyber Carbon Black */
+      --accent: #00f0ff;  /* Active Scanning HUD Cyan */
+      --muted: #8fa0b5;
     }
     
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: white;
+      background: radial-gradient(circle at 50% 50%, #0c152b 0%, #050811 100%);
+      color: #e2e8f0;
       min-height: 100vh;
       margin: 0;
       padding: 0;
@@ -38,14 +38,17 @@
     }
     
     .movie-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       transform-origin: center;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      background: rgba(11, 17, 33, 0.8) !important;
+      border: 1px solid rgba(255, 0, 60, 0.15);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     }
     
     .movie-card:hover {
-      transform: translateY(-8px) scale(1.03);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: translateY(-10px) scale(1.02);
+      border-color: var(--primary);
+      box-shadow: 0 0 25px rgba(255, 0, 60, 0.35);
     }
     
     .search-input {
@@ -54,20 +57,21 @@
     }
     
     .search-input:focus {
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
     }
     
     .header-glow {
-      text-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+      text-shadow: 0 0 12px rgba(255, 0, 60, 0.8);
+      font-family: 'Share Tech Mono', monospace;
     }
     
     .movie-poster {
       aspect-ratio: 2/3;
-      transition: transform 0.5s ease;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     .movie-card:hover .movie-poster {
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
     
     .category-tab {
@@ -80,27 +84,27 @@
     
     .category-tab.active {
       background-color: var(--primary);
-      color: var(--secondary);
+      color: white;
       font-weight: 600;
     }
     
-    /* Custom scrollbar */
+    /* Custom Scrollbar styled for a tactical OS look */
     ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
     }
     
     ::-webkit-scrollbar-track {
-      background: #1e293b;
+      background: #050811;
     }
     
     ::-webkit-scrollbar-thumb {
-      background: #ffcc00;
-      border-radius: 10px;
+      background: var(--primary);
+      border-radius: 3px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-      background: #f59e0b;
+      background: var(--accent);
     }
     
     /* Animation */
@@ -122,12 +126,13 @@
     .modal-backdrop { 
       position:fixed; 
       inset:0; 
-      background: rgba(0,0,0,0.9); 
+      background: rgba(3, 5, 11, 0.95); 
       display:none; 
       align-items:center; 
       justify-content:center; 
       z-index:9999; 
       padding: 0;
+      backdrop-filter: blur(8px);
     }
     .modal-backdrop.active { display:flex; }
     .modal-card { 
@@ -137,8 +142,9 @@
       max-height: 90vh;
       border-radius: 0;
       overflow: hidden;
-      background: #0b1220;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      background: #060a13;
+      border: 1px solid rgba(255, 0, 60, 0.3);
+      box-shadow: 0 0 50px rgba(255, 0, 60, 0.25);
       display: flex;
       flex-direction: column;
     }
@@ -147,13 +153,14 @@
       flex: 1;
       min-height: 0;
       background: #000;
+      border-bottom: 2px solid rgba(255, 0, 60, 0.2);
     }
     #topCloseBtn { 
       position: absolute;
-      top: 8px;
-      right: 8px;
+      top: 12px;
+      right: 12px;
       z-index: 10;
-      background: rgba(0,0,0,0.7);
+      background: rgba(255, 0, 60, 0.85);
       color: white;
       border: none;
       width: 40px;
@@ -164,9 +171,10 @@
       justify-content: center;
       opacity: 1;
       transition: all 0.2s ease;
+      box-shadow: 0 0 10px rgba(255, 0, 60, 0.5);
     }
     #topCloseBtn:hover {
-      background: rgba(0,0,0,0.9);
+      background: #ff003c;
       transform: scale(1.1);
     }
     .player-wrapper video, 
@@ -181,16 +189,19 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      padding: 12px;
-      color: #ddd;
-      background: #0b1220;
+      padding: 16px;
+      color: #e2e8f0;
+      background: #060a13;
     }
     .player-meta .meta-left { 
       width: 100%;
     }
     .player-meta h3 { 
       margin: 0;
-      font-size: 1.125rem;
+      font-size: 1.25rem;
+      font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 1px;
+      color: var(--accent);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -198,7 +209,7 @@
     .player-meta p { 
       margin: 6px 0 0 0;
       color: var(--muted);
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -213,27 +224,34 @@
       justify-content: center;
     }
 
+    /* Tactically Upgraded Buttons */
     .btn {
-      background: transparent;
+      background: rgba(255, 0, 60, 0.05);
       border: 1px solid var(--primary);
-      color: var(--primary);
+      color: #ff003c;
       padding: 10px 14px;
-      border-radius: 8px;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      font-family: 'Share Tech Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       min-width: 60px;
       flex: 1;
       text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .btn:hover { 
-      background: rgba(254,209,65,0.06); 
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 0 15px rgba(255, 0, 60, 0.6);
     }
     .btn i {
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
 
     /* Responsive adjustments */
@@ -241,7 +259,7 @@
       .modal-card {
         width: 92%;
         height: auto;
-        border-radius: 12px;
+        border-radius: 8px;
         max-height: 80vh;
       }
       .player-wrapper {
@@ -254,7 +272,7 @@
         align-items: flex-start;
       }
       .player-meta .meta-left {
-        max-width: 65%;
+        max-width: 62%;
       }
       .controls-row {
         flex-wrap: nowrap;
@@ -263,7 +281,7 @@
       .btn {
         flex: 0;
         min-width: auto;
-        padding: 8px 12px;
+        padding: 8px 16px;
       }
       #topCloseBtn {
         opacity: 0;
@@ -312,7 +330,7 @@
   .player-meta {
     position: relative !important;
     z-index: 100 !important;
-    background: #0b1220 !important;      /* solid background for visibility */
+    background: #060a13 !important;      /* solid background for visibility */
     padding-top: 10px !important;
   }
 
@@ -343,6 +361,7 @@
 <body class="relative">
 <!-- Floating stars background -->
 <div class="fixed inset-0 overflow-hidden -z-10">
+$0
 <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80"></div>
 <div class="stars"></div>
 <div class="stars2"></div>
@@ -350,7 +369,7 @@
 <div class="container mx-auto px-4 py-8 max-w-7xl">
 
 <!-- Full-Width Video Header with Animated Logo -->
-<div class="relative w-full h-[400px] md:h-[500px] overflow-hidden">
+<div class="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-xl border border-red-500/20 shadow-lg shadow-red-500/5">
   <!-- YouTube Video Background -->
   <iframe 
     src="https://www.youtube.com/embed/QqrkSwRoq8Y?autoplay=1&mute=1&loop=1&playlist=QqrkSwRoq8Y&controls=0&modestbranding=1"
@@ -359,12 +378,15 @@
     class="absolute top-0 left-0 w-full h-full pointer-events-none">
   </iframe>
 
-  <!-- Animated Logo at Top-Left -->
-  <img 
-    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYTOF96tLKMLE7U4bGZBHKqwL1kYXOkQ_X0crw7mkTo2oTYlbyi9fxFLR0sFOUPpb5tA&usqp=CAU" 
-    alt="Despicable Me Logo" 
-    class="absolute top-4 left-4 h-16 md:h-24 animate-logo z-10"
-  />
+  <!-- Animated Logo at Top-Left (Upgraded with a Red Laser Tactical Glitch Banner Style) -->
+  <div class="absolute top-6 left-6 z-10 animate-logo bg-black/60 p-4 rounded border border-red-500/30 backdrop-blur-md">
+    <div class="text-red-600 font-black text-2xl tracking-widest uppercase header-glow">
+      TERMINATOR
+    </div>
+    <div class="text-[10px] text-[#00f0ff] uppercase tracking-wider font-mono">
+      SYSTEM PROTOCOL ARCHIVE
+    </div>
+  </div>
 </div>
 
 <style>
@@ -379,29 +401,30 @@
   }
 
   @keyframes glow-logo {
-    0% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
-    50% { filter: drop-shadow(0 0 6px #fffa65) drop-shadow(0 0 12px #ffba00); }
-    100% { filter: drop-shadow(0 0 2px #fffa65) drop-shadow(0 0 4px #ffba00); }
+    0% { filter: drop-shadow(0 0 2px #ff003c) drop-shadow(0 0 4px #00f0ff); }
+    50% { filter: drop-shadow(0 0 6px #ff003c) drop-shadow(0 0 12px #00f0ff); }
+    100% { filter: drop-shadow(0 0 2px #ff003c) drop-shadow(0 0 4px #00f0ff); }
   }
 
   /* Responsive adjustments */
   @media (max-width: 768px) {
-    .animate-logo { height: 4rem; top: 1rem; left: 1rem; }
+    .animate-logo { top: 1rem; left: 1rem; }
   }
 </style>
 
 </div>
-</div>
+
 <!-- Movies Grid -->
-<div class="mb-12">
+<div class="mb-12 container mx-auto px-4 max-w-7xl">
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
 </div>
+
 <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  <div class="border-t border-gray-900 mt-8 pt-6 text-center text-gray-600">
+    <a href="#" class="text-gray-500 hover:text-red-500 transition px-2"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" class="text-gray-500 hover:text-red-500 transition px-2"><i class="fab fa-twitter"></i></a>
+    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-500 hover:text-red-500 transition px-2"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-500 hover:text-red-500 transition px-2"><i class="fab fa-youtube"></i></a>
   </div>
 </div>
 
@@ -422,12 +445,12 @@
         <p id="modalDesc" class="text-sm"></p>
       </div>
       <div class="controls-row">
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+        <button id="prevBtn" class="btn"><i class="fas fa-chevron-left"></i>Prev</button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i>Play</button>
+        <button id="nextBtn" class="btn">Next<i class="fas fa-chevron-right"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i>Resize</button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i>Mute</button>
+        <button id="closeBtn" class="btn"><i class="fas fa-power-off"></i>Exit</button>
       </div>
     </div>
   </div>
@@ -435,22 +458,64 @@
 
 <script>
     /******************************
-     * Existing movies array (unchanged)
+     * Movies array with correct data and custom descriptions
      ******************************/
     const movies = [
-      { title: "The Terminator", video: "https://vip.opstream16.com/20230124/29783_e6c50249/index.m3u8", 
-        image: "https://i.pinimg.com/736x/bb/4a/2f/bb4a2ffdfaa5095e7f74f14fb2487089.jpg", category: "other", year: 1984 },
-            { title: "Terminator 2: Judgment Day", video: "https://p.10014.workers.dev:443/cloudspark91.live/file2/Pu2Rnq8jmLr6ADJ83D0eZzFUALstmeyMPqg0RSP09VT~YF49dnmbJZosI8MOpSaEs3koSehMf2sR4N+PhDZhcpOP1VYybLNCyxNqYAmJvhCkspqvIR2SIatvU3tEqEopXjzNZ+QuTGt73HmgVqzqmxqZET~ttbUJ6ht1QZ3jYfM=/MTA4MA==/aW5kZXgubTN1OA==.m3u8",
-        image: "https://alternativemovieposters.com/wp-content/uploads/2021/09/Terminator-2-poster-John-Cordero.jpg", category: "other", year: 1991 },
-            { title: "Terminator 3: Rise of the Machines", video: "https://vip.opstream14.com/20230422/35704_1020193f/index.m3u8", 
-        image: "https://m.media-amazon.com/images/M/MV5BMDUyYzU4OGEtNWQ3Zi00ZDhiLTg5NDItOTUxZTk0MTkzZmEyXkEyXkFqcGc@._V1_.jpg", category: "other", year: 2003 },
-            { title: "Terminator Salvation", video: "https://vip.opstream12.com/20220318/4172_957cb3c8/index.m3u8", 
-        image: "https://www.movieposters.com/cdn/shop/products/bec639dec6676922de2a77919387ada7_e2cca083-aed7-4235-bb5d-0b4ca842fdd9_480x.progressive.jpg?v=1573613717", category: "other", year: 2009 },
-            { title: "Terminator Genisys", video: "https://vip.opstream16.com/20230113/29187_b34e4291/index.m3u8", 
-        image: "https://i.ebayimg.com/images/g/xkYAAOSwNIdj1r0Y/s-l1200.jpg", category: "other", year: 2015 },
-            { title: "Terminator: Dark Fate", video: "https://vip.opstream14.com/20220810/19880_4c77a632/index.m3u8", 
-        image: "https://m.media-amazon.com/images/M/MV5BOTU2OGFhYjktNDJhMC00NmU5LWE1OWItNzg5ODU1MzdmNTZkXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", category: "other", year: 2019 },
- ];
+      { 
+        title: "The Terminator", 
+        video: "https://mega.nz/embed/PCgiXIZI#e2e82qn9FJDYWgGHpH8u9uxS5x1iYmFhwVWROrLP7Lg", 
+        image: "https://image.tmdb.org/t/p/w500/qvktm0BHcnmDpul4Hz01GIazWPr.jpg", 
+        category: "other", 
+        year: 1984,
+        duration: "1h 47m",
+        description: "A cyborg assassin is sent back in time from 2029 to 1984 to murder Sarah Connor, whose unborn son is destined to save mankind from extinction in a post-apocalyptic future."
+      },
+      { 
+        title: "Terminator 2: Judgment Day", 
+        video: "https://mega.nz/embed/bPIlTLQL#bFMY0XwzmfuOxL9cz2i5LIj8wQKkek8xOxdhqCSSr9E",
+        image: "https://image.tmdb.org/t/p/w500/jFTVD4XoWQTcg7wdyJKa8PEds5q.jpg", 
+        category: "other", 
+        year: 1991,
+        duration: "2h 17m",
+        description: "A reprogrammed T-800 is sent back to protect a young John Connor from an advanced, shape-shifting liquid metal T-1000 assassin deployed to eliminate him."
+      },
+      { 
+        title: "Terminator 3: Rise of the Machines", 
+        video: "https://mega.nz/embed/HOBjGTrY#OeUkci7gQOvTmDWUQaGIPAMQX-1lIIcKGLRxqX_gFSg", 
+        image: "https://image.tmdb.org/t/p/w500/vvevzdYIrk2636maNW4qeWmlPFG.jpg", 
+        category: "other", 
+        year: 2003,
+        duration: "1h 49m",
+        description: "Now a young adult, John Connor is targeted by a lethal female T-X terminator, while a familiar T-101 cyborg unit arrives to shield him once more as Skynet prepares to launch its nuclear strike."
+      },
+      { 
+        title: "Terminator Salvation", 
+        video: "https://mega.nz/embed/PSgj2ZQS#56I_rvnRFcQ59ciMCykTTd_yMq-SM1gTVOMmaoqrf2o", 
+        image: "https://image.tmdb.org/t/p/w500/gw6JhlekZgtKUFlDTezq3j5JEPK.jpg", 
+        category: "other", 
+        year: 2009,
+        duration: "1h 55m",
+        description: "Set in the war-ravaged future of 2018, John Connor meets Marcus Wright, a mysterious stranger who remembers being on death row, and together they infiltrate Skynet's manufacturing core."
+      },
+      { 
+        title: "Terminator Genisys", 
+        video: "https://mega.nz/embed/Gah2kSpb#sOmPMzS0phdlNuf41oMIQqNsv-055gIi97kt_FQHC1U", 
+        image: "https://image.tmdb.org/t/p/w500/oZRVDpNtmHk8M1VYy1aeOWUXgbC.jpg", 
+        category: "other", 
+        year: 2015,
+        duration: "2h 6m",
+        description: "Kyle Reese is sent back to 1984 to save Sarah Connor, only to find himself in a completely fractured timeline where she has been raised by a guardian Terminator from childhood."
+      },
+      { 
+        title: "Terminator: Dark Fate", 
+        video: "https://mega.nz/embed/eTwXxJ7K#WhYczACA-Jf2N15oowbmAoRwC5TGo22OOkaNUSltUF4", 
+        image: "https://image.tmdb.org/t/p/w500/vqzNJRH4YyquRiWxCCOH0aXggHI.jpg", 
+        category: "other", 
+        year: 2019,
+        duration: "2h 8m",
+        description: "Sarah Connor joins forces with an enhanced super-soldier from the future and an aging T-800 unit to shield a young woman hunted by a highly lethal, newly designed Rev-9 terminator."
+      }
+    ];
 
     /******************************
      * DOM refs for modal controls
@@ -720,21 +785,21 @@
         const delayClass = `delay-${(index % 5) * 100}`;
 
         const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden cursor-pointer relative group`;
         div.innerHTML = `
-          <div class="relative overflow-hidden rounded-t-lg">
+          <div class="relative overflow-hidden rounded-t-lg border-b border-red-500/10">
             <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
-                <i class="fas fa-play mr-2"></i> Watch Now
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-lg shadow-red-600/50 transition transform hover:scale-105 w-full font-mono text-sm tracking-widest">
+                <i class="fas fa-play mr-2"></i> PLAY
               </button>
             </div>
           </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-2 text-sm text-gray-400">
+          <div class="p-4 bg-black/40">
+            <h3 class="font-semibold text-base truncate font-mono tracking-wide text-white group-hover:text-red-500 transition-colors">${movie.title}</h3>
+            <div class="flex justify-between items-center mt-2 text-xs text-gray-400 font-mono">
               <span>${movie.year}</span>
-              <span>${movie.duration}</span>
+              <span class="text-[#00f0ff]">${movie.duration}</span>
             </div>
           </div>
         `;
@@ -837,8 +902,327 @@
     document.head.appendChild(style);
 
 </script>
+    <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
 
- 
-    
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
 </body>
 </html>
