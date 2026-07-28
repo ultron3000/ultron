@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>India's Got Latent — Exclusive Bonus Episode</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- HLS.js for stream playback -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --gold-primary: #f59e0b;
+      --gold-accent: #fbbf24;
+      --gold-glow: rgba(245, 158, 11, 0.4);
+      --bg-dark: #030308;
+      --card-bg: rgba(15, 23, 42, 0.6);
+    }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: #f8fafc;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+
+    /* Ambient background lighting */
+    .ambient-glow {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60vw;
+      height: 60vh;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, rgba(120, 53, 15, 0.05) 50%, transparent 80%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #FFF 0%, #fde68a 35%, #f59e0b 70%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .gold-border-glow {
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.15), inset 0 0 15px rgba(245, 158, 11, 0.05);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .gold-border-glow:hover {
+      border-color: rgba(251, 191, 36, 0.8);
+      box-shadow: 0 0 45px rgba(245, 158, 11, 0.35), inset 0 0 25px rgba(245, 158, 11, 0.1);
+    }
+
+    /* Play Button Animation */
+    .play-pulse {
+      animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+      70% { box-shadow: 0 0 0 25px rgba(245, 158, 11, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    /* Modal Backdrop & Card */
+    .modal-backdrop { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(2, 4, 10, 0.95); 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 9999; 
+      backdrop-filter: blur(16px);
+    }
+    .modal-backdrop.active { display: flex; }
+    
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 1100px;
+      max-height: 90vh;
+      background: #070a12;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: 0 0 50px rgba(245, 158, 11, 0.2);
+      display: flex;
+      flex-direction: column;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .player-wrapper { 
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #000;
+    }
+
+    #topCloseBtn { 
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 20;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    #topCloseBtn:hover {
+      background: #f59e0b;
+      color: #000;
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
+    }
+
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 20px;
+      background: #070a12;
+      border-top: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .btn {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid var(--gold-primary);
+      color: var(--gold-accent);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn:hover { 
+      background: var(--gold-primary);
+      color: #000;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+      font-weight: 600;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #030308; }
+    ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 10px; }
+</style>
+</head>
+<body class="relative flex flex-col justify-between min-h-screen">
+
+<div class="ambient-glow"></div>
+
+<!-- Top Navigation -->
+<header class="w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center z-10">
+  <div class="flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-300 flex items-center justify-center font-cinzel font-black text-black text-xl shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+      L
+    </div>
+    <span class="font-cinzel text-lg tracking-wider font-bold gold-gradient-text">INDIA'S GOT LATENT</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold uppercase tracking-widest">
+      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Exclusive Release
+    </span>
+  </div>
+</header>
+
+<!-- Main Showcase Container -->
+<main class="w-full max-w-5xl mx-auto px-4 py-4 my-auto z-10">
+  
+  <!-- Single Showcase Card -->
+  <div class="relative rounded-2xl overflow-hidden gold-border-glow bg-slate-950/70 backdrop-blur-md p-4 sm:p-8">
+    
+    <!-- Hero Banner Wrapper -->
+    <div class="relative w-full aspect-video rounded-xl overflow-hidden group cursor-pointer" id="heroCard">
+      <!-- Thumbnail Poster Image -->
+      <img 
+        src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1600&auto=format&fit=crop" 
+        alt="India's Got Latent Bonus Episode Poster" 
+        class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+      />
+      
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+      
+      <!-- Center Play Overlay Button -->
+      <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-2xl sm:text-3xl play-pulse transition-transform duration-300 group-hover:scale-110">
+          <i class="fas fa-play ml-1"></i>
+        </div>
+        <span class="mt-4 text-xs sm:text-sm font-semibold tracking-widest text-amber-300 uppercase bg-black/60 px-4 py-1.5 rounded-full border border-amber-500/30 backdrop-blur-sm">
+          Click to Watch Bonus Episode
+        </span>
+      </div>
+
+      <!-- Episode Quick Badges -->
+      <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-black/70 backdrop-blur-md text-amber-400 text-xs font-bold rounded-lg border border-amber-500/30">
+          SEASON FINALE EXTRA
+        </span>
+        <span class="px-3 py-1 bg-black/70 backdrop-blur-md text-slate-200 text-xs font-semibold rounded-lg border border-white/10">
+          4K ULTRA HD
+        </span>
+      </div>
+    </div>
+
+    <!-- Episode Metadata & Synopsis -->
+    <div class="mt-6 sm:mt-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-t border-amber-500/10 pt-6">
+      <div class="max-w-2xl">
+        <div class="flex items-center gap-3 text-xs sm:text-sm text-amber-400/80 mb-2">
+          <span><i class="far fa-clock mr-1"></i> 48 Mins</span>
+          <span>•</span>
+          <span><i class="far fa-calendar-alt mr-1"></i> Special Edition</span>
+          <span>•</span>
+          <span class="text-amber-300 font-semibold">Uncensored Cut</span>
+        </div>
+        <h1 class="font-cinzel text-2xl sm:text-4xl font-extrabold gold-gradient-text tracking-wide">
+          India's Got Latent: The Unseen Bonus Episode
+        </h1>
+        <p class="text-slate-300 text-sm sm:text-base mt-3 leading-relaxed">
+          Experience the most wild, unedited, and unforgettable performances that didn't make the main cuts. Featuring surprise guest panelists, extended roasting sessions, and legendary contestant moments.
+        </p>
+      </div>
+
+      <!-- Action Button -->
+      <div class="w-full md:w-auto flex-shrink-0">
+        <button id="watchBtn" class="w-full md:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold text-base tracking-wide flex items-center justify-center gap-3 shadow-[0_0_25px_rgba(245,158,11,0.4)] transition-all duration-300 transform hover:-translate-y-0.5">
+          <i class="fas fa-play text-lg"></i> Watch Now
+        </button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="w-full max-w-7xl mx-auto px-6 py-8 text-center text-slate-500 text-xs z-10">
+  <p>© India's Got Latent. All rights reserved. Premium streaming event.</p>
+</footer>
+
+<!-- Modal Video Player -->
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card">
+    
+    <div class="player-wrapper" id="playerWrapper">
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" title="Close Player">
+        <i class="fas fa-xmark text-xl"></i>
+      </button>
+    </div>
+
+    <div class="player-meta">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 id="modalTitle" class="font-cinzel text-lg font-bold text-amber-400">
+            India's Got Latent — Bonus Episode
+          </h3>
+          <p id="modalDesc" class="text-xs text-slate-400 mt-0.5">Uncut & Uncensored Edition</p>
+        </div>
+        
+        <!-- Player Controls -->
+        <div class="flex items-center gap-2">
+          <button id="playPauseBtn" class="btn" title="Play / Pause"><i class="fas fa-play"></i><span>Play</span></button>
+          <button id="fullscreenBtn" class="btn" title="Toggle Fullscreen"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn" title="Mute / Unmute"><i class="fas fa-volume-high"></i></button>
+          <button id="closeBtn" class="btn" title="Close Modal"><i class="fas fa-xmark"></i><span>Close</span></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /************************************************
+   * VIDEO CONFIGURATION 
+   * (Replace 'video' link below with your stream/mp4/iframe/mega URL)
+   ************************************************/
+  const bonusEpisode = {
+    title: "India's Got Latent — Unseen Bonus Episode",
+    description: "Special uncut edition with exclusive judges' commentary and never-before-seen contestant auditions.",
+    // Supports .mp4, .m3u8 (HLS), YouTube, Mega, or Iframe embed links
+    video: "https://mega.nz/embed/tv9hAYTZ#w8mtBwzHXuLOIQwf4GwYyLifv7hHTIVa5k54Yf0Unco" 
+  };
+
+  /************************************************
+   * DOM Elements & Player Logic
+   ************************************************/
+  const playbackModal = document.getElementById('playbackModal');
+  const playerWrapper = document.getElementById('playerWrapper');
+  const modalVideoId = 'modalVideo';
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
+
+  const watchBtn = document.getElementById('watchBtn');
+  const heroCard = document.getElementById('heroCard');
+
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const muteBtn = document.getElementById('muteBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const topCloseBtn = document.getElementById('topCloseBtn');
+
+  let currentHls = null;
+
+  function resetPlayerContainer() {
+    if (currentHls) {
+      try { currentHls.destroy(); } catch(e) {}
+      currentHls = null;
+    }
+    playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+  }
+
+  function showModal() {
+    playbackModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideModal() {
+    playbackModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function openPlayer() {
+    modalTitle.textContent = bonusEpisode.title;
+    modalDesc.textContent = bonusEpisode.description;
+
+    resetPlayerContainer();
+    showModal();
+
+    const src = bonusEpisode.video;
+    const lc = (src || '').toLowerCase();
+
+    // Handle Embed hosts (Mega, Streamtape, Dood, YouTube, etc.)
+    if (lc.includes('mega.nz') || lc.includes('youtube.com') || lc.includes('youtu.be') || lc.includes('iframe')) {
+      let embedUrl = src;
+      if (src.includes('youtube.com/watch?v=')) {
+        embedUrl = `https://www.youtube.com/embed/${src.split('v=')[1].split('&')[0]}`;
+      }
+      playerWrapper.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+      return;
+    }
+
+    // Handle HLS (.m3u8)
+    if (lc.includes('.m3u8') || lc.includes('index-')) {
+      const v = document.getElementById(modalVideoId);
+      if (window.Hls && Hls.isSupported()) {
+        currentHls = new Hls();
+        currentHls.loadSource(src);
+        currentHls.attachMedia(v);
+        currentHls.on(Hls.Events.MANIFEST_PARSED, () => v.play().catch(()=>{}));
+      } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+        v.src = src;
+        v.play().catch(()=>{});
+      }
+      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+      return;
+    }
+
+    // Standard Direct Video (MP4)
+    const v = document.getElementById(modalVideoId);
+    if (v) {
+      v.src = src;
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+    }
+  }
+
+  function togglePlayPause() {
+    const v = document.getElementById(modalVideoId);
+    if (!v) return;
+    if (v.paused) {
+      v.play().catch(()=>{});
+      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+    } else {
+      v.pause();
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+    }
+  }
+
+  function toggleFullscreen() {
+    const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+    if (!el) return;
+    if (!document.fullscreenElement) {
+      (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  function toggleMute() {
+    const v = document.getElementById(modalVideoId);
+    if (!v) return;
+    v.muted = !v.muted;
+    muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-xmark"></i>' : '<i class="fas fa-volume-high"></i>';
+  }
+
+  function closeModalHandler() {
+    if (currentHls) {
+      try { currentHls.destroy(); } catch(e) {}
+      currentHls = null;
+    }
+    const v = document.getElementById(modalVideoId);
+    if (v) {
+      try { v.pause(); } catch(e){}
+    }
+    resetPlayerContainer();
+    hideModal();
+  }
+
+  // Event Listeners
+  watchBtn.addEventListener('click', openPlayer);
+  heroCard.addEventListener('click', openPlayer);
+
+  playPauseBtn.addEventListener('click', togglePlayPause);
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
+  muteBtn.addEventListener('click', toggleMute);
+  closeBtn.addEventListener('click', closeModalHandler);
+  topCloseBtn.addEventListener('click', closeModalHandler);
+
+  playbackModal.addEventListener('click', (e) => {
+    if (e.target === playbackModal) closeModalHandler();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!playbackModal.classList.contains('active')) return;
+    if (e.key === 'Escape') closeModalHandler();
+    if (e.key === ' ') { e.preventDefault(); togglePlayPause(); }
+    if (e.key.toLowerCase() === 'f') toggleFullscreen();
+    if (e.key.toLowerCase() === 'm') toggleMute();
+  });
+</script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
