@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Tactical Intelligence & Espionage Collection</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- HLS.js for HLS playback -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
+    
+    :root {
+      --primary: #ef4444;
+      --primary-glow: rgba(239, 68, 68, 0.4);
+      --secondary: #0f172a;
+      --accent: #38bdf8;
+      --muted: #94a3b8;
+      --bg-dark: #070a12;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.12) 0%, transparent 65%),
+        radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
+        linear-gradient(to bottom, rgba(7, 10, 18, 0.85), rgba(7, 10, 18, 0.98));
+      color: #f8fafc;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .font-mono-tech {
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .font-rajdhani {
+      font-family: 'Rajdhani', sans-serif;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Tactical HUD Grid Overlay */
+    .tactical-grid {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(239, 68, 68, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(239, 68, 68, 0.03) 1px, transparent 1px);
+    }
+
+    .movie-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.8);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+    }
+
+    .crimson-gradient-text {
+      background: linear-gradient(135deg, #ffffff 0%, #fca5a5 40%, #ef4444 80%, #b91c1c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .movie-poster {
+      aspect-ratio: 2/3;
+      transition: transform 0.5s ease;
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: scale(1.05);
+    }
+    
+    /* Category Filter Buttons */
+    .category-btn {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #94a3b8;
+      transition: all 0.25s ease;
+    }
+    
+    .category-btn:hover {
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    }
+
+    .category-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #000000;
+      font-weight: 700;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #070a12; }
+    ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in { animation: fadeIn 0.6s ease forwards; }
+    
+    /* Responsive Modal Setup (Preserved Alignment) */
+    .modal-backdrop { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(7, 10, 18, 0.95); 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 9999; 
+      padding: 0;
+      backdrop-filter: blur(10px);
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      border-radius: 0;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      box-shadow: 0 0 50px rgba(239, 68, 68, 0.25);
+      display: flex;
+      flex-direction: column;
+    }
+    .player-wrapper { 
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #000;
+    }
+    #topCloseBtn { 
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: rgba(0,0,0,0.8);
+      color: var(--primary);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: all 0.2s ease;
+    }
+    #topCloseBtn:hover {
+      background: var(--primary);
+      color: #000;
+      transform: scale(1.1);
+    }
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+      color: #ddd;
+      background: #0f172a;
+      border-top: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    .player-meta .meta-left { 
+      width: 100%;
+    }
+    .player-meta h3 { 
+      margin: 0;
+      font-size: 1.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .player-meta p { 
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .controls-row { 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 60px;
+      flex: 1;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+    }
+    .btn:hover { 
+      background: var(--primary);
+      color: #000;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+    }
+
+    /* Desktop Alignment Fixes (Preserved) */
+    @media (min-width: 768px) {
+      .modal-card {
+        width: 92%;
+        height: auto;
+        border-radius: 8px;
+        max-height: 80vh;
+      }
+      .player-wrapper {
+        padding-bottom: 0 !important;     
+        height: auto !important;
+        max-height: 60vh !important;       
+        position: relative !important;
+      }
+
+      .player-wrapper video,
+      .player-wrapper iframe {
+        height: 100% !important;
+        max-height: 60vh !important;
+        position: relative !important;
+      }
+
+      .player-meta {
+        position: relative !important;
+        z-index: 100 !important;
+        background: #0f172a !important;      
+        padding-top: 10px !important;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .player-meta .meta-left {
+        max-width: 65%;
+      }
+
+      .controls-row {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-end !important;
+        gap: 12px !important;
+      }
+
+      .btn {
+        min-width: 95px !important;
+        padding: 10px 16px !important;
+        flex: unset !important;
+      }
+
+      .modal-card {
+        max-height: 85vh !important;
+        overflow: visible !important;
+      }
+
+      #topCloseBtn { opacity: 0; }
+      .player-wrapper:hover #topCloseBtn { opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .btn { padding: 8px; font-size: 0; }
+      .btn i { font-size: 1rem; margin: 0 !important; }
+    }
+</style>
+</head>
+<body class="relative tactical-grid">
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+
+  <!-- Header Section with Search & Categories (Banner Removed) -->
+  <div class="mb-8 border-b border-red-500/20 pb-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <div>
+        <span class="text-xs font-mono-tech text-red-400/80 bg-red-500/10 px-3 py-1 rounded border border-red-500/20 tracking-widest uppercase">
+          CLASSIFIED ARCHIVES // AUTHORIZED ACCESS
+        </span>
+        <h1 class="font-rajdhani text-3xl md:text-4xl font-bold uppercase crimson-gradient-text mt-2 tracking-wider">
+          TACTICAL INTELLIGENCE ARCHIVE
+        </h1>
+      </div>
+
+      <!-- Live Search Box -->
+      <div class="relative w-full md:w-80">
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-red-500/70"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Search mission files..." 
+          class="w-full pl-11 pr-4 py-2.5 bg-slate-900/90 border border-red-500/30 rounded-xl text-sm font-mono-tech text-gray-200 placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/50 transition"
+        />
+      </div>
+    </div>
+
+    <!-- Category Filters Container (Dynamically Populated) -->
+    <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide pt-2 pb-1" id="categoryContainer">
+      <!-- Generated via JavaScript -->
+    </div>
+  </div>
+
+  <!-- Movies Grid -->
+  <div class="mb-12">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 mt-8 pt-6 text-center text-gray-500">
+    <p class="font-mono-tech text-xs text-red-500/60 mb-3 tracking-widest">TACTICAL COMMAND ARCHIVES // RESTRICTED ACCESS</p>
+    <p class="text-sm">© Intelligence & Covert Ops Universe</p>
+  </footer>
+</div>
+
+<!-- Modal Player -->
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="player-wrapper" id="playerWrapper">
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" title="Close Player">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="player-meta">
+      <div class="meta-left">
+        <h3 id="modalTitle">Title</h3>
+        <p id="modalDesc" class="text-sm"></p>
+      </div>
+      <div class="controls-row">
+        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Tactical Spark Canvas -->
+<canvas id="sparkCanvasPage"></canvas>
+<style>
+#sparkCanvasPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; }
+</style>
+
+<script>
+    /******************************
+     * Dynamic Movies Data Array
+     * (Add future movies here with any category name)
+     ******************************/
+    const movies = [
+      { 
+        title: "Unthinkable", 
+        category: "Psychological Thriller",
+        video: "https://mega.nz/embed/TTRxFRDa#nu--lLs5Abj7YKSgwFb2P030Y_UAx_62YDPKAzRdpyE", 
+        image: "https://image.tmdb.org/t/p/w500/6yQqguytl10FhImngDHV90Aqewa.jpg", 
+        year: 2010,
+        duration: "1h 37m",
+        description: "A black-ops interrogator and an FBI agent clash over ethics while racing against time to extract the locations of three nuclear bombs hidden in American cities."
+      },
+      { 
+        title: "Mile 22", 
+        category: "Tactical Action",
+        video: "00", 
+        image: "https://image.tmdb.org/t/p/w500/2L8ehd95eSW9x7KINYtZmRkAlrZ.jpg", 
+        year: 2018,
+        duration: "1h 34m",
+        description: "An elite CIA tactical unit is tasked with escorting a high-value asset carrying critical intelligence 22 miles through hostile territory to an extraction airfield."
+      },
+      { 
+        title: "Salt", 
+        category: "Espionage",
+        video: "00", 
+        image: "https://image.tmdb.org/t/p/w500/ppXyhOe8UCEOrBRSYqE3SkHwrcR.jpg", 
+        year: 2010,
+        duration: "1h 40m",
+        description: "CIA officer Evelyn Salt goes on the run after a Russian defector accuses her of being a sleeper agent sent to assassinate the U.S. President."
+      },
+      { 
+        title: "Zero Dark Thirty", 
+        category: "Military Intelligence",
+        video: "00", 
+        image: "https://image.tmdb.org/t/p/w500/wNSdSSxowM3WIqmPJNg3RagYbwP.jpg", 
+        year: 2012,
+        duration: "2h 37m",
+        description: "A chronicle of the decade-long international manhunt for Al-Qaeda leader Osama bin Laden following the September 11 attacks, culminating in a night raid by Navy SEALs."
+      },
+      { 
+        title: "Snowden", 
+        category: "Cyber & Surveillance",
+        video: "00", 
+        image: "https://image.tmdb.org/t/p/w500/yfK7zxNL63VWfluFuoUaJj5PdNw.jpg", 
+        year: 2016,
+        duration: "2h 14m",
+        description: "NSA contractor Edward Snowden leaks classified documents revealing global covert surveillance programs, becoming a whistleblower and international fugitive."
+      }
+    ];
+
+    let activeCategory = "All";
+    let searchQuery = "";
+
+    /******************************
+     * Search & Filter Logic
+     ******************************/
+    const container = document.getElementById('movies');
+    const searchInput = document.getElementById('searchInput');
+    const categoryContainer = document.getElementById('categoryContainer');
+
+    function buildCategoryFilters() {
+      // Collect unique categories dynamically
+      const categories = ["All", ...new Set(movies.map(m => m.category || "Uncategorized"))];
+      categoryContainer.innerHTML = '';
+
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `category-btn text-xs font-rajdhani px-4 py-1.5 rounded-lg whitespace-nowrap uppercase tracking-wider ${cat === activeCategory ? 'active' : ''}`;
+        btn.textContent = cat;
+        btn.addEventListener('click', () => {
+          activeCategory = cat;
+          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyFilters();
+        });
+        categoryContainer.appendChild(btn);
+      });
+    }
+
+    function applyFilters() {
+      const filtered = movies.filter(movie => {
+        const matchesCat = activeCategory === "All" || (movie.category || "Uncategorized") === activeCategory;
+        const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              (movie.description && movie.description.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesCat && matchesSearch;
+      });
+
+      renderMovies(filtered);
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      applyFilters();
+    });
+
+    /******************************
+     * DOM Refs for Modal Controls
+     ******************************/
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalVideoId = 'modalVideo';
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+    function isHls(url) {
+      if (!url) return false;
+      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+    }
+    function isYouTube(url) {
+      if (!url) return false;
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+    }
+
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
+
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      currentFiltered = list;
+      currentIndex = index;
+      const movie = list[index];
+      if (!movie) return;
+
+      modalTitle.textContent = movie.title || '';
+      modalDesc.textContent = movie.description || (movie.title || '');
+
+      resetPlayerContainer();
+      showModal();
+
+      let src = typeof movie.video === 'object' && movie.video !== null 
+        ? (movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0]) 
+        : movie.video;
+
+      if (!src || src === "00") {
+        playerWrapper.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full text-center p-6 text-gray-400 font-mono-tech">
+            <i class="fas fa-user-shield text-4xl text-red-500 mb-3"></i>
+            <p class="text-sm">TACTICAL SOURCE UNCONNECTED [ERR: 00]</p>
+            <p class="text-xs text-gray-500 mt-1">STREAM FILE PURGED OR TEMPORARILY OFFLINE</p>
+          </div>`;
+        return;
+      }
+
+      const lc = (src || '').toLowerCase();
+
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
+          }
+        } catch (e) {}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      if (isHls(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) return;
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          try {
+            currentHls.loadSource(src);
+            currentHls.attachMedia(v);
+          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        }
+        return;
+      }
+
+      if (isMP4(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (v) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        }
+        return;
+      }
+
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+    }
+
+    function togglePlayPause() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById(modalVideoId);
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+    }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': playNext(); break;
+        case 'arrowleft': playPrev(); break;
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+      }
+    });
+
+    /******************************
+     * Render Movies Grid
+     ******************************/
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      if (moviesToRender.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-16 text-center font-mono-tech text-gray-500">
+            <i class="fas fa-search-minus text-4xl mb-3 text-red-500/50"></i>
+            <p>NO CLASSIFIED FILES FOUND MATCHING SPECIFIED CRITERIA.</p>
+          </div>`;
+        return;
+      }
+
+      moviesToRender.forEach((movie, index) => {
+        const posterSrc = (movie.image && movie.image !== "00") 
+          ? movie.image 
+          : `https://via.placeholder.com/500x750/0f172a/ef4444?text=${encodeURIComponent(movie.title)}`;
+
+        const div = document.createElement('div');
+        div.className = `movie-card animate-fade-in rounded-xl overflow-hidden cursor-pointer relative group flex flex-col justify-between`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden">
+            <img src="${posterSrc}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+              <button class="bg-red-600 hover:bg-red-500 text-white font-rajdhani font-bold py-2.5 px-4 rounded transition transform hover:scale-105 shadow-[0_0_15px_rgba(239,68,68,0.8)] text-xs flex items-center gap-2 tracking-wider">
+                <i class="fas fa-play"></i> EXECUTE FILE
+              </button>
+            </div>
+            ${movie.category ? `<span class="absolute top-2 left-2 bg-slate-950/80 border border-red-500/30 text-red-400 text-[10px] font-mono-tech px-2 py-0.5 rounded backdrop-blur-sm">${movie.category}</span>` : ''}
+          </div>
+          <div class="p-4 flex flex-col justify-between flex-1">
+            <div>
+              <h3 class="font-rajdhani font-bold text-lg text-red-400 truncate tracking-wide">${movie.title}</h3>
+              <p class="text-xs text-gray-400 mt-1 line-clamp-2">${movie.description}</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-red-500/20 text-xs font-mono-tech text-red-400/80">
+              <span><i class="far fa-calendar-alt mr-1"></i>${movie.year}</span>
+              <span><i class="far fa-clock mr-1"></i>${movie.duration || 'N/A'}</span>
+            </div>
+          </div>
+        `;
+
+        div.addEventListener('click', () => {
+          openPlayer(moviesToRender, index);
+        });
+
+        container.appendChild(div);
+      });
+    }
+
+    // Initialize UI
+    buildCategoryFilters();
+    applyFilters();
+
+    /******************************
+     * Tactical Spark Particle Effect
+     ******************************/
+    const canvas = document.getElementById('sparkCanvasPage');
+    const ctx = canvas.getContext('2d');
+    const sparks = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const easing = t => t * (2 - t);
+    const dur = 300, count = 6, size = 8, radius = 12, color = '#ef4444';
+
+    function drawSparks() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const now = performance.now();
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        const el = now - s.t;
+        if (el >= dur) {
+          sparks.splice(i, 1);
+          continue;
+        }
+        const p = el / dur;
+        const e = easing(p);
+        const d = e * radius;
+        const l = size * (1 - e);
+        const x1 = s.x + d * Math.cos(s.a);
+        const y1 = s.y + d * Math.sin(s.a);
+        const x2 = s.x + (d + l) * Math.cos(s.a);
+        const y2 = s.y + (d + l) * Math.sin(s.a);
+        
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+      requestAnimationFrame(drawSparks);
+    }
+    requestAnimationFrame(drawSparks);
+
+    document.addEventListener('click', (e) => {
+      for (let i = 0; i < count; i++) {
+        sparks.push({
+          x: e.clientX,
+          y: e.clientY,
+          a: (2 * Math.PI * i) / count,
+          t: performance.now()
+        });
+      }
+    });
+</script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
