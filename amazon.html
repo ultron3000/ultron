@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CloudTV Store | Featured Tech & Home Cinema Picks</title>
+  <title>CloudTV Store | Featured Tech & Lifestyle Picks</title>
   <style>
     :root {
       --primary: #0f172a;
@@ -30,75 +30,135 @@
       background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       color: white;
       text-align: center;
-      padding: 35px 20px;
+      padding: 30px 15px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     header h1 {
-      font-size: 2rem;
+      font-size: 1.8rem;
       margin-bottom: 6px;
       letter-spacing: -0.5px;
     }
 
     header p {
       color: #94a3b8;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
 
-    .container {
-      max-width: 600px;
-      margin: 25px auto;
+    /* Category Filter Bar */
+    .filter-container {
+      max-width: 1000px;
+      margin: 20px auto 10px;
       padding: 0 15px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none; /* Firefox */
+    }
+    
+    .filter-container::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+
+    .filter-btn {
+      background: #e2e8f0;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Container & Smart Responsive Grid */
+    .container {
+      max-width: 1100px;
+      margin: 15px auto;
+      padding: 0 12px;
     }
 
     .grid {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+      gap: 12px;
     }
 
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns on tablet/desktop */
+        gap: 20px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .grid {
+        grid-template-columns: repeat(4, 1fr); /* 4 columns on large screens */
+      }
+    }
+
+    /* Card Styling */
     .card {
       background: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       position: relative;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       border: 1px solid #e2e8f0;
+    }
+
+    .card.hidden {
+      display: none !important;
     }
 
     .card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     }
 
     .badge {
       position: absolute;
-      top: 15px;
-      left: 15px;
+      top: 10px;
+      left: 10px;
       background: var(--badge-bg);
       color: white;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 800;
-      padding: 4px 10px;
-      border-radius: 20px;
+      padding: 3px 8px;
+      border-radius: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       z-index: 2;
     }
 
     .img-wrapper {
       width: 100%;
-      height: 220px;
+      height: 150px;
       display: flex;
       align-items: center;
       justify-content: center;
       background-color: #ffffff;
-      border-radius: 12px;
-      margin-bottom: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
       overflow: hidden;
-      padding: 10px;
+      cursor: zoom-in;
+      position: relative;
+    }
+
+    @media (min-width: 768px) {
+      .img-wrapper {
+        height: 180px;
+      }
     }
 
     .img-wrapper img {
@@ -108,57 +168,120 @@
       transition: transform 0.3s ease;
     }
 
-    .card:hover .img-wrapper img {
-      transform: scale(1.05);
+    .img-wrapper:hover img {
+      transform: scale(1.08);
     }
 
     .card-content h2 {
-      font-size: 1.15rem;
+      font-size: 0.95rem;
       color: var(--primary);
-      margin-bottom: 8px;
-      line-height: 1.35;
+      margin-bottom: 6px;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .card-content p {
-      font-size: 0.88rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       width: 100%;
       background-color: var(--accent);
       color: #111111;
       text-align: center;
-      padding: 14px;
+      padding: 10px 6px;
       text-decoration: none;
       font-weight: 700;
-      font-size: 1rem;
-      border-radius: 10px;
-      transition: background-color 0.2s ease, transform 0.1s ease;
-      box-shadow: 0 4px 10px rgba(255, 153, 0, 0.25);
+      font-size: 0.85rem;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+      box-shadow: 0 3px 8px rgba(255, 153, 0, 0.2);
     }
 
     .btn:hover {
       background-color: var(--accent-hover);
     }
 
+    /* Modal / Tap to Enlarge */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .modal-img {
+      max-width: 100%;
+      max-height: 250px;
+      object-fit: contain;
+      margin-bottom: 15px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+    }
+
     footer {
-      max-width: 600px;
-      margin: 35px auto 0;
+      max-width: 1000px;
+      margin: 30px auto 0;
       padding: 0 15px;
       text-align: center;
     }
 
     .disclosure {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
       background: rgba(255, 255, 255, 0.8);
-      padding: 14px;
+      padding: 12px;
       border-radius: 10px;
       border: 1px solid #e2e8f0;
     }
@@ -168,181 +291,187 @@
 
   <header>
     <h1>CloudTV Store</h1>
-    <p>Top Recommended Gaming & Smart Phone Accessories</p>
+    <p>Top Recommended Gaming, Tech & Lifestyle Products</p>
   </header>
+
+  <!-- Category Filter Buttons -->
+  <div class="filter-container">
+    <button class="filter-btn active" onclick="filterCategory('all', this)">All Products</button>
+    <button class="filter-btn" onclick="filterCategory('tech', this)">Gaming & Tech</button>
+    <button class="filter-btn" onclick="filterCategory('home', this)">Home & Living</button>
+    <button class="filter-btn" onclick="filterCategory('personal', this)">Personal Care</button>
+  </div>
 
   <div class="container">
     <div class="grid">
 
       <!-- Product 1 -->
-      <div class="card">
+      <div class="card" data-category="tech">
         <span class="badge">🔥 Hot Deal</span>
-        <div class="img-wrapper">
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/611rMRMIHAL._SL1500_.jpg', 'EvoFox Deck 2 Smartphone Gamepad', 'Bluetooth Wireless Controller for Android, iOS, Windows, macOS & Switch. Features Key Mapping, Macro Buttons, and RGB Lighting.', 'https://link.amazon/B0eL0yMP3')">
           <img src="https://m.media-amazon.com/images/I/611rMRMIHAL._SL1500_.jpg" alt="EvoFox Deck 2 Smartphone Gamepad">
         </div>
         <div class="card-content">
-          <h2>EvoFox Deck 2 Smartphone Gamepad (Hall Effect Triggers & Joysticks)</h2>
-          <p>Bluetooth Wireless Controller for Android, iOS, Windows, macOS & Switch. Features Key Mapping, Macro Buttons, and RGB Lighting.</p>
+          <h2>EvoFox Deck 2 Gamepad</h2>
+          <p>Bluetooth Controller with Hall Effect Triggers & Joysticks.</p>
         </div>
         <a href="https://link.amazon/B0eL0yMP3" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
       <!-- Product 2 -->
-      <div class="card">
+      <div class="card" data-category="tech">
         <span class="badge">⚡ Popular</span>
-        <div class="img-wrapper">
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/71F2qBi3q3L._SL1500_.jpg', '8 Inch Screen Magnifier', 'Folding Stand Holder, Portable Anti-Radiation Screen Enlarger for movie viewing on all smartphones.', 'https://link.amazon/B097ds2NE')">
           <img src="https://m.media-amazon.com/images/I/71F2qBi3q3L._SL1500_.jpg" alt="8 Inch Mobile Phone Screen Magnifier">
         </div>
         <div class="card-content">
-          <h2>8 Inch Mobile Phone Screen Magnifier 3D Enlarger</h2>
-          <p>Folding Stand Holder, Portable Anti-Radiation Screen Enlarger for movie viewing on all smartphones.</p>
+          <h2>8" Screen Magnifier 3D</h2>
+          <p>Folding Portable Screen Enlarger for Smartphones.</p>
         </div>
         <a href="https://link.amazon/B097ds2NE" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
       <!-- Product 3 -->
-      <div class="card">
+      <div class="card" data-category="tech">
         <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/71iMbxhVy+L._SL1500_.jpg', 'Portronics 5-in-1 Type-C Hub', 'Transparent Docking Station featuring Type-C PD, USB 3.0, RJ45 Ethernet, and 4K@30Hz HDMI output.', 'https://link.amazon/B06mXN7yZ')">
           <img src="https://m.media-amazon.com/images/I/71iMbxhVy+L._SL1500_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
         </div>
         <div class="card-content">
-          <h2>Portronics MPort View One 5-in-1 USB Type-C Hub</h2>
-          <p>Transparent Docking Station featuring Type-C PD, USB 3.0, RJ45 Ethernet, and 4K@30Hz HDMI output.</p>
+          <h2>Portronics 5-in-1 USB-C Hub</h2>
+          <p>Transparent Docking Station with 4K HDMI & Ethernet.</p>
         </div>
         <a href="https://link.amazon/B06mXN7yZ" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
       <!-- Product 4 -->
-      <div class="card">
-        <span class="badge">💡 Smart Gadget</span>
-        <div class="img-wrapper">
+      <div class="card" data-category="tech">
+        <span class="badge">💡 Smart Tech</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/51j3gS1O8gL._SL1448_.jpg', 'Mini Phone IR Remote Adapter', 'Universal Infrared Control for TV, Air Conditioner, DVD, and Set-Top Box straight from your phone.', 'https://link.amazon/B05IIOfLs')">
           <img src="https://m.media-amazon.com/images/I/51j3gS1O8gL._SL1448_.jpg" alt="Mini Smartphone IR Remote Controller Adapter">
         </div>
         <div class="card-content">
-          <h2>Mini Smartphone IR Remote Controller Adapter (Type-C)</h2>
-          <p>Universal Infrared Control for TV, Air Conditioner, DVD, and Set-Top Box straight from your phone.</p>
+          <h2>Mini Smartphone IR Remote</h2>
+          <p>Turn phone into Universal Control for TV & AC.</p>
         </div>
         <a href="https://link.amazon/B05IIOfLs" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
       <!-- Product 5 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/71CABqV7M+L._SL1500_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
+      <div class="card" data-category="tech">
+        <span class="badge">⭐ Premium</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/71CABqV7M+L._SL1500_.jpg', 'VAYDEER Aluminum Mouse Pad', 'Mat Smooth Magic Ultra Thin Double Side Mouse Mat Waterproof Fast and Accurate Control for Gaming and Office.', 'https://link.amazon/B007YqZui')">
+          <img src="https://m.media-amazon.com/images/I/71CABqV7M+L._SL1500_.jpg" alt="VAYDEER Hard Silver Metal Aluminum Mouse Pad">
         </div>
         <div class="card-content">
-          <h2>VAYDEER Hard Silver Metal Aluminum Mouse Pad</h2>
-          <p>Mat Smooth Magic Ultra Thin Double Side Mouse Mat Waterproof Fast and Accurate Control for Gaming and Office(Small Silver 9.05X7.08 Inch)</p>
+          <h2>VAYDEER Metal Mouse Pad</h2>
+          <p>Ultra Thin Double-Sided Metal Mat for Gaming.</p>
         </div>
         <a href="https://link.amazon/B007YqZui" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
       <!-- Product 6 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/61OPw6TD0LL._SL1500_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
+      <div class="card" data-category="personal">
+        <span class="badge">⚡ Travel</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/61OPw6TD0LL._SL1500_.jpg', 'CYNVEXA Mini Hair Straightener', 'Portable Cordless Rechargeable Hair Straightener, 3 Speed Temperature Control, Mini Hair Straightener for Women.', 'https://link.amazon/B065JTaO8')">
+          <img src="https://m.media-amazon.com/images/I/61OPw6TD0LL._SL1500_.jpg" alt="CYNVEXA Mini Hair Straightener">
         </div>
         <div class="card-content">
-          <h2>CYNVEXA Mini Hair Straightener</h2>
-          <p>Portable Cordless Rechargeable Hair Straightener, 3 Speed Temperature Control, Mini Hair Straightener for Women, Idea for Home Travel</p>
+          <h2>Mini Hair Straightener</h2>
+          <p>Cordless Rechargeable Travel Straightener.</p>
         </div>
         <a href="https://link.amazon/B065JTaO8" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
       <!-- Product 7 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/71OLI3pfv9L._SL1500_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
+      <div class="card" data-category="home">
+        <span class="badge">☁️ Health</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/71OLI3pfv9L._SL1500_.jpg', 'CareFoam Memory Foam Wedge Pillow', 'Orthopedic Bed Wedge Cushion for Back Support, Acid Reflux, GERD, Snoring & Leg Elevation (Grey Velvet).', 'https://link.amazon/B07LqjO73')">
+          <img src="https://m.media-amazon.com/images/I/71OLI3pfv9L._SL1500_.jpg" alt="CareFoam Memory Foam Wedge Pillow">
         </div>
         <div class="card-content">
-          <h2>CareFoam Memory Foam Wedge Pillow for Bed | 2 Years Warranty</h2>
-          <p>Orthopedic Bed Wedge Cushion for Back Support, Acid Reflux, GERD, Snoring & Leg Elevation|18 x 18 x 10 Inch|Grey Velvet</p>
+          <h2>Memory Foam Wedge Pillow</h2>
+          <p>Orthopedic Back Support & Acid Reflux Cushion.</p>
         </div>
         <a href="https://link.amazon/B07LqjO73" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
-       <!-- Product 8 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/71OLI3pfv9L._SL1500_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
+      <!-- Product 8 -->
+      <div class="card" data-category="tech">
+        <span class="badge">🖥️ Setup</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/51ZKX9p3C7L._SL1500_.jpg', 'Wooden Monitor Stand Riser', 'PC Stand For Desktop Table, Non Slip Particle Board & Metal Riser (Walnut Brown).', 'https://link.amazon/B04qLqTBX')">
+          <img src="https://m.media-amazon.com/images/I/51ZKX9p3C7L._SL1500_.jpg" alt="flux Monitor Stand Wooden">
         </div>
         <div class="card-content">
-          <h2>CareFoam Memory Foam Wedge Pillow for Bed | 2 Years Warranty</h2>
-          <p>Orthopedic Bed Wedge Cushion for Back Support, Acid Reflux, GERD, Snoring & Leg Elevation|18 x 18 x 10 Inch|Grey Velvet</p>
-        </div>
-        <a href="https://link.amazon/B07LqjO73" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
-      </div>
-
-      <!-- Product 9 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/51ZKX9p3C7L._SL1500_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
-        </div>
-        <div class="card-content">
-          <h2>flux Monitor Stand Wooden</h2>
-          <p>Monitor Stand Riser | PC Stand For Desktop Table | , Non Slip, Material: Particle Board & Metal (Walnut brown) [DO IT YOURSELF (DIY)]</p>
+          <h2>Wooden Monitor Stand</h2>
+          <p>Desktop PC Table Riser for Ergonomic View.</p>
         </div>
         <a href="https://link.amazon/B04qLqTBX" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
-      <!-- Product 10 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/71MuzxkLiYL._SL1000_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
+      <!-- Product 9 -->
+      <div class="card" data-category="home">
+        <span class="badge">🍺 Party</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/71MuzxkLiYL._SL1000_.jpg', 'Skull Beer Mugs (2 Pcs)', '500 ml Glass Steins, Freezable Beer Glasses for Cocktails and Drinks.', 'https://link.amazon/B0b98a7uD')">
+          <img src="https://m.media-amazon.com/images/I/71MuzxkLiYL._SL1000_.jpg" alt="PrimeWorld 500 ml Skull Beer 2Pcs Mug">
         </div>
         <div class="card-content">
-          <h2>PrimeWorld 500 ml Skull Beer 2Pcs Mug with Handle Glass</h2>
-          <p>Steins, Freezable Beer Glasses,Everyday Drinking Glasses, Cocktail Glasses (Clear)</p>
+          <h2>500ml Skull Beer Mugs (2Pcs)</h2>
+          <p>Clear Freezable Glass Steins for Drinks.</p>
         </div>
         <a href="https://link.amazon/B0b98a7uD" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
-      <!-- Product 11 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/61f7DHdPp4L._SL1000_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
+      <!-- Product 10 -->
+      <div class="card" data-category="home">
+        <span class="badge">🪴 Decor</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/61f7DHdPp4L._SL1000_.jpg', 'Groot Tree Man Flowerpot', 'Marvel Avengers Groot Flowerpot Cum Pen Container (16 cm Wooden Look).', 'https://link.amazon/B0iI2VPBD')">
+          <img src="https://m.media-amazon.com/images/I/61f7DHdPp4L._SL1000_.jpg" alt="Groot Wooden Look Tree Flowerpot">
         </div>
         <div class="card-content">
-          <h2>Marvel Avengers Infinity War Pot Groot Wooden Look Tree</h2>
-          <p>Flowerpot Cum Pen Container- Tree Man, 16 cm, White, 1 Piece</p>
+          <h2>Groot Tree Man Pot</h2>
+          <p>Flowerpot & Pen Holder Desk Organizer.</p>
         </div>
         <a href="https://link.amazon/B0iI2VPBD" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
-      <!-- Product 12 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/616TJ4HqlDL._SL1500_.jpg" alt="Portronics MPort View One 5-in-1 Hub">
+      <!-- Product 11 -->
+      <div class="card" data-category="home">
+        <span class="badge">🏠 Utility</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/616TJ4HqlDL._SL1500_.jpg', 'Synergy Ceiling Cloth Dryer', '6 Pipes x 5 Feet Stainless Steel Ceiling Cloth Dryer for Balcony with Pulley System.', 'https://link.amazon/B0eZ4mc7c')">
+          <img src="https://m.media-amazon.com/images/I/616TJ4HqlDL._SL1500_.jpg" alt="Synergy Stainless Steel Ceiling Cloth Dryer">
         </div>
         <div class="card-content">
-          <h2>Synergy - 6 Pipes x 5 Feet - Heavy Duty - Stainless Steel Ceiling Cloth Dryer for Balcony</h2>
-          <p>Cloth Drying Rope with Pulley | Cloth Hanging Stand | Clothes Drying Stand Wall Mounted - (SY-CE2)</p>
+          <h2>Ceiling Cloth Dryer Stand</h2>
+          <p>Heavy Duty Stainless Steel Balcony Dryer.</p>
         </div>
         <a href="https://link.amazon/B0eZ4mc7c" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
-      <!-- Product 13 -->
-      <div class="card">
-        <span class="badge">⭐ Top Pick</span>
-        <div class="img-wrapper">
-          <img src="https://m.media-amazon.com/images/I/41RBZRt-+DL.jpg" alt="Portronics MPort View One 5-in-1 Hub">
+      <!-- Product 12 -->
+      <div class="card" data-category="home">
+        <span class="badge">🔥 Unique</span>
+        <div class="img-wrapper" onclick="openModal('https://m.media-amazon.com/images/I/41RBZRt-+DL.jpg', 'Vintage Flip Top Lighter', 'Refillable Unique Small Fire Lighter with Vintage Slim Design.', 'https://link.amazon/B03kReYoV')">
+          <img src="https://m.media-amazon.com/images/I/41RBZRt-+DL.jpg" alt="Alkey Premium Refillable Unique Small fire Lighter">
         </div>
         <div class="card-content">
-          <h2>Alkey Premium Refillable Unique Small fire Lighter with Vintage Flip Top Lighter</h2>
-          <p>Slim Design Cigarette Pocket Lighter Hookah Lighter Pocket Lighter Unisex (Multicolor)</p>
+          <h2>Vintage Flip Pocket Lighter</h2>
+          <p>Refillable Small Slim Fire Lighter.</p>
         </div>
         <a href="https://link.amazon/B03kReYoV" class="btn" target="_blank" rel="nofollow noopener">View on Amazon ➜</a>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Full-Screen Image Lightbox Modal -->
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <img id="modalImg" class="modal-img" src="" alt="Enlarged preview">
+      <h3 id="modalTitle" class="modal-title"></h3>
+      <p id="modalDesc" class="modal-desc"></p>
+      <a id="modalLink" href="" class="btn" target="_blank" rel="nofollow noopener">View Product on Amazon ➜</a>
     </div>
   </div>
 
@@ -351,6 +480,36 @@
       <strong>Affiliate Disclosure:</strong> As an Amazon Associate, I earn from qualifying purchases. Links on this site direct to Amazon.com with tracking tags.
     </p>
   </footer>
+
+  <script>
+    // Category Filtering Logic
+    function filterCategory(category, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        if (category === 'all' || card.getAttribute('data-category') === category) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+
+    // Modal Zoom Logic
+    function openModal(imgSrc, title, desc, link) {
+      document.getElementById('modalImg').src = imgSrc;
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalDesc').innerText = desc;
+      document.getElementById('modalLink').href = link;
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+  </script>
 
 </body>
 </html>
