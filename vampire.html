@@ -1,7 +1,3 @@
-<!-- vampire-updated.html -->
-<!-- Caption: Vampire Cinematic Universe — Hawkeye modal/player behavior integrated (HLS/MP4/YouTube/iframe). -->
-<!-- Hashtags: #Vampire #ModalPlayer #HLS #Streaming #TukaramIntegration -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,113 +10,224 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Montserrat:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Rajdhani:wght@500;600;700&family=Montserrat:wght@300;400;600;700&display=swap');
+    
     :root {
-      --primary: #e50914;
-      --secondary: #b81d24;
-      --dark: #141414;
-      --light: #f5f5f1;
-      --accent: #ffcc00;
+      --primary: #dc2626;
+      --primary-glow: rgba(220, 38, 38, 0.4);
+      --crimson-dark: #800020;
+      --dark-bg: #050203;
+      --card-bg: rgba(18, 10, 12, 0.85);
+      --light: #f8fafc;
+      --accent: #f59e0b;
     }
-    body {font-family:'Montserrat',sans-serif;background-color:var(--dark);color:var(--light);min-height:100vh;overflow-x:hidden;}
-    .title-font{font-family:'Cinzel Decorative',cursive;}
-    .movie-card{transition:all .3s ease;transform-origin:center;perspective:1000px;}
-    .movie-card:hover{transform:translateY(-10px) scale(1.03);box-shadow:0 10px 25px rgba(229,9,20,.3);}
-    .movie-card:hover .movie-poster{transform:rotateY(5deg);}
-    .movie-poster{transition:transform .5s ease;box-shadow:0 5px 15px rgba(0,0,0,.5);}
-    .movie-poster::after{content:'';position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(to top,rgba(20,20,20,.9),transparent);}
-    .filter-btn.active{background-color:var(--primary);color:white;}
-    .dark-mode{background-color:#0a0a0a;color:#e5e5e5;}
-    .dark-mode .navbar{background-color:#111;}
-    .dark-mode .movie-card{background-color:#222;}
-    .loading-spinner{width:50px;height:50px;border:5px solid rgba(229,9,20,.3);border-radius:50%;border-top-color:var(--primary);animation:spin 1s ease-in-out infinite;}
-    @keyframes spin{to{transform:rotate(360deg);}}
-    /* Hawkeye-style modal tweaks */
-    .modal-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.9); z-index: 9999; opacity:0; visibility:hidden; transition: all 0.25s ease; }
-    .modal-overlay.active { opacity:1; visibility:visible; }
-    .modal-card { width: 95%; max-width: 980px; border-radius: 12px; overflow: hidden; background: linear-gradient(180deg,#0b0b0b,#151515); box-shadow: 0 30px 80px rgba(0,0,0,0.7); }
-    .player-area { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
-    .player-area video, .player-area iframe { position: absolute; inset: 0; width: 100%; height: 100%; background: black; }
-    .progress-bar { height: 6px; background: rgba(255,255,255,0.06); position: relative; width: 100%; }
-    .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--accent); transition: width .2s linear; }
-    .controls { display:flex; gap:8px; align-items:center; }
-    .btn { background: #1f1f1f; color: #fff; padding:8px 12px; border-radius:8px; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--dark-bg);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(128, 0, 32, 0.25) 0%, transparent 70%),
+        radial-gradient(circle at 100% 100%, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
+        linear-gradient(to bottom, rgba(5, 2, 3, 0.9), rgba(5, 2, 3, 0.98));
+      color: var(--light);
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .title-font { font-family: 'Cinzel Decorative', cursive; }
+    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+
+    /* Animated Blood Drop Elements */
+    .blood-drop {
+      position: absolute;
+      width: 6px;
+      height: 12px;
+      background: linear-gradient(to bottom, #ef4444, #7f1d1d);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      opacity: 0.6;
+      pointer-events: none;
+      animation: drip 4s infinite ease-in;
+    }
+
+    @keyframes drip {
+      0% { transform: translateY(-20px) scaleY(1); opacity: 0; }
+      30% { opacity: 0.7; }
+      80% { opacity: 0.8; transform: translateY(80vh) scaleY(1.5); }
+      100% { opacity: 0; transform: translateY(90vh) scaleY(0.5); }
+    }
+
+    /* Movie Cards with Crimson Glow */
+    .movie-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.9);
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+    }
+
+    .movie-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--primary);
+      box-shadow: 0 0 25px rgba(220, 38, 38, 0.4);
+    }
+
+    .movie-poster {
+      aspect-ratio: 2/3;
+      transition: transform 0.5s ease;
+    }
+
+    .movie-card:hover .movie-poster {
+      transform: scale(1.04);
+    }
+
+    /* Vampire Filters */
+    .filter-btn {
+      background: rgba(20, 10, 12, 0.8);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      color: #94a3b8;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(220, 38, 38, 0.4);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+      border-color: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #050203; }
+    ::-webkit-scrollbar-thumb { background: #7f1d1d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
+
+    /* Hawkeye Modal Tweaks */
+    .modal-overlay { 
+      position: fixed; 
+      inset: 0; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background: rgba(3, 0, 1, 0.92); 
+      z-index: 9999; 
+      opacity: 0; 
+      visibility: hidden; 
+      transition: all 0.25s ease; 
+      backdrop-filter: blur(10px);
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-card { 
+      width: 95%; 
+      max-width: 980px; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      background: #0d0608; 
+      border: 1px solid rgba(220, 38, 38, 0.35);
+      box-shadow: 0 0 50px rgba(220, 38, 38, 0.25); 
+    }
+    .player-area { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
+    .player-area video, .player-area iframe { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; }
+    .progress-bar { height: 4px; background: rgba(255,255,255,0.08); position: relative; width: 100%; }
+    .progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--primary); transition: width .2s linear; }
+    .controls { display: flex; gap: 8px; align-items: center; }
+    .btn { background: rgba(220, 38, 38, 0.1); border: 1px solid var(--primary); color: #fff; padding: 8px 14px; border-radius: 6px; font-family: 'Rajdhani', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 12px rgba(220, 38, 38, 0.5); }
     .btn.primary { background: var(--primary); color: #fff; }
-    @media (max-width:640px){ .modal-card { width: 98%; } }
+    .btn.primary:hover { background: #b91c1c; }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(220, 38, 38, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="relative">
   
-   <!-- Blood drop animations -->
-  <div class="blood-drop" style="left: 10%; top: 10%; animation-delay: 0.5s;"></div>
-  <div class="blood-drop" style="left: 30%; top: 15%; animation-delay: 1s;"></div>
-  <div class="blood-drop" style="left: 70%; top: 5%; animation-delay: 1.5s;"></div>
-  <div class="blood-drop" style="left: 85%; top: 12%; animation-delay: 2s;"></div>
+  <!-- Blood Drop Decorative Particles -->
+  <div class="blood-drop" style="left: 10%; top: 5%; animation-delay: 0.5s;"></div>
+  <div class="blood-drop" style="left: 32%; top: 10%; animation-delay: 1.2s;"></div>
+  <div class="blood-drop" style="left: 68%; top: 2%; animation-delay: 1.8s;"></div>
+  <div class="blood-drop" style="left: 88%; top: 8%; animation-delay: 2.5s;"></div>
 
   <!-- Navbar -->
-  <nav class="navbar bg-black bg-opacity-90 text-white sticky top-0 z-50 shadow-lg">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <i class="fas fa-moon text-red-600 text-2xl"></i>
-        <h1 class="title-font text-2xl md:text-3xl font-bold bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent">
+  <nav class="bg-black/90 border-b border-red-900/40 text-white sticky top-0 z-50 shadow-2xl backdrop-blur-md">
+    <div class="container mx-auto px-4 py-3.5 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-ankh text-red-600 text-2xl animate-pulse"></i>
+        <h1 class="title-font text-2xl md:text-3xl font-bold bg-gradient-to-r from-red-500 via-red-600 to-amber-500 bg-clip-text text-transparent tracking-wider">
           Vampire Cinematic Universe
         </h1>
       </div>
       <div class="flex items-center space-x-4">
-        <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-moon text-yellow-400"></i>
+        <button id="darkModeToggle" class="p-2 rounded-full hover:bg-red-950/40 transition border border-red-900/30">
+          <i class="fas fa-moon text-amber-400"></i>
         </button>
       </div>
     </div>
   </nav>
 
-  <!-- Main -->
-  <main class="container mx-auto px-4 py-8">
-    <!-- Search -->
-    <div class="mb-8">
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Search & Filters -->
+    <div class="mb-8 border-b border-red-900/30 pb-6">
       <div class="relative mb-6">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <i class="fas fa-search text-gray-400"></i>
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="fas fa-search text-red-500/60"></i>
         </div>
-        <input id="searchBar" type="text" class="w-full bg-gray-900 text-white border border-gray-700 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition" placeholder="Search vampire movies...">
+        <input id="searchBar" type="text" class="w-full bg-slate-950/80 text-white border border-red-900/40 rounded-xl py-3 pl-11 pr-10 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/50 transition font-rajdhani text-lg" placeholder="Search immortal archives...">
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
           <button id="clearSearch" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
         </div>
       </div>
-      <div class="flex flex-wrap gap-2 mb-4 overflow-x-auto pb-2">
-        <button class="filter-btn active px-4 py-2 rounded-full bg-red-600 text-white text-sm font-medium" data-filter="all">All</button>
-        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700" data-filter="blade">Blade Series</button>
-        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700" data-filter="underworld">Underworld</button>
-        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700" data-filter="twilight">Twilight</button>
-        <button class="filter-btn px-4 py-2 rounded-full bg-gray-800 text-gray-300 hover:bg-gray-700" data-filter="classic">Classics</button>
+
+      <!-- Filters Container -->
+      <div class="flex flex-wrap gap-2 md:gap-2.5 pt-2 pb-1">
+        <button class="filter-btn active px-4 py-1.5 rounded-lg text-xs md:text-sm font-rajdhani uppercase tracking-wider" data-filter="all">All Chronicles</button>
+        <button class="filter-btn px-4 py-1.5 rounded-lg text-xs md:text-sm font-rajdhani uppercase tracking-wider" data-filter="blade">Blade Series</button>
+        <button class="filter-btn px-4 py-1.5 rounded-lg text-xs md:text-sm font-rajdhani uppercase tracking-wider" data-filter="underworld">Underworld</button>
+        <button class="filter-btn px-4 py-1.5 rounded-lg text-xs md:text-sm font-rajdhani uppercase tracking-wider" data-filter="twilight">Twilight</button>
+        <button class="filter-btn px-4 py-1.5 rounded-lg text-xs md:text-sm font-rajdhani uppercase tracking-wider" data-filter="classic">Classics</button>
       </div>
     </div>
 
-    <!-- Movies -->
+    <!-- Movies Grid -->
     <div id="loading" class="flex justify-center items-center py-20"><div class="loading-spinner"></div></div>
     <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 hidden"></div>
     <div id="noResults" class="hidden text-center py-20">
-      <i class="fas fa-video-slash text-5xl text-gray-600 mb-4"></i>
-      <h3 class="text-2xl font-semibold text-gray-400">No movies found</h3>
-      <p class="text-gray-500 mt-2">Try adjusting your search or filters</p>
+      <i class="fas fa-skull text-5xl text-red-900/50 mb-4"></i>
+      <h3 class="text-2xl font-semibold text-gray-400 font-rajdhani uppercase tracking-wider">No Records Found</h3>
+      <p class="text-gray-500 mt-2">Adjust your query to awaken the archive</p>
     </div>
   </main>
 
-  <!-- Modal Player (Hawkeye-style behavior integrated) -->
+  <!-- Modal Player -->
   <div id="playback-modal" class="modal-overlay" aria-hidden="true">
     <div class="modal-card">
-      <div class="relative p-4 border-b border-gray-800 flex items-start justify-between">
+      <div class="relative p-4 border-b border-red-900/30 flex items-start justify-between bg-black/40">
         <div>
-          <div id="modal-title" class="text-xl font-bold text-red-400"></div>
-          <div id="modal-sub" class="text-sm text-gray-400 mt-1"></div>
+          <div id="modal-title" class="text-xl font-bold font-rajdhani text-red-500 tracking-wide uppercase"></div>
+          <div id="modal-sub" class="text-xs text-gray-400 mt-0.5"></div>
         </div>
         <div class="flex items-center gap-3">
-          <button id="close-modal" class="text-white p-2 rounded bg-gray-800 hover:bg-gray-700"><i class="fas fa-times"></i></button>
+          <button id="close-modal" class="text-red-400 hover:text-white p-2 rounded bg-red-950/40 border border-red-900/30 transition"><i class="fas fa-times text-lg"></i></button>
         </div>
       </div>
 
       <div id="player-area" class="player-area">
-        <!-- Default <video> element (will be replaced/used by JS) -->
         <video id="modal-video" controls playsinline preload="metadata"></video>
       </div>
 
@@ -128,9 +235,9 @@
         <div id="progress-fill" class="progress-fill"></div>
       </div>
 
-      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <p id="modal-desc" class="text-gray-300 text-sm"></p>
+      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-black/40 border-t border-red-900/30">
+        <div class="max-w-md">
+          <p id="modal-desc" class="text-gray-300 text-xs md:text-sm line-clamp-2"></p>
         </div>
         <div class="controls">
           <button id="prevBtn" class="btn" title="Previous"><i class="fas fa-step-backward"></i></button>
@@ -144,7 +251,7 @@
   </div>
 
   <script>
-    const movies=[
+    const movies = [
       { 
         title: "Blade", 
         year: 1998,
@@ -242,7 +349,7 @@
         video: "https://mega.nz/embed/sUhzGKzT#4bZhIpQz6vXWDTz1c85m6_Rs2vfD5baZT_N9NQU6bn0", 
         image: "https://image.tmdb.org/t/p/w780/6CAFMCvM1SBejTgfj6AUM5QGfNZ.jpg",
         rating: 7.1,
-        description: "When a 15th-century prince denounces God after the devastating loss of his wife, he inherits an eternal curse: he becomes Dracula. Condemned to wander the centuries, he defies fate and death itself, guided by a single hope — to be reunited with his lost love."
+        description: "When a 15th-century prince denounces God after the devastating loss of his wife, he inherits an eternal curse: he becomes Dracula."
       },
       { 
         title: "Interview With The Vampire", 
@@ -300,7 +407,7 @@
       }
     ];
 
-    /* --- DOM refs --- */
+    /* --- DOM Refs --- */
     const moviesContainer = document.getElementById('movies');
     const loading = document.getElementById('loading');
     const noResults = document.getElementById('noResults');
@@ -309,60 +416,44 @@
     const filterButtons = document.querySelectorAll('.filter-btn');
     const darkToggle = document.getElementById('darkModeToggle');
 
-    // Modal & player refs
+    /* Modal & player refs */
     const playbackModal = document.getElementById('playback-modal');
     const closeModalBtn = document.getElementById('close-modal');
     const playerArea = document.getElementById('player-area');
     const progressFill = document.getElementById('progress-fill');
-    const progressBar = document.getElementById('progress-bar');
     const modalTitle = document.getElementById('modal-title');
     const modalSub = document.getElementById('modal-sub');
     const modalDesc = document.getElementById('modal-desc');
     const modalPlayBtn = document.getElementById('modal-play');
-    const playText = document.getElementById('playText');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const muteBtn = document.getElementById('muteBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-    /* --- Playback state --- */
-    let currentList = [];    // filtered/search list
-    let currentIndex = null; // index in currentList
+    let currentList = [];
+    let currentIndex = null;
     let currentHls = null;
+    let searchDebounceTimeout = null;
 
-    /* --- Type detection helpers (robust) --- */
-    function isHls(u){
-      if(!u) return false;
-      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.toLowerCase().includes('master.m3u8') || u.includes('manifest');
-    }
+    /* Helper detection */
+    function isHls(u){ return u && (u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.toLowerCase().includes('master.m3u8')); }
     function isMP4(u){ return /\.mp4($|\?)/i.test(u||''); }
-    function isYouTube(u){ return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/'))); }
+    function isYouTube(u){ return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('/embed/'))); }
 
-    /* --- Player container helpers --- */
     function resetPlayerContainer(){
-      // destroy hls if attached
-      if(currentHls){
-        try{ currentHls.destroy(); }catch(e){}
-        currentHls = null;
-      }
-      // replace innerHTML with a fresh <video> so Hls.js can reattach safely
+      if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
       playerArea.innerHTML = `<video id="modal-video" controls playsinline preload="metadata"></video>`;
     }
     function getModalVideo(){ return document.getElementById('modal-video'); }
 
-    /* --- Attach listeners to <video> --- */
     function attachVideoListeners(){
       const v = getModalVideo();
-      if(!v) return;
-
-      // Prevent attaching duplicates by cleaning up if attribute present
-      if(v.dataset.listenersAttached) return;
+      if(!v || v.dataset.listenersAttached) return;
       v.dataset.listenersAttached = '1';
 
       v.addEventListener('timeupdate', () => {
         if(!v.duration || !isFinite(v.duration)) return;
-        const pct = (v.currentTime / v.duration) * 100;
-        progressFill.style.width = pct + '%';
+        progressFill.style.width = ((v.currentTime / v.duration) * 100) + '%';
       });
 
       v.addEventListener('play', () => {
@@ -376,18 +467,13 @@
       });
     }
 
-    /* --- Open / Close modal --- */
     function showModal(){ playbackModal.classList.add('active'); document.body.style.overflow='hidden'; }
     function hideModal(){ playbackModal.classList.remove('active'); document.body.style.overflow=''; }
 
     function closeAndCleanup(){
-      // pause & cleanup
       if(currentHls){ try{ currentHls.destroy(); }catch(e){} currentHls = null; }
       const v = getModalVideo();
-      if(v){
-        try{ v.pause(); }catch(e){}
-        try{ v.removeAttribute('src'); v.load(); }catch(e){}
-      }
+      if(v){ try{ v.pause(); v.removeAttribute('src'); v.load(); }catch(e){} }
       resetPlayerContainer();
       progressFill.style.width = '0%';
       currentIndex = null;
@@ -395,7 +481,6 @@
       modalPlayBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span id="playText">Play</span>';
     }
 
-    /* --- Core playback function (Hawkeye-style) --- */
     function playInModalByIndex(list, index){
       if(!list || typeof index !== 'number' || index < 0 || index >= list.length) return;
       const movie = list[index];
@@ -405,105 +490,65 @@
       modalDesc.textContent = movie.description || '';
       progressFill.style.width = '0%';
 
-      // prepare player area
       resetPlayerContainer();
 
       const url = movie.video;
-      if(!url){
-        // no playable url
+      if(!url || url === "00"){
         showModal();
-        modalDesc.textContent = 'No playable URL provided for this item.';
+        modalDesc.textContent = 'Operational video link is missing or inactive.';
         return;
       }
 
-      // Hosts better embedded as iframe
-      const iframeHosts = ['streamtape.com','openload.co','vidcdn.','dood.', 'sbembed', 'drive.google.com','mega.nz','streamlare','mixdrop','rapidvideo'];
+      const iframeHosts = ['streamtape.com','openload.co','vidcdn.','dood.', 'mega.nz','drive.google.com'];
       if(iframeHosts.some(h => url.includes(h))){
         playerArea.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
         showModal();
         return;
       }
 
-      // YouTube handling -> embed
       if(isYouTube(url)){
-        try{
-          let embedUrl = url;
-          if(url.includes('watch') && url.includes('v=')){
-            const vid = new URLSearchParams(url.split('?')[1]).get('v');
-            if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
-          } else if(url.includes('youtu.be/')){
-            const vid = url.split('youtu.be/')[1].split(/[?&]/)[0];
-            embedUrl = `https://www.youtube.com/embed/${vid}`;
-          }
-          playerArea.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
-          showModal();
-          return;
-        }catch(e){
-          // fallthrough to other handlers
+        let embedUrl = url;
+        if(url.includes('watch') && url.includes('v=')){
+          const vid = new URLSearchParams(url.split('?')[1]).get('v');
+          if(vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
         }
+        playerArea.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
+        showModal();
+        return;
       }
 
-      // Now we expect to use the <video> element
       const v = getModalVideo();
-
-      // HLS handling (also supports .txt index playlists that are HLS lists)
       if(isHls(url)){
         if(window.Hls && Hls.isSupported()){
-          try{
-            currentHls = new Hls();
-            currentHls.loadSource(url);
-            currentHls.attachMedia(v);
-            currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-              showModal();
-              attachVideoListeners();
-              v.play().catch(()=>{});
-            });
-            currentHls.on(Hls.Events.ERROR, (event, data) => {
-              if(data && data.fatal){
-                try{ currentHls.destroy(); }catch(e){}
-                currentHls = null;
-                // fallback: set src directly and try native playback
-                v.src = url;
-                showModal();
-                attachVideoListeners();
-                v.play().catch(()=>{});
-              }
-            });
-          }catch(e){
-            // fallback to direct src
-            v.src = url;
+          currentHls = new Hls();
+          currentHls.loadSource(url);
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
             showModal();
             attachVideoListeners();
             v.play().catch(()=>{});
-          }
+          });
         } else {
-          // Safari native HLS
           v.src = url;
           showModal();
           attachVideoListeners();
           v.play().catch(()=>{});
         }
-        updateNavButtons();
         return;
       }
 
-      // MP4 fallback
       if(isMP4(url)){
         v.src = url;
         showModal();
         attachVideoListeners();
         v.play().catch(()=>{});
-        updateNavButtons();
         return;
       }
 
-      // Unknown type -> redirect to player.html (preserve the app's existing fallback)
       window.location.href = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(url)}`;
     }
 
-    /* --- Play / Pause button behavior --- */
     modalPlayBtn.addEventListener('click', () => {
-      // if iframe is present, do nothing (play handled by iframe)
       if(playerArea.querySelector('iframe')) return;
       const v = getModalVideo();
       if(!v) return;
@@ -511,21 +556,13 @@
       else v.pause();
     });
 
-    /* --- Prev / Next --- */
-    function updateNavButtons(){
-      prevBtn.disabled = (currentIndex === null || currentIndex <= 0);
-      nextBtn.disabled = (currentIndex === null || currentIndex >= (currentList.length - 1));
-    }
     prevBtn.addEventListener('click', () => {
-      if(currentIndex === null) return;
-      if(currentIndex > 0) playInModalByIndex(currentList, currentIndex - 1);
+      if(currentIndex !== null && currentIndex > 0) playInModalByIndex(currentList, currentIndex - 1);
     });
     nextBtn.addEventListener('click', () => {
-      if(currentIndex === null) return;
-      if(currentIndex < currentList.length - 1) playInModalByIndex(currentList, currentIndex + 1);
+      if(currentIndex !== null && currentIndex < currentList.length - 1) playInModalByIndex(currentList, currentIndex + 1);
     });
 
-    /* --- Mute / Fullscreen --- */
     muteBtn.addEventListener('click', () => {
       const v = getModalVideo();
       if(!v) return;
@@ -539,28 +576,22 @@
       else document.exitFullscreen().catch(()=>{});
     });
 
-    /* --- Close modal handlers --- */
     closeModalBtn.addEventListener('click', closeAndCleanup);
     playbackModal.addEventListener('click', (e) => { if(e.target === playbackModal) closeAndCleanup(); });
+
     document.addEventListener('keydown', (e) => {
       if(!playbackModal.classList.contains('active')) return;
       if(e.key === 'Escape') closeAndCleanup();
       if(e.key === ' '){ e.preventDefault(); const v = getModalVideo(); if(v) v.paused ? v.play() : v.pause(); }
-      if(e.key === 'ArrowRight'){ const v = getModalVideo(); if(v) v.currentTime += 10; }
-      if(e.key === 'ArrowLeft'){ const v = getModalVideo(); if(v) v.currentTime -= 10; }
-      if(e.key.toLowerCase() === 'n') nextBtn.click();
-      if(e.key.toLowerCase() === 'p') prevBtn.click();
     });
 
-    /* --- Render movies (UI unchanged) --- */
+    /* Optimized Render Logic with DocumentFragment */
     function renderMovies(){
-      let list = [...movies]; // movies is empty now until you paste it
-      // apply current filter (active filter button)
+      let list = [...movies];
       const activeFilterBtn = Array.from(filterButtons).find(b => b.classList.contains('active'));
       const filter = activeFilterBtn ? activeFilterBtn.dataset.filter : 'all';
       if(filter && filter !== 'all') list = list.filter(m => m.series === filter);
 
-      // search term
       const q = (searchBar.value || '').trim().toLowerCase();
       if(q) list = list.filter(m => (m.title||'').toLowerCase().includes(q) || (m.description||'').toLowerCase().includes(q));
 
@@ -575,65 +606,64 @@
       noResults.classList.add('hidden');
       moviesContainer.classList.remove('hidden');
 
+      const fragment = document.createDocumentFragment();
+
       list.forEach((m, idx) => {
         const card = document.createElement('div');
-        card.className = 'movie-card bg-gray-900 rounded-lg overflow-hidden shadow-lg relative group';
+        card.className = 'movie-card rounded-xl overflow-hidden cursor-pointer relative group flex flex-col justify-between';
         card.innerHTML = `
           <div class="movie-poster relative overflow-hidden">
-            <img src="${m.image || ''}" class="w-full h-64 object-cover transition duration-500 group-hover:opacity-80" alt="${m.title || 'Untitled'}">
-            <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black to-transparent">
-              <div class="flex items-center"><span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mr-2">${m.rating || '-'}/10</span><span class="text-white text-xs">${m.year || ''}</span></div>
-              <h3 class="text-white font-semibold truncate">${m.title || 'Untitled'}</h3>
+            <img src="${m.image || ''}" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" alt="${m.title || 'Untitled'}" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center p-4">
+              <button class="bg-red-600 hover:bg-red-700 text-white font-rajdhani font-bold py-2 px-4 rounded transition transform hover:scale-105 shadow-[0_0_15px_rgba(220,38,38,0.8)] text-xs flex items-center gap-2 uppercase">
+                <i class="fas fa-play"></i> Watch Stream
+              </button>
             </div>
-            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition flex items-center justify-center">
-              <button class="opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 text-white rounded-full w-12 h-12 flex items-center justify-center"><i class="fas fa-play"></i></button>
+            <span class="absolute top-2 left-2 bg-black/80 border border-red-600/40 text-red-400 text-[10px] font-rajdhani px-2 py-0.5 rounded uppercase">${m.rating || '-'}/10</span>
+          </div>
+          <div class="p-3.5 flex flex-col justify-between flex-1">
+            <div>
+              <h3 class="font-rajdhani font-bold text-base text-red-500 truncate tracking-wide">${m.title || 'Untitled'}</h3>
+              <p class="text-xs text-gray-400 mt-1 line-clamp-2">${m.description || ''}</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-red-900/30 text-xs font-rajdhani text-gray-400">
+              <span><i class="far fa-calendar-alt mr-1 text-red-500"></i>${m.year || ''}</span>
+              <span class="uppercase">${m.series || 'Movie'}</span>
             </div>
           </div>
-          <div class="p-3"><p class="text-gray-400 text-xs line-clamp-2">${m.description || ''}</p></div>
         `;
-        card.addEventListener('click', () => {
-          // if item is an HLS .txt manifest and original app wanted redirect behavior, Hawkeye approach handles most types in-modal.
-          // playInModalByIndex uses the movies list we rendered — pass currentList and index
-          playInModalByIndex(currentList, idx);
-        });
-        moviesContainer.appendChild(card);
+        card.addEventListener('click', () => playInModalByIndex(currentList, idx));
+        fragment.appendChild(card);
       });
+
+      moviesContainer.appendChild(fragment);
     }
 
-    /* --- Filters, Search, UI init --- */
+    /* Debounce Filter & Search Inputs */
     filterButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        filterButtons.forEach(b => b.classList.remove('active','bg-red-600','text-white'));
-        btn.classList.add('active','bg-red-600','text-white');
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
         renderMovies();
       });
     });
-    searchBar.addEventListener('input', renderMovies);
+
+    searchBar.addEventListener('input', () => {
+      clearTimeout(searchDebounceTimeout);
+      searchDebounceTimeout = setTimeout(renderMovies, 150);
+    });
+
     clearSearch.addEventListener('click', () => { searchBar.value = ''; renderMovies(); });
 
-    /* --- Dark mode toggle --- */
-    darkToggle.addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
-      localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-    });
-    // restore dark mode
-    if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
-
-    /* --- Initial page load behavior --- */
     document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         loading.classList.add('hidden');
         moviesContainer.classList.remove('hidden');
         renderMovies();
-      }, 600);
+      }, 300);
     });
-
-    /* Expose helpers for debugging */
-    window.playInModalByIndex = playInModalByIndex;
-    window.resetPlayerContainer = resetPlayerContainer;
-    window.closeAndCleanup = closeAndCleanup;
   </script>
- <!-- ========================================================= -->
+  <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -954,7 +984,6 @@ img {
     background: transparent;
 }
 </style>
-
 
 </body>
 </html>
