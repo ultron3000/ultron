@@ -2,928 +2,749 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>Hellboy Collection</title>
+<title>Hellboy — The Infernal Collection</title>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- HLS.js for HLS playback -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
-
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary: #d62828;
+      --primary-glow: rgba(214, 40, 40, 0.5);
+      --accent-orange: #f97316;
+      --secondary: #0a0303;
+      --muted: #9ca3af;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--secondary);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(214, 40, 40, 0.2) 0%, transparent 70%),
+        radial-gradient(circle at 100% 100%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
+        linear-gradient(to bottom, rgba(10, 3, 3, 0.92), rgba(10, 3, 3, 0.98));
+      color: #f8fafc;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
 
-:root{
-  --primary:#d62828;
-  --secondary:#0f172a;
-  --accent:#ffb703;
-  --card:#1e293b;
-  --text:#ffffff;
-  --muted:#94a3b8;
-}
+    .title-font { font-family: 'Cinzel', serif; }
+    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+    
+    .movie-card {
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+      border: 1px solid rgba(214, 40, 40, 0.25);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.9);
+      background: rgba(20, 8, 8, 0.75);
+      backdrop-filter: blur(10px);
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: var(--primary);
+      box-shadow: 0 0 25px rgba(214, 40, 40, 0.45);
+    }
+    
+    .movie-poster {
+      aspect-ratio: 2/3;
+      transition: transform 0.5s ease;
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: scale(1.05);
+    }
+    
+    /* Fiery Glowing Text */
+    .hellboy-glow-text {
+      background: linear-gradient(135deg, #ffffff 0%, #fca5a5 40%, #ef4444 70%, #991b1b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 15px rgba(214, 40, 40, 0.4);
+    }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0303; }
+    ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in { animation: fadeIn 0.6s ease forwards; }
+    
+    /* Responsive Modal Styles (FIXED FOR DESKTOP - NO CROPPING) */
+    .modal-backdrop { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(10, 3, 3, 0.95); 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 9999; 
+      padding: 0;
+      backdrop-filter: blur(12px);
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      border-radius: 0;
+      overflow: hidden;
+      background: #0a0303;
+      border: 1px solid rgba(214, 40, 40, 0.4);
+      box-shadow: 0 0 50px rgba(214, 40, 40, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+    .player-wrapper { 
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #000;
+    }
+    #topCloseBtn { 
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      transition: all 0.2s ease;
+    }
+    #topCloseBtn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
 
-body{
-  font-family:'Poppins',sans-serif;
-  background:
-    radial-gradient(circle at top,#4a0404 0%,#130707 35%,#020202 100%);
-  color:white;
-  min-height:100vh;
-  overflow-x:hidden;
-}
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px;
+      color: #ddd;
+      background: #0a0303;
+      border-top: 1px solid rgba(214, 40, 40, 0.3);
+    }
+    .player-meta .meta-left { 
+      width: 100%;
+    }
+    .player-meta h3 { 
+      margin: 0;
+      font-size: 1.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .player-meta p { 
+      margin: 4px 0 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-/* SCROLLBAR */
-::-webkit-scrollbar{
-  width:8px;
-}
-::-webkit-scrollbar-track{
-  background:#111;
-}
-::-webkit-scrollbar-thumb{
-  background:var(--primary);
-  border-radius:10px;
-}
+    .controls-row { 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
 
-/* BACKGROUND EFFECT */
-.bg-fire{
-  position:fixed;
-  inset:0;
-  overflow:hidden;
-  z-index:-1;
-}
+    .btn {
+      background: rgba(214, 40, 40, 0.15);
+      border: 1px solid var(--primary);
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      min-width: 60px;
+      flex: 1;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+    }
+    .btn:hover { 
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(214, 40, 40, 0.7);
+    }
 
-.fire{
-  position:absolute;
-  width:8px;
-  height:8px;
-  background:#ff4500;
-  border-radius:50%;
-  opacity:.4;
-  animation:floatFire linear infinite;
-}
+    /* DESKTOP FIXES — PREVENTS BUTTON CROPPING AND VIDEO OVERFLOW */
+    @media (min-width: 768px) {
+      .modal-card {
+        width: 92%;
+        height: auto;
+        border-radius: 8px;
+        max-height: 85vh !important;
+        overflow: visible !important;
+      }
+      .player-wrapper {
+        padding-bottom: 0 !important;
+        height: auto !important;
+        max-height: 60vh !important;
+        position: relative !important;
+      }
 
-@keyframes floatFire{
-  from{
-    transform:translateY(100vh) scale(0.2);
-    opacity:0;
-  }
-  10%{
-    opacity:.6;
-  }
-  to{
-    transform:translateY(-100px) scale(1.5);
-    opacity:0;
-  }
-}
+      .player-wrapper video,
+      .player-wrapper iframe {
+        height: 100% !important;
+        max-height: 60vh !important;
+        position: relative !important;
+      }
 
-/* HERO */
-.hero{
-  position:relative;
-  width:100%;
-  height:500px;
-  overflow:hidden;
-}
+      .player-meta {
+        position: relative !important;
+        z-index: 100 !important;
+        background: #0a0303 !important;
+        padding-top: 10px !important;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .player-meta .meta-left {
+        max-width: 60%;
+      }
 
-.hero iframe{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-}
+      .controls-row {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-end !important;
+        gap: 10px !important;
+      }
 
-.hero-overlay{
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(to top,#000 5%,transparent 40%,rgba(0,0,0,.4));
-}
+      .btn {
+        min-width: 90px !important;
+        padding: 10px 14px !important;
+        flex: unset !important;
+      }
 
-.hero-content{
-  position:absolute;
-  left:6%;
-  bottom:10%;
-  z-index:5;
-  max-width:700px;
-}
+      #topCloseBtn { opacity: 0; }
+      .player-wrapper:hover #topCloseBtn { opacity: 1; }
+    }
 
-.hero-logo{
-  width:280px;
-  margin-bottom:20px;
-  filter:drop-shadow(0 0 12px rgba(255,0,0,.8));
-  animation:pulseLogo 3s ease infinite;
-}
+    @media (max-width: 480px) {
+      .btn { padding: 8px; font-size: 0; }
+      .btn i { font-size: 1rem; margin: 0 !important; }
+    }
 
-@keyframes pulseLogo{
-  0%,100%{
-    transform:scale(1);
-  }
-  50%{
-    transform:scale(1.04);
-  }
-}
+    /* Smart Fullscreen Video Fit */
+    video:fullscreen,
+    video:-webkit-full-screen,
+    iframe:fullscreen,
+    iframe:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      object-fit: contain !important;
+      background-color: black;
+    }
 
-.hero-title{
-  font-size:3rem;
-  font-weight:800;
-  margin-bottom:12px;
-  text-shadow:0 0 25px rgba(255,0,0,.8);
-}
-
-.hero-desc{
-  color:#d1d5db;
-  line-height:1.8;
-  font-size:1rem;
-  margin-bottom:24px;
-}
-
-.hero-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  background:linear-gradient(135deg,#d62828,#ff4d4d);
-  color:white;
-  padding:14px 24px;
-  border-radius:50px;
-  font-weight:700;
-  transition:.3s;
-  box-shadow:0 0 20px rgba(255,0,0,.5);
-}
-
-.hero-btn:hover{
-  transform:translateY(-3px) scale(1.03);
-}
-
-/* SECTION */
-.section{
-  padding:50px 5%;
-}
-
-.section-title{
-  font-size:2rem;
-  font-weight:800;
-  margin-bottom:30px;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.section-title i{
-  color:var(--primary);
-}
-
-/* GRID */
-.movies-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:28px;
-}
-
-/* CARD */
-.movie-card{
-  position:relative;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:20px;
-  overflow:hidden;
-  cursor:pointer;
-  transition:.4s;
-  backdrop-filter:blur(10px);
-}
-
-.movie-card:hover{
-  transform:translateY(-10px) scale(1.03);
-  box-shadow:0 20px 50px rgba(255,0,0,.35);
-}
-
-.movie-poster{
-  width:100%;
-  aspect-ratio:2/3;
-  object-fit:cover;
-  transition:.5s;
-}
-
-.movie-card:hover .movie-poster{
-  transform:scale(1.08);
-}
-
-.card-overlay{
-  position:absolute;
-  inset:0;
-  background:linear-gradient(to top,rgba(0,0,0,.95),transparent 60%);
-}
-
-.play-btn{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%) scale(.8);
-  width:72px;
-  height:72px;
-  border-radius:50%;
-  background:rgba(214,40,40,.95);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:white;
-  font-size:1.6rem;
-  opacity:0;
-  transition:.35s;
-  box-shadow:0 0 25px rgba(255,0,0,.7);
-}
-
-.movie-card:hover .play-btn{
-  opacity:1;
-  transform:translate(-50%,-50%) scale(1);
-}
-
-.movie-info{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  padding:18px;
-  z-index:5;
-}
-
-.movie-title{
-  font-size:1rem;
-  font-weight:700;
-  margin-bottom:8px;
-}
-
-.movie-meta{
-  display:flex;
-  justify-content:space-between;
-  color:#d1d5db;
-  font-size:.85rem;
-}
-
-/* MODAL */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.92);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  padding:20px;
-}
-
-.modal.active{
-  display:flex;
-}
-
-.modal-content{
-  width:100%;
-  max-width:1100px;
-  background:#090909;
-  border-radius:18px;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.1);
-  box-shadow:0 0 50px rgba(255,0,0,.3);
-}
-
-.player-wrapper{
-  position:relative;
-  width:100%;
-  background:black;
-  aspect-ratio:16/9;
-}
-
-.player-wrapper video,
-.player-wrapper iframe{
-  width:100%;
-  height:100%;
-}
-
-.close-x{
-  position:absolute;
-  top:15px;
-  right:15px;
-  width:42px;
-  height:42px;
-  border:none;
-  border-radius:50%;
-  background:rgba(0,0,0,.7);
-  color:white;
-  cursor:pointer;
-  z-index:10;
-  font-size:1rem;
-}
-
-.modal-bottom{
-  padding:20px;
-}
-
-.modal-title{
-  font-size:1.5rem;
-  font-weight:700;
-  margin-bottom:8px;
-}
-
-.modal-description{
-  color:#cbd5e1;
-  margin-bottom:20px;
-  line-height:1.7;
-}
-
-.controls{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-}
-
-.control-btn{
-  border:none;
-  background:#1f2937;
-  color:white;
-  padding:12px 18px;
-  border-radius:12px;
-  cursor:pointer;
-  transition:.3s;
-  font-weight:600;
-}
-
-.control-btn:hover{
-  background:var(--primary);
-}
-
-/* FOOTER */
-footer{
-  margin-top:50px;
-  padding:30px;
-  border-top:1px solid rgba(255,255,255,.08);
-  text-align:center;
-}
-
-.socials{
-  display:flex;
-  justify-content:center;
-  gap:18px;
-  margin-top:15px;
-}
-
-.socials a{
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  background:#151515;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:.3s;
-  text-decoration:none;
-}
-
-.socials a:hover{
-  background:var(--primary);
-  transform:translateY(-5px);
-}
-
-/* MOBILE */
-@media(max-width:768px){
-
-  .hero{
-    height:400px;
-  }
-
-  .hero-content{
-    left:20px;
-    right:20px;
-    bottom:30px;
-  }
-
-  .hero-title{
-    font-size:2rem;
-  }
-
-  .hero-logo{
-    width:180px;
-  }
-
-  .section-title{
-    font-size:1.5rem;
-  }
-
-  .movies-grid{
-    grid-template-columns:repeat(2,1fr);
-    gap:18px;
-  }
-
-  .modal-content{
-    border-radius:0;
-    height:100%;
-    max-width:none;
-  }
-
-  .player-wrapper{
-    aspect-ratio:auto;
-    height:38vh;
-  }
-
-  .controls{
-    justify-content:center;
-  }
-
-  .control-btn{
-    flex:1;
-    min-width:120px;
-  }
-}
+    @media (min-aspect-ratio: 16/9) {
+      video:fullscreen,
+      video:-webkit-full-screen,
+      iframe:fullscreen,
+      iframe:-webkit-full-screen {
+        object-fit: cover !important;
+      }
+    }
 </style>
 </head>
+<body class="relative">
 
-<body>
+<!-- Interactive Fire / Ember Particles Canvas -->
+<canvas id="fireCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-<!-- FIRE BACKGROUND -->
-<div class="bg-fire" id="fireBg"></div>
+<div class="container mx-auto px-4 py-8 max-w-7xl relative z-10">
 
-<!-- HERO -->
-<section class="hero">
+  <!-- Hero Header Banner Section -->
+  <div class="relative w-full h-[260px] sm:h-[320px] md:h-[420px] rounded-2xl overflow-hidden border border-red-900/40 shadow-[0_0_40px_rgba(214,40,40,0.25)] mb-8">
+    <!-- YouTube Video Background -->
+    <iframe 
+      src="https://www.youtube.com/embed/FphzzDHFbyM?autoplay=1&mute=1&loop=1&playlist=FphzzDHFbyM&controls=0&modestbranding=1"
+      frameborder="0" 
+      allow="autoplay; fullscreen" 
+      class="absolute top-0 left-0 w-full h-full pointer-events-none scale-125">
+    </iframe>
 
-  <iframe
-    src="https://www.youtube.com/embed/FphzzDHFbyM?autoplay=1&mute=1&loop=1&playlist=FphzzDHFbyM&controls=0&showinfo=0&modestbranding=1"
-    frameborder="0"
-    allow="autoplay"
-  ></iframe>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#0a0303] via-black/40 to-transparent"></div>
 
-  <div class="hero-overlay"></div>
-
-  <div class="hero-content">
-
-    <img
-      class="hero-logo"
-      src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Hellboy_movie_logo.png"
-      alt="Hellboy Logo"
-    >
-
-    <h1 class="hero-title">Hellboy Movie Collection</h1>
-
-    <p class="hero-desc">
-      Enter the supernatural world of Hellboy — demons, monsters,
-      ancient prophecies, and brutal battles against darkness.
-      Watch every Hellboy movie in one premium cinematic experience.
-    </p>
-
-    <a href="#moviesSection" class="hero-btn">
-      <i class="fas fa-play"></i>
-      Start Watching
-    </a>
-
-  </div>
-</section>
-
-<!-- MOVIES -->
-<section class="section" id="moviesSection">
-
-  <h2 class="section-title">
-    <i class="fas fa-fire"></i>
-    Hellboy Movies
-  </h2>
-
-  <div class="movies-grid" id="moviesGrid"></div>
-
-</section>
-
-<!-- FOOTER -->
-<footer>
-
-  <h3>HELLBOY UNIVERSE</h3>
-
-  <div class="socials">
-    <a href="#"><i class="fab fa-facebook-f"></i></a>
-    <a href="#"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g"><i class="fab fa-youtube"></i></a>
-  </div>
-
-</footer>
-
-<!-- MODAL -->
-<div class="modal" id="modal">
-
-  <div class="modal-content">
-
-    <div class="player-wrapper" id="playerWrapper">
-
-      <video id="videoPlayer" controls playsinline></video>
-
-      <button class="close-x" id="closeModal">
-        <i class="fas fa-times"></i>
-      </button>
-
-    </div>
-
-    <div class="modal-bottom">
-
-      <h2 class="modal-title" id="modalTitle"></h2>
-
-      <p class="modal-description" id="modalDesc"></p>
-
-      <div class="controls">
-
-        <button class="control-btn" id="prevBtn">
-          <i class="fas fa-backward"></i> Prev
-        </button>
-
-        <button class="control-btn" id="playPauseBtn">
-          <i class="fas fa-play"></i> Play
-        </button>
-
-        <button class="control-btn" id="nextBtn">
-          Next <i class="fas fa-forward"></i>
-        </button>
-
-        <button class="control-btn" id="fullscreenBtn">
-          <i class="fas fa-expand"></i> Fullscreen
-        </button>
-
-        <button class="control-btn" id="muteBtn">
-          <i class="fas fa-volume-up"></i> Mute
-        </button>
-
+    <!-- Animated Logo at Top-Left -->
+    <div class="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-3">
+      <img 
+        src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Hellboy_movie_logo.png" 
+        alt="Hellboy Logo" 
+        class="h-12 sm:h-16 md:h-20 animate-logo filter drop-shadow-[0_0_15px_rgba(214,40,40,0.8)]"
+      />
+      <div>
+        <h1 class="title-font text-xl sm:text-2xl md:text-4xl font-black uppercase hellboy-glow-text tracking-widest">HELLBOY</h1>
+        <p class="font-rajdhani text-[10px] sm:text-xs md:text-sm text-red-500 font-bold tracking-wider uppercase">INFERNAL ARCHIVES</p>
       </div>
-
     </div>
-
   </div>
 
+  <style>
+    .animate-logo {
+      animation: float-pulse 3s ease-in-out infinite, glow-logo 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes float-pulse {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-6px) scale(1.03); }
+    }
+
+    @keyframes glow-logo {
+      0% { filter: drop-shadow(0 0 4px #ff4d4d) drop-shadow(0 0 8px #d62828); }
+      100% { filter: drop-shadow(0 0 12px #ff4d4d) drop-shadow(0 0 22px #d62828); }
+    }
+  </style>
+
+  <!-- Movies Grid Container (2 Columns on Mobile) -->
+  <div class="mb-12">
+    <div class="flex items-center justify-between border-b border-red-900/40 pb-4 mb-6">
+      <h2 class="font-rajdhani text-lg sm:text-2xl font-bold uppercase tracking-wider text-white">
+        <i class="fas fa-fire text-red-600 mr-2"></i>AVAILABLE ARCHIVES
+      </h2>
+      <span class="text-[10px] sm:text-xs font-mono text-red-400 bg-red-950/60 px-2.5 py-1 rounded border border-red-900/40">4 MOVIES</span>
+    </div>
+
+    <!-- Responsive Grid Layout (2 cols on mobile, 2 on tablet, 4 on desktop) -->
+    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6" id="movies"></div>
+  </div>
+
+  <!-- Footer / Social -->
+  <footer class="border-t border-red-900/30 mt-12 pt-6 text-center text-gray-400">
+    <div class="flex justify-center gap-6 mb-3">
+      <a href="#" class="hover:text-red-500 transition"><i class="fab fa-facebook-f text-lg"></i></a>
+      <a href="#" class="hover:text-red-500 transition"><i class="fab fa-twitter text-lg"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" class="hover:text-red-500 transition"><i class="fab fa-instagram text-lg"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="hover:text-red-500 transition"><i class="fab fa-youtube text-lg"></i></a>
+    </div>
+    <p class="font-rajdhani text-xs tracking-wider text-gray-500 uppercase">© HELLBOY UNIVERSE CINEMATIC COLLECTION</p>
+  </footer>
+</div>
+
+<!-- Modal Player -->
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="player-wrapper" id="playerWrapper">
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" title="Close Player">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <div class="player-meta">
+      <div class="meta-left">
+        <h3 id="modalTitle">Title</h3>
+        <p id="modalDesc" class="text-sm"></p>
+      </div>
+      <div class="controls-row">
+        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-/* MOVIES */
-const movies = [
+    /******************************
+     * Movies Array (Updated with descriptions & ratings)
+     ******************************/
+    const movies = [
+      {
+        title: "Hellboy",
+        year: 2004,
+        duration: "2h 02m",
+        rating: "6.8/10",
+        category: "Action Fantasy",
+        description: "A demon summoned by Nazi occultists during World War II is saved by Allied forces and raised to fight supernatural dark forces as part of the B.P.R.D.",
+        image: "https://image.tmdb.org/t/p/original/hjblR6bPZR0PvFwztHcEBCjYf7d.jpg",
+        video: "https://mega.nz/embed/t3MVAbCJ#XiW4sIwArWg0UDEphIFk8Yj9nL6vAvAdSyiECEFK1N8"
+      },
+      {
+        title: "Hellboy II: The Golden Army",
+        year: 2008,
+        duration: "2h 00m",
+        rating: "7.0/10",
+        category: "Action Fantasy",
+        description: "An ancient elf prince breaks an old pact with humanity and seeks to awaken an unstoppable mythical army to destroy the modern world.",
+        image: "https://image.tmdb.org/t/p/w342/zO0Wdrxnhx3KoJEvychSmnY3urC.jpg",
+        video: "https://mega.nz/embed/JuNwDAyT#oR9Pak9l_f0MK5YRICLB1pjC58nnrUDMLI2j1OFrVhk"
+      },
+      {
+        title: "Hellboy",
+        year: 2019,
+        duration: "2h 01m",
+        rating: "5.2/10",
+        category: "Action Horror",
+        description: "Hellboy travels to the UK to confront an ancient resurrected sorceress, Nimue the Blood Queen, who is bent on bringing apocalyptic ruin to humanity.",
+        image: "https://i.ebayimg.com/images/g/ZIIAAOSwcOdi~OLn/s-l1200.jpg",
+        video: "https://mega.nz/embed/4yMl1KoJ#6vZiW6sPrsbuRbbVxPAqhYn3-2jypzwqOrNXuv6v7wo"
+      },
+      {
+        title: "Hellboy: The Crooked Man",
+        year: 2024,
+        duration: "1h 39m",
+        rating: "5.5/10",
+        category: "Action Horror",
+        description: "In the 1950s, Hellboy and a rookie B.P.R.D. agent become stranded in rural Appalachia, where they discover a small community haunted by witches led by the sinister Crooked Man.",
+        image: "https://i.ebayimg.com/images/g/JXwAAOSwN5pm5GPS/s-l400.jpg",
+        video: "https://mega.nz/embed/ljVmgI6A#bdu8qYCQmoE9Njs8PexMDtZSqA-luVaQJ85dfzk_gWg"
+      }
+    ];
 
-{
-  title:"Hellboy (2004)",
-  year:"2004",
-  description:"Hellboy battles dark supernatural forces after being summoned from Hell during World War II.",
-  image:"https://image.tmdb.org/t/p/original/hjblR6bPZR0PvFwztHcEBCjYf7d.jpg",
-  video:"https://mega.nz/embed/t3MVAbCJ#XiW4sIwArWg0UDEphIFk8Yj9nL6vAvAdSyiECEFK1N8"
-},
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalVideoId = 'modalVideo';
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
 
-{
-  title:"Hellboy II: The Golden Army (2008)",
-  year:"2008",
-  description:"Hellboy and the BPRD fight an unstoppable mythical army threatening humanity.",
-  image:"https://image.tmdb.org/t/p/w342/zO0Wdrxnhx3KoJEvychSmnY3urC.jpg",
-  video:"https://spo3.businessoperations.sbs/v4/s93/3zqh8s/cf-master.1774676676.txt"
-},
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
 
-{
-  title:"Hellboy (2019)",
-  year:"2019",
-  description:"Hellboy faces Nimue the Blood Queen in a brutal apocalyptic battle.",
-  image:"https://i.ebayimg.com/images/g/ZIIAAOSwcOdi~OLn/s-l1200.jpg",
-  video:"https://spok.solariaarchitecture.cyou/v4/us/inz5w/index-f1-v1-a1.txt"
-},
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
 
-{
-  title:"Hellboy: The Crooked Man (2024)",
-  year:"2024",
-  description:"Hellboy encounters dark witchcraft and demonic horrors in the Appalachian mountains.",
-  image:"https://i.ebayimg.com/images/g/JXwAAOSwN5pm5GPS/s-l400.jpg",
-  video:"https://sojg.stellarforgeinnovation.online/v4/pq/kjwnj/cf-master.txt?v=1729422650"
-}
+    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+    function isHls(url) {
+      if (!url) return false;
+      return url.includes('.m3u8') || url.includes('index-') || url.includes('cf-master') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+    }
+    function isYouTube(url) {
+      if (!url) return false;
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
+    }
 
-];
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
 
-/* DOM */
-const moviesGrid = document.getElementById("moviesGrid");
-const modal = document.getElementById("modal");
-const playerWrapper = document.getElementById("playerWrapper");
-const videoPlayer = document.getElementById("videoPlayer");
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
 
-const modalTitle = document.getElementById("modalTitle");
-const modalDesc = document.getElementById("modalDesc");
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      currentFiltered = list;
+      currentIndex = index;
+      const movie = list[index];
+      if (!movie) return;
 
-const playPauseBtn = document.getElementById("playPauseBtn");
-const muteBtn = document.getElementById("muteBtn");
+      modalTitle.textContent = movie.title || '';
+      modalDesc.textContent = movie.description || (movie.title || '');
 
-let currentIndex = 0;
-let currentHls = null;
+      resetPlayerContainer();
+      showModal();
 
-/* RENDER MOVIES */
-function renderMovies(){
+      let src = typeof movie.video === 'object' && movie.video !== null 
+        ? (movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0]) 
+        : movie.video;
 
-  moviesGrid.innerHTML = "";
+      if (!src || src === "00") {
+        playerWrapper.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full text-center p-6 text-gray-400 font-rajdhani">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-600 mb-3"></i>
+            <p class="text-base font-bold text-white uppercase">STREAM FEED OFFLINE</p>
+            <p class="text-xs text-gray-500 mt-1">SOURCE UNREACHABLE [ERR: 00]</p>
+          </div>`;
+        return;
+      }
 
-  movies.forEach((movie,index)=>{
+      const lc = (src || '').toLowerCase();
 
-    const card = document.createElement("div");
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
 
-    card.className = "movie-card";
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
+          }
+        } catch (e) {}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
 
-    card.innerHTML = `
-      <img src="${movie.image}" class="movie-poster">
+      if (isHls(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) return;
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          try {
+            currentHls.loadSource(src);
+            currentHls.attachMedia(v);
+          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        }
+        return;
+      }
 
-      <div class="card-overlay"></div>
+      if (isMP4(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (v) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        }
+        return;
+      }
 
-      <div class="play-btn">
-        <i class="fas fa-play"></i>
-      </div>
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+    }
 
-      <div class="movie-info">
+    function togglePlayPause() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
 
-        <div class="movie-title">${movie.title}</div>
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById(modalVideoId);
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+    }
 
-        <div class="movie-meta">
-          <span>${movie.year}</span>
-          <span>Movie</span>
-        </div>
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
 
-      </div>
-    `;
-
-    card.addEventListener("click",()=>{
-      openMovie(index);
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
     });
 
-    moviesGrid.appendChild(card);
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': playNext(); break;
+        case 'arrowleft': playPrev(); break;
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+      }
+    });
 
-  });
+    /******************************
+     * Render Movies Grid
+     ******************************/
+    const container = document.getElementById('movies');
 
-}
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      moviesToRender.forEach((movie, index) => {
+        const div = document.createElement('div');
+        div.className = `movie-card animate-fade-in rounded-xl overflow-hidden cursor-pointer relative group flex flex-col justify-between`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2 sm:p-4">
+              <button class="bg-red-600 hover:bg-red-700 text-white font-rajdhani font-bold py-1.5 px-3 sm:py-2.5 sm:px-5 rounded transition transform hover:scale-105 shadow-[0_0_15px_rgba(214,40,40,0.8)] text-xs sm:text-sm flex items-center gap-1.5 uppercase tracking-wider">
+                <i class="fas fa-play"></i> Watch Stream
+              </button>
+            </div>
+            <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-black/80 border border-red-600/40 text-red-400 text-[9px] sm:text-[10px] font-rajdhani px-1.5 py-0.5 rounded uppercase">${movie.rating || 'N/A'}</span>
+          </div>
+          <div class="p-2.5 sm:p-4 flex flex-col justify-between flex-1">
+            <div>
+              <h3 class="font-rajdhani font-bold text-sm sm:text-lg text-white truncate tracking-wide">${movie.title}</h3>
+              <p class="text-[11px] sm:text-xs text-gray-400 mt-1 line-clamp-2">${movie.description}</p>
+            </div>
+            <div class="flex justify-between items-center mt-2.5 sm:mt-3 pt-2 border-t border-red-900/30 text-[10px] sm:text-xs font-rajdhani text-gray-400">
+              <span><i class="far fa-calendar-alt mr-1 text-red-500"></i>${movie.year}</span>
+              <span><i class="far fa-clock mr-1 text-red-500"></i>${movie.duration}</span>
+            </div>
+          </div>
+        `;
 
-renderMovies();
+        div.addEventListener('click', () => {
+          openPlayer(moviesToRender, index);
+        });
 
-/* HELPERS */
-function isHLS(url){
-  return url.includes(".m3u8") ||
-         url.includes("master") ||
-         url.includes("index");
-}
-
-function isIframe(url){
-  return url.includes("mega.nz") ||
-         url.includes("drive.google") ||
-         url.includes("streamtape") ||
-         url.includes("dood");
-}
-
-/* OPEN MOVIE */
-function openMovie(index){
-
-  currentIndex = index;
-
-  const movie = movies[index];
-
-  modal.classList.add("active");
-
-  modalTitle.textContent = movie.title;
-  modalDesc.textContent = movie.description;
-
-  if(currentHls){
-    currentHls.destroy();
-    currentHls = null;
-  }
-
-  playerWrapper.innerHTML = `
-    <video id="videoPlayer" controls playsinline></video>
-
-    <button class="close-x" id="closeModal">
-      <i class="fas fa-times"></i>
-    </button>
-  `;
-
-  const player = document.getElementById("videoPlayer");
-
-  document.getElementById("closeModal")
-    .addEventListener("click",closeModal);
-
-  const src = movie.video;
-
-  /* IFRAME */
-  if(isIframe(src)){
-
-    playerWrapper.innerHTML = `
-      <iframe
-        src="${src}"
-        frameborder="0"
-        allowfullscreen
-        allow="autoplay; encrypted-media"
-      ></iframe>
-
-      <button class="close-x" id="closeModal">
-        <i class="fas fa-times"></i>
-      </button>
-    `;
-
-    document.getElementById("closeModal")
-      .addEventListener("click",closeModal);
-
-    return;
-  }
-
-  /* HLS */
-  if(isHLS(src)){
-
-    if(Hls.isSupported()){
-
-      currentHls = new Hls();
-
-      currentHls.loadSource(src);
-
-      currentHls.attachMedia(player);
-
-      currentHls.on(Hls.Events.MANIFEST_PARSED,function(){
-
-        player.play();
-
-        playPauseBtn.innerHTML =
-          '<i class="fas fa-pause"></i> Pause';
-
+        container.appendChild(div);
       });
-
-    }else{
-
-      player.src = src;
-
-      player.play();
-
     }
 
-    return;
-  }
+    renderMovies(movies);
 
-  /* MP4 */
-  player.src = src;
+    /******************************
+     * Dynamic Fire / Ember Particles
+     ******************************/
+    const canvas = document.getElementById('fireCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
 
-  player.play();
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-}
-
-/* CLOSE */
-function closeModal(){
-
-  modal.classList.remove("active");
-
-  if(currentHls){
-    currentHls.destroy();
-    currentHls = null;
-  }
-
-  const player = document.getElementById("videoPlayer");
-
-  if(player){
-
-    player.pause();
-
-    player.removeAttribute("src");
-
-    player.load();
-
-  }
-
-}
-
-/* PLAY/PAUSE */
-playPauseBtn.addEventListener("click",()=>{
-
-  const player = document.getElementById("videoPlayer");
-
-  if(!player) return;
-
-  if(player.paused){
-
-    player.play();
-
-    playPauseBtn.innerHTML =
-      '<i class="fas fa-pause"></i> Pause';
-
-  }else{
-
-    player.pause();
-
-    playPauseBtn.innerHTML =
-      '<i class="fas fa-play"></i> Play';
-
-  }
-
-});
-
-/* NEXT */
-document.getElementById("nextBtn")
-.addEventListener("click",()=>{
-
-  currentIndex++;
-
-  if(currentIndex >= movies.length){
-    currentIndex = 0;
-  }
-
-  openMovie(currentIndex);
-
-});
-
-/* PREV */
-document.getElementById("prevBtn")
-.addEventListener("click",()=>{
-
-  currentIndex--;
-
-  if(currentIndex < 0){
-    currentIndex = movies.length - 1;
-  }
-
-  openMovie(currentIndex);
-
-});
-
-/* FULLSCREEN */
-document.getElementById("fullscreenBtn")
-.addEventListener("click",()=>{
-
-  const element =
-    document.querySelector("#playerWrapper video") ||
-    document.querySelector("#playerWrapper iframe");
-
-  if(!document.fullscreenElement){
-
-    if(element.requestFullscreen){
-      element.requestFullscreen();
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + Math.random() * 20;
+        this.size = Math.random() * 2.5 + 0.8;
+        this.speedX = (Math.random() - 0.5) * 0.8;
+        this.speedY = -(Math.random() * 1.5 + 0.5);
+        this.color = Math.random() > 0.4 ? '#d62828' : '#f97316';
+        this.alpha = Math.random() * 0.5 + 0.2;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha -= 0.002;
+        if (this.y < -10 || this.alpha <= 0) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.alpha);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
     }
 
-  }else{
+    for (let i = 0; i < 65; i++) {
+      particles.push(new Particle());
+    }
 
-    document.exitFullscreen();
-
-  }
-
-});
-
-/* MUTE */
-muteBtn.addEventListener("click",()=>{
-
-  const player = document.getElementById("videoPlayer");
-
-  if(!player) return;
-
-  player.muted = !player.muted;
-
-  if(player.muted){
-
-    muteBtn.innerHTML =
-      '<i class="fas fa-volume-mute"></i> Unmute';
-
-  }else{
-
-    muteBtn.innerHTML =
-      '<i class="fas fa-volume-up"></i> Mute';
-
-  }
-
-});
-
-/* ESC CLOSE */
-document.addEventListener("keydown",(e)=>{
-
-  if(e.key === "Escape"){
-    closeModal();
-  }
-
-});
-
-/* CLICK OUTSIDE */
-modal.addEventListener("click",(e)=>{
-
-  if(e.target === modal){
-    closeModal();
-  }
-
-});
-
-/* FIRE PARTICLES */
-const fireBg = document.getElementById("fireBg");
-
-for(let i=0;i<80;i++){
-
-  const fire = document.createElement("div");
-
-  fire.className = "fire";
-
-  fire.style.left = Math.random()*100 + "%";
-
-  fire.style.animationDuration =
-    5 + Math.random()*10 + "s";
-
-  fire.style.animationDelay =
-    Math.random()*5 + "s";
-
-  fire.style.opacity =
-    Math.random();
-
-  fireBg.appendChild(fire);
-
-}
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
 </script>
 <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
@@ -936,7 +757,7 @@ for(let i=0;i<80;i++){
 <!-- ===================== -->
 
 <!-- POPUNDER -->
-<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
 
 <!-- SOCIAL BAR -->
 <script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
