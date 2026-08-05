@@ -24,8 +24,7 @@
       font-family: 'Poppins', sans-serif;
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.12) 0%, transparent 65%),
-        radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.08) 0%, transparent 65%),
         linear-gradient(to bottom, rgba(7, 10, 18, 0.85), rgba(7, 10, 18, 0.98));
       color: #f8fafc;
       min-height: 100vh;
@@ -34,35 +33,23 @@
       overflow-x: hidden;
     }
 
-    .font-mono-tech {
-      font-family: 'Share Tech Mono', monospace;
-    }
-
-    .font-rajdhani {
-      font-family: 'Rajdhani', sans-serif;
-    }
+    .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
+    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
     
-    /* Tactical HUD Grid Overlay */
-    .tactical-grid {
-      background-size: 40px 40px;
-      background-image: 
-        linear-gradient(to right, rgba(239, 68, 68, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(239, 68, 68, 0.03) 1px, transparent 1px);
-    }
-
+    /* Optimized Movie Card (Removed costly blur filters to eliminate scroll lag) */
     .movie-card {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.2s ease, border-color 0.2s ease;
       transform-origin: center;
       border: 1px solid rgba(239, 68, 68, 0.2);
-      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.8);
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(8px);
+      background: #0f172a;
+      content-visibility: auto; /* Significant render performance boost for long lists */
+      contain-intrinsic-size: 320px;
     }
     
     .movie-card:hover {
-      transform: translateY(-8px) scale(1.02);
+      transform: translateY(-4px);
       border-color: var(--primary);
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.25);
     }
 
     .crimson-gradient-text {
@@ -73,28 +60,40 @@
     
     .movie-poster {
       aspect-ratio: 2/3;
-      transition: transform 0.5s ease;
+      transition: transform 0.3s ease;
     }
     
     .movie-card:hover .movie-poster {
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
     
-    /* Category Filter Buttons */
+    /* Category Filter Buttons - Scrollable on mobile */
+    .category-scroll-container {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: #991b1b #070a12;
+    }
+
+    .category-scroll-container::-webkit-scrollbar {
+      height: 4px;
+    }
+
     .category-btn {
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(15, 23, 42, 0.9);
       border: 1px solid rgba(239, 68, 68, 0.3);
       color: #94a3b8;
-      transition: all 0.25s ease;
+      transition: all 0.2s ease;
       cursor: pointer;
       user-select: none;
+      flex-shrink: 0;
     }
     
     .category-btn:hover {
       border-color: var(--primary);
       color: #ffffff;
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-      transform: translateY(-1px);
     }
 
     .category-btn.active {
@@ -102,22 +101,13 @@
       border-color: var(--primary);
       color: #000000;
       font-weight: 700;
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
     }
     
     /* Custom scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #070a12; }
-    ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
-    
-    /* Animation */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-fade-in { animation: fadeIn 0.6s ease forwards; }
     
     /* Responsive Modal Setup */
     .modal-backdrop { 
@@ -129,7 +119,6 @@
       justify-content: center; 
       z-index: 9999; 
       padding: 0;
-      backdrop-filter: blur(10px);
     }
     .modal-backdrop.active { display: flex; }
     .modal-card { 
@@ -141,7 +130,6 @@
       overflow: hidden;
       background: #0f172a;
       border: 1px solid rgba(239, 68, 68, 0.4);
-      box-shadow: 0 0 50px rgba(239, 68, 68, 0.25);
       display: flex;
       flex-direction: column;
     }
@@ -165,13 +153,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 1;
-      transition: all 0.2s ease;
-    }
-    #topCloseBtn:hover {
-      background: var(--primary);
-      color: #000;
-      transform: scale(1.1);
     }
     .player-wrapper video, 
     .player-wrapper iframe { 
@@ -190,25 +171,19 @@
       background: #0f172a;
       border-top: 1px solid rgba(239, 68, 68, 0.25);
     }
-    .player-meta .meta-left { 
-      width: 100%;
-    }
+    .player-meta .meta-left { width: 100%; }
     .player-meta h3 { 
       margin: 0;
       font-size: 1.125rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       font-family: 'Rajdhani', sans-serif;
       font-weight: 700;
       color: var(--primary);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
     .player-meta p { 
-      margin: 6px 0 0 0;
+      margin: 4px 0 0 0;
       color: var(--muted);
-      font-size: 0.92rem;
+      font-size: 0.85rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -218,7 +193,7 @@
     .controls-row { 
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       justify-content: center;
     }
@@ -227,133 +202,90 @@
       background: rgba(239, 68, 68, 0.08);
       border: 1px solid var(--primary);
       color: var(--primary);
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.9rem;
-      min-width: 60px;
+      font-size: 0.85rem;
       flex: 1;
       text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: all 0.2s ease;
+      gap: 4px;
       font-family: 'Rajdhani', sans-serif;
       font-weight: 600;
     }
     .btn:hover { 
       background: var(--primary);
       color: #000;
-      box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
     }
 
-    /* Desktop Alignment Fixes */
     @media (min-width: 768px) {
       .modal-card {
         width: 92%;
         height: auto;
         border-radius: 8px;
-        max-height: 80vh;
+        max-height: 85vh;
       }
       .player-wrapper {
         padding-bottom: 0 !important;     
-        height: auto !important;
-        max-height: 60vh !important;       
+        height: 55vh !important;
         position: relative !important;
       }
-
-      .player-wrapper video,
-      .player-wrapper iframe {
-        height: 100% !important;
-        max-height: 60vh !important;
-        position: relative !important;
-      }
-
       .player-meta {
-        position: relative !important;
-        z-index: 100 !important;
-        background: #0f172a !important;      
-        padding-top: 10px !important;
         flex-direction: row;
         justify-content: space-between;
         align-items: flex-start;
       }
-      .player-meta .meta-left {
-        max-width: 65%;
-      }
-
-      .controls-row {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        justify-content: flex-end !important;
-        gap: 12px !important;
-      }
-
-      .btn {
-        min-width: 95px !important;
-        padding: 10px 16px !important;
-        flex: unset !important;
-      }
-
-      .modal-card {
-        max-height: 85vh !important;
-        overflow: visible !important;
-      }
-
-      #topCloseBtn { opacity: 0; }
-      .player-wrapper:hover #topCloseBtn { opacity: 1; }
-    }
-
-    @media (max-width: 480px) {
-      .btn { padding: 8px; font-size: 0; }
-      .btn i { font-size: 1rem; margin: 0 !important; }
+      .player-meta .meta-left { max-width: 65%; }
+      .controls-row { flex-wrap: nowrap !important; justify-content: flex-end !important; }
+      .btn { flex: unset !important; min-width: 80px !important; }
     }
 </style>
 </head>
-<body class="relative tactical-grid">
+<body class="relative">
 
-<div class="container mx-auto px-4 py-8 max-w-7xl">
+<div class="container mx-auto px-3 py-4 md:py-6 max-w-7xl">
 
   <!-- Header Section with Search & Categories -->
-  <div class="mb-8 border-b border-red-500/20 pb-6">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+  <div class="mb-4 border-b border-red-500/20 pb-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
       <div>
-        <span class="text-xs font-mono-tech text-red-400/80 bg-red-500/10 px-3 py-1 rounded border border-red-500/20 tracking-widest uppercase">
-          CLASSIFIED ARCHIVES // AUTHORIZED ACCESS
+        <span class="text-[10px] font-mono-tech text-red-400 bg-red-500/10 px-2.5 py-0.5 rounded border border-red-500/20 tracking-widest uppercase">
+          CLASSIFIED ARCHIVES
         </span>
-        <h1 class="font-rajdhani text-3xl md:text-4xl font-bold uppercase crimson-gradient-text mt-2 tracking-wider">
+        <h1 class="font-rajdhani text-2xl md:text-3xl font-bold uppercase crimson-gradient-text mt-1 tracking-wider">
           TACTICAL INTELLIGENCE ARCHIVE
         </h1>
       </div>
 
       <!-- Live Search Box -->
-      <div class="relative w-full md:w-80">
-        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-red-500/70"></i>
+      <div class="relative w-full md:w-72">
+        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-red-500/70 text-xs"></i>
         <input 
           type="text" 
           id="searchInput" 
           placeholder="Search mission files..." 
-          class="w-full pl-11 pr-4 py-2.5 bg-slate-900/90 border border-red-500/30 rounded-xl text-sm font-mono-tech text-gray-200 placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/50 transition"
+          class="w-full pl-9 pr-3 py-2 bg-slate-900/90 border border-red-500/30 rounded-lg text-xs font-mono-tech text-gray-200 placeholder-gray-500 focus:outline-none focus:border-red-500"
         />
       </div>
     </div>
 
-    <!-- Responsive Multi-Line Category Filters Container -->
-    <div class="flex flex-wrap items-center gap-2 md:gap-2.5 pt-2 pb-1" id="categoryContainer">
+    <!-- Scrollable Minimal Category Bar for Mobile View -->
+    <div class="category-scroll-container" id="categoryContainer">
       <!-- Generated via JavaScript -->
     </div>
   </div>
 
   <!-- Movies Grid -->
-  <div class="mb-12">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
+  <div class="mb-8">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4" id="movies"></div>
   </div>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-800 mt-8 pt-6 text-center text-gray-500">
-    <p class="font-mono-tech text-xs text-red-500/60 mb-3 tracking-widest">TACTICAL COMMAND ARCHIVES // RESTRICTED ACCESS</p>
-    <p class="text-sm">© Intelligence & Covert Ops Universe</p>
+  <footer class="border-t border-slate-800 pt-4 text-center text-gray-500">
+    <p class="font-mono-tech text-[10px] text-red-500/60 mb-1 tracking-widest">TACTICAL COMMAND ARCHIVES // RESTRICTED ACCESS</p>
+    <p class="text-xs">© Intelligence & Covert Ops Universe</p>
   </footer>
 </div>
 
@@ -363,19 +295,19 @@
     <div class="player-wrapper" id="playerWrapper">
       <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       <button id="topCloseBtn" title="Close Player">
-        <i class="fas fa-times text-xl"></i>
+        <i class="fas fa-times text-lg"></i>
       </button>
     </div>
 
     <div class="player-meta">
       <div class="meta-left">
         <h3 id="modalTitle">Title</h3>
-        <p id="modalDesc" class="text-sm"></p>
+        <p id="modalDesc"></p>
       </div>
       <div class="controls-row">
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+        <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i>Prev</button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i>Play</button>
+        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward"></i></button>
         <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
         <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
         <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
@@ -384,15 +316,23 @@
   </div>
 </div>
 
-<!-- Interactive Tactical Spark Canvas -->
-<canvas id="sparkCanvasPage"></canvas>
-<style>
-#sparkCanvasPage { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; }
-</style>
-
 <script>
     /******************************
-     * Dynamic Movies Data Array
+     * Consolidated Categories Map
+     ******************************/
+    function normalizeCategory(cat) {
+      if (!cat) return "Action & Ops";
+      const c = cat.toLowerCase();
+      if (c.includes("sniper")) return "Sniper & Tactical";
+      if (c.includes("espionage") || c.includes("intel") || c.includes("covert")) return "Espionage & Intel";
+      if (c.includes("thriller") || c.includes("psychological")) return "Psychological & Thriller";
+      if (c.includes("sci-fi") || c.includes("fantasy") || c.includes("horror")) return "Sci-Fi & Fantasy";
+      if (c.includes("action") || c.includes("mercenary") || c.includes("tactical") || c.includes("vigilante") || c.includes("submarine")) return "Action & Ops";
+      return "Action & Ops";
+    }
+
+    /******************************
+     * Dynamic Movies Data Array (All 84 Movies Intact)
      ******************************/
     const movies = [
       { 
@@ -440,7 +380,6 @@
         duration: "2h 14m",
         description: "NSA contractor Edward Snowden leaks classified documents revealing global covert surveillance programs, becoming a whistleblower and international fugitive."
       },
-      // --- Hitman Franchise ---
       { 
         title: "Hitman", 
         category: "Assassination",
@@ -459,8 +398,6 @@
         duration: "1h 36m",
         description: "An assassin genetically engineered from conception to be the perfect killing machine targets a mega-corporation planning to unlock the secret of his past."
       },
-
-      // --- The Expendables Series ---
       { 
         title: "The Expendables", 
         category: "Mercenary Action",
@@ -497,8 +434,6 @@
         duration: "1h 43m",
         description: "Armed with every weapon they can get their hands on, the Expendables are the world's last line of defense called when all other options are off the table." 
       },
-
-      // --- Jason Bourne Franchise ---
       { 
         title: "The Bourne Identity", 
         category: "Covert Ops",
@@ -544,36 +479,33 @@
         duration: "2h 03m",
         description: "Emerging from the shadows years after his disappearance, Jason Bourne uncovers troubling truths about his father's involvement in the creation of Treadstone."
       },
-      // --- Kingsman Series ---
-  { 
-    title: "Kingsman: The Secret Service", 
-    category: "Espionage", 
-    video: "https://mega.nz/embed/orRGUbhS#wdkq3ELMC6PW6Cq6ed-BgVnKJJM_jTyRmypFKdyQQ1o", 
-    image: "https://image.tmdb.org/t/p/w500/r6q9wZK5a2K51KFj4LWVID6Ja1r.jpg", 
-    year: 2014,
-    duration: "2h 09m",
-    description: "A spy organization recruits a promising street kid into the agency's ultra-competitive training program just as a twisted tech genius unleashes a global threat."
-  },
-  { 
-    title: "Kingsman: The Golden Circle", 
-    category: "Espionage", 
-    video: "https://mega.nz/embed/Cehx2R4I#tNE6kVJGM_0rNaEHrlDr6lVCC3SgHta_mbnDAKm_qfo", 
-    image: "https://image.tmdb.org/t/p/w500/34xBL6BXNYFqtHO9zhcgoakS4aP.jpg", 
-    year: 2017,
-    duration: "2h 21m",
-    description: "When the Kingsman headquarters are blown up, the surviving agents team up with an allied spy organization in the United States known as Statesman to defeat a ruthless common enemy."
-  },
-  { 
-    title: "The King's Man", 
-    category: "Espionage", 
-    video: "https://mega.nz/embed/E6IxkAqD#KneHIH2sg_lD_nVzQKeuVbgRFkl3Kt8nYqi2x8TD260", 
-    image: "https://image.tmdb.org/t/p/w500/iMjSfMUuCkCE7z5fzGtjeDusPD3.jpg", 
-    year: 2021,
-    duration: "2h 11m",
-    description: "In the early years of the 20th century, the Kingsman agency is formed to stand against a cabal of history's worst tyrants plotting a war to wipe out millions."
-  },
-
-      // --- Jack Ryan / Tom Clancy Series ---
+      { 
+        title: "Kingsman: The Secret Service", 
+        category: "Espionage", 
+        video: "https://mega.nz/embed/orRGUbhS#wdkq3ELMC6PW6Cq6ed-BgVnKJJM_jTyRmypFKdyQQ1o", 
+        image: "https://image.tmdb.org/t/p/w500/r6q9wZK5a2K51KFj4LWVID6Ja1r.jpg", 
+        year: 2014,
+        duration: "2h 09m",
+        description: "A spy organization recruits a promising street kid into the agency's ultra-competitive training program just as a twisted tech genius unleashes a global threat."
+      },
+      { 
+        title: "Kingsman: The Golden Circle", 
+        category: "Espionage", 
+        video: "https://mega.nz/embed/Cehx2R4I#tNE6kVJGM_0rNaEHrlDr6lVCC3SgHta_mbnDAKm_qfo", 
+        image: "https://image.tmdb.org/t/p/w500/34xBL6BXNYFqtHO9zhcgoakS4aP.jpg", 
+        year: 2017,
+        duration: "2h 21m",
+        description: "When the Kingsman headquarters are blown up, the surviving agents team up with an allied spy organization in the United States known as Statesman to defeat a ruthless common enemy."
+      },
+      { 
+        title: "The King's Man", 
+        category: "Espionage", 
+        video: "https://mega.nz/embed/E6IxkAqD#KneHIH2sg_lD_nVzQKeuVbgRFkl3Kt8nYqi2x8TD260", 
+        image: "https://image.tmdb.org/t/p/w500/iMjSfMUuCkCE7z5fzGtjeDusPD3.jpg", 
+        year: 2021,
+        duration: "2h 11m",
+        description: "In the early years of the 20th century, the Kingsman agency is formed to stand against a cabal of history's worst tyrants plotting a war to wipe out millions."
+      },
       {
         title: "The Hunt for Red October",
         category: "Military Intelligence",
@@ -637,8 +569,6 @@
         year: 2026,
         duration: "1h 55m"
       },
-
-      // --- Mission: Impossible Series ---
       { 
         title: "Mission: Impossible", 
         category: "Espionage",
@@ -711,8 +641,6 @@
         duration: "2h 30m",
         description: "Our lives are the sum of our choices. Ethan Hunt enters the deep end to settle scores and permanently eliminate the threat of 'The Entity' AI network once and for all."
       },
-
-      // --- Sniper / Marksman Series ---
       { 
         title: "The Day of the Jackal", 
         category: "Sniper & Tactical",
@@ -875,8 +803,6 @@
         duration: "2h 13m",
         description: "Navy SEAL sniper Chris Kyle's pinpoint accuracy saves countless lives on the battlefield and turns him into a legend."
       },
-
-      // --- Taken Series ---
       { 
         title: "Taken", 
         category: "Tactical Action",
@@ -904,8 +830,6 @@
         duration: "1h 55m",
         description: "Accused of a ruthless murder he didn't commit, Bryan Mills uses his lethal skills to elude law enforcement and track down the real killers."
       },
-
-      // --- Has Fallen Series ---
       { 
         title: "Olympus Has Fallen", 
         category: "Tactical Action",
@@ -934,295 +858,261 @@
         description: "Secret Service Agent Mike Banning is framed for an assassination attempt on the President and must evade his own agency and the FBI to uncover the real threat."
       },
       {
-    title: "Hunter Killer",
-    category: "Submarine Tactical",
-    year: 2018,
-    duration: "2h 01m",
-    rating: "6.6/10",
-    description: "An untested American submarine captain teams with U.S. Navy SEALs to rescue the kidnapped Russian president and avert World War III.",
-    image: "https://image.tmdb.org/t/p/w500/a0j18XNVhP4RcW3wXwsqT0kVoQm.jpg",
-    video: "https://mega.nz/embed/EvERXbjI#gezan7Pvoo3C7-msqhyT9oAVP4ir4cpq5eQ7VXMKhNA"
-  },
-
-  // --- Hellboy Series ---
-  {
-    title: "Hellboy",
-    category: "Action Fantasy",
-    year: 2004,
-    duration: "2h 02m",
-    rating: "6.8/10",
-    description: "A demon summoned by Nazi occultists during World War II is saved by Allied forces and raised to fight supernatural dark forces as part of the B.P.R.D.",
-    image: "https://image.tmdb.org/t/p/original/hjblR6bPZR0PvFwztHcEBCjYf7d.jpg",
-    video: "https://mega.nz/embed/t3MVAbCJ#XiW4sIwArWg0UDEphIFk8Yj9nL6vAvAdSyiECEFK1N8"
-  },
-  {
-    title: "Hellboy II: The Golden Army",
-    category: "Action Fantasy",
-    year: 2008,
-    duration: "2h 00m",
-    rating: "7.0/10",
-    description: "An ancient elf prince breaks an old pact with humanity and seeks to awaken an unstoppable mythical army to destroy the modern world.",
-    image: "https://image.tmdb.org/t/p/w342/zO0Wdrxnhx3KoJEvychSmnY3urC.jpg",
-    video: "https://mega.nz/embed/JuNwDAyT#oR9Pak9l_f0MK5YRICLB1pjC58nnrUDMLI2j1OFrVhk"
-  },
-  {
-    title: "Hellboy",
-    category: "Action Horror",
-    year: 2019,
-    duration: "2h 01m",
-    rating: "5.2/10",
-    description: "Hellboy travels to the UK to confront an ancient resurrected sorceress, Nimue the Blood Queen, who is bent on bringing apocalyptic ruin to humanity.",
-    image: "https://i.ebayimg.com/images/g/ZIIAAOSwcOdi~OLn/s-l1200.jpg",
-    video: "https://mega.nz/embed/4yMl1KoJ#6vZiW6sPrsbuRbbVxPAqhYn3-2jypzwqOrNXuv6v7wo"
-  },
-  {
-    title: "Hellboy: The Crooked Man",
-    category: "Action Horror",
-    year: 2024,
-    duration: "1h 39m",
-    rating: "5.5/10",
-    description: "In the 1950s, Hellboy and a rookie B.P.R.D. agent become stranded in rural Appalachia, where they discover a small community haunted by witches led by the sinister Crooked Man.",
-    image: "https://i.ebayimg.com/images/g/JXwAAOSwN5pm5GPS/s-l400.jpg",
-    video: "https://mega.nz/embed/ljVmgI6A#bdu8qYCQmoE9Njs8PexMDtZSqA-luVaQJ85dfzk_gWg"
-  },
-
-  // --- xXx Series ---
-  {
-    title: "xXx",
-    category: "Covert Ops",
-    year: 2002,
-    duration: "2h 04m",
-    rating: "5.8/10",
-    description: "An extreme sports athlete is recruited by the government to infiltrate an underground Russian crime ring planning a bio-chemical attack.",
-    image: "https://image.tmdb.org/t/p/w500/xeEw3eLeSFmJgXZzmF2Efww0q3s.jpg",
-    video: "00"
-  },
-  {
-    title: "xXx: State of the Union",
-    category: "Covert Ops",
-    year: 2005,
-    duration: "1h 41m",
-    rating: "4.5/10",
-    description: "Darius Stone, a new agent in the XXX program, is sent to Washington, D.C. to defuse a military coup aiming to overthrow the U.S. President.",
-    image: "https://m.media-amazon.com/images/M/MV5BMzI2ODc1M2EtYzhkNy00NThlLTg0YTktNDQ5MDU0ZTdkOTljXkEyXkFqcGc@._V1_.jpg",
-    video: "https://mega.nz/embed/ZjlT2TQZ#JVVVwC-QPKwDzwAhDQLQ46QIEvwWUPIcEBO56An08qg"
-  },
-  {
-    title: "xXx: Return of Xander Cage",
-    category: "Covert Ops",
-    year: 2017,
-    duration: "1h 47m",
-    rating: "5.2/10",
-    description: "Xander Cage comes out of self-imposed exile to race a dangerous mercenary team to recover a sinister weapon known as Pandora's Box.",
-    image: "https://image.tmdb.org/t/p/w780/hba8zREJpP1AYhaXgb2oJLQeO0K.jpg",
-    video: "https://mega.nz/embed/gy0iFCwL#BVyHpZq7VfVoHb4WGmNXd418l_0m0toZyJ_KtGkWZyw"
-  },
-
-  // --- Men in Black Franchise ---
-  {
-    title: "Men in Black",
-    category: "Sci-Fi Espionage",
-    year: 1997,
-    duration: "1h 38m",
-    rating: "7.3/10",
-    description: "A streetwise NYPD detective joins a secret organization that monitors extraterrestrial activity on Earth.",
-    image: "https://i.ebayimg.com/images/g/hZwAAOSw4DJYlf9S/s-l400.jpg",
-    video: "https://mega.nz/embed/p65w1QQL#pckEtpEVJg-UKsvUrW5o0LbmqF4OwTErADMF4x-_DCk"
-  },
-  {
-    title: "Men in Black II",
-    category: "Sci-Fi Espionage",
-    year: 2002,
-    duration: "1h 28m",
-    rating: "6.2/10",
-    description: "Agent J needs help resolving a cosmic crisis, requiring him to restore the memories of his retired former partner, Agent K.",
-    image: "https://image.tmdb.org/t/p/original/enA22EPyzc2WQ1VVyY7zxresQQr.jpg",
-    video: "https://mega.nz/embed/MrJzxDCI#JuZxCDJrUOJsPL6mZ5A3lUMtyGsxy9JHpta-qlLbxsE"
-  },
-  {
-    title: "Men in Black 3",
-    category: "Sci-Fi Espionage",
-    year: 2012,
-    duration: "1h 46m",
-    rating: "6.8/10",
-    description: "Agent J travels back in time to 1969 to stop an alien assassin from altering history and killing a young Agent K.",
-    image: "https://cdn.kinocheck.com/i/w=1200/8ihiis7t99.jpg",
-    video: "https://mega.nz/embed/x7pm2CRA#q5etjijRNy9rg84br6aUJjOpBcvb9ze-jr4jYaKWhQc"
-  },
-  {
-    title: "Men in Black: International",
-    category: "Sci-Fi Espionage",
-    year: 2019,
-    duration: "1h 54m",
-    rating: "5.6/10",
-    description: "The Men in Black tackle their biggest, most global threat to date: a mole within the organization.",
-    image: "https://images.squarespace-cdn.com/content/v1/537007efe4b074eafa50d65c/1566080724075-75X7QCFOWYKMF5H7DJXD/men-in-black-international-spanish-movie-poster-39-1560646358.jpg",
-    video: "https://mega.nz/embed/4nJlCJZR#sYlbXH_wWrQRQIEP9q89c7HFphVP5W8mNnvlgKVPsRg"
-  },
-
-  // --- The Equalizer Franchise ---
-  {
-    title: "The Equalizer",
-    category: "Vigilante Action",
-    year: 2014,
-    duration: "2h 12m",
-    rating: "7.2/10",
-    description: "A man who believes he has put his mysterious past behind him cannot stand idly by when he meets a young girl under the control of ultra-violent Russian gangsters.",
-    image: "https://occ-0-90-92.1.nflxso.net/dnm/api/v6/mAcAr9TxZIVbINe88xb3Teg5_OA/AAAABQBmAQmHSvV2zD2f2QNhWsVDaJtxm8yFs4F4sAn6yiR84b3PFxa183FzGiZAYrSMUBKJKaHI5TZ7-756TWthA64zmOIygs3sZl6p.jpg?r=442",
-    video: "https://mega.nz/embed/aSpF0ZSD#N2oPHT1p5toZk4oExBkec0D6BOjtvsXaGd7RMDcRwyk"
-  },
-  {
-    title: "The Equalizer 2",
-    category: "Vigilante Action",
-    year: 2018,
-    duration: "2h 01m",
-    rating: "6.7/10",
-    description: "Robert McCall serves unflinching justice for the exploited and oppressed, but how far will he go when that mission targets someone he loves?",
-    image: "https://occ-0-76-92.1.nflxso.net/dnm/api/v6/mAcAr9TxZIVbINe88xb3Teg5_OA/AAAABZ2EJdPmJg82HVzO2JPezMYAREiKtAPdebnDNHVv4Yb-jFjPYRDtOvD_KFPvj4HpEEaJ36hVUIL3ydFcEfYlr5m-iu4nHxAG_Rlw.jpg?r=6fa",
-    video: "https://mega.nz/embed/OXgxmTRa#bCj91y_iRYHwx5BajX4X591vIOz_fPQfGeWXZ8z2BYY"
-  },
-  {
-    title: "The Equalizer 3",
-    category: "Vigilante Action",
-    year: 2023,
-    duration: "1h 49m",
-    rating: "6.8/10",
-    description: "Robert McCall finds himself at home in Southern Italy but discovers his new friends are under the control of local crime bosses. As events turn deadly, McCall knows what he has to do.",
-    image: "https://images.plex.tv/photo?size=large-1920&scale=1&url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2F9kfTUY3zJKX2rSfgSJJUuxGE3DN.jpg",
-    video: "https://mega.nz/embed/SCQWVDLK#t4oFV7wderiDQbTP3TCVB3xFb0Z5XGr4o0lFjJxyi34"
-  },
-
-  // --- Behind Enemy Lines Series ---
-  {
-    title: "Behind Enemy Lines",
-    category: "Military Tactical",
-    year: 2001,
-    duration: "1h 46m",
-    rating: "6.4/10",
-    description: "A disillusioned navigator, shot down over war-torn Bosnia, goes on the run from the local military as well as an assassin, while his commanding officer risks all to save him.",
-    image: "https://image.tmdb.org/t/p/original/fZReMWU3zszvaktDUqOoWCzHssZ.jpg",
-    video: "https://mega.nz/embed/tyclSA5I#0zNL8Y3Cy-Ma1DkqLCt7b9Ef6JYQOy99xZ9hbu-FPZs"
-  },
-  {
-    title: "Behind Enemy Lines II: Axis of Evil",
-    category: "Military Tactical",
-    year: 2006,
-    duration: "1h 36m",
-    rating: "5.1/10",
-    description: "Navy SEALS, headed by Lt. Bobby James, are dispatched to North Korea on a covert mission, all in an effort to take out a missile site...",
-    image: "https://m.media-amazon.com/images/M/MV5BMjMxMTY4MjMyOV5BMl5BanBnXkFtZTgwMzQ0NjAwNzE@._V1_FMjpg_UX1000_.jpg",
-    video: "https://mega.nz/embed/o6N2yZQR#hQ4GVoLbz7aYz78OQzAELmxCK2OfS0zyiF9w8YAhRYE"
-  },
-  {
-    title: "Behind Enemy Lines: Colombia",
-    category: "Military Tactical",
-    year: 2009,
-    duration: "1h 24m",
-    rating: "4.7/10",
-    description: "Navy SEALS mount an attack on Colombian special forces to clear their names and rescue a hostage.",
-    image: "https://resizing.flixster.com/fVi3X-OgG4LhMHC3_blWWvUie3g=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p193356_p_v8_ae.jpg",
-    video: "https://mega.nz/embed/Uu1HiJzR#0YcBlWtF541Kued2d5oW3Ru3nRf6j4bQrY9_6EGUsnA"
-  },
-  {
-    title: "Seal Team Eight: Behind Enemy Lines",
-    category: "Military Tactical",
-    year: 2014,
-    duration: "1h 38m",
-    rating: "4.5/10",
-    description: "Tom Sizemore stars in the most explosive Behind Enemy Lines yet! Seal Team 8 must fight their way through the Congo to defuse one of the greatest threats the world has ever known.",
-    image: "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p10549987_p_v10_aa.jpg",
-    video: "https://spx.moriartis.store:443/v4/rqz/ielmgx/index-f2-v1-a1.txt"
-  },
-  {
-    title: "The 355",
-    category: "Espionage",
-    year: 2022,
-    duration: "2h 02m",
-    rating: "5.6/10",
-    description: "When a top-secret weapon falls into mercenary hands, a wild card CIA agent joins forces with three international agents on a lethal mission to retrieve it.",
-    image: "https://image.tmdb.org/t/p/w500/xef9Ht77B2igqZv754HNdW8qZCk.jpg",
-    video: "https://mega.nz/embed/cjFSSY7L#DwbWQM8zXGRp1vuLkgI9j00GQts9OFyfG_tXlY3ZOTQ"
-  },
-  {
-    title: "The Courier",
-    category: "Cold War Intelligence",
-    year: 2020,
-    duration: "1h 52m",
-    rating: "7.2/10",
-    description: "Cold War businessman Greville Wynne and his Russian source try to end the Cuban Missile Crisis after being recruited by MI6 and the CIA.",
-    image: "https://image.tmdb.org/t/p/w500/zFIjKtZrzhmc7HecdFXXjsLR2Ig.jpg",
-    video: "https://mega.nz/embed/w3kimApa#vVlCe9HEoK1z9ChWBN-alr_-cAGcWMW_YoWna3M0VBs"
-  },
-  {
-    title: "The Amateur",
-    category: "Espionage",
-    year: 2025,
-    duration: "2h 00m",
-    rating: "6.5/10",
-    description: "A CIA cryptographer blackmails his agency into training him to hunt down the terrorists who killed his wife in London.",
-    image: "https://image.tmdb.org/t/p/w500/SNEoUInCa5fAgwuEBMIMBGvkkh.jpg",
-    video: "https://mega.nz/embed/V6tFFSzQ#5Zl5oqufdRGXPdlo4pBnBhIoii4eQE6mUM4PpencYVo"
-  },
-  {
-    title: "Heart of Stone",
-    category: "Cyber Intelligence",
-    year: 2023,
-    duration: "2h 02m",
-    rating: "5.7/10",
-    description: "An intelligence operative for a shadowy global peacekeeping agency races to stop a hacker from stealing its most valuable and dangerous weapon.",
-    image: "https://image.tmdb.org/t/p/w500/vB8o2p4ETnrfiWEgVxHmHWP9yRl.jpg",
-    video: "https://mega.nz/embed/YiVSDCpZ#Am371dneoUb1lJXurbRV6qPRQjU0RfysAyF-m2yWxh8"
-  },
-  {
-    title: "Gemini Man",
-    category: "Covert Ops",
-    year: 2019,
-    duration: "1h 57m",
-    rating: "5.7/10",
-    description: "An aging government assassin on the verge of retirement finds himself targeted by a mysterious young operative who can predict his every move.",
-    image: "https://image.tmdb.org/t/p/w500/uTALxjQU8e1lhmNjP9nnJ3t2pRU.jpg",
-    video: "https://mega.nz/embed/QrkEyAAC#dPVB6BTAgE-BNnuYUep4DVX2BLWUwPAX40gnl17B7O4"
-  },
-  {
-    title: "White House Down",
-    category: "Tactical Action",
-    year: 2013,
-    duration: "2h 11m",
-    rating: "6.4/10",
-    description: "While on a tour of the White House with his young daughter, a Capitol police officer springs into action to save his child and protect the President from a heavily armed paramilitary group.",
-    image: "https://image.tmdb.org/t/p/w500/6TeIVKPw7nXXWy2zKmDmlnSwzb7.jpg",
-    video: "https://mega.nz/embed/lz8FGaTC#Vy4nT8DSn5fUZdM8Offlz_3TSdZHmry2NMyfS2Bb7ZM"
-  },
-  {
-    title: "Operation Mincemeat",
-    category: "Military Tactical",
-    year: 2021,
-    duration: "2h 8m",
-    rating: "6.6/10",
-    description: "During WWII, two intelligence officers use a corpse and false papers to outwit German troops.",
-    image: "https://image.tmdb.org/t/p/w500/tfdfh1mK24VujxT5z11732asxdR.jpg",
-    video: "00"
-  }
+        title: "Hunter Killer",
+        category: "Submarine Tactical",
+        year: 2018,
+        duration: "2h 01m",
+        description: "An untested American submarine captain teams with U.S. Navy SEALs to rescue the kidnapped Russian president and avert World War III.",
+        image: "https://image.tmdb.org/t/p/w500/a0j18XNVhP4RcW3wXwsqT0kVoQm.jpg",
+        video: "https://mega.nz/embed/EvERXbjI#gezan7Pvoo3C7-msqhyT9oAVP4ir4cpq5eQ7VXMKhNA"
+      },
+      {
+        title: "Hellboy",
+        category: "Action Fantasy",
+        year: 2004,
+        duration: "2h 02m",
+        description: "A demon summoned by Nazi occultists during World War II is saved by Allied forces and raised to fight supernatural dark forces as part of the B.P.R.D.",
+        image: "https://image.tmdb.org/t/p/original/hjblR6bPZR0PvFwztHcEBCjYf7d.jpg",
+        video: "https://mega.nz/embed/t3MVAbCJ#XiW4sIwArWg0UDEphIFk8Yj9nL6vAvAdSyiECEFK1N8"
+      },
+      {
+        title: "Hellboy II: The Golden Army",
+        category: "Action Fantasy",
+        year: 2008,
+        duration: "2h 00m",
+        description: "An ancient elf prince breaks an old pact with humanity and seeks to awaken an unstoppable mythical army to destroy the modern world.",
+        image: "https://image.tmdb.org/t/p/w342/zO0Wdrxnhx3KoJEvychSmnY3urC.jpg",
+        video: "https://mega.nz/embed/JuNwDAyT#oR9Pak9l_f0MK5YRICLB1pjC58nnrUDMLI2j1OFrVhk"
+      },
+      {
+        title: "Hellboy",
+        category: "Action Horror",
+        year: 2019,
+        duration: "2h 01m",
+        description: "Hellboy travels to the UK to confront an ancient resurrected sorceress, Nimue the Blood Queen, who is bent on bringing apocalyptic ruin to humanity.",
+        image: "https://i.ebayimg.com/images/g/ZIIAAOSwcOdi~OLn/s-l1200.jpg",
+        video: "https://mega.nz/embed/4yMl1KoJ#6vZiW6sPrsbuRbbVxPAqhYn3-2jypzwqOrNXuv6v7wo"
+      },
+      {
+        title: "Hellboy: The Crooked Man",
+        category: "Action Horror",
+        year: 2024,
+        duration: "1h 39m",
+        description: "In the 1950s, Hellboy and a rookie B.P.R.D. agent become stranded in rural Appalachia, where they discover a small community haunted by witches led by the sinister Crooked Man.",
+        image: "https://i.ebayimg.com/images/g/JXwAAOSwN5pm5GPS/s-l400.jpg",
+        video: "https://mega.nz/embed/ljVmgI6A#bdu8qYCQmoE9Njs8PexMDtZSqA-luVaQJ85dfzk_gWg"
+      },
+      {
+        title: "xXx",
+        category: "Covert Ops",
+        year: 2002,
+        duration: "2h 04m",
+        description: "An extreme sports athlete is recruited by the government to infiltrate an underground Russian crime ring planning a bio-chemical attack.",
+        image: "https://image.tmdb.org/t/p/w500/xeEw3eLeSFmJgXZzmF2Efww0q3s.jpg",
+        video: "00"
+      },
+      {
+        title: "xXx: State of the Union",
+        category: "Covert Ops",
+        year: 2005,
+        duration: "1h 41m",
+        description: "Darius Stone, a new agent in the XXX program, is sent to Washington, D.C. to defuse a military coup aiming to overthrow the U.S. President.",
+        image: "https://m.media-amazon.com/images/M/MV5BMzI2ODc1M2EtYzhkNy00NThlLTg0YTktNDQ5MDU0ZTdkOTljXkEyXkFqcGc@._V1_.jpg",
+        video: "https://mega.nz/embed/ZjlT2TQZ#JVVVwC-QPKwDzwAhDQLQ46QIEvwWUPIcEBO56An08qg"
+      },
+      {
+        title: "xXx: Return of Xander Cage",
+        category: "Covert Ops",
+        year: 2017,
+        duration: "1h 47m",
+        description: "Xander Cage comes out of self-imposed exile to race a dangerous mercenary team to recover a sinister weapon known as Pandora's Box.",
+        image: "https://image.tmdb.org/t/p/w780/hba8zREJpP1AYhaXgb2oJLQeO0K.jpg",
+        video: "https://mega.nz/embed/gy0iFCwL#BVyHpZq7VfVoHb4WGmNXd418l_0m0toZyJ_KtGkWZyw"
+      },
+      {
+        title: "Men in Black",
+        category: "Sci-Fi Espionage",
+        year: 1997,
+        duration: "1h 38m",
+        description: "A streetwise NYPD detective joins a secret organization that monitors extraterrestrial activity on Earth.",
+        image: "https://i.ebayimg.com/images/g/hZwAAOSw4DJYlf9S/s-l400.jpg",
+        video: "https://mega.nz/embed/p65w1QQL#pckEtpEVJg-UKsvUrW5o0LbmqF4OwTErADMF4x-_DCk"
+      },
+      {
+        title: "Men in Black II",
+        category: "Sci-Fi Espionage",
+        year: 2002,
+        duration: "1h 28m",
+        description: "Agent J needs help resolving a cosmic crisis, requiring him to restore the memories of his retired former partner, Agent K.",
+        image: "https://image.tmdb.org/t/p/original/enA22EPyzc2WQ1VVyY7zxresQQr.jpg",
+        video: "https://mega.nz/embed/MrJzxDCI#JuZxCDJrUOJsPL6mZ5A3lUMtyGsxy9JHpta-qlLbxsE"
+      },
+      {
+        title: "Men in Black 3",
+        category: "Sci-Fi Espionage",
+        year: 2012,
+        duration: "1h 46m",
+        description: "Agent J travels back in time to 1969 to stop an alien assassin from altering history and killing a young Agent K.",
+        image: "https://cdn.kinocheck.com/i/w=1200/8ihiis7t99.jpg",
+        video: "https://mega.nz/embed/x7pm2CRA#q5etjijRNy9rg84br6aUJjOpBcvb9ze-jr4jYaKWhQc"
+      },
+      {
+        title: "Men in Black: International",
+        category: "Sci-Fi Espionage",
+        year: 2019,
+        duration: "1h 54m",
+        description: "The Men in Black tackle their biggest, most global threat to date: a mole within the organization.",
+        image: "https://images.squarespace-cdn.com/content/v1/537007efe4b074eafa50d65c/1566080724075-75X7QCFOWYKMF5H7DJXD/men-in-black-international-spanish-movie-poster-39-1560646358.jpg",
+        video: "https://mega.nz/embed/4nJlCJZR#sYlbXH_wWrQRQIEP9q89c7HFphVP5W8mNnvlgKVPsRg"
+      },
+      {
+        title: "The Equalizer",
+        category: "Vigilante Action",
+        year: 2014,
+        duration: "2h 12m",
+        description: "A man who believes he has put his mysterious past behind him cannot stand idly by when he meets a young girl under the control of ultra-violent Russian gangsters.",
+        image: "https://occ-0-90-92.1.nflxso.net/dnm/api/v6/mAcAr9TxZIVbINe88xb3Teg5_OA/AAAABQBmAQmHSvV2zD2f2QNhWsVDaJtxm8yFs4F4sAn6yiR84b3PFxa183FzGiZAYrSMUBKJKaHI5TZ7-756TWthA64zmOIygs3sZl6p.jpg?r=442",
+        video: "https://mega.nz/embed/aSpF0ZSD#N2oPHT1p5toZk4oExBkec0D6BOjtvsXaGd7RMDcRwyk"
+      },
+      {
+        title: "The Equalizer 2",
+        category: "Vigilante Action",
+        year: 2018,
+        duration: "2h 01m",
+        description: "Robert McCall serves unflinching justice for the exploited and oppressed, but how far will he go when that mission targets someone he loves?",
+        image: "https://occ-0-76-92.1.nflxso.net/dnm/api/v6/mAcAr9TxZIVbINe88xb3Teg5_OA/AAAABZ2EJdPmJg82HVzO2JPezMYAREiKtAPdebnDNHVv4Yb-jFjPYRDtOvD_KFPvj4HpEEaJ36hVUIL3ydFcEfYlr5m-iu4nHxAG_Rlw.jpg?r=6fa",
+        video: "https://mega.nz/embed/OXgxmTRa#bCj91y_iRYHwx5BajX4X591vIOz_fPQfGeWXZ8z2BYY"
+      },
+      {
+        title: "The Equalizer 3",
+        category: "Vigilante Action",
+        year: 2023,
+        duration: "1h 49m",
+        description: "Robert McCall finds himself at home in Southern Italy but discovers his new friends are under the control of local crime bosses. As events turn deadly, McCall knows what he has to do.",
+        image: "https://images.plex.tv/photo?size=large-1920&scale=1&url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2F9kfTUY3zJKX2rSfgSJJUuxGE3DN.jpg",
+        video: "https://mega.nz/embed/SCQWVDLK#t4oFV7wderiDQbTP3TCVB3xFb0Z5XGr4o0lFjJxyi34"
+      },
+      {
+        title: "Behind Enemy Lines",
+        category: "Military Tactical",
+        year: 2001,
+        duration: "1h 46m",
+        description: "A disillusioned navigator, shot down over war-torn Bosnia, goes on the run from the local military as well as an assassin, while his commanding officer risks all to save him.",
+        image: "https://image.tmdb.org/t/p/original/fZReMWU3zszvaktDUqOoWCzHssZ.jpg",
+        video: "https://mega.nz/embed/tyclSA5I#0zNL8Y3Cy-Ma1DkqLCt7b9Ef6JYQOy99xZ9hbu-FPZs"
+      },
+      {
+        title: "Behind Enemy Lines II: Axis of Evil",
+        category: "Military Tactical",
+        year: 2006,
+        duration: "1h 36m",
+        description: "Navy SEALS, headed by Lt. Bobby James, are dispatched to North Korea on a covert mission, all in an effort to take out a missile site...",
+        image: "https://m.media-amazon.com/images/M/MV5BMjMxMTY4MjMyOV5BMl5BanBnXkFtZTgwMzQ0NjAwNzE@._V1_FMjpg_UX1000_.jpg",
+        video: "https://mega.nz/embed/o6N2yZQR#hQ4GVoLbz7aYz78OQzAELmxCK2OfS0zyiF9w8YAhRYE"
+      },
+      {
+        title: "Behind Enemy Lines: Colombia",
+        category: "Military Tactical",
+        year: 2009,
+        duration: "1h 24m",
+        description: "Navy SEALS mount an attack on Colombian special forces to clear their names and rescue a hostage.",
+        image: "https://resizing.flixster.com/fVi3X-OgG4LhMHC3_blWWvUie3g=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p193356_p_v8_ae.jpg",
+        video: "https://mega.nz/embed/Uu1HiJzR#0YcBlWtF541Kued2d5oW3Ru3nRf6j4bQrY9_6EGUsnA"
+      },
+      {
+        title: "Seal Team Eight: Behind Enemy Lines",
+        category: "Military Tactical",
+        year: 2014,
+        duration: "1h 38m",
+        description: "Tom Sizemore stars in the most explosive Behind Enemy Lines yet! Seal Team 8 must fight their way through the Congo to defuse one of the greatest threats the world has ever known.",
+        image: "https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p10549987_p_v10_aa.jpg",
+        video: "https://spx.moriartis.store:443/v4/rqz/ielmgx/index-f2-v1-a1.txt"
+      },
+      {
+        title: "The 355",
+        category: "Espionage",
+        year: 2022,
+        duration: "2h 02m",
+        description: "When a top-secret weapon falls into mercenary hands, a wild card CIA agent joins forces with three international agents on a lethal mission to retrieve it.",
+        image: "https://image.tmdb.org/t/p/w500/xef9Ht77B2igqZv754HNdW8qZCk.jpg",
+        video: "https://mega.nz/embed/cjFSSY7L#DwbWQM8zXGRp1vuLkgI9j00GQts9OFyfG_tXlY3ZOTQ"
+      },
+      {
+        title: "The Courier",
+        category: "Cold War Intelligence",
+        year: 2020,
+        duration: "1h 52m",
+        description: "Cold War businessman Greville Wynne and his Russian source try to end the Cuban Missile Crisis after being recruited by MI6 and the CIA.",
+        image: "https://image.tmdb.org/t/p/w500/zFIjKtZrzhmc7HecdFXXjsLR2Ig.jpg",
+        video: "https://mega.nz/embed/w3kimApa#vVlCe9HEoK1z9ChWBN-alr_-cAGcWMW_YoWna3M0VBs"
+      },
+      {
+        title: "The Amateur",
+        category: "Espionage",
+        year: 2025,
+        duration: "2h 00m",
+        description: "A CIA cryptographer blackmails his agency into training him to hunt down the terrorists who killed his wife in London.",
+        image: "https://image.tmdb.org/t/p/w500/SNEoUInCa5fAgwuEBMIMBGvkkh.jpg",
+        video: "https://mega.nz/embed/V6tFFSzQ#5Zl5oqufdRGXPdlo4pBnBhIoii4eQE6mUM4PpencYVo"
+      },
+      {
+        title: "Heart of Stone",
+        category: "Cyber Intelligence",
+        year: 2023,
+        duration: "2h 02m",
+        description: "An intelligence operative for a shadowy global peacekeeping agency races to stop a hacker from stealing its most valuable and dangerous weapon.",
+        image: "https://image.tmdb.org/t/p/w500/vB8o2p4ETnrfiWEgVxHmHWP9yRl.jpg",
+        video: "https://mega.nz/embed/YiVSDCpZ#Am371dneoUb1lJXurbRV6qPRQjU0RfysAyF-m2yWxh8"
+      },
+      {
+        title: "Gemini Man",
+        category: "Covert Ops",
+        year: 2019,
+        duration: "1h 57m",
+        description: "An aging government assassin on the verge of retirement finds himself targeted by a mysterious young operative who can predict his every move.",
+        image: "https://image.tmdb.org/t/p/w500/uTALxjQU8e1lhmNjP9nnJ3t2pRU.jpg",
+        video: "https://mega.nz/embed/QrkEyAAC#dPVB6BTAgE-BNnuYUep4DVX2BLWUwPAX40gnl17B7O4"
+      },
+      {
+        title: "White House Down",
+        category: "Tactical Action",
+        year: 2013,
+        duration: "2h 11m",
+        description: "While on a tour of the White House with his young daughter, a Capitol police officer springs into action to save his child and protect the President from a heavily armed paramilitary group.",
+        image: "https://image.tmdb.org/t/p/w500/6TeIVKPw7nXXWy2zKmDmlnSwzb7.jpg",
+        video: "https://mega.nz/embed/lz8FGaTC#Vy4nT8DSn5fUZdM8Offlz_3TSdZHmry2NMyfS2Bb7ZM"
+      },
+      {
+        title: "Operation Mincemeat",
+        category: "Military Tactical",
+        year: 2021,
+        duration: "2h 8m",
+        description: "During WWII, two intelligence officers use a corpse and false papers to outwit German troops.",
+        image: "https://image.tmdb.org/t/p/w500/tfdfh1mK24VujxT5z11732asxdR.jpg",
+        video: "https://mega.nz/embed/ozlinZzS#zjhibPFiPyq7aYHYj7fPcEObvKGnQH81vptUnN_4Dj8"
+      }
     ];
+
+    // Standardize category labels for all movies
+    movies.forEach(m => {
+      m.normCategory = normalizeCategory(m.category);
+    });
 
     let activeCategory = "All";
     let searchQuery = "";
 
-    /******************************
-     * Search & Filter Logic
-     ******************************/
     const container = document.getElementById('movies');
     const searchInput = document.getElementById('searchInput');
     const categoryContainer = document.getElementById('categoryContainer');
 
     function buildCategoryFilters() {
-      // Collect unique categories dynamically
-      const categories = ["All", ...new Set(movies.map(m => m.category || "Uncategorized"))];
+      // Clean, minimal category list
+      const categories = ["All", "Action & Ops", "Espionage & Intel", "Sniper & Tactical", "Psychological & Thriller", "Sci-Fi & Fantasy"];
       categoryContainer.innerHTML = '';
 
       categories.forEach(cat => {
         const btn = document.createElement('button');
-        btn.className = `category-btn text-xs sm:text-sm font-rajdhani px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg whitespace-nowrap uppercase tracking-wider ${cat === activeCategory ? 'active' : ''}`;
+        btn.className = `category-btn text-xs font-rajdhani px-3 py-1.5 rounded-md uppercase tracking-wider ${cat === activeCategory ? 'active' : ''}`;
         btn.textContent = cat;
         btn.addEventListener('click', () => {
           activeCategory = cat;
@@ -1234,21 +1124,35 @@
       });
     }
 
+    /* Debounce helper for lag-free search typing */
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
     function applyFilters() {
       const filtered = movies.filter(movie => {
-        const matchesCat = activeCategory === "All" || (movie.category || "Uncategorized") === activeCategory;
-        const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                              (movie.description && movie.description.toLowerCase().includes(searchQuery.toLowerCase()));
+        const matchesCat = activeCategory === "All" || movie.normCategory === activeCategory;
+        const matchesSearch = !searchQuery || 
+                              movie.title.toLowerCase().includes(searchQuery) || 
+                              (movie.description && movie.description.toLowerCase().includes(searchQuery));
         return matchesCat && matchesSearch;
       });
 
       renderMovies(filtered);
     }
 
-    searchInput.addEventListener('input', (e) => {
-      searchQuery = e.target.value.trim();
+    searchInput.addEventListener('input', debounce((e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
       applyFilters();
-    });
+    }, 150));
 
     /******************************
      * DOM Refs for Modal Controls
@@ -1316,9 +1220,9 @@
       if (!src || src === "00") {
         playerWrapper.innerHTML = `
           <div class="flex flex-col items-center justify-center h-full text-center p-6 text-gray-400 font-mono-tech">
-            <i class="fas fa-user-shield text-4xl text-red-500 mb-3"></i>
-            <p class="text-sm">TACTICAL SOURCE UNCONNECTED [ERR: 00]</p>
-            <p class="text-xs text-gray-500 mt-1">STREAM FILE PURGED OR TEMPORARILY OFFLINE</p>
+            <i class="fas fa-user-shield text-3xl text-red-500 mb-2"></i>
+            <p class="text-xs">TACTICAL SOURCE UNCONNECTED [ERR: 00]</p>
+            <p class="text-[10px] text-gray-500 mt-1">STREAM FILE PURGED OR TEMPORARILY OFFLINE</p>
           </div>`;
         return;
       }
@@ -1327,7 +1231,7 @@
 
       if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
         playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
         return;
       }
 
@@ -1343,7 +1247,7 @@
           }
         } catch (e) {}
         playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
         return;
       }
 
@@ -1358,12 +1262,12 @@
           } catch (e) { console.warn('HLS attach error', e); }
           currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
             v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
           });
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
         }
         return;
       }
@@ -1373,12 +1277,10 @@
         if (v) {
           v.src = src;
           v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
         }
         return;
       }
-
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
     function togglePlayPause() {
@@ -1386,10 +1288,10 @@
       if (!v) return;
       if (v.paused) {
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
       } else {
         v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
       }
     }
     function playNext() {
@@ -1430,7 +1332,7 @@
       hideModal();
       currentIndex = null;
       currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
     }
 
     playPauseBtn.addEventListener('click', togglePlayPause);
@@ -1464,12 +1366,15 @@
       container.innerHTML = '';
       if (moviesToRender.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full py-16 text-center font-mono-tech text-gray-500">
-            <i class="fas fa-search-minus text-4xl mb-3 text-red-500/50"></i>
-            <p>NO CLASSIFIED FILES FOUND MATCHING SPECIFIED CRITERIA.</p>
+          <div class="col-span-full py-12 text-center font-mono-tech text-gray-500">
+            <i class="fas fa-search-minus text-3xl mb-2 text-red-500/50"></i>
+            <p class="text-xs">NO CLASSIFIED FILES FOUND MATCHING SPECIFIED CRITERIA.</p>
           </div>`;
         return;
       }
+
+      // Fast DocumentFragment rendering to prevent layout thrashing
+      const fragment = document.createDocumentFragment();
 
       moviesToRender.forEach((movie, index) => {
         const posterSrc = (movie.image && movie.image !== "00") 
@@ -1477,23 +1382,23 @@
           : `https://via.placeholder.com/500x750/0f172a/ef4444?text=${encodeURIComponent(movie.title)}`;
 
         const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in rounded-xl overflow-hidden cursor-pointer relative group flex flex-col justify-between`;
+        div.className = `movie-card rounded-lg overflow-hidden cursor-pointer relative group flex flex-col justify-between`;
         div.innerHTML = `
-          <div class="relative overflow-hidden">
-            <img src="${posterSrc}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
-              <button class="bg-red-600 hover:bg-red-500 text-white font-rajdhani font-bold py-2.5 px-4 rounded transition transform hover:scale-105 shadow-[0_0_15px_rgba(239,68,68,0.8)] text-xs flex items-center gap-2 tracking-wider">
-                <i class="fas fa-play"></i> EXECUTE FILE
+          <div class="relative overflow-hidden bg-slate-950">
+            <img loading="lazy" src="${posterSrc}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center p-2">
+              <button class="bg-red-600 hover:bg-red-500 text-white font-rajdhani font-bold py-1.5 px-3 rounded text-xs flex items-center gap-1.5 tracking-wider">
+                <i class="fas fa-play text-[10px]"></i> PLAY
               </button>
             </div>
-            ${movie.category ? `<span class="absolute top-2 left-2 bg-slate-950/80 border border-red-500/30 text-red-400 text-[10px] font-mono-tech px-2 py-0.5 rounded backdrop-blur-sm">${movie.category}</span>` : ''}
+            ${movie.normCategory ? `<span class="absolute top-1.5 left-1.5 bg-slate-950/90 border border-red-500/30 text-red-400 text-[9px] font-mono-tech px-1.5 py-0.5 rounded">${movie.normCategory}</span>` : ''}
           </div>
-          <div class="p-4 flex flex-col justify-between flex-1">
+          <div class="p-2.5 flex flex-col justify-between flex-1">
             <div>
-              <h3 class="font-rajdhani font-bold text-lg text-red-400 truncate tracking-wide">${movie.title}</h3>
-              <p class="text-xs text-gray-400 mt-1 line-clamp-2">${movie.description}</p>
+              <h3 class="font-rajdhani font-bold text-sm text-red-400 truncate tracking-wide">${movie.title}</h3>
+              <p class="text-[11px] text-gray-400 mt-0.5 line-clamp-2 leading-tight">${movie.description}</p>
             </div>
-            <div class="flex justify-between items-center mt-3 pt-2 border-t border-red-500/20 text-xs font-mono-tech text-red-400/80">
+            <div class="flex justify-between items-center mt-2 pt-1.5 border-t border-red-500/20 text-[10px] font-mono-tech text-red-400/80">
               <span><i class="far fa-calendar-alt mr-1"></i>${movie.year}</span>
               <span><i class="far fa-clock mr-1"></i>${movie.duration || 'N/A'}</span>
             </div>
@@ -1504,393 +1409,16 @@
           openPlayer(moviesToRender, index);
         });
 
-        container.appendChild(div);
+        fragment.appendChild(div);
       });
+
+      container.appendChild(fragment);
     }
 
     // Initialize UI
     buildCategoryFilters();
     applyFilters();
-
-    /******************************
-     * Tactical Spark Particle Effect
-     ******************************/
-    const canvas = document.getElementById('sparkCanvasPage');
-    const ctx = canvas.getContext('2d');
-    const sparks = [];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const easing = t => t * (2 - t);
-    const dur = 300, count = 6, size = 8, radius = 12, color = '#ef4444';
-
-    function drawSparks() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const now = performance.now();
-      for (let i = sparks.length - 1; i >= 0; i--) {
-        const s = sparks[i];
-        const el = now - s.t;
-        if (el >= dur) {
-          sparks.splice(i, 1);
-          continue;
-        }
-        const p = el / dur;
-        const e = easing(p);
-        const d = e * radius;
-        const l = size * (1 - e);
-        const x1 = s.x + d * Math.cos(s.a);
-        const y1 = s.y + d * Math.sin(s.a);
-        const x2 = s.x + (d + l) * Math.cos(s.a);
-        const y2 = s.y + (d + l) * Math.sin(s.a);
-        
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-      }
-      requestAnimationFrame(drawSparks);
-    }
-    requestAnimationFrame(drawSparks);
-
-    document.addEventListener('click', (e) => {
-      for (let i = 0; i < count; i++) {
-        sparks.push({
-          x: e.clientX,
-          y: e.clientY,
-          a: (2 * Math.PI * i) / count,
-          t: performance.now()
-        });
-      }
-    });
 </script>
-<!-- ========================================================= -->
-<!-- COMPLETE ADSTERRA ADS BLOCK -->
-<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
-<!-- COPY & PASTE BEFORE </body> -->
-<!-- ========================================================= -->
-
-<!-- ===================== -->
-<!-- ultron3000.infinityfree.me -->
-<!-- ===================== -->
-
-<!-- POPUNDER -->
-<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
-
-<!-- SOCIAL BAR -->
-<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
-
-<!-- 160x600 BANNER -->
-<div style="text-align:center; margin:20px 0;">
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
-      'format' : 'iframe',
-      'height' : 600,
-      'width' : 160,
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
-</div>
-
-<!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
-      'format' : 'iframe',
-      'height' : 90,
-      'width' : 728,
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
-</div>
-
-
-<!-- ===================== -->
-<!-- cloudtv.store -->
-<!-- ===================== -->
-
-<!-- POPUNDER -->
-<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
-
-<!-- SOCIAL BAR -->
-<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
-
-<!-- 160x600 BANNER -->
-<div style="text-align:center; margin:20px 0;">
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
-      'format' : 'iframe',
-      'height' : 600,
-      'width' : 160,
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
-</div>
-
-<!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
-      'format' : 'iframe',
-      'height' : 90,
-      'width' : 728,
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
-</div>
-
-<!-- ========================================================= -->
-<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
-<!-- ========================================================= -->
-
-
-
-
-
-<!-- Disable DevTools + View Source Protection -->
-<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
-
-<script>
-/* =========================
-   Mobile Detection
-========================= */
-const isMobile =
-    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-
-/* =========================
-   Disable DevTools
-========================= */
-DisableDevtool({
-    disable: true,
-    disableMenu: true,
-    clearLog: true,
-    disableSelect: true,
-    disableCopy: true,
-    disableCut: true,
-    disablePaste: true,
-
-    /* FIXED */
-    disableMobile: false,
-
-    interval: 100,
-
-    ondevtoolopen: function () {
-
-        /* ONLY DESKTOP */
-        if (!isMobile) {
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-    }
-});
-
-/* =========================
-   Block View Source Shortcuts
-========================= */
-document.addEventListener("keydown", function (e) {
-
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+U
-    if (e.ctrlKey && e.key.toLowerCase() === "u") {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    }
-
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+J
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+C
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+S
-    if (e.ctrlKey && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+P
-    if (e.ctrlKey && e.key.toLowerCase() === "p") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+A
-    if (e.ctrlKey && e.key.toLowerCase() === "a") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+C
-    if (e.ctrlKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+X
-    if (e.ctrlKey && e.key.toLowerCase() === "x") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+V
-    if (e.ctrlKey && e.key.toLowerCase() === "v") {
-        e.preventDefault();
-        return false;
-    }
-});
-
-/* =========================
-   Disable Right Click
-========================= */
-document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Dragging
-========================= */
-document.addEventListener("dragstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Selection
-========================= */
-document.addEventListener("selectstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Copy Actions
-========================= */
-["copy", "cut", "paste"].forEach(function(evt) {
-
-    document.addEventListener(evt, function(e) {
-        e.preventDefault();
-    });
-
-});
-
-/* =========================
-   Detect DevTools Window
-   (Desktop ONLY - FIXED)
-========================= */
-if (!isMobile) {
-
-    setInterval(function () {
-
-        const widthThreshold =
-            window.outerWidth - window.innerWidth > 220;
-
-        const heightThreshold =
-            window.outerHeight - window.innerHeight > 220;
-
-        if (widthThreshold || heightThreshold) {
-
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-
-    }, 1500);
-
-}
-
-/* =========================
-   Disable Console
-========================= */
-(function () {
-
-    console.clear();
-
-    function block() {
-        return false;
-    }
-
-    console.log = block;
-    console.warn = block;
-    console.error = block;
-    console.info = block;
-    console.debug = block;
-    console.table = block;
-
-})();
-
-/* =========================
-   Block "view-source:"
-========================= */
-if (window.location.href.startsWith("view-source:")) {
-
-    document.body.innerHTML = "";
-    window.location.replace("about:blank");
-
-}
-
-/* =========================
-   Prevent iframe inspection
-========================= */
-if (window.top !== window.self) {
-
-    try {
-        window.top.location = window.self.location;
-    } catch (e) {}
-
-}
-</script>
-
-<style>
-html, body {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    overflow-x: hidden;
-}
-
-/* Disable image dragging */
-img {
-    pointer-events: none;
-    -webkit-user-drag: none;
-}
-
-/* Hide selection */
-::selection {
-    background: transparent;
-}
-</style>
 
 </body>
 </html>
