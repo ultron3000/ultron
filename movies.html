@@ -36,13 +36,13 @@
     .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
     .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
     
-    /* Optimized Movie Card (Removed costly blur filters to eliminate scroll lag) */
+    /* Movie Card Styling */
     .movie-card {
       transition: transform 0.2s ease, border-color 0.2s ease;
       transform-origin: center;
       border: 1px solid rgba(239, 68, 68, 0.2);
       background: #0f172a;
-      content-visibility: auto; /* Significant render performance boost for long lists */
+      content-visibility: auto;
       contain-intrinsic-size: 320px;
     }
     
@@ -135,20 +135,22 @@
     }
     .player-wrapper { 
       position: relative;
-      flex: 1;
-      min-height: 0;
+      width: 100%;
+      height: 350px;
+      min-height: 250px;
       background: #000;
+      flex-grow: 1;
     }
     #topCloseBtn { 
       position: absolute;
       top: 8px;
       right: 8px;
-      z-index: 10;
+      z-index: 20;
       background: rgba(0,0,0,0.8);
       color: var(--primary);
       border: 1px solid rgba(239, 68, 68, 0.4);
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -160,6 +162,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
+      border: 0;
     }
 
     .player-meta { 
@@ -214,6 +217,7 @@
       gap: 4px;
       font-family: 'Rajdhani', sans-serif;
       font-weight: 600;
+      text-decoration: none;
     }
     .btn:hover { 
       background: var(--primary);
@@ -228,7 +232,6 @@
         max-height: 85vh;
       }
       .player-wrapper {
-        padding-bottom: 0 !important;     
         height: 55vh !important;
         position: relative !important;
       }
@@ -237,9 +240,9 @@
         justify-content: space-between;
         align-items: flex-start;
       }
-      .player-meta .meta-left { max-width: 65%; }
+      .player-meta .meta-left { max-width: 55%; }
       .controls-row { flex-wrap: nowrap !important; justify-content: flex-end !important; }
-      .btn { flex: unset !important; min-width: 80px !important; }
+      .btn { flex: unset !important; min-width: 75px !important; }
     }
 </style>
 </head>
@@ -271,7 +274,7 @@
       </div>
     </div>
 
-    <!-- Scrollable Minimal Category Bar for Mobile View -->
+    <!-- Scrollable Category Bar -->
     <div class="category-scroll-container" id="categoryContainer">
       <!-- Generated via JavaScript -->
     </div>
@@ -305,6 +308,9 @@
         <p id="modalDesc"></p>
       </div>
       <div class="controls-row">
+        <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20" title="Open directly in new tab if embed is blocked">
+          <i class="fas fa-external-link-alt"></i> Direct
+        </a>
         <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i>Prev</button>
         <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i>Play</button>
         <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward"></i></button>
@@ -909,7 +915,7 @@
         duration: "2h 04m",
         description: "An extreme sports athlete is recruited by the government to infiltrate an underground Russian crime ring planning a bio-chemical attack.",
         image: "https://image.tmdb.org/t/p/w500/xeEw3eLeSFmJgXZzmF2Efww0q3s.jpg",
-        video: "00"
+        video: "https://mega.nz/embed/TTRxFRDa#nu--lLs5Abj7YKSgwFb2P030Y_UAx_62YDPKAzRdpyE"
       },
       {
         title: "xXx: State of the Union",
@@ -1089,7 +1095,7 @@
         duration: "2h 8m",
         description: "During WWII, two intelligence officers use a corpse and false papers to outwit German troops.",
         image: "https://image.tmdb.org/t/p/w500/tfdfh1mK24VujxT5z11732asxdR.jpg",
-        video: "https://mega.nz/embed/ozlinZzS#zjhibPFiPyq7aYHYj7fPcEObvKGnQH81vptUnN_4Dj8"
+        video: "https://mega.nz/embed/TTRxFRDa#nu--lLs5Abj7YKSgwFb2P030Y_UAx_62YDPKAzRdpyE"
       }
     ];
 
@@ -1106,7 +1112,6 @@
     const categoryContainer = document.getElementById('categoryContainer');
 
     function buildCategoryFilters() {
-      // Clean, minimal category list
       const categories = ["All", "Action & Ops", "Espionage & Intel", "Sniper & Tactical", "Psychological & Thriller", "Sci-Fi & Fantasy"];
       categoryContainer.innerHTML = '';
 
@@ -1124,7 +1129,6 @@
       });
     }
 
-    /* Debounce helper for lag-free search typing */
     function debounce(func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -1162,6 +1166,7 @@
     const modalVideoId = 'modalVideo';
     const modalTitle = document.getElementById('modalTitle');
     const modalDesc = document.getElementById('modalDesc');
+    const externalBtn = document.getElementById('externalBtn');
 
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
@@ -1177,10 +1182,6 @@
     function isHls(url) {
       if (!url) return false;
       return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
-    }
-    function isYouTube(url) {
-      if (!url) return false;
-      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
     }
 
     function resetPlayerContainer() {
@@ -1217,6 +1218,14 @@
         ? (movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0]) 
         : movie.video;
 
+      // Update external watch link
+      if (src && src !== "00") {
+        externalBtn.href = src.replace('/embed/', '/file/').replace('/embed', '');
+        externalBtn.style.display = 'inline-flex';
+      } else {
+        externalBtn.style.display = 'none';
+      }
+
       if (!src || src === "00") {
         playerWrapper.innerHTML = `
           <div class="flex flex-col items-center justify-center h-full text-center p-6 text-gray-400 font-mono-tech">
@@ -1229,25 +1238,10 @@
 
       const lc = (src || '').toLowerCase();
 
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
-        return;
-      }
-
-      if (isYouTube(src)) {
-        let embed = src;
-        try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch (e) {}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+      // Handling Web Embed Sources (Mega.nz, Streamtape, Dood, Drive)
+      if (lc.includes('mega.nz') || lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('ok.ru') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer" allowfullscreen></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
         return;
       }
 
@@ -1373,7 +1367,6 @@
         return;
       }
 
-      // Fast DocumentFragment rendering to prevent layout thrashing
       const fragment = document.createDocumentFragment();
 
       moviesToRender.forEach((movie, index) => {
@@ -1419,6 +1412,327 @@
     buildCategoryFilters();
     applyFilters();
 </script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
 
 </body>
 </html>
