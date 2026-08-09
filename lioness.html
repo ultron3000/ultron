@@ -10,11 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-  <!-- HLS.js (from Tukaram for HLS playback support) -->
+  <!-- HLS.js for HLS playback support -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
-    /* PRESERVE original Hawkeye CSS and animations but adjust theme to Loki */
+    /* High Performance Custom Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #07060b; }
     ::-webkit-scrollbar-thumb { background: #9ad34d; border-radius: 4px; }
@@ -39,116 +39,79 @@
     .gradient-text { background: linear-gradient(90deg, #9ad34d, #7f3cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
     .marvel-font { font-family: 'Marvel', sans-serif; }
 
-    /* Responsive adjustments */
-    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
+    /* Responsive Grid Adjustments */
+    @media (max-width: 640px) { .movie-card { width: calc(50% - 0.5rem); } }
     @media (max-width: 400px) { .movie-card { width: 100%; } }
 
-    /* Modal player container (Tukaram-style preserved) */
-    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
-    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
-
-    /* small Loki tint changes to Hawkeye theme */
+    body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; }
     header { background: linear-gradient(90deg,#081018,#04040a); }
-    .bg-loki { background: linear-gradient(135deg,#7f3cff,#9ad34d); }
     .loki-accent { color: #9ad34d; }
     .btn-loki { background: #9ad34d; color: #061217; }
     .btn-loki:hover { filter: brightness(0.95); }
-    .watchlist-checkbox .checkmark { border: 2px solid #9ad34d; }
-    .progress-bar-fill { background: #9ad34d; }
 
-    /* keep other original Hawkeye styles intact */
-    body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
-
-    /* Illumination modal styles (keeps modal look consistent) */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    /* Modal Player Container Styles */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px); display:none; align-items:center; justify-content:center; z-index:9999; }
     .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .modal-card { width:92%; max-width:980px; border-radius:14px; overflow:hidden; background:#0b1220; border: 1px solid rgba(154, 211, 77, 0.25); box-shadow:0 30px 80px rgba(0,0,0,0.85); }
+    
     .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
     .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
 
-    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
-    .player-meta .meta-left { max-width:65%; }
-    .player-meta h3 { margin:0; font-size:1.125rem; }
-    .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
+    .player-meta { display:flex; justify-content:space-between; gap:16px; padding:16px 20px; color:#ddd; align-items:center; background:#080f1c; border-top: 1px solid rgba(255,255,255,0.05); }
+    .player-meta .meta-left { max-width:55%; }
+    .player-meta h3 { margin:0; font-size:1.2rem; font-weight:700; color:#fff; }
+    .player-meta p { margin:4px 0 0 0; color:#9CA3AF; font-size:0.88rem; line-height:1.35; }
 
-    .controls-row { display:flex; gap:8px; align-items:center; }
+    .controls-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
 
     .btn {
-      background:transparent; border:1px solid #9ad34d; color:#9ad34d;
-      padding:8px 12px; border-radius:8px; cursor:pointer;
+      background: rgba(154, 211, 77, 0.08); border:1px solid #9ad34d; color:#9ad34d;
+      padding:8px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; font-size:0.88rem; font-weight:600; transition: all 0.2s ease;
     }
-    .btn:hover { background: rgba(154,211,77,0.06); }
+    .btn:hover { background: #9ad34d; color: #061217; }
 
     .hidden { display:none; }
 
-    @media(max-width:640px){
-      .player-meta .meta-left { max-width:55%; }
-      .btn { padding:6px 8px; font-size:0.9rem; }
+    /* Mobile Responsive Layout Improvements */
+    @media (max-width: 767px) {
+      .player-wrapper { padding-bottom: 56.25% !important; height: 0 !important; position: relative !important; }
+      .player-wrapper video, .player-wrapper iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
+
+      .player-meta {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        padding: 14px !important;
+        background: #0b1220 !important;
+      }
+
+      .player-meta .meta-left { max-width: 100% !important; }
+
+      .controls-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+      }
+
+      .btn {
+        padding: 8px !important;
+        font-size: 0 !important;
+        min-width: 42px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      .btn i { font-size: 1.1rem !important; margin: 0 !important; }
     }
-    /* ============================
-   MOBILE FIX — DOES NOT TOUCH DESKTOP
-   ============================ */
-
-@media (max-width: 767px) {
-
-  /* Proper mobile player layout (matches your working version) */
-  .player-wrapper {
-    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
-    height: 0 !important;
-    position: relative !important;
-  }
-
-  .player-wrapper video,
-  .player-wrapper iframe {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Proper stacked mobile controls */
-  .player-meta {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 12px !important;
-    background: #0b1220 !important;
-    z-index: 20 !important;
-  }
-
-  /* Mobile control row wraps properly */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 10px !important;
-  }
-
-  /* Mobile buttons use icon-only layout */
-  .btn {
-    padding: 8px !important;
-    font-size: 0 !important;      /* hides text on mobile */
-    min-width: 48px !important;
-    height: 44px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .btn i {
-    font-size: 1.1rem !important;
-    margin: 0 !important;
-  }
-
-  /* Close button always visible on mobile */
-  #topCloseBtn {
-    opacity: 1 !important;
-  }
-}
-
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
+
   <!-- Header -->
   <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -160,149 +123,147 @@
       </div>
       
       <div class="flex items-center space-x-2 sm:space-x-4">
-        <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
+        <button id="watchlist-btn" class="p-2 rounded-full hover:bg-gray-800 transition relative">
           <i class="fas fa-bookmark loki-accent"></i>
-          <span class="tooltip-text">My Watchlist</span>
         </button>
-        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
           <i class="fas fa-moon loki-accent"></i>
-          <span class="tooltip-text">Toggle Theme</span>
         </button>
-        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
           <i class="fas fa-search loki-accent"></i>
-          <span class="tooltip-text">Search</span>
         </button>
       </div>
     </div>
     
-    <!-- Search Bar (hidden by default) -->
+    <!-- Search Bar -->
     <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
-      <div class="relative">
+      <div class="relative max-w-xl mx-auto">
         <input id="global-search" type="text" placeholder="Search episodes..." 
-               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400">
-        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d]"></i>
+               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400 text-sm">
+        <i class="fas fa-search absolute left-3.5 top-3 text-[#9ad34d]"></i>
       </div>
     </div>
     
-    <!-- Watchlist dropdown (hidden by default) -->
-    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
+    <!-- Watchlist Dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-2xl z-50 py-2">
       <div class="px-4 py-2 border-b border-gray-700">
-        <h3 class="font-semibold loki-accent">My Watchlist</h3>
+        <h3 class="font-semibold loki-accent marvel-font tracking-wider">My Watchlist</h3>
       </div>
       <div id="watchlist-items" class="max-h-60 overflow-y-auto">
-        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
+        <div class="px-4 py-3 text-center text-gray-400 text-xs">Your watchlist is empty</div>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-<main class="container mx-auto px-4 py-6">
-  <!-- Hero Section -->
-  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
-    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
-    
-    <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
-      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <!-- Loki hero trailer (YouTube embed) -->
-        <iframe
-          src="https://www.youtube.com/embed/3axWgmlwnl4?autoplay=1&mute=1&loop=1&playlist=3axWgmlwnl4&controls=0&modestbranding=1"
-          frameborder="0"
-          allow="autoplay; fullscreen"
-          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        ></iframe>
-      </div>
+  <main class="container mx-auto px-4 py-6">
+    <!-- Hero Section -->
+    <section class="mb-10 relative overflow-hidden rounded-xl shadow-2xl bg-black">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
       
-      <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
-        <div class="flex items-center mb-1 sm:mb-2">
-          <span class="bg-[#9ad34d] text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2">PARAMOUNT</span>
-          <span class="text-[#9ad34d] text-xs sm:text-sm">Seasons 1-3</span>
+      <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[480px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/3axWgmlwnl4?autoplay=1&mute=1&loop=1&playlist=Im1dLTNGKSo&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-60"
+          ></iframe>
         </div>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">Lioness</h2>
-        <div class="flex items-center mb-2 sm:mb-4">
-          <div class="flex items-center mr-2 sm:mr-4">
-            <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
-            <span class="text-white text-xs sm:text-sm">7.8</span>
+        
+        <div class="absolute bottom-0 left-0 z-20 p-5 sm:p-8 md:p-10 max-w-2xl">
+          <div class="flex items-center mb-2">
+            <span class="bg-[#9ad34d] text-black text-xs font-bold px-2 py-0.5 rounded mr-2">PARAMOUNT+</span>
+            <span class="text-[#9ad34d] text-xs sm:text-sm font-semibold">Seasons 1-3</span>
           </div>
-          <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 gradient-text marvel-font tracking-wide">Special Ops: Lioness</h2>
+          <div class="flex items-center mb-3 text-xs sm:text-sm">
+            <div class="flex items-center mr-4">
+              <i class="fas fa-star loki-accent mr-1"></i>
+              <span class="text-white font-bold">7.8</span>
+            </div>
+            <span class="text-gray-300">Action • Drama • Thriller</span>
+          </div>
+          <p class="text-gray-300 mb-5 text-xs sm:text-sm md:text-base leading-relaxed line-clamp-3">CIA operative Joe attempts to balance her personal and professional lives as the tip of the spear in the agency's war on terror.</p>
+          <div class="flex items-center space-x-3">
+            <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-bold py-2.5 px-7 rounded-full transition flex items-center shadow-lg text-sm pulse-hover">
+              <i class="fas fa-play mr-2 text-xs"></i> Play S1E01
+            </button>
+            <button class="bg-gray-800/80 hover:bg-gray-700 text-white font-semibold py-2.5 px-6 rounded-full transition flex items-center border border-gray-700 text-sm">
+              <i class="fas fa-info-circle mr-2"></i> Details
+            </button>
+          </div>
         </div>
-        <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">CIA operative Joe attempts to balance her personal and professional lives as the tip of the spear in the agency's war on terror.</p>
-        <div class="flex space-x-2 sm:space-x-3">
-          <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
-            <i class="fas fa-play mr-2"></i> Play All
+        <div class="absolute bottom-4 right-4 z-20">
+          <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
+            <i class="fas fa-chevron-down arrow-bounce"></i>
           </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-info-circle mr-2"></i> Details
-          </button>
         </div>
-      </div>
-      <div class="absolute bottom-4 right-4 z-20">
-        <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
-          <i class="fas fa-chevron-down arrow-bounce"></i>
-        </button>
-      </div>
-    </div>
-  </section>
-</main>
-
-    <!-- Season Navigation -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
-      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-tv loki-accent mr-2"></i>
-        <span class="marvel-font">EPISODES</span>
-      </h3>
-      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-        <div class="flex items-center space-x-2 min-w-max">
-          <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="2">Season 2</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="3">Season 3</button>
-        </div>
-      </div>
-    </div>
-
-
-      
-
-
-    <!-- Episodes Grid -->
-    <section class="container mx-auto px-4">
-      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-        <!-- Movie cards inserted by JS -->
       </div>
     </section>
 
-    <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+    <!-- Season Navigation -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-gray-800 pb-4">
+      <h3 class="text-xl sm:text-2xl font-bold flex items-center mb-3 sm:mb-0">
+        <i class="fas fa-tv loki-accent mr-2.5"></i>
+        <span class="marvel-font tracking-wider">EPISODES</span>
+      </h3>
+      <div class="w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max">
+          <button class="season-btn active bg-[#9ad34d] text-black px-4 py-1.5 rounded-full text-xs font-bold transition" data-season="all">All</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-gray-900 border border-gray-800 hover:border-[#9ad34d]/50 transition" data-season="1">Season 1</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-gray-900 border border-gray-800 hover:border-[#9ad34d]/50 transition" data-season="2">Season 2</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-gray-900 border border-gray-800 hover:border-[#9ad34d]/50 transition" data-season="3">Season 3</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Episodes Grid -->
+    <section>
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
+        <!-- Episode cards inserted dynamically -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <div class="border-t border-gray-800 mt-12 pt-8 pb-8 text-center text-gray-500">
+    <div class="flex justify-center space-x-4 mb-3">
+      <a href="#" class="text-gray-400 hover:text-[#9ad34d] transition px-2"><i class="fab fa-facebook-f text-lg"></i></a>
+      <a href="#" class="text-gray-400 hover:text-[#9ad34d] transition px-2"><i class="fab fa-twitter text-lg"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#9ad34d] transition px-2"><i class="fab fa-instagram text-lg"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#9ad34d] transition px-2"><i class="fab fa-youtube text-lg"></i></a>
+    </div>
+    <p class="text-xs text-gray-600">Special Ops: Lioness &copy; 2026. All rights reserved.</p>
   </div>
 
-  <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
+  <!-- Replaced Playback Modal -->
   <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true">
-      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2">
+      <button id="closeModalBtn" class="absolute top-3 right-3 z-50 text-white hover:text-[#9ad34d] text-xl bg-black/60 hover:bg-black/90 rounded-full w-9 h-9 flex items-center justify-center transition border border-gray-700">
         <i class="fas fa-times"></i>
       </button>
 
       <div class="player-wrapper" id="playerWrapper">
-        <!-- video or iframe injected here -->
         <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       </div>
 
       <div class="player-meta">
         <div class="meta-left">
           <h3 id="modalTitle">Episode Title</h3>
-          <p id="modalDesc" class="text-sm">Episode description will appear here.</p>
+          <p id="modalDesc">Episode description will appear here.</p>
         </div>
         <div class="controls-row">
+          <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20 hover:bg-red-600/40 border-red-500/50 text-red-400 hover:text-red-300" title="Open directly in new tab if embed is blocked">
+            <i class="fas fa-external-link-alt mr-2"></i> Direct
+          </a>
           <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
           <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
           <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
           <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+          <button id="closeBtn" class="btn border-gray-600 text-gray-300 hover:bg-gray-800"><i class="fas fa-times mr-2"></i>Close</button>
         </div>
       </div>
     </div>
@@ -310,297 +271,301 @@
 
   <!-- Loading Spinner -->
   <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#9ad34d]"></div>
+    <div class="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-[#9ad34d]"></div>
   </div>
 
   <script>
-// ========================
-// SEASON SELECTOR + DATA
-// ========================
+    // ===============================================
+    // SPECIAL OPS: LIONESS (EPISODE DATA)
+    // ===============================================
+    const movies = [
+      // ===== Season 1 =====
+      { 
+        title: "Sacrificial Soldiers", 
+        season: 1,
+        episode: 1,
+        year: 2023,
+        video: "https://mega.nz/embed/lqdggSrZ#w69ZKnSOOA7Qm3VGXOrIp36qiTZTrf6m7rGnWiQr42w",
+        image: "https://image.tmdb.org/t/p/w300/nmQp2GT1T2mK4YoLWcMl1FsoZC.jpg",
+        runtime: "52 min",
+        rating: "9.0/10",
+        description: "Cruz Manuelos joins the Lioness program under Joe's guidance for her first undercover mission."
+      },
+      { 
+        title: "The Beating", 
+        season: 1,
+        episode: 2,
+        year: 2023,
+        video: "https://mega.nz/embed/kqEm1YIb#I-TdHXL_mF_cNEntFsqLUmETvrREc0LAc-kvIHamDB0",
+        image: "https://image.tmdb.org/t/p/w300/efD2aug7QpeGYkz7gIK5OVjWVU8.jpg",
+        runtime: "52 min",
+        rating: "8.9/10",
+        description: "The team works to identify their new target as Cruz struggles with the demands of the program."
+      },
+      { 
+        title: "Bruise Like a Fist", 
+        season: 1,
+        episode: 3,
+        year: 2023,
+        video: "https://mega.nz/embed/SwoVVKoT#A4U6Q6b4oTHCTtyZvMNZjdk-ev3Bd4Cv0IXz58oXsHQ",
+        image: "https://image.tmdb.org/t/p/w300/aCl27BO3UUJwEoEQruZsZnidlkC.jpg",
+        runtime: "52 min",
+        rating: "9.1/10",
+        description: "Cruz goes deeper undercover while Joe faces personal challenges at home."
+      },
+      { 
+        title: "The Choice of Failure", 
+        season: 1,
+        episode: 4,
+        year: 2023,
+        video: "https://mega.nz/embed/9ilySDoK#g_NEQ_J-IgfK82LEfSThkLSZvCNc3W0HHgv9E-K1hS8",
+        image: "https://image.tmdb.org/t/p/w300/kJS9ycUt3hzBahLcrFhNxp76wAp.jpg",
+        runtime: "52 min",
+        rating: "9.3/10",
+        description: "Tensions rise as the mission progresses and relationships become more complicated."
+      },
+      { 
+        title: "Truth Is the Shrewdest Lie", 
+        season: 1,
+        episode: 5,
+        year: 2023,
+        video: "https://mega.nz/embed/kzd0zQpQ#14JwVXV1CbetAcEPZMCInTh-P0PUAZT7kcvmjorxUrs",
+        image: "https://image.tmdb.org/t/p/w300/sh4bjty4YACVogQUOVWbZCUVA15.jpg",
+        runtime: "52 min",
+        rating: "9.2/10",
+        description: "The team faces new challenges as the operation takes an unexpected turn."
+      },
+      { 
+        title: "The Lie Is the Truth", 
+        season: 1,
+        episode: 6,
+        year: 2023,
+        video: "https://mega.nz/embed/IyNUyR5D#fT7x8VQrTliHn_AGoKnNCg8m2_CX0mtwylPS4s_FBaw",
+        image: "https://image.tmdb.org/t/p/w300/jIEF60suH4Cg7iZEC0ze7b7pKBk.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+        description: "Joe and Neal deal with a family emergency. Cruz finds herself in a dangerous situation with Aaliyah."
+      },
+      { 
+        title: "Wish the Fight Away", 
+        season: 1,
+        episode: 7,
+        year: 2023,
+        video: "https://mega.nz/embed/AiMCBYgB#uY_vza8pfLE6u8Sya9AI3P2-iWrriDg_cKqXrAdoDNo",
+        image: "https://image.tmdb.org/t/p/w300/v7IY9eLPc2c9N0MYSppFTO7COZk.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+        description: "Loyalties are tested as the operation reaches a critical point ahead of the wedding."
+      },
+      { 
+        title: "Gone Is the Illusion of Order", 
+        season: 1,
+        episode: 8,
+        year: 2023,
+        video: "https://mega.nz/embed/py1QTQzR#aHhX4Y_tjUWbifL0rukDj5YPsqIT8N8Gr0-4Vycf5cA",
+        image: "https://image.tmdb.org/t/p/w300/3ndiiSM8sWMclfS123YaVIBOtsw.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+        description: "Unforeseen complications arise at the estate, forcing Joe and the team to make high-stakes choices."
+      },
 
-// Quantum Leap (2022) – Season 1 & 2
-const movies = [
-  // ===== Season 1 =====
- { 
-    title: "Sacrificial Soldiers", 
-    season: 1,
-    episode: 1,
-    year: 2024,
-    video: "https://mega.nz/embed/lqdggSrZ#w69ZKnSOOA7Qm3VGXOrIp36qiTZTrf6m7rGnWiQr42w",
-    image: "https://image.tmdb.org/t/p/w300/nmQp2GT1T2mK4YoLWcMl1FsoZC.jpg",
-    runtime: "52 min",
-    rating: "9.0/10",
-    description: "Cruz Manuelos joins the Lioness program under Joe's guidance for her first undercover mission.", 
-  },
-  { 
-    title: "The Beating", 
-    season: 1,
-    episode: 2,
-    year: 2024,
-    video: "https://mega.nz/embed/kqEm1YIb#I-TdHXL_mF_cNEntFsqLUmETvrREc0LAc-kvIHamDB0",
-    image: "https://image.tmdb.org/t/p/w300/efD2aug7QpeGYkz7gIK5OVjWVU8.jpg",
-    runtime: "52 min",
-    rating: "8.9/10",
-    description: "The team works to identify their new target as Cruz struggles with the demands of the program.", 
-  },
-  { 
-    title: "Bruise Like a Fist", 
-    season: 1,
-    episode: 3,
-    year: 2024,
-    video: "https://mega.nz/embed/SwoVVKoT#A4U6Q6b4oTHCTtyZvMNZjdk-ev3Bd4Cv0IXz58oXsHQ",
-    image: "https://image.tmdb.org/t/p/w300/aCl27BO3UUJwEoEQruZsZnidlkC.jpg",
-    runtime: "52 min",
-    rating: "9.1/10",
-    description: "Cruz goes deeper undercover while Joe faces personal challenges at home.", 
-  },
-  { 
-    title: "The Choice of Failure", 
-    season: 1,
-    episode: 4,
-    year: 2024,
-    video: "https://mega.nz/embed/9ilySDoK#g_NEQ_J-IgfK82LEfSThkLSZvCNc3W0HHgv9E-K1hS8",
-    image: "https://image.tmdb.org/t/p/w300/kJS9ycUt3hzBahLcrFhNxp76wAp.jpg",
-    runtime: "52 min",
-    rating: "9.3/10",
-    description: "Tensions rise as the mission progresses and relationships become more complicated.", 
-  },
-  { 
-    title: "Truth Is the Shrewdest Lie", 
-    season: 1,
-    episode: 5,
-    year: 2024,
-    video: "https://mega.nz/embed/kzd0zQpQ#14JwVXV1CbetAcEPZMCInTh-P0PUAZT7kcvmjorxUrs",
-    image: "https://image.tmdb.org/t/p/w300/sh4bjty4YACVogQUOVWbZCUVA15.jpg00",
-    runtime: "52 min",
-    rating: "9.2/10",
-    description: "The team faces new challenges as the operation takes an unexpected turn.", 
-  },
-  { 
-    title: "The Lie Is the Truth", 
-    season: 1,
-    episode: 6,
-    year: 2024,
-    video: "https://mega.nz/embed/IyNUyR5D#fT7x8VQrTliHn_AGoKnNCg8m2_CX0mtwylPS4s_FBaw",
-    image: "https://image.tmdb.org/t/p/w300/jIEF60suH4Cg7iZEC0ze7b7pKBk.jpg",
-    runtime: "52 min",
-    rating: "9.5/10",
-    description: "With a possible human civilization finally in sight, Eva and her friends face their most dangerous mission yet.",
-  },
-  { 
-    title: "Wish the Fight Away", 
-    season: 1,
-    episode: 7,
-    year: 2024,
-    video: "https://mega.nz/embed/AiMCBYgB#uY_vza8pfLE6u8Sya9AI3P2-iWrriDg_cKqXrAdoDNo",
-    image: "https://image.tmdb.org/t/p/w300/v7IY9eLPc2c9N0MYSppFTO7COZk.jpg",
-    runtime: "52 min",
-    rating: "9.5/10",
-    description: "Loyalties are tested as the operation reaches a critical point.", 
-  },
-  { 
-    title: "Gone Is the Illusion of Order", 
-    season: 1,
-    episode: 8,
-    year: 2024,
-    video: "https://mega.nz/embed/py1QTQzR#aHhX4Y_tjUWbifL0rukDj5YPsqIT8N8Gr0-4Vycf5cA",
-    image: "https://image.tmdb.org/t/p/w300/3ndiiSM8sWMclfS123YaVIBOtsw.jpg",
-    runtime: "52 min",
-    rating: "9.5/10",
-    description: "The stakes escalate as the team prepares for the final phase of the operation.", 
-  },
-  { 
-    title: "Beware the Old Soldier", 
-    season: 2,
-    episode: 1,
-    year: 2024,
-    video: "https://mega.nz/embed/8nVwEA4B#IS8A1vAoTXoJwqsoycOEX7Ee5aRdk6vBVuT6JTEYWa4",
-    image: "https://image.tmdb.org/t/p/w300/xfTEeyc39CyhbkKy6Demb5m92Tm.jpg",
-    runtime: "52 min",
-    rating: "9.1/10",
-    description: "The explosive season finale where all secrets are revealed and sacrifices made.", 
-  },
-  { 
-    title: "I Love My Country", 
-    season: 2,
-    episode: 2,
-    year: 2024,
-    video: "https://mega.nz/embed/Jq9W3IhQ#d5hJFaGtrxJ0OwcEDoSlcsOlNQtc9kyEr-zPilAIV0U",
-    image: "https://image.tmdb.org/t/p/w300/qmXB4BcpWeEB8IOT0CDt7O9izRb.jpg",
-    runtime: "52 min",
-    rating: "9.0/10",
-    description: "The Lioness team returns with a new mission and new challenges to overcome.", 
-  },
-  { 
-    title: "Along Came a Spider", 
-    season: 2,
-    episode: 3,
-    year: 2024,
-    video: "https://mega.nz/embed/BqE3UYoa#dzGDy9fFrz03m7-FG-V9WwRjXFJT1yjLpa6ppw4ouK4",
-    image: "https://image.tmdb.org/t/p/w300/xt50ehEdhGI21BJxcRc3VqXWM9K.jpg",
-    runtime: "52 min",
-    rating: "9.2/10",
-    description: "A mysterious figure from Joe's past threatens the entire operation.", 
-  },
-  { 
-    title: "Five Hundred Children", 
-    season: 2,
-    episode: 4,
-    year: 2024,
-    video: "https://mega.nz/embed/k28CWR7Q#ENiHgzPaI6EyDSxwQOomJcee4YdvjMGaRm3VDdN6N3c",
-    image: "https://image.tmdb.org/t/p/w300/nIKMf8djtsIYBtBCtKhHjTEo17G.jpg",
-    runtime: "52 min",
-    rating: "9.3/10",
-    description: "The mission takes an emotional turn when innocent lives are put in danger.", 
-  },
-  { 
-    title: "Shatter the Moon", 
-    season: 2,
-    episode: 5,
-    year: 2024,
-    video: "https://mega.nz/embed/g7Fn2KZD#asS9JYXd8jh3KP-DG19vHwzeUdxGq5kSI3B9XqCWdOM",
-    image: "https://image.tmdb.org/t/p/w300/w1vnsU60PRL69oXPckv0ndErq0C.jpg",
-    runtime: "52 min",
-    rating: "9.4/10",
-    description: "Plans go awry when a key team member's cover is nearly blown.", 
-  },
-  { 
-    title: "2381", 
-    season: 2,
-    episode: 6,
-    year: 2024,
-    video: "https://mega.nz/embed/0mUBhBqA#7KlXazEUSLf-3bjTjRRXZs7hEud_eAL-6Oh7jVaqGBI",
-    image: "https://image.tmdb.org/t/p/w300/shHXnFf1tqxqzMgYUAmsZM3eJG1.jpg",
-    runtime: "52 min",
-    rating: "9.6/10",
-    description: "A shocking betrayal puts the entire Lioness program at risk.", 
-  },
-  { 
-    title: "The Devil Has Aces", 
-    season: 2,
-    episode: 7,
-    year: 2024,
-    video: "https://mega.nz/embed/oiVgHYBD#G9G-BdL0q9RxJTIKc_Qq5lNWx2kYREAf6D_Q8SvUHz0",
-    image: "https://image.tmdb.org/t/p/w300/o9DNUy0EaoM2YslSXBq9yLnH5jH.jpg",
-    runtime: "52 min",
-    rating: "9.5/10",
-    description: "With time running out, the team takes desperate measures to complete their mission.", 
-  },
-  { 
-    title: "The Compass Points Home", 
-    season: 2,
-    episode: 8,
-    year: 2024,
-    video: "https://mega.nz/embed/F2FCzCQb#tHzebmAg7lMWB3aZd9wM-UIArASnvBlQUO10nYJ-bbI",
-    image: "https://image.tmdb.org/t/p/w300/9xEd84PanI9fulF0P23fTC8gBT4.jpg",
-    runtime: "52 min",
-    rating: "9.5/10",
-    description: "The explosive season finale with consequences that will change the team forever.", 
-  },
-  {
-    title: "The Spider and the Fly",
-    season: 3,
-    episode: 1,
-    year: 2026,
-    video: "https://mega.nz/embed/aOIliQaA#TMVU27OCh7LAlp06WRsSIJC1oSY_m4h0f3NWMY18TnU",
-    image: "https://static.wixstatic.com/media/667fbf_1971ed2431d7451887eb340b4ba5b47e~mv2.jpg/v1/fill/w_568,h_710,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/667fbf_1971ed2431d7451887eb340b4ba5b47e~mv2.jpg",
-    runtime: "48 min",
-    rating: "8.2/10",
-    description: "A covert strike unearths a hidden threat, drawing Joe into a shadowy chain of events."
-  },
-  {
-    title: "No Sorrow Like the Survivor",
-    season: 3,
-    episode: 2,
-    year: 2026,
-    video: "00",
-    image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23d4af37' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 2%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23d4af37' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring August 9, 2026%3C/text%3E%3C/svg%3E",
-    runtime: "45 min",
-    rating: "TBD",
-    description: "Kaitlyn races to contain a crisis spiraling across agencies as Neal tries to steady rising fear at home."
-  },
-  {
-    title: "Episode 3",
-    season: 3,
-    episode: 3,
-    year: 2026,
-    video: "00",
-    image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23d4af37' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 3%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23d4af37' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring August 16, 2026%3C/text%3E%3C/svg%3E",
-    runtime: "47 min",
-    rating: "TBD",
-    description: "Joe confronts a breach, driving the team into a risky play to root out infiltrators."
-  },
-  {
-    title: "Episode 4",
-    season: 3,
-    episode: 4,
-    year: 2026,
-    video: "00",
-    image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23d4af37' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 4%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23d4af37' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring August 23, 2026%3C/text%3E%3C/svg%3E",
-    runtime: "46 min",
-    rating: "TBD",
-    description: "A frantic hunt is launched as the team races against time, while at home Neal struggles with growing fears."
-  },
-  {
-    title: "Episode 5",
-    season: 3,
-    episode: 5,
-    year: 2026,
-    video: "00",
-    image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23d4af37' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 5%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23d4af37' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring August 30, 2026%3C/text%3E%3C/svg%3E",
-    runtime: "50 min",
-    rating: "TBD",
-    description: "Joe leads the hunt as her team exposes a hidden network operating through covert handlers."
-  },
-  {
-    title: "Episode 6",
-    season: 3,
-    episode: 6,
-    year: 2026,
-    video: "00",
-    image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23d4af37' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 6%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23d4af37' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring September 6, 2026%3C/text%3E%3C/svg%3E",
-    runtime: "48 min",
-    rating: "TBD",
-    description: "Tensions reach a critical point as the Lioness team executes a high-stakes infiltration operation."
-  },
-  {
-    title: "Episode 7",
-    season: 3,
-    episode: 7,
-    year: 2026,
-    video: "00",
-    image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23d4af37' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 7%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23d4af37' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring September 13, 2026%3C/text%3E%3C/svg%3E",
-    runtime: "51 min",
-    rating: "TBD",
-    description: "The team prepares for the endgame as loyalties are tested and hidden motives come to light."
-  },
-  {
-    title: "Episode 8",
-    season: 3,
-    episode: 8,
-    year: 2026,
-    video: "00",
-    image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23d4af37' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 8%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23d4af37' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring September 20, 2026%3C/text%3E%3C/svg%3E",
-    runtime: "54 min",
-    rating: "TBD",
-    description: "Season 3 Finale. Joe and the team face their most dangerous confrontation yet."
-  }
-  
-  ];
-    /* ------------------------
-       Modal / playback implementation (Illumination-style)
-       ------------------------ */
+      // ===== Season 2 =====
+      { 
+        title: "Beware the Old Soldier", 
+        season: 2,
+        episode: 1,
+        year: 2024,
+        video: "https://mega.nz/embed/8nVwEA4B#IS8A1vAoTXoJwqsoycOEX7Ee5aRdk6vBVuT6JTEYWa4",
+        image: "https://image.tmdb.org/t/p/w300/xfTEeyc39CyhbkKy6Demb5m92Tm.jpg",
+        runtime: "52 min",
+        rating: "9.1/10",
+        description: "When a US Congresswoman is abducted, Joe and her team execute a tactical recovery mission."
+      },
+      { 
+        title: "I Love My Country", 
+        season: 2,
+        episode: 2,
+        year: 2024,
+        video: "https://mega.nz/embed/Jq9W3IhQ#d5hJFaGtrxJ0OwcEDoSlcsOlNQtc9kyEr-zPilAIV0U",
+        image: "https://image.tmdb.org/t/p/w300/qmXB4BcpWeEB8IOT0CDt7O9izRb.jpg",
+        runtime: "52 min",
+        rating: "9.0/10",
+        description: "Joe, Kaitlyn, and Byron enlist an asset to infiltrate a expanding threat network."
+      },
+      { 
+        title: "Along Came a Spider", 
+        season: 2,
+        episode: 3,
+        year: 2024,
+        video: "https://mega.nz/embed/BqE3UYoa#dzGDy9fFrz03m7-FG-V9WwRjXFJT1yjLpa6ppw4ouK4",
+        image: "https://image.tmdb.org/t/p/w300/xt50ehEdhGI21BJxcRc3VqXWM9K.jpg",
+        runtime: "52 min",
+        rating: "9.2/10",
+        description: "A strategic play brings the Lioness team closer to their primary regional objective."
+      },
+      { 
+        title: "Five Hundred Children", 
+        season: 2,
+        episode: 4,
+        year: 2024,
+        video: "https://mega.nz/embed/k28CWR7Q#ENiHgzPaI6EyDSxwQOomJcee4YdvjMGaRm3VDdN6N3c",
+        image: "https://image.tmdb.org/t/p/w300/nIKMf8djtsIYBtBCtKhHjTEo17G.jpg",
+        runtime: "52 min",
+        rating: "9.3/10",
+        description: "The mission takes a dangerous turn during a field operation at the border."
+      },
+      { 
+        title: "Shatter the Moon", 
+        season: 2,
+        episode: 5,
+        year: 2024,
+        video: "https://mega.nz/embed/g7Fn2KZD#asS9JYXd8jh3KP-DG19vHwzeUdxGq5kSI3B9XqCWdOM",
+        image: "https://image.tmdb.org/t/p/w300/w1vnsU60PRL69oXPckv0ndErq0C.jpg",
+        runtime: "52 min",
+        rating: "9.4/10",
+        description: "Plans go awry when a key team member's cover faces intense surveillance."
+      },
+      { 
+        title: "2381", 
+        season: 2,
+        episode: 6,
+        year: 2024,
+        video: "https://mega.nz/embed/0mUBhBqA#7KlXazEUSLf-3bjTjRRXZs7hEud_eAL-6Oh7jVaqGBI",
+        image: "https://image.tmdb.org/t/p/w300/shHXnFf1tqxqzMgYUAmsZM3eJG1.jpg",
+        runtime: "52 min",
+        rating: "9.6/10",
+        description: "High-level intel causes friction across command channels during a critical window."
+      },
+      { 
+        title: "The Devil Has Aces", 
+        season: 2,
+        episode: 7,
+        year: 2024,
+        video: "https://mega.nz/embed/oiVgHYBD#G9G-BdL0q9RxJTIKc_Qq5lNWx2kYREAf6D_Q8SvUHz0",
+        image: "https://image.tmdb.org/t/p/w300/o9DNUy0EaoM2YslSXBq9yLnH5jH.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+        description: "With time running out, the team takes desperate measures to complete their mission."
+      },
+      { 
+        title: "The Compass Points Home", 
+        season: 2,
+        episode: 8,
+        year: 2024,
+        video: "https://mega.nz/embed/F2FCzCQb#tHzebmAg7lMWB3aZd9wM-UIArASnvBlQUO10nYJ-bbI",
+        image: "https://image.tmdb.org/t/p/w300/9xEd84PanI9fulF0P23fTC8gBT4.jpg",
+        runtime: "52 min",
+        rating: "9.5/10",
+        description: "The explosive season finale with consequences that will alter the team's future."
+      },
+
+      // ===== Season 3 =====
+      {
+        title: "The Spider and the Fly",
+        season: 3,
+        episode: 1,
+        year: 2026,
+        video: "https://mega.nz/embed/aOIliQaA#TMVU27OCh7LAlp06WRsSIJC1oSY_m4h0f3NWMY18TnU",
+        image: "https://image.tmdb.org/t/p/w300/Aatcm1poF3inxNCUwZEg08qqC2t.jpg",
+        runtime: "48 min",
+        rating: "8.2/10",
+        description: "A covert strike unearths a hidden threat, drawing Joe into a shadowy chain of events."
+      },
+      {
+        title: "No Sorrow Like the Survivor",
+        season: 3,
+        episode: 2,
+        year: 2026,
+        video: "https://mega.nz/embed/eoITRDjA#83zzIN84PVmfGvapAKqahGKhbpy-4nG-5-KsB-gQOPs",
+        image: "https://image.tmdb.org/t/p/w300/sh4bjty4YACVogQUOVWbZCUVA15.jpg",
+        runtime: "45 min",
+        rating: "8.5/10",
+        description: "Kaitlyn races to contain a crisis spiraling across agencies as Neal tries to steady rising fear at home."
+      },
+      {
+        title: "Episode 3",
+        season: 3,
+        episode: 3,
+        year: 2026,
+        video: "00",
+        image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%239ad34d' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 3%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%239ad34d' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring August 16, 2026%3C/text%3E%3C/svg%3E",
+        runtime: "47 min",
+        rating: "TBD",
+        description: "Joe confronts a breach, driving the team into a risky play to root out infiltrators."
+      },
+      {
+        title: "Episode 4",
+        season: 3,
+        episode: 4,
+        year: 2026,
+        video: "00",
+        image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%239ad34d' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 4%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%239ad34d' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring August 23, 2026%3C/text%3E%3C/svg%3E",
+        runtime: "46 min",
+        rating: "TBD",
+        description: "A frantic hunt is launched as the team races against time, while at home Neal struggles with growing fears."
+      },
+      {
+        title: "Episode 5",
+        season: 3,
+        episode: 5,
+        year: 2026,
+        video: "00",
+        image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%239ad34d' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 5%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%239ad34d' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring August 30, 2026%3C/text%3E%3C/svg%3E",
+        runtime: "50 min",
+        rating: "TBD",
+        description: "Joe leads the hunt as her team exposes a hidden network operating through covert handlers."
+      },
+      {
+        title: "Episode 6",
+        season: 3,
+        episode: 6,
+        year: 2026,
+        video: "00",
+        image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%239ad34d' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 6%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%239ad34d' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring September 6, 2026%3C/text%3E%3C/svg%3E",
+        runtime: "48 min",
+        rating: "TBD",
+        description: "Tensions reach a critical point as the Lioness team executes a high-stakes infiltration operation."
+      },
+      {
+        title: "Episode 7",
+        season: 3,
+        episode: 7,
+        year: 2026,
+        video: "00",
+        image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%239ad34d' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 7%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%239ad34d' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring September 13, 2026%3C/text%3E%3C/svg%3E",
+        runtime: "51 min",
+        rating: "TBD",
+        description: "The team prepares for the endgame as loyalties are tested and hidden motives come to light."
+      },
+      {
+        title: "Episode 8",
+        season: 3,
+        episode: 8,
+        year: 2026,
+        video: "00",
+        image: "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23111622'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%239ad34d' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3EEpisode 8%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%239ad34d' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3EAiring September 20, 2026%3C/text%3E%3C/svg%3E",
+        runtime: "54 min",
+        rating: "TBD",
+        description: "Season 3 Finale. Joe and the team face their most dangerous confrontation yet."
+      }
+    ];
+
+    /* -----------------------------------------------
+       Modal & Player Integration
+       ----------------------------------------------- */
     const playerWrapper = document.getElementById('playerWrapper');
     const playbackModal = document.getElementById('playbackModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const modalTitle = document.getElementById('modalTitle');
     const modalDesc = document.getElementById('modalDesc');
 
+    const externalBtn = document.getElementById('externalBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const muteBtn = document.getElementById('muteBtn');
+    const closeBtn = document.getElementById('closeBtn');
 
     let currentHls = null;
     let currentFiltered = [];
@@ -628,22 +593,19 @@ const movies = [
       playbackModal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
+
     function hideModal() {
       playbackModal.classList.remove('active');
       document.body.style.overflow = '';
     }
 
-    function showError(msg) { console.warn(msg); }
-
     function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+
       currentFiltered = list;
       currentIndex = index;
       const item = list[index];
-      if (!item) { showError('Missing item'); return; }
+      if (!item) return;
 
       modalTitle.textContent = item.title || '';
       modalDesc.textContent = item.description || '';
@@ -651,29 +613,43 @@ const movies = [
       resetPlayerContainer();
       showModal();
 
-      // pick source
-      let src = '';
-      if (typeof item.video === 'object' && item.video !== null) {
-        src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
-      } else {
-        src = item.video;
+      let src = (typeof item.video === 'object' && item.video !== null) 
+        ? (item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0]) 
+        : item.video;
+
+      if (externalBtn) {
+        externalBtn.href = (src && src !== '00') ? src : '#';
       }
-      if (!src) {
-        showError('No video url');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=`, 500);
+
+      if (!src || src === "00") {
+        playerWrapper.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full w-full bg-gradient-to-br from-[#0e1628] to-black text-center p-6 border border-gray-800">
+            <i class="fas fa-shield-alt text-[#9ad34d] text-5xl mb-3 animate-bounce"></i>
+            <h4 class="text-xl font-bold text-white mb-1 marvel-font tracking-wider">${item.title}</h4>
+            <p class="text-xs text-gray-400 max-w-md mb-3">${item.description}</p>
+            <span class="inline-block bg-[#9ad34d]/20 border border-[#9ad34d] text-[#9ad34d] text-xs px-3 py-1 rounded-full font-mono">Status: Episode Release Pending</span>
+          </div>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
         return;
       }
 
       const lc = (src||'').toLowerCase();
 
-      // iframe hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+      if (
+        src.includes('m3u8-proxy.m3u8') ||
+        lc.includes('streamtape.com') ||
+        lc.includes('dood') ||
+        lc.includes('vidcdn') ||
+        lc.includes('ok.ru') ||
+        lc.includes('mega.nz') ||
+        lc.includes('openload') ||
+        lc.includes('drive.google.com')
+      ) {
         playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
         playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
       }
 
-      // youtube
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -690,55 +666,35 @@ const movies = [
         return;
       }
 
-      // HLS
       if (isHls(src)) {
         const v = document.getElementById('modalVideo');
-        if (!v) { showError('Video element missing'); return; }
+        if (!v) return;
         if (window.Hls && Hls.isSupported()) {
           currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
           currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
             v.play().catch(()=>{});
             playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-          currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-            }
           });
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
           playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
         }
         return;
       }
 
-      // MP4
       if (isMP4(src)) {
         const v = document.getElementById('modalVideo');
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
-        v.src = src;
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
+        if (v) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        }
       }
-
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
-    /* Controls */
     function togglePlayPause() {
       const v = document.getElementById('modalVideo');
       if (!v) return;
@@ -750,27 +706,31 @@ const movies = [
         playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
       }
     }
+
     function playNext() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
+      if (currentIndex != null && currentIndex < currentFiltered.length - 1) {
+        openPlayer(currentFiltered, currentIndex + 1);
+      }
     }
+
     function playPrev() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
+      if (currentIndex != null && currentIndex > 0) {
+        openPlayer(currentFiltered, currentIndex - 1);
+      }
     }
+
     function toggleFullscreen() {
       const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
       if (!el) return;
       if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el);
       } else {
         document.exitFullscreen();
       }
     }
+
     function toggleMute() {
       const v = document.getElementById('modalVideo');
       if (!v) return;
@@ -778,7 +738,6 @@ const movies = [
       muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
-    /* Close modal & cleanup */
     function closeModalHandler() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -796,26 +755,25 @@ const movies = [
       playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
     }
 
-    /* Events wiring */
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
     prevBtn.addEventListener('click', playPrev);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     muteBtn.addEventListener('click', toggleMute);
+    if (closeBtn) closeBtn.addEventListener('click', closeModalHandler);
 
     closeModalBtn.addEventListener('click', closeModalHandler);
     playbackModal.addEventListener('click', function(e){
       if (e.target === playbackModal) closeModalHandler();
     });
 
-    // Keyboard shortcuts when modal active
     document.addEventListener('keydown', (e) => {
       if (!playbackModal.classList.contains('active')) return;
       switch (e.key.toLowerCase()) {
         case 'escape': closeModalHandler(); break;
         case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime += 10; break; }
+        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime -= 10; break; }
         case 'f': toggleFullscreen(); break;
         case 'm': toggleMute(); break;
         case 'n': playNext(); break;
@@ -823,109 +781,72 @@ const movies = [
       }
     });
 
-    /* Attach video timeupdate/ended listeners */
-    function attachVideoListeners() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.removeEventListener('timeupdate', onTimeUpdate);
-      v.addEventListener('timeupdate', onTimeUpdate);
-      v.removeEventListener('ended', onEnded);
-      v.addEventListener('ended', onEnded);
-    }
-    function onTimeUpdate() {
-      // If the original progress bar exists, update it (preserved element)
-      const progressBarFill = document.getElementById('progress-bar-fill');
-      const videoEl = document.getElementById('modalVideo');
-      if (!progressBarFill || !videoEl || !videoEl.duration) return;
-      const p = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = p + '%';
-    }
-    function onEnded() {
-      const playBtn = document.getElementById('play-btn') || playPauseBtn;
-      if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
-    }
-
-    /* Render episodes grid (wired to openPlayer) */
+    // High Performance Dynamic Card Rendering
     const container = document.getElementById('movies');
     function renderMovies(list) {
       container.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+
       list.forEach((movie, index) => {
         const card = document.createElement('div');
-        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
+        card.className = 'movie-card rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between glow-effect bg-gray-900/60 border border-gray-800';
         card.innerHTML = `
-          <div class="relative group overflow-hidden rounded-xl">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <div>
-                <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
-                <p class="text-gray-300 text-xs sm:text-sm">${movie.duration || ''}</p>
-              </div>
+          <div class="relative group overflow-hidden bg-black">
+            <img src="${movie.image}" alt="${movie.title}" loading="lazy" class="w-full h-36 sm:h-44 md:h-52 object-cover opacity-90 group-hover:opacity-100 transition-opacity">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end p-3">
+              <p class="text-gray-300 text-xs line-clamp-2">${movie.description || ''}</p>
             </div>
-            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
-              <i class="fas fa-play"></i>
+            <div class="absolute top-2.5 right-2.5 bg-black/80 text-[#9ad34d] rounded-full w-8 h-8 flex items-center justify-center border border-[#9ad34d]/30">
+              <i class="fas fa-play text-xs"></i>
             </div>
-            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
-              <i class="fas fa-star text-[#9ad34d] text-xs mr-1"></i>
-              <span class="text-white text-xs">${movie.rating || ''}</span>
+            <div class="absolute top-2.5 left-2.5 flex items-center bg-black/80 px-2 py-0.5 rounded border border-gray-800">
+              <i class="fas fa-star text-[#9ad34d] text-[10px] mr-1"></i>
+              <span class="text-white text-xs font-bold">${movie.rating || '8.5'}</span>
             </div>
           </div>
-          <div class="mt-3">
-            <h3 class="text-white font-medium">${movie.title}</h3>
-            <div class="flex items-center text-gray-400 text-sm mt-1">
-              <span>S${movie.season} • E${movie.episode}</span>
-              <span>${movie.duration || ''}</span>
+          <div class="p-3">
+            <h3 class="text-white font-semibold text-sm line-clamp-1 group-hover:text-[#9ad34d] transition">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-xs mt-1.5 font-medium">
+              <span class="bg-gray-800 text-[#9ad34d] px-1.5 py-0.5 rounded text-[10px] font-bold">S${movie.season} E${movie.episode}</span>
+              <span class="mx-1.5">•</span>
+              <span>${movie.runtime || '50 min'}</span>
             </div>
           </div>
         `;
-        card.addEventListener('click', () => {
-          // show loading spinner while resolving
-          const loadingSpinner = document.getElementById('loading-spinner');
-          if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-          // open with the full current list and index
-          openPlayer(list, index);
-          // attach listeners for the video element (a bit delayed to allow element to exist)
-          setTimeout(()=> attachVideoListeners(), 200);
-          if (loadingSpinner) loadingSpinner.classList.add('hidden');
-        });
-        container.appendChild(card);
+        card.addEventListener('click', () => openPlayer(list, index));
+        fragment.appendChild(card);
       });
+
+      container.appendChild(fragment);
     }
 
-    /* Init page (season filtering wired up) */
     function initPage() {
       renderMovies(movies);
 
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-        });
-      });
-
-      // Season buttons: filter content
       const seasonBtns = document.querySelectorAll('.season-btn');
       seasonBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
+          seasonBtns.forEach(b => {
+            b.classList.remove('active', 'bg-[#9ad34d]', 'text-black');
+            b.classList.add('text-gray-300', 'bg-gray-900');
+          });
           this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+          this.classList.remove('text-gray-300', 'bg-gray-900');
+          
           const season = this.dataset.season;
-          let filtered;
-          if (!season || season === 'all') filtered = movies;
-          else filtered = movies.filter(m => String(m.season) === String(season));
+          const filtered = (!season || season === 'all') 
+            ? movies 
+            : movies.filter(m => String(m.season) === String(season));
+          
           renderMovies(filtered);
         });
       });
 
-      // Play All behavior (starts at first)
       const playAllBtn = document.getElementById('play-all');
       if (playAllBtn) {
-        playAllBtn.addEventListener('click', () => {
-          openPlayer(movies, 0);
-          setTimeout(()=> attachVideoListeners(), 200);
-        });
+        playAllBtn.addEventListener('click', () => openPlayer(movies, 0));
       }
 
-      // Global search wiring
       const globalSearch = document.getElementById('global-search');
       if (globalSearch) {
         globalSearch.addEventListener('input', (e) => {
@@ -937,56 +858,13 @@ const movies = [
           renderMovies(list);
         });
       }
-
-      // Watchlist UI wiring preserved
-      updateWatchlist();
     }
 
-    /* Watchlist functions (preserved) */
-    const watchlistItems = document.getElementById('watchlist-items');
-    function updateWatchlist() {
-      if (!watchlistItems) return;
-      watchlistItems.innerHTML = '';
-      const watchlistMovies = movies.filter(m => m.inWatchlist);
-      if (watchlistMovies.length === 0) {
-        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
-        return;
-      }
-      watchlistMovies.forEach((movie, idx) => {
-        const index = movies.indexOf(movie);
-        const item = document.createElement('div');
-        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
-        item.innerHTML = `
-          <div class="flex items-center">
-            <span class="text-[#9ad34d] text-sm mr-2">${idx + 1}.</span>
-            <span class="text-white text-sm truncate">${movie.title}</span>
-          </div>
-          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
-            <i class="fas fa-times"></i>
-          </button>
-        `;
-        item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
-          e.stopPropagation();
-          removeFromWatchlist(index);
-        });
-        item.addEventListener('click', () => {
-          openPlayer(movies, index);
-          document.getElementById('watchlist-dropdown').classList.add('hidden');
-        });
-        watchlistItems.appendChild(item);
-      });
-    }
-    function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
-    function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
-
-    /* preserved UI event wiring (search, theme, watchlist, modal controls) */
-    const containerEl = document.getElementById('movies');
     const searchBtn = document.getElementById('search-btn');
     const searchBar = document.getElementById('search-bar');
     const themeToggle = document.getElementById('theme-toggle');
     const watchlistBtn = document.getElementById('watchlist-btn');
     const watchlistDropdown = document.getElementById('watchlist-dropdown');
-    const closeModal = document.getElementById('close-modal');
 
     searchBtn.addEventListener('click', () => {
       searchBar.classList.toggle('hidden');
@@ -1002,33 +880,18 @@ const movies = [
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('bg-gray-100');
       document.body.classList.toggle('text-gray-900');
-      document.body.classList.toggle('bg-black');
-      document.body.classList.toggle('text-gray-100');
-      const icon = themeToggle.querySelector('i');
-      if (document.body.classList.contains('bg-black')) {
-        icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
-      } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
     });
 
-    // close modal by clicking background already wired above via playbackModal click
-
-    // watchlist close on outside click & search close
     document.addEventListener('click', (e) => {
       if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
       if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
     });
 
-    // attach video listeners placeholder (modal video element created on demand)
-    function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
-
-    // init on DOMContentLoaded
     window.addEventListener('DOMContentLoaded', () => {
       initPage();
-      // ensure modal close button works
-      document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
     });
   </script>
- <!-- ========================================================= -->
+  <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -1349,7 +1212,6 @@ img {
     background: transparent;
 }
 </style>
-
 
 </body>
 </html>
