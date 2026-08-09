@@ -3,945 +3,1236 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>English Web Series</title>
+  <title>English Web Series | Tactical Intel Hub</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
-    .series-card:hover img {
-      transform: scale(1.08);
+    /* 3D Depth Perspective Setup */
+    .grid-container {
+      perspective: 1200px;
     }
+
+    /* Hardware Accelerated Smooth Cards */
+    .series-card {
+      will-change: transform, box-shadow;
+      transform: translateZ(0);
+      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
+                  box-shadow 0.35s ease, 
+                  border-color 0.35s ease;
+      transform-style: preserve-3d;
+    }
+
     .series-card img {
-      transition: transform 0.45s ease;
+      will-change: transform, filter;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), filter 0.5s ease;
+    }
+
+    /* Tactile 3D Hover & Touch Active State (Optimized for Mobile Tap) */
+    .series-card:hover, .series-card:active, .series-card:focus {
+      transform: translateY(-8px) rotateX(4deg) scale(1.02);
+      border-color: rgba(6, 182, 212, 0.5); /* Glowing Cyan */
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.8), 
+                  0 0 20px rgba(6, 182, 212, 0.25);
+    }
+
+    .series-card:hover img, .series-card:active img {
+      transform: scale(1.08) translateZ(10px);
+      filter: contrast(1.08) brightness(1.05);
+    }
+
+    /* Tactical Ambient Background Glow */
+    .tactical-bg {
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 80% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+    }
+
+    /* Subtle Cyber Grid Accent Lines */
+    .cyber-grid {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#020617] to-black text-white">
+<body class="min-h-screen bg-[#050811] text-gray-100 tactical-bg cyber-grid antialiased selection:bg-cyan-500 selection:text-black">
 
   <!-- Header -->
-  <header class="py-14 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+  <header class="pt-12 pb-8 text-center relative px-4">
+    <!-- Tactical Badge -->
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono tracking-widest uppercase mb-4 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+      <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+      GLOBAL INTEL ARCHIVE
+    </div>
+
+    <h1 class="text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-cyan-400 uppercase">
       English Web Series
     </h1>
-    <p class="text-gray-400 mt-3 text-lg">
-      Watch the best English shows & originals
+    <p class="text-slate-400 mt-3 text-sm md:text-base max-w-xl mx-auto font-light tracking-wide">
+      Explore top-rated English thrillers, sci-fi ops, and blockbusters.
     </p>
   </header>
 
   <!-- Search -->
-  <div class="max-w-7xl mx-auto px-4 mb-10">
-    <div class="relative max-w-md mx-auto">
-      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+  <div class="max-w-7xl mx-auto px-4 mb-12">
+    <div class="relative max-w-lg mx-auto group">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-cyan-500/70 group-focus-within:text-cyan-400 transition-colors"></i>
       <input
         type="text"
         id="searchInput"
-        placeholder="Search web series..."
-        class="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/10 backdrop-blur border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400"
+        placeholder="Search operations, series, or keywords..."
+        class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 shadow-lg shadow-black/50 transition-all"
       />
+      <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 pointer-events-none">
+        LIVE FILTER
+      </div>
     </div>
   </div>
 
-  <!-- Grid -->
-  <div class="max-w-7xl mx-auto px-4 pb-24">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+  <!-- Grid Container -->
+  <div class="max-w-7xl mx-auto px-4 pb-24 grid-container">
+    <div id="seriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7">
 
-      <!-- CARD -->
-      <a href="https://cloudtv.store/loki"
-         class="series-card group rounded-2xl overflow-hidden bg-white/5 backdrop-blur border border-white/10 shadow-lg hover:shadow-indigo-500/20 transition-all">
-
-        <div class="relative aspect-[2/3] overflow-hidden">
-          <img src="https://cdn.marvel.com/content/1x/online_9.jpg" class="w-full h-full object-cover" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+      <!-- Loki -->
+      <a href="https://cloudtv.store/loki" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://cdn.marvel.com/content/1x/online_9.jpg" loading="lazy" alt="Loki" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
         </div>
-
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Loki</h3>
-          <p class="text-xs text-gray-400 mt-1">Marvel Studios • 2 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%]"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Loki</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Marvel Studios</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
           </div>
         </div>
       </a>
 
-      <!-- Duplicate pattern below (already modernized) -->
-
       <!-- The Boys -->
-      <a href="https://cloudtv.store/the-boys" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/the-boys" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg" loading="lazy" alt="The Boys" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            4 SEASONS
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">The Boys</h3>
-          <p class="text-xs text-gray-400">4 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">The Boys</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Avatar: The Last Airbender -->
-      <a href="https://cloudtv.store/airbender" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/lzZpWEaqzP0qVA5nkCc5ASbNcSy.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/airbender" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/lzZpWEaqzP0qVA5nkCc5ASbNcSy.jpg" loading="lazy" alt="Avatar: The Last Airbender" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Avatar: The Last Airbender</h3>
-          <p class="text-xs text-gray-400">Netflix: 2 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Avatar: Last Airbender</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Widow's Bay -->
-      <a href="https://cloudtv.store/widows-bay" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/5lcxWLVAEICkFpuAiV1aMy7ZZj3.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/widows-bay" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/5lcxWLVAEICkFpuAiV1aMy7ZZj3.jpg" loading="lazy" alt="Widow's Bay" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Widow's Bay</h3>
-          <p class="text-xs text-gray-400">Apple TV: Seasons 1</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Widow's Bay</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Apple TV+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Dutton Ranch -->
-      <a href="https://cloudtv.store/dutton-ranch" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/xsiecCxd8lkcAluw0wWwbW5CwSv.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/dutton-ranch" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/xsiecCxd8lkcAluw0wWwbW5CwSv.jpg" loading="lazy" alt="Dutton Ranch" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Dutton Ranch</h3>
-          <p class="text-xs text-gray-400">Paramount+: Seasons 1</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Dutton Ranch</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Paramount+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Little House on the Prairie -->
-      <a href="https://cloudtv.store/prairie" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/oWUGSadxC9vQPOCeHDDVfDezmQC.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/prairie" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/oWUGSadxC9vQPOCeHDDVfDezmQC.jpg" loading="lazy" alt="Little House on the Prairie" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Little House on the Prairie</h3>
-          <p class="text-xs text-gray-400">Netflix: Seasons 1</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Little House Prairie</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Wonder Man -->
-      <a href="https://cloudtv.store/wonder-man" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/6yy9nQlFt2l6UVWzrfhszFCaZ5C.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/wonder-man" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/6yy9nQlFt2l6UVWzrfhszFCaZ5C.jpg" loading="lazy" alt="Wonder Man" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Wonder Man</h3>
-          <p class="text-xs text-gray-400">1 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Wonder Man</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Stranger Things -->
-      <a href="https://cloudtv.store/stranger-things" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/cVxVGwHce6xnW8UaVUggaPXbmoE.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/stranger-things" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/cVxVGwHce6xnW8UaVUggaPXbmoE.jpg" loading="lazy" alt="Stranger Things" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            5 SEASONS
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Stranger Things</h3>
-          <p class="text-xs text-gray-400">5 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Stranger Things</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Wednesday -->
-      <a href="https://cloudtv.store/wednesday" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://m.media-amazon.com/images/I/712iUgQM16L._AC_UF894,1000_QL80_.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/wednesday" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://m.media-amazon.com/images/I/712iUgQM16L._AC_UF894,1000_QL80_.jpg" loading="lazy" alt="Wednesday" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Wednesday</h3>
-          <p class="text-xs text-gray-400">2 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Wednesday</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Transporter: The Series -->
-      <a href="https://cloudtv.store/transporter-series" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/23ESZ6mTcJw8zHOkW4G38uIz147.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/transporter-series" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/23ESZ6mTcJw8zHOkW4G38uIz147.jpg" loading="lazy" alt="Transporter: The Series" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Transporter: The Series</h3>
-          <p class="text-xs text-gray-400">2 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Transporter Series</h3>
+          <p class="text-xs text-slate-400 mt-0.5">TNT</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Stuart Fails to Save the Universe -->
-      <a href="https://cloudtv.store/stuart" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/iQbTbwmLX5Nh1nlH21YUJPWt3Zo.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/stuart" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/iQbTbwmLX5Nh1nlH21YUJPWt3Zo.jpg" loading="lazy" alt="Stuart Fails to Save the Universe" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Stuart Fails to Save the Universe</h3>
-          <p class="text-xs text-gray-400">HBO MAX- Seasons 1</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Stuart Fails Universe</h3>
+          <p class="text-xs text-slate-400 mt-0.5">HBO Max</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Steal -->
-      <a href="https://cloudtv.store/steal" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/6KmlaPhsohh3Ki9XJUq0jiUYbf3.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/steal" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/6KmlaPhsohh3Ki9XJUq0jiUYbf3.jpg" loading="lazy" alt="Steal" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Steal</h3>
-          <p class="text-xs text-gray-400">1 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Steal</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Reacher -->
-      <a href="https://cloudtv.store/reacher" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/31GlRQMiDunO8cl3NxTz34U64rf.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/reacher" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/31GlRQMiDunO8cl3NxTz34U64rf.jpg" loading="lazy" alt="Reacher" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Reacher</h3>
-          <p class="text-xs text-gray-400">3 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Reacher</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- Fallout -->
-      <a href="https://cloudtv.store/fallout" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://i.redd.it/fallout-2024-textless-official-posters-for-amazon-prime-v0-rtl87qakzxmc1.jpg?width=864&format=pjpg&auto=webp&s=791f85b10cd16ce59c77a39c187c67a494197eae" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/fallout" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://i.redd.it/fallout-2024-textless-official-posters-for-amazon-prime-v0-rtl87qakzxmc1.jpg?width=864&format=pjpg&auto=webp&s=791f85b10cd16ce59c77a39c187c67a494197eae" loading="lazy" alt="Fallout" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">Fallout</h3>
-          <p class="text-xs text-gray-400">2 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Fallout</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
-            <!-- One Piece -->
-      <a href="https://cloudtv.store/one-piece" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/blWCPEqDGLBuLB9u89CxP9ORQP4.jpg" class="w-full h-full object-cover">
+      <!-- One Piece -->
+      <a href="https://cloudtv.store/one-piece" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/blWCPEqDGLBuLB9u89CxP9ORQP4.jpg" loading="lazy" alt="One Piece" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">One Piece</h3>
-          <p class="text-xs text-gray-400">2 Seasons</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">One Piece</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
       <!-- CIA -->
-      <a href="https://cloudtv.store/cia" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-        <div class="aspect-[2/3] overflow-hidden">
-          <img src="https://image.tmdb.org/t/p/w500/8XbgWv137Umc8resTDeWh9ff7Y0.jpg" class="w-full h-full object-cover">
+      <a href="https://cloudtv.store/cia" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/8XbgWv137Umc8resTDeWh9ff7Y0.jpg" loading="lazy" alt="CIA" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
         </div>
-        <div class="p-4">
-          <h3 class="font-semibold text-sm">CIA</h3>
-          <p class="text-xs text-gray-400">Seasons 1</p>
-          <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-            <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">CIA</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Paramount+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
           </div>
         </div>
       </a>
 
+      <!-- The Day of the Jackal -->
+      <a href="https://cloudtv.store/jackal" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/tYLecM3WSEjlkKhkGiH5G68Dprm.jpg" loading="lazy" alt="The Day of the Jackal" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">The Day of the Jackal</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Peacock</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- The Day of the Jackal -->
-<a href="https://cloudtv.store/jackal" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/tYLecM3WSEjlkKhkGiH5G68Dprm.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The Day of the Jackal</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Legends -->
+      <a href="https://cloudtv.store/legends" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/eYYTgBtsvvA3fC1feyvoqv0G9Gl.jpg" loading="lazy" alt="Legends" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Legends</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
+      <!-- I Will Find You -->
+      <a href="https://cloudtv.store/i-will-find-you" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/7WJJucDKypqoF27vfvErMPigP3P.jpg" loading="lazy" alt="I Will Find You" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">I Will Find You</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Legends -->
-<a href="https://cloudtv.store/legends" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/eYYTgBtsvvA3fC1feyvoqv0G9Gl.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Legends</h3>
-    <p class="text-xs text-gray-400">Netflix: Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Man on Fire -->
+      <a href="https://cloudtv.store/man-on-fire" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/9cZzmT8rhBXbZ1QFBPs3ggABYB3.jpg" loading="lazy" alt="Man on Fire" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Man on Fire</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- I Will Find You -->
-<a href="https://cloudtv.store/i-will-find-you" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/7WJJucDKypqoF27vfvErMPigP3P.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">I Will Find You</h3>
-    <p class="text-xs text-gray-400">Netflix: Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- NCIS Sydney -->
+      <a href="https://cloudtv.store/ncis-sydney" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/6dYDa6h1AOZ7iZ1zv3nlw7qhErX.jpg" loading="lazy" alt="NCIS Sydney" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">NCIS: Sydney</h3>
+          <p class="text-xs text-slate-400 mt-0.5">CBS</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
+      <!-- HIS & HERS -->
+      <a href="https://cloudtv.store/his-hers" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/cDSXLVQLkCSBIpBx3UW04TsfZ5c.jpg" loading="lazy" alt="HIS & HERS" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">HIS & HERS</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Man on Fire -->
-<a href="https://cloudtv.store/man-on-fire" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/9cZzmT8rhBXbZ1QFBPs3ggABYB3.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Man on Fire</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Pluribus -->
+      <a href="https://cloudtv.store/pluribus" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/nrM2xFUfKJJEmZzd5d7kohT2G0C.jpg" loading="lazy" alt="Pluribus" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Pluribus</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Apple TV+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- NCIS Sydney -->
-<a href="https://cloudtv.store/ncis-sydney" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/6dYDa6h1AOZ7iZ1zv3nlw7qhErX.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">NCIS: Sydney</h3>
-    <p class="text-xs text-gray-400">3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Spider-Noir -->
+      <a href="https://cloudtv.store/spider-noir" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/oD8WSVqz84ZRfelkr7JPeJwR9Iv.jpg" loading="lazy" alt="Spider-Noir" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Spider-Noir</h3>
+          <p class="text-xs text-slate-400 mt-0.5">MGM+ / Prime</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- HIS & HERS -->
-<a href="https://cloudtv.store/his-hers" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/cDSXLVQLkCSBIpBx3UW04TsfZ5c.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">HIS & HERS</h3>
-    <p class="text-xs text-gray-400">1 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Hijack -->
+      <a href="https://cloudtv.store/hijack" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/szDEqqarPi3YqiPLevm7LObYrDJ.jpg" loading="lazy" alt="Hijack" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Hijack</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Apple TV+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Pluribus -->
-<a href="https://cloudtv.store/pluribus" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/nrM2xFUfKJJEmZzd5d7kohT2G0C.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Pluribus</h3>
-    <p class="text-xs text-gray-400">Apple TV+ • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Alien: Earth -->
+      <a href="https://cloudtv.store/alien-earth" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/yueXS3q8BtoWekcHOATFHicLl3e.jpg" loading="lazy" alt="Alien: Earth" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Alien: Earth</h3>
+          <p class="text-xs text-slate-400 mt-0.5">FX / Hulu</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Spider-Noir -->
-<a href="https://cloudtv.store/spider-noir" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/oD8WSVqz84ZRfelkr7JPeJwR9Iv.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Spider-Noir</h3>
-    <p class="text-xs text-gray-400">Marvel • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Upload -->
+      <a href="https://cloudtv.store/upload" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/6TPGDrU9MyWbn2TpggJphVAVXiq.jpg" loading="lazy" alt="Upload" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            4 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Upload</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Hijack -->
-<a href="https://cloudtv.store/hijack" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/szDEqqarPi3YqiPLevm7LObYrDJ.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Hijack</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Last Resort -->
+      <a href="https://cloudtv.store/last-resort" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/1SxZtDZIEuc077pm8uacHiWTrBZ.jpg" loading="lazy" alt="Last Resort" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Last Resort</h3>
+          <p class="text-xs text-slate-400 mt-0.5">ABC</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Alien Earth -->
-<a href="https://cloudtv.store/alien-earth" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/yueXS3q8BtoWekcHOATFHicLl3e.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Alien: Earth</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Memory of a Killer -->
+      <a href="https://cloudtv.store/memory-of-a-killer" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/3kpXrWW6gmlngwgSa52IhBpjPuz.jpg" loading="lazy" alt="Memory of a Killer" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Memory of a Killer</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Upload -->
-<a href="https://cloudtv.store/upload" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/6TPGDrU9MyWbn2TpggJphVAVXiq.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Upload</h3>
-    <p class="text-xs text-gray-400">4 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Tulsa King -->
+      <a href="https://cloudtv.store/tulsa-king" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/rOYLWCdAifpUtPlTf1WHxyaxeMt.jpg" loading="lazy" alt="Tulsa King" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Tulsa King</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Paramount+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Last Resort -->
-<a href="https://cloudtv.store/last-resort" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/1SxZtDZIEuc077pm8uacHiWTrBZ.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Last Resort</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Mr. Robot -->
+      <a href="https://cloudtv.store/mr-robot" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/kv1nRqgebSsREnd7vdC2pSGjpLo.jpg" loading="lazy" alt="Mr. Robot" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            4 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Mr. Robot</h3>
+          <p class="text-xs text-slate-400 mt-0.5">USA Network / Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Memory of a Killer -->
-<a href="https://cloudtv.store/memory-of-a-killer" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/3kpXrWW6gmlngwgSa52IhBpjPuz.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Memory of a Killer</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Jack Ryan -->
+      <a href="https://cloudtv.store/jack-ryan" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://artworks.thetvdb.com/banners/series/336261/posters/5faa6c7f6a93e.jpg" loading="lazy" alt="Jack Ryan" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            4 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Jack Ryan</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Tulsa King -->
-<a href="https://cloudtv.store/tulsa-king" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/rOYLWCdAifpUtPlTf1WHxyaxeMt.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Tulsa King</h3>
-    <p class="text-xs text-gray-400">3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- The War Between the Land and the Sea -->
+      <a href="https://cloudtv.store/the-war-between-the-land-and-the-sea" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/4wDU61HtpXbcwpgCy1xnodxKRYN.jpg" loading="lazy" alt="The War Between Land & Sea" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">War: Land & Sea</h3>
+          <p class="text-xs text-slate-400 mt-0.5">BBC / Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Mr. Robot -->
-<a href="https://cloudtv.store/mr-robot" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/kv1nRqgebSsREnd7vdC2pSGjpLo.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Mr. Robot</h3>
-    <p class="text-xs text-gray-400">Netflix-4 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Peacemaker -->
+      <a href="https://cloudtv.store/peacemaker" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/eYzbGcYnOUlvj2fa76pTgIXogd7.jpg" loading="lazy" alt="Peacemaker" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Peacemaker</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Max</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Jack Ryan -->
-<a href="https://cloudtv.store/jack-ryan" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://artworks.thetvdb.com/banners/series/336261/posters/5faa6c7f6a93e.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Tom Clancy's Jack Ryan</h3>
-    <p class="text-xs text-gray-400">4 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Scorpion -->
+      <a href="https://cloudtv.store/scorpion" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/hzeirSF6bRjssDh5JFrm5WRwFLd.jpg" loading="lazy" alt="Scorpion" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            4 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Scorpion</h3>
+          <p class="text-xs text-slate-400 mt-0.5">CBS</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- The War Between the Land and the Sea -->
-<a href="https://cloudtv.store/the-war-between-the-land-and-the-sea" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/4wDU61HtpXbcwpgCy1xnodxKRYN.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The War Between the Land and the Sea</h3>
-    <p class="text-xs text-gray-400">2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Trigger Point -->
+      <a href="https://cloudtv.store/trigger-point" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/cjMpwyWL0l1n0EkNw88QyzWRsHW.jpg" loading="lazy" alt="Trigger Point" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Trigger Point</h3>
+          <p class="text-xs text-slate-400 mt-0.5">ITV</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Peacemaker -->
-<a href="https://cloudtv.store/peacemaker" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/eYzbGcYnOUlvj2fa76pTgIXogd7.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Peacemaker</h3>
-    <p class="text-xs text-gray-400">2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- The Night Manager -->
+      <a href="https://cloudtv.store/the-night-manager" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/f99GnEDXsfF3sicqZzSqjzQutAB.jpg" loading="lazy" alt="The Night Manager" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">The Night Manager</h3>
+          <p class="text-xs text-slate-400 mt-0.5">BBC / AMC</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Scorpion -->
-<a href="https://cloudtv.store/scorpion" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/hzeirSF6bRjssDh5JFrm5WRwFLd.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Scorpion</h3>
-    <p class="text-xs text-gray-400">4 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Citadel -->
+      <a href="https://cloudtv.store/citadel" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://indianexpress.com/wp-content/uploads/2023/05/Citadel.jpg" loading="lazy" alt="Citadel" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            6 EPISODES
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Citadel</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Trigger Point -->
-<a href="https://cloudtv.store/trigger-point" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/cjMpwyWL0l1n0EkNw88QyzWRsHW.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Trigger Point</h3>
-    <p class="text-xs text-gray-400">3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Daredevil: Born Again -->
+      <a href="https://cloudtv.store/daredevil-born-again" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/9lLuhV703HGCbnz6FxnqCwIwzAZ.jpg" loading="lazy" alt="Daredevil: Born Again" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Daredevil: Born Again</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- The Night Manager -->
-<a href="https://cloudtv.store/the-night-manager" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/f99GnEDXsfF3sicqZzSqjzQutAB.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The Night Manager</h3>
-    <p class="text-xs text-gray-400">2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Falcon and Winter Soldier -->
+      <a href="https://cloudtv.store/falcon-winter" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/6kbAMLteGO8yyewYau6bJ683sw7.jpg" loading="lazy" alt="Falcon & Winter Soldier" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Falcon & Winter Soldier</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Citadel -->
-<a href="https://cloudtv.store/citadel" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://indianexpress.com/wp-content/uploads/2023/05/Citadel.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Citadel</h3>
-    <p class="text-xs text-gray-400">Thriller • 6 Episodes</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Agent Carter -->
+      <a href="https://cloudtv.store/agent-carter" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/fe79VYyLp5ZBstpJ4oukpuUT3B.jpg" loading="lazy" alt="Agent Carter" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Agent Carter</h3>
+          <p class="text-xs text-slate-400 mt-0.5">ABC / Marvel</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Daredevil: Born Again -->
-<a href="https://cloudtv.store/daredevil-born-again" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/9lLuhV703HGCbnz6FxnqCwIwzAZ.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Daredevil: Born Again</h3>
-    <p class="text-xs text-gray-400">Thriller • 2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Hawkeye -->
+      <a href="https://cloudtv.store/hawkeye" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/ct5pNE5dDHryHLDnxyZPYcqO1sz.jpg" loading="lazy" alt="Hawkeye" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Hawkeye</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Falcon and Winter Soldier -->
-<a href="https://cloudtv.store/falcon-winter" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/6kbAMLteGO8yyewYau6bJ683sw7.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The Falcon and The Winter Soldier</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- She-Hulk: Attorney at Law -->
+      <a href="https://cloudtv.store/she-hulk" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/hJfI6AGrmr4uSHRccfJuSsapvOb.jpg" loading="lazy" alt="She-Hulk" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">She-Hulk: Attorney</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Agent Carter -->
-<a href="https://cloudtv.store/agent-carter" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/fe79VYyLp5ZBstpJ4oukpuUT3B.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Marvel's Agent Carter</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Ironheart -->
+      <a href="https://cloudtv.store/ironheart" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/2mdVj5ObYOroWlPWz3gegxi45ND.jpg" loading="lazy" alt="Ironheart" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Ironheart</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Hawkeye -->
-<a href="https://cloudtv.store/hawkeye" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/ct5pNE5dDHryHLDnxyZPYcqO1sz.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Hawkeye</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Moon Knight -->
+      <a href="https://cloudtv.store/moon-knight" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/vKDUmKO6F9bSKKyHhg7YGbgcEeF.jpg" loading="lazy" alt="Moon Knight" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Moon Knight</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- She-Hulk: Attorney at Law -->
-<a href="https://cloudtv.store/she-hulk" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/hJfI6AGrmr4uSHRccfJuSsapvOb.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">She-Hulk: Attorney at Law</h3>
-    <p class="text-xs text-gray-400">Marvel-Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- WandaVision -->
+      <a href="https://cloudtv.store/wanda-vision" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/frobUz2X5Pc8OiVZU8Oo5K3NKMM.jpg" loading="lazy" alt="WandaVision" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">WandaVision</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Ironheart -->
-<a href="https://cloudtv.store/ironheart" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/2mdVj5ObYOroWlPWz3gegxi45ND.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Ironheart</h3>
-    <p class="text-xs text-gray-400">Marvel-Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Drug Lords -->
+      <a href="https://cloudtv.store/drug-lords" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/original/LnhreOwWRHrsahhj1NXwknHUyH.jpg" loading="lazy" alt="Drug Lords" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Drug Lords</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Moon Knight -->
-<a href="https://cloudtv.store/moon-knight" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/vKDUmKO6F9bSKKyHhg7YGbgcEeF.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Moon Knight</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Secret Invasion -->
+      <a href="https://cloudtv.store/secret-invasion" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/f5ZMzzCvt2IzVDxr54gHPv9jlC9.jpg" loading="lazy" alt="Secret Invasion" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Secret Invasion</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Disney+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- WandaVision -->
-<a href="https://cloudtv.store/wanda-vision" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/frobUz2X5Pc8OiVZU8Oo5K3NKMM.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">WandaVision</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Silo -->
+      <a href="https://cloudtv.store/silo" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/c2OijvbFEXBW1onbzuvENr4CGQB.jpg" loading="lazy" alt="Silo" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Silo</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Apple TV+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Drug Lords -->
-<a href="https://cloudtv.store/drug-lords" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/original/LnhreOwWRHrsahhj1NXwknHUyH.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Drug Lords</h3>
-    <p class="text-xs text-gray-400">Documentary • 2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Cape Fear -->
+      <a href="https://cloudtv.store/cape-fear" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/3ZLy3cfQa9prahoRq1teMmr5pvW.jpg" loading="lazy" alt="Cape Fear" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Cape Fear</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Apple TV+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Secret Invasion -->
-<a href="https://cloudtv.store/secret-invasion" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/f5ZMzzCvt2IzVDxr54gHPv9jlC9.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Secret Invasion</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Lucky -->
+      <a href="https://cloudtv.store/lucky" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/xsrkiXg8EuNNtbPtbmvCxg95gK7.jpg" loading="lazy" alt="Lucky" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Lucky</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Apple TV+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Silo -->
-<a href="https://cloudtv.store/silo" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/c2OijvbFEXBW1onbzuvENr4CGQB.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Silo</h3>
-    <p class="text-xs text-gray-400">Apple TV+ 3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Star City -->
+      <a href="https://cloudtv.store/star-city" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/b8VtW6IEIyEWYdnJHx8bG8RdAak.jpg" loading="lazy" alt="Star City" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Star City</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Apple TV+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Cape Fear -->
-<a href="https://cloudtv.store/cape-fear" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/3ZLy3cfQa9prahoRq1teMmr5pvW.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Cape Fear</h3>
-    <p class="text-xs text-gray-400">Apple TV+ Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Quantum Leap -->
+      <a href="https://cloudtv.store/quantum-leap" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://m.media-amazon.com/images/M/MV5BOThjYzU0YTYtMDBhNC00ZjczLTg0NGEtNGZlZmY2ODgxYTY1XkEyXkFqcGc@._V1_.jpg" loading="lazy" alt="Quantum Leap" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Quantum Leap</h3>
+          <p class="text-xs text-slate-400 mt-0.5">NBC</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Lucky -->
-<a href="https://cloudtv.store/lucky" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/xsrkiXg8EuNNtbPtbmvCxg95gK7.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">lucky</h3>
-    <p class="text-xs text-gray-400">Apple TV+ Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- IT: Welcome to Derry -->
+      <a href="https://cloudtv.store/it" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/nyy3BITeIjviv6PFIXtqvc8i6xi.jpg" loading="lazy" alt="IT: Welcome to Derry" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">IT: Welcome to Derry</h3>
+          <p class="text-xs text-slate-400 mt-0.5">HBO Max</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Star City -->
-<a href="https://cloudtv.store/star-city" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/b8VtW6IEIyEWYdnJHx8bG8RdAak.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Star City</h3>
-    <p class="text-xs text-gray-400">Apple TV+ Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- FUBAR -->
+      <a href="https://cloudtv.store/fubar" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/6fM34tcGFp3A0csyxJJomknZB4b.jpg" loading="lazy" alt="FUBAR" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">FUBAR</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Quantum Leap -->
-<a href="https://cloudtv.store/quantum-leap" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://m.media-amazon.com/images/M/MV5BOThjYzU0YTYtMDBhNC00ZjczLTg0NGEtNGZlZmY2ODgxYTY1XkEyXkFqcGc@._V1_.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Quantum Leap</h3>
-    <p class="text-xs text-gray-400">2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Man vs Baby -->
+      <a href="https://cloudtv.store/man-vs-baby" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/x7UZVTEr26H5yCSVQoKTeBdvUvg.jpg" loading="lazy" alt="Man vs Baby" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Man vs Baby</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- IT: Welcome to Derry -->
-<a href="https://cloudtv.store/it" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/nyy3BITeIjviv6PFIXtqvc8i6xi.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">IT: Welcome to Derry</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Man vs Bee -->
+      <a href="https://cloudtv.store/man-vs-bee" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w185/c80mxgOPvSWJBcgWoI5bf3et5Ws.jpg" loading="lazy" alt="Man vs Bee" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Man vs Bee</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- FUBAR -->
-<a href="https://cloudtv.store/fubar" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/6fM34tcGFp3A0csyxJJomknZB4b.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">FUBAR</h3>
-    <p class="text-xs text-gray-400">2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Ted -->
+      <a href="https://cloudtv.store/ted" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/cPn71YFDENH0JkWUezlsLyWmLfN.jpg" loading="lazy" alt="Ted" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Ted</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Peacock</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Man vs Baby -->
-<a href="https://cloudtv.store/man-vs-baby" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/x7UZVTEr26H5yCSVQoKTeBdvUvg.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Man vs Baby</h3>
-    <p class="text-xs text-gray-400">Netflix-Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- True Lies -->
+      <a href="https://cloudtv.store/true-lies" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/lTnVIuHiXPnFALOSBQWUOkSR8Ya.jpg" loading="lazy" alt="True Lies" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">True Lies</h3>
+          <p class="text-xs text-slate-400 mt-0.5">CBS</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Man vs Bee -->
-<a href="https://cloudtv.store/man-vs-bee" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w185/c80mxgOPvSWJBcgWoI5bf3et5Ws.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Man vs Bee</h3>
-    <p class="text-xs text-gray-400">Netflix-Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Space Force -->
+      <a href="https://cloudtv.store/space-force" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/zgu3p4NvisS8CI68cUfBKbvAvu8.jpg" loading="lazy" alt="Space Force" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Space Force</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Ted -->
-<a href="https://cloudtv.store/ted" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/cPn71YFDENH0JkWUezlsLyWmLfN.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Ted</h3>
-    <p class="text-xs text-gray-400">1 Season</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Silicon Valley -->
+      <a href="https://cloudtv.store/silicon-valley" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/4ptpmWBVD9HY9hMh8Cbs6SMiy7p.jpg" loading="lazy" alt="Silicon Valley" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            6 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Silicon Valley</h3>
+          <p class="text-xs text-slate-400 mt-0.5">HBO</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- True Lies -->
-<a href="https://cloudtv.store/true-lies" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/lTnVIuHiXPnFALOSBQWUOkSR8Ya.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">True Lies</h3>
-    <p class="text-xs text-gray-400">1 Season</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Citadel: Diana -->
+      <a href="https://cloudtv.store/diana-citadel" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://artworks.thetvdb.com/banners/v4/series/435360/posters/670853135c84f.jpg" loading="lazy" alt="Citadel: Diana" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            6 EPISODES
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Citadel: Diana</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Space Force -->
-<a href="https://cloudtv.store/space-force" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/zgu3p4NvisS8CI68cUfBKbvAvu8.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Space Force</h3>
-    <p class="text-xs text-gray-400">2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
-
-<!-- Silicon Valley -->
-<a href="https://cloudtv.store/silicon-valley" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/4ptpmWBVD9HY9hMh8Cbs6SMiy7p.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Silicon Valley</h3>
-    <p class="text-xs text-gray-400">6 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
-
-<!-- Citadel: Diana -->
-<a href="https://cloudtv.store/diana-citadel" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://artworks.thetvdb.com/banners/v4/series/435360/posters/670853135c84f.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Citadel: Diana</h3>
-    <p class="text-xs text-gray-400">Thriller • 6 Episodes</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
-
-<!-- Special Ops: Lioness -->
-<a href="https://cloudtv.store/lioness" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/ajaXSmdAlYYhnvx1EIsvpfN949y.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Special Ops: Lioness</h3>
-    <p class="text-xs text-gray-400">Thriller • 2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[90%] rounded-full"></div>
-    </div>
-  </div>
-</a>
-
-
+      <!-- Special Ops: Lioness -->
+      <a href="https://cloudtv.store/lioness" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/ajaXSmdAlYYhnvx1EIsvpfN949y.jpg" loading="lazy" alt="Special Ops: Lioness" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Special Ops: Lioness</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Paramount+</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[90%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
     </div>
   </div>
@@ -952,15 +1243,18 @@
     const cards = document.querySelectorAll(".series-card");
 
     searchInput.addEventListener("input", function () {
-      const query = this.value.toLowerCase();
+      const query = this.value.toLowerCase().trim();
       cards.forEach(card => {
-        card.style.display = card.innerText.toLowerCase().includes(query)
-          ? "block"
-          : "none";
+        const title = card.innerText.toLowerCase();
+        if (title.includes(query)) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
       });
     });
   </script>
- <!-- ========================================================= -->
+<!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -971,7 +1265,7 @@
 <!-- ===================== -->
 
 <!-- POPUNDER -->
-<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
 
 <!-- SOCIAL BAR -->
 <script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
@@ -1281,7 +1575,6 @@ img {
     background: transparent;
 }
 </style>
-
 
 </body>
 </html>
