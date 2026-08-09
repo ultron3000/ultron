@@ -3,702 +3,930 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hindi Web Series</title>
+  <title>Hindi Web Series | Tactical Intel Hub</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
-    .series-card:hover img {
-      transform: scale(1.08);
+    /* 3D Depth Setup */
+    .grid-container {
+      perspective: 1200px;
     }
+
+    /* Hardware Accelerated Smooth Cards */
+    .series-card {
+      will-change: transform, box-shadow;
+      transform: translateZ(0);
+      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
+                  box-shadow 0.35s ease, 
+                  border-color 0.35s ease;
+      transform-style: preserve-3d;
+    }
+
     .series-card img {
-      transition: transform 0.45s ease;
+      will-change: transform, filter;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), filter 0.5s ease;
+    }
+
+    /* Tactile 3D Hover & Touch Active State (Works on Mobile Tap too) */
+    .series-card:hover, .series-card:active, .series-card:focus {
+      transform: translateY(-8px) rotateX(4deg) scale(1.02);
+      border-color: rgba(6, 182, 212, 0.5); /* Glowing Cyan */
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.8), 
+                  0 0 20px rgba(6, 182, 212, 0.25);
+    }
+
+    .series-card:hover img, .series-card:active img {
+      transform: scale(1.08) translateZ(10px);
+      filter: contrast(1.08) brightness(1.05);
+    }
+
+    /* Tactical Scanline Ambient Glow */
+    .tactical-bg {
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 80% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+    }
+
+    /* Subtle Cyber Grid Accent Lines */
+    .cyber-grid {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#020617] to-black text-white">
+<body class="min-h-screen bg-[#050811] text-gray-100 tactical-bg cyber-grid antialiased selection:bg-cyan-500 selection:text-black">
 
   <!-- Header -->
-  <header class="py-14 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+  <header class="pt-12 pb-8 text-center relative px-4">
+    <!-- Tactical Badge -->
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono tracking-widest uppercase mb-4 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+      <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+      CLASSIFIED INTEL STREAM
+    </div>
+
+    <h1 class="text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-cyan-400 uppercase">
       Hindi Web Series
     </h1>
-    <p class="text-gray-400 mt-3 text-lg">
-      Watch the best Hindi  series & originals
+    <p class="text-slate-400 mt-3 text-sm md:text-base max-w-xl mx-auto font-light tracking-wide">
+      Access high-voltage Hindi thrillers, military ops, and original dossiers.
     </p>
   </header>
 
   <!-- Search -->
-  <div class="max-w-7xl mx-auto px-4 mb-10">
-    <div class="relative max-w-md mx-auto">
-      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+  <div class="max-w-7xl mx-auto px-4 mb-12">
+    <div class="relative max-w-lg mx-auto group">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-cyan-500/70 group-focus-within:text-cyan-400 transition-colors"></i>
       <input
         type="text"
         id="searchInput"
-        placeholder="Search web series..."
-        class="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/10 backdrop-blur border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400"
+        placeholder="Search operations, series, or keywords..."
+        class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 shadow-lg shadow-black/50 transition-all"
       />
+      <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 pointer-events-none">
+        LIVE FILTER
+      </div>
     </div>
   </div>
 
-  <!-- Grid -->
-  <div class="max-w-7xl mx-auto px-4 pb-24">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+  <!-- Grid Container -->
+  <div class="max-w-7xl mx-auto px-4 pb-24 grid-container">
+    <div id="seriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7">
 
-      <!-- CARD -->
-<!-- Rocket Boys -->
-<a href="https://cloudtv.store/rocket-boys" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/esNv5JwxVsvu6vZE7bTVeu0mLaA.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Rocket Boys</h3>
-    <p class="text-xs text-gray-400">Sony Liv • 2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Rocket Boys -->
+      <a href="https://cloudtv.store/rocket-boys" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/esNv5JwxVsvu6vZE7bTVeu0mLaA.jpg" loading="lazy" alt="Rocket Boys" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Rocket Boys</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Sony Liv</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Space Gen: Chandrayaan -->
-<a href="https://cloudtv.store/chandrayaan" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/d6WIr1vycFCCdYewgRf8dpWxQQE.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Space Gen: Chandrayaan</h3>
-    <p class="text-xs text-gray-400">Hotstar • Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Space Gen: Chandrayaan -->
+      <a href="https://cloudtv.store/chandrayaan" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/d6WIr1vycFCCdYewgRf8dpWxQQE.jpg" loading="lazy" alt="Space Gen: Chandrayaan" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Space Gen: Chandrayaan</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Saare Jahan Se Accha -->
-<a href="https://cloudtv.store/saare-jahan-se-accha" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/p4moj0PXeFILF3mNBJywHqmfBm7.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Saare Jahan Se Accha</h3>
-    <p class="text-xs text-gray-400">Netflix • Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Saare Jahan Se Accha -->
+      <a href="https://cloudtv.store/saare-jahan-se-accha" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/p4moj0PXeFILF3mNBJywHqmfBm7.jpg" loading="lazy" alt="Saare Jahan Se Accha" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Saare Jahan Se Accha</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-  <!-- Operation Safed Sagar -->
-<a href="https://cloudtv.store/operation" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/v4i6T3oDXMYJsYMKFH0Dvnd1laD.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Operation Safed Sagar</h3>
-    <p class="text-xs text-gray-400">Netflix • Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Operation Safed Sagar -->
+      <a href="https://cloudtv.store/operation" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/v4i6T3oDXMYJsYMKFH0Dvnd1laD.jpg" loading="lazy" alt="Operation Safed Sagar" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Operation Safed Sagar</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
+      <!-- Bose: Dead/Alive -->
+      <a href="https://cloudtv.store/bose" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://xstreamcp-assets-msp.streamready.in/assets/MINITV/SERIES/6963571ace4e3b57d8aee2bf/images/PORTRAIT/2038279fb3c74d5b5ff5ab20e290b454b60d6a256d241656ff217ba0809947e0.jpg" loading="lazy" alt="Bose: Dead/Alive" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Bose: Dead/Alive</h3>
+          <p class="text-xs text-slate-400 mt-0.5">MiniTV</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Bose: Dead/Alive -->
-<a href="https://cloudtv.store/bose" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://xstreamcp-assets-msp.streamready.in/assets/MINITV/SERIES/6963571ace4e3b57d8aee2bf/images/PORTRAIT/2038279fb3c74d5b5ff5ab20e290b454b60d6a256d241656ff217ba0809947e0.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Bose: Dead/Alive</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Aspirants -->
+      <a href="https://cloudtv.store/aspirants" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/lG8wK40jH4EX6dbVFI1fzw2E96N.jpg" loading="lazy" alt="Aspirants" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Aspirants</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Aspirants -->
-<a href="https://cloudtv.store/aspirants" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/lG8wK40jH4EX6dbVFI1fzw2E96N.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Aspirants</h3>
-    <p class="text-xs text-gray-400">Prime • 3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Matka King -->
+      <a href="https://cloudtv.store/matka-king" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/cAWIMbCmzVBi86kEOHKjHZCKGyo.jpg" loading="lazy" alt="Matka King" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Matka King</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Matka King -->
-<a href="https://cloudtv.store/matka-king" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/cAWIMbCmzVBi86kEOHKjHZCKGyo.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Matka King</h3>
-    <p class="text-xs text-gray-400">Prime • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Made in India: A Titan Story -->
+      <a href="https://cloudtv.store/titan" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/fFr4AFhf8nTW2VGJ15fkeHIyMW5.jpg" loading="lazy" alt="Made in India: A Titan Story" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Made in India: Titan</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Made in India: A Titan Story -->
-<a href="https://cloudtv.store/titan" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/fFr4AFhf8nTW2VGJ15fkeHIyMW5.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Made in India: A Titan Story</h3>
-    <p class="text-xs text-gray-400">Prime • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Gram Chikitsalay -->
+      <a href="https://cloudtv.store/gram-chikitsalay" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/zlGrtv8yrNW6hqdHpPH6YDJckVB.jpg" loading="lazy" alt="Gram Chikitsalay" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Gram Chikitsalay</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Gram Chikitsalay -->
-<a href="https://cloudtv.store/gram-chikitsalay" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/zlGrtv8yrNW6hqdHpPH6YDJckVB.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Gram Chikitsalay</h3>
-    <p class="text-xs text-gray-400">Prime • 2 Season</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Adarsh Baal Vidyalaya -->
+      <a href="https://cloudtv.store/adarsh-baal-vidyalaya" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/1XbcSqURUvhgu2nnoQRZ7cXmTsJ.jpg" loading="lazy" alt="Adarsh Baal Vidyalaya" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Adarsh Baal Vidyalaya</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Adarsh Baal Vidyalaya -->
-<a href="https://cloudtv.store/adarsh-baal-vidyalaya" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/1XbcSqURUvhgu2nnoQRZ7cXmTsJ.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Adarsh Baal Vidyalaya</h3>
-    <p class="text-xs text-gray-400">Prime • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Pritam & Pedro -->
+      <a href="https://cloudtv.store/pritam-pedro" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/lC0MtWrnC0SZICFHazagIfVKy0x.jpg" loading="lazy" alt="Pritam & Pedro" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Pritam & Pedro</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Pritam & Pedro -->
-<a href="https://cloudtv.store/pritam-pedro" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/lC0MtWrnC0SZICFHazagIfVKy0x.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Pritam & Pedro</h3>
-    <p class="text-xs text-gray-400">Hotstar • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Chiraiya -->
+      <a href="https://cloudtv.store/chiraiya" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/cNoZPewe859o7JAI1Qde4lrZjrN.jpg" loading="lazy" alt="Chiraiya" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Chiraiya</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar Specials</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Chiraiya -->
-<a href="https://cloudtv.store/chiraiya" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/cNoZPewe859o7JAI1Qde4lrZjrN.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Chiraiya</h3>
-    <p class="text-xs text-gray-400">Hotstar Specials • 1 Season</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Raakh -->
+      <a href="https://cloudtv.store/raakh" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/5MbNy94ia4ZLf8OGtSfSjjlxxWN.jpg" loading="lazy" alt="Raakh" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Raakh</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Raakh -->
-<a href="https://cloudtv.store/raakh" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/5MbNy94ia4ZLf8OGtSfSjjlxxWN.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Raakh</h3>
-    <p class="text-xs text-gray-400">Prime • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Murshid -->
+      <a href="https://cloudtv.store/murshid" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/mlE61XHa1LlVTOdXn1hZvtlLoa7.jpg" loading="lazy" alt="Murshid" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Murshid</h3>
+          <p class="text-xs text-slate-400 mt-0.5">ZEE5</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Murshid -->
-<a href="https://cloudtv.store/murshid" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/mlE61XHa1LlVTOdXn1hZvtlLoa7.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Murshid</h3>
-    <p class="text-xs text-gray-400">ZEE5 • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Ab Hoga Hisaab -->
+      <a href="https://cloudtv.store/ab-hoga-hisaab" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/4QKn1CDbWnONAeBbZsyDM2mfp4k.jpg" loading="lazy" alt="Ab Hoga Hisaab" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Ab Hoga Hisaab</h3>
+          <p class="text-xs text-slate-400 mt-0.5">MX Player</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Ab Hoga Hisaab -->
-<a href="https://cloudtv.store/ab-hoga-hisaab" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/4QKn1CDbWnONAeBbZsyDM2mfp4k.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Ab Hoga Hisaab</h3>
-    <p class="text-xs text-gray-400">MX Player • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Tribhuvan Mishra CA Topper -->
+      <a href="https://cloudtv.store/ca-topper" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/OELqaq5LTrsR8l8GsjrArbxN0a.jpg" loading="lazy" alt="Tribhuvan Mishra CA Topper" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Tribhuvan Mishra</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Tribhuvan Mishra CA Topper -->
-<a href="https://cloudtv.store/ca-topper" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/OELqaq5LTrsR8l8GsjrArbxN0a.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Tribhuvan Mishra CA Topper</h3>
-    <p class="text-xs text-gray-400">Netflix • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Musafir Cafe -->
+      <a href="https://cloudtv.store/musafir-cafe" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/1SbKjtoRKIpVQG5iYnumnfQIqhd.jpg" loading="lazy" alt="Musafir Cafe" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Musafir Cafe</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-  <!-- Musafir Cafe -->
-<a href="https://cloudtv.store/musafir-cafe" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/1SbKjtoRKIpVQG5iYnumnfQIqhd.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Musafir Cafe</h3>
-    <p class="text-xs text-gray-400">Netflix • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Gullak -->
+      <a href="https://cloudtv.store/gullak" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/arn3mvRYSrEqO7vaKbH8QxM8EEK.jpg" loading="lazy" alt="Gullak" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            5 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Gullak</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Sony LIV</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Gullak -->
-<a href="https://cloudtv.store/gullak" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/arn3mvRYSrEqO7vaKbH8QxM8EEK.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Gullak</h3>
-    <p class="text-xs text-gray-400">Sony LIV • Season 1-5</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Real Kashmir Football Club -->
+      <a href="https://cloudtv.store/real-kashmir-football-club" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/zsoQmFWqLuCzpNvyeIrggUsoc9I.jpg" loading="lazy" alt="Real Kashmir FC" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Real Kashmir FC</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Sony LIV</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Real Kashmir Football Club -->
-<a href="https://cloudtv.store/real-kashmir-football-club" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/zsoQmFWqLuCzpNvyeIrggUsoc9I.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Real Kashmir Football Club</h3>
-    <p class="text-xs text-gray-400">Sony LIV • 1 Season</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Special Ops -->
+      <a href="https://cloudtv.store/special-ops" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/rTOGcNzVMYGezpx9AxX7ilzLNEp.jpg" loading="lazy" alt="Special Ops" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Special Ops</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar Specials</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Special Ops -->
-<a href="https://cloudtv.store/special-ops" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/rTOGcNzVMYGezpx9AxX7ilzLNEp.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Special Ops</h3>
-    <p class="text-xs text-gray-400">Hotstar Specials • 3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Shoorveer -->
+      <a href="https://cloudtv.store/shoorveer" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/trAAMkLOR86Iuxf1P0c3By7uinQ.jpg" loading="lazy" alt="Shoorveer" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Shoorveer</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Shoorveer -->
-<a href="https://cloudtv.store/shoorveer" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/trAAMkLOR86Iuxf1P0c3By7uinQ.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Shoorveer</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Inspector Avinash -->
+      <a href="https://cloudtv.store/inspector-avinash" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/cyX4lDfLOtejavCY5PbtRlk4C63.jpg" loading="lazy" alt="Inspector Avinash" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Inspector Avinash</h3>
+          <p class="text-xs text-slate-400 mt-0.5">JioCinema</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Inspector Avinash -->
-<a href="https://cloudtv.store/inspector-avinash" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/cyX4lDfLOtejavCY5PbtRlk4C63.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Inspector Avinash</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Avrodh: The Siege Within -->
+      <a href="https://ultron3000.github.io/hindiseries/avrodh" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/t4fMUfvXYdkUBNNvHoU1tbOkicl.jpg" loading="lazy" alt="Avrodh" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Avrodh: Siege Within</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Sony Liv</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Avrodh: The Siege Within -->
-<a href="https://ultron3000.github.io/hindiseries/avrodh" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/t4fMUfvXYdkUBNNvHoU1tbOkicl.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Avrodh: The Siege Within</h3>
-    <p class="text-xs text-gray-400">Sony Liv • 2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Kurukshetra -->
+      <a href="https://cloudtv.store/kurukshetra" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/amNFukSD0hpj5omLkikfaNw42sp.jpg" loading="lazy" alt="Kurukshetra" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Kurukshetra</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Kurukshetra -->
-<a href="https://cloudtv.store/kurukshetra" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/amNFukSD0hpj5omLkikfaNw42sp.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Kurukshetra</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- The Legend of Karna -->
+      <a href="https://cloudtv.store/karna" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/jzVP9rqT2YH2nTx3l3csmmU9B1q.jpg" loading="lazy" alt="The Legend of Karna" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Legend of Karna</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Sony LIV</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- The Legend of Karna -->
-<a href="https://cloudtv.store/karna" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/jzVP9rqT2YH2nTx3l3csmmU9B1q.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The Legend of Karna</h3>
-    <p class="text-xs text-gray-400">Sony LIV • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- The Family Man -->
+      <a href="https://cloudtv.store/the-family-man.html" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/tE1NUJqw9gV6AVjQ1GTK78LbWJ9.jpg" loading="lazy" alt="The Family Man" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">The Family Man</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- The Family Man -->
-<a href="https://cloudtv.store/the-family-man.html" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/tE1NUJqw9gV6AVjQ1GTK78LbWJ9.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The Family Man</h3>
-    <p class="text-xs text-gray-400">3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Aakhri Sach -->
+      <a href="https://cloudtv.store/aakhri-sach" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/3IECENDEtwSkNS7QeTleI3FmEk4.jpg" loading="lazy" alt="Aakhri Sach" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Aakhri Sach</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Aakhri Sach -->
-<a href="https://cloudtv.store/aakhri-sach" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/3IECENDEtwSkNS7QeTleI3FmEk4.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Aakhri Sach</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Brown -->
+      <a href="https://cloudtv.store/brown" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/nE56qEFNNTMtnsx4jcGD9pikZCs.jpg" loading="lazy" alt="Brown" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Brown</h3>
+          <p class="text-xs text-slate-400 mt-0.5">ZEE5</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Brown -->
-<a href="https://cloudtv.store/brown" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/nE56qEFNNTMtnsx4jcGD9pikZCs.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Brown</h3>
-    <p class="text-xs text-gray-400">ZEE5 . Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Single Papa -->
+      <a href="https://cloudtv.store/single-papa" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/kSj4h1uVAKGn9yVjJTC1tQGcnoZ.jpg" loading="lazy" alt="Single Papa" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Single Papa</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Single Papa -->
-<a href="https://cloudtv.store/single-papa" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/kSj4h1uVAKGn9yVjJTC1tQGcnoZ.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Single Papa</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Scam 1992: The Harshad Mehta Story -->
+      <a href="https://cloudtv.store/scam-1992" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/fiimZ9Xt5cPTPHNrbS4QautBXpU.jpg" loading="lazy" alt="Scam 1992" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Scam 1992</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Sony LIV</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Scam 1992: The Harshad Mehta Story -->
-<a href="https://cloudtv.store/scam-1992" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/fiimZ9Xt5cPTPHNrbS4QautBXpU.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Scam 1992: The Harshad Mehta Story</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Taskaree: The Smuggler's Web -->
+      <a href="https://cloudtv.store/taskaree" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/25fKRXvQLBq4nXu9vjOVJcvCiiD.jpg" loading="lazy" alt="Taskaree" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Taskaree</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Taskaree: The Smuggler's Web -->
-<a href="https://cloudtv.store/taskaree" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/25fKRXvQLBq4nXu9vjOVJcvCiiD.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Taskaree: The Smuggler's Web</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Sankalp -->
+      <a href="https://cloudtv.store/sankalp" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/pEDJjtxj1PPd10PvJLo9w9RlQx6.jpg" loading="lazy" alt="Sankalp" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Sankalp</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Sankalp -->
-<a href="https://cloudtv.store/sankalp" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/pEDJjtxj1PPd10PvJLo9w9RlQx6.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Sankalp</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Vimal Khanna -->
+      <a href="https://cloudtv.store/vimal-khanna" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://qqcdnpictest.mxplay.com/pic/22dc5916536783a08f631b98c884448d/en/2x3/320x480/test_pic1778767073485_badged_1778994018588.webp" loading="lazy" alt="Vimal Khanna" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Vimal Khanna</h3>
+          <p class="text-xs text-slate-400 mt-0.5">MX Player</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Vimal Khanna -->
-<a href="https://cloudtv.store/vimal-khanna" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://qqcdnpictest.mxplay.com/pic/22dc5916536783a08f631b98c884448d/en/2x3/320x480/test_pic1778767073485_badged_1778994018588.webp" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Vimal Khanna</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Maamla Legal Hai -->
+      <a href="https://cloudtv.store/maamla-legal-hai" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/A9krYovvsiUXcQLOnQ2O53MHVwd.jpg" loading="lazy" alt="Maamla Legal Hai" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Maamla Legal Hai</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
+      <!-- Daldal -->
+      <a href="https://cloudtv.store/daldal" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/wvAwkKeIs7bkb6EJAYRzpANhfxM.jpg" loading="lazy" alt="Daldal" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Daldal</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Maamla Legal Hai -->
-<a href="https://cloudtv.store/maamla-legal-hai" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/A9krYovvsiUXcQLOnQ2O53MHVwd.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Maamla Legal Hai</h3>
-    <p class="text-xs text-gray-400">Netflix- 2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Raktanchal -->
+      <a href="https://cloudtv.store/raktanchal" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/tSLQ7AUHCbu5COsInB3WnrZKMgt.jpg" loading="lazy" alt="Raktanchal" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Raktanchal</h3>
+          <p class="text-xs text-slate-400 mt-0.5">MX Player</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Daldal -->
-<a href="https://cloudtv.store/daldal" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/wvAwkKeIs7bkb6EJAYRzpANhfxM.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Daldal</h3>
-    <p class="text-xs text-gray-400">Seasons 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Panchayat -->
+      <a href="https://cloudtv.store/panchayat" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/cPPhduQk1eX0MAE2JDaQRh3UZB5.jpg" loading="lazy" alt="Panchayat" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            4 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Panchayat</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Raktanchal -->
-<a href="https://cloudtv.store/raktanchal" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/tSLQ7AUHCbu5COsInB3WnrZKMgt.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Raktanchal</h3>
-    <p class="text-xs text-gray-400">3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Mirzapur -->
+      <a href="https://cloudtv.store/mirzapur" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/p0qM8hhlMF5DuxHBzl2EZR6TehX.jpg" loading="lazy" alt="Mirzapur" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Mirzapur</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Panchayat -->
-<a href="https://cloudtv.store/panchayat" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/cPPhduQk1eX0MAE2JDaQRh3UZB5.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Panchayat</h3>
-    <p class="text-xs text-gray-400">4 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Undekhi -->
+      <a href="https://cloudtv.store/undekhi" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/zpYt71i0A85oRmZloT1eBkgwpbr.jpg" loading="lazy" alt="Undekhi" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            3 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Undekhi</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Sony LIV</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Mirzapur -->
-<a href="https://cloudtv.store/mirzapur" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/p0qM8hhlMF5DuxHBzl2EZR6TehX.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Mirzapur</h3>
-    <p class="text-xs text-gray-400">3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Bhaukaal -->
+      <a href="https://cloudtv.store/bhaukaal" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/AtJ3wC0GhROcelqE8RNM5j4vgNj.jpg" loading="lazy" alt="Bhaukaal" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Bhaukaal</h3>
+          <p class="text-xs text-slate-400 mt-0.5">MX Player</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Undekhi -->
-<a href="https://cloudtv.store/undekhi" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/zpYt71i0A85oRmZloT1eBkgwpbr.jpg">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Undekhi</h3>
-    <p class="text-xs text-gray-400">3 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- The Secret of the Shiledars -->
+      <a href="https://cloudtv.store/the-secret-of-the-shiledars" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/toe159W0ykkX6m9h3RSRBZv46ZA.jpg" loading="lazy" alt="The Secret of the Shiledars" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Secret of Shiledars</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Hotstar</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Bhaukaal -->
-<a href="https://cloudtv.store/bhaukaal" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/AtJ3wC0GhROcelqE8RNM5j4vgNj.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Bhaukaal</h3>
-    <p class="text-xs text-gray-400">2 Seasons</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Dharavi Bank -->
+      <a href="https://cloudtv.store/dharavi-bank" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/uL54l2L1Jynqcq26LVZrp5GV6pE.jpg" loading="lazy" alt="Dharavi Bank" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Dharavi Bank</h3>
+          <p class="text-xs text-slate-400 mt-0.5">MX Player</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- The Secret of the Shiledars -->
-<a href="https://cloudtv.store/the-secret-of-the-shiledars" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/toe159W0ykkX6m9h3RSRBZv46ZA.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The Secret of the Shiledars</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Paatal Lok -->
+      <a href="https://cloudtv.store/paatal-lok" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/qL8f1E0W42CFHG8NtpyJFMPeKnw.jpg" loading="lazy" alt="Paatal Lok" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            2 SEASONS
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Paatal Lok</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Prime Video</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Dharavi Bank -->
-<a href="https://cloudtv.store/dharavi-bank" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/uL54l2L1Jynqcq26LVZrp5GV6pE.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Dharavi Bank</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- The Kashmir Files Unreported -->
+      <a href="https://cloudtv.store/the-kashmir-files-unreported" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/2YxCVXIvFA9voveLtE61yj4to4S.jpg" loading="lazy" alt="The Kashmir Files Unreported" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Kashmir Files Unreported</h3>
+          <p class="text-xs text-slate-400 mt-0.5">ZEE5</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- Paatal Lok -->
-<a href="https://cloudtv.store/paatal-lok" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/qL8f1E0W42CFHG8NtpyJFMPeKnw.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Paatal Lok</h3>
-    <p class="text-xs text-gray-400">2 Season</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- Jeet Ki Zid -->
+      <a href="https://cloudtv.store/jeet-ki-zid" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/gD8TIqKlbP7ksEoArJ4tstqTgIC.jpg" loading="lazy" alt="Jeet Ki Zid" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Jeet Ki Zid</h3>
+          <p class="text-xs text-slate-400 mt-0.5">ZEE5</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- The Kashmir Files Unreported -->
-<a href="https://cloudtv.store/the-kashmir-files-unreported" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/2YxCVXIvFA9voveLtE61yj4to4S.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The Kashmir Files Unreported</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
-
-<!-- Jeet Ki Zid -->
-<a href="https://cloudtv.store/jeet-ki-zid" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/gD8TIqKlbP7ksEoArJ4tstqTgIC.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">Jeet Ki Zid</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
-
-<!-- The Bastards of Bollywood -->
-<a href="https://cloudtv.store/the-bastards-of-bollywood" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/6QFnXFx5XJAp0SxMd9g23cbti4m.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">The Bastards of Bollywood</h3>
-    <p class="text-xs text-gray-400">Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
-
-
-
+      <!-- The Bastards of Bollywood -->
+      <a href="https://cloudtv.store/the-bastards-of-bollywood" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/6QFnXFx5XJAp0SxMd9g23cbti4m.jpg" loading="lazy" alt="The Bastards of Bollywood" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">Bastards of Bollywood</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Netflix</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
     </div>
   </div>
@@ -709,11 +937,14 @@
     const cards = document.querySelectorAll(".series-card");
 
     searchInput.addEventListener("input", function () {
-      const query = this.value.toLowerCase();
+      const query = this.value.toLowerCase().trim();
       cards.forEach(card => {
-        card.style.display = card.innerText.toLowerCase().includes(query)
-          ? "block"
-          : "none";
+        const title = card.innerText.toLowerCase();
+        if (title.includes(query)) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
       });
     });
   </script>
@@ -1038,8 +1269,6 @@ img {
     background: transparent;
 }
 </style>
-
-
 
 </body>
 </html>
