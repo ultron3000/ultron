@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Reacher</title>
+  <title>Reacher - All Seasons</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,11 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-  <!-- HLS.js (from Tukaram for HLS playback support) -->
+  <!-- HLS.js for HLS playback support -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
-    /* PRESERVE original Hawkeye CSS and animations but adjust theme to Loki */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #07060b; }
     ::-webkit-scrollbar-thumb { background: #9ad34d; border-radius: 4px; }
@@ -31,129 +30,108 @@
     .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
 
-    .glow-effect { position: relative; transition: transform 0.3s ease; }
-    .glow-effect:hover { transform: translateY(-5px); }
-    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(154,211,77,0); transition:box-shadow 0.3s; pointer-events:none;}
-    .glow-effect:hover::after { box-shadow:0 0 20px rgba(154,211,77,0.25); }
+    .glow-effect { position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .glow-effect:hover { transform: translateY(-6px) scale(1.02); }
+    .glow-effect::after { 
+      content:''; position:absolute; top:0; left:0; right:0; bottom:0; 
+      border-radius:12px; box-shadow:0 0 20px rgba(154,211,77,0); 
+      transition:box-shadow 0.3s; pointer-events:none;
+    }
+    .glow-effect:hover::after { box-shadow:0 0 25px rgba(154,211,77,0.35); }
 
     .gradient-text { background: linear-gradient(90deg, #9ad34d, #7f3cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
     .marvel-font { font-family: 'Marvel', sans-serif; }
 
     /* Responsive adjustments */
-    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
+    @media (max-width: 640px) { .movie-card { width: calc(50% - 0.75rem); } }
     @media (max-width: 400px) { .movie-card { width: 100%; } }
 
-    /* Modal player container (Tukaram-style preserved) */
-    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
-    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
-
-    /* small Loki tint changes to Hawkeye theme */
-    header { background: linear-gradient(90deg,#081018,#04040a); }
-    .bg-loki { background: linear-gradient(135deg,#7f3cff,#9ad34d); }
+    /* Header & Base Themes */
+    header { background: linear-gradient(90deg, #081018, #04040a); }
+    .bg-loki { background: linear-gradient(135deg, #7f3cff, #9ad34d); }
     .loki-accent { color: #9ad34d; }
     .btn-loki { background: #9ad34d; color: #061217; }
     .btn-loki:hover { filter: brightness(0.95); }
-    .watchlist-checkbox .checkmark { border: 2px solid #9ad34d; }
     .progress-bar-fill { background: #9ad34d; }
 
-    /* keep other original Hawkeye styles intact */
     body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
 
-    /* Illumination modal styles (keeps modal look consistent) */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    /* Modal Backdrop & Layout */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px); display:none; align-items:center; justify-content:center; z-index:9999; }
     .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .modal-card { width:92%; max-width:980px; border-radius:14px; overflow:hidden; background:#0b1220; border: 1px solid rgba(154,211,77,0.2); box-shadow:0 30px 80px rgba(0,0,0,0.85); }
+    
     .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
     .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
 
-    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
-    .player-meta .meta-left { max-width:65%; }
-    .player-meta h3 { margin:0; font-size:1.125rem; }
-    .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
+    .player-meta { display:flex; justify-content:space-between; gap:16px; padding:16px 20px; color:#ddd; align-items:center; background: #080f1c; }
+    .player-meta .meta-left { max-width:55%; }
+    .player-meta h3 { margin:0; font-size:1.2rem; font-weight:700; color:#fff; }
+    .player-meta p { margin:4px 0 0 0; color:#9CA3AF; font-size:0.88rem; line-height:1.35; }
 
-    .controls-row { display:flex; gap:8px; align-items:center; }
+    .controls-row { display:flex; gap:10px; align-items:center; flex-wrap: wrap; justify-content: flex-end; }
 
     .btn {
-      background:transparent; border:1px solid #9ad34d; color:#9ad34d;
-      padding:8px 12px; border-radius:8px; cursor:pointer;
+      background: rgba(154,211,77,0.05); border:1px solid #9ad34d; color:#9ad34d;
+      padding:8px 14px; border-radius:8px; cursor:pointer; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s ease;
     }
-    .btn:hover { background: rgba(154,211,77,0.06); }
+    .btn:hover { background: rgba(154,211,77,0.2); color: #fff; transform: translateY(-1px); }
 
     .hidden { display:none; }
 
-    @media(max-width:640px){
-      .player-meta .meta-left { max-width:55%; }
-      .btn { padding:6px 8px; font-size:0.9rem; }
+    /* Mobile Controls Specific Styling */
+    @media (max-width: 767px) {
+      .player-wrapper { padding-bottom: 56.25% !important; height: 0 !important; position: relative !important; }
+      .player-wrapper video, .player-wrapper iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
+
+      .player-meta {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        padding: 14px !important;
+        background: #0b1220 !important;
+      }
+
+      .player-meta .meta-left { max-width: 100% !important; }
+
+      .controls-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+      }
+
+      .btn {
+        padding: 8px !important;
+        font-size: 0 !important;
+        min-width: 42px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      .btn i { font-size: 1.1rem !important; margin: 0 !important; }
     }
-    /* ============================
-   MOBILE FIX — DOES NOT TOUCH DESKTOP
-   ============================ */
 
-@media (max-width: 767px) {
+    video:fullscreen, video:-webkit-full-screen, iframe:fullscreen, iframe:-webkit-full-screen {
+      width: 100vw !important; height: 100vh !important; max-width: 100vw !important; max-height: 100vh !important; object-fit: contain !important; background-color: black;
+    }
 
-  /* Proper mobile player layout (matches your working version) */
-  .player-wrapper {
-    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
-    height: 0 !important;
-    position: relative !important;
-  }
-
-  .player-wrapper video,
-  .player-wrapper iframe {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Proper stacked mobile controls */
-  .player-meta {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 12px !important;
-    background: #0b1220 !important;
-    z-index: 20 !important;
-  }
-
-  /* Mobile control row wraps properly */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 10px !important;
-  }
-
-  /* Mobile buttons use icon-only layout */
-  .btn {
-    padding: 8px !important;
-    font-size: 0 !important;      /* hides text on mobile */
-    min-width: 48px !important;
-    height: 44px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .btn i {
-    font-size: 1.1rem !important;
-    margin: 0 !important;
-  }
-
-  /* Close button always visible on mobile */
-  #topCloseBtn {
-    opacity: 1 !important;
-  }
-}
-
+    @media (min-aspect-ratio: 16/9) {
+      video:fullscreen, video:-webkit-full-screen, iframe:fullscreen, iframe:-webkit-full-screen { object-fit: cover !important; }
+    }
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
+
   <!-- Header -->
-  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-md border-b border-yellow-600/20 shadow-xl">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2 sm:space-x-3">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover shadow-lg">
          <i class="fas fa-shield-alt text-black text-xl"></i>
         </div>
         <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">Reacher</h1>
@@ -175,7 +153,7 @@
       </div>
     </div>
     
-    <!-- Search Bar (hidden by default) -->
+    <!-- Search Bar -->
     <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
       <div class="relative">
         <input id="global-search" type="text" placeholder="Search episodes..." 
@@ -184,7 +162,7 @@
       </div>
     </div>
     
-    <!-- Watchlist dropdown (hidden by default) -->
+    <!-- Watchlist dropdown -->
     <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
       <div class="px-4 py-2 border-b border-gray-700">
         <h3 class="font-semibold loki-accent">My Watchlist</h3>
@@ -196,113 +174,116 @@
   </header>
 
   <!-- Main Content -->
-<main class="container mx-auto px-4 py-6">
-  <!-- Hero Section -->
-  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
-    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
-    
-    <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
-      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <!-- Loki hero trailer (YouTube embed) -->
-        <iframe
-          src="https://www.youtube.com/embed/GSycMV-_Csw?autoplay=1&mute=1&loop=1&playlist=GSycMV-_Csw&controls=0&modestbranding=1"
-          frameborder="0"
-          allow="autoplay; fullscreen"
-          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        ></iframe>
-      </div>
+  <main class="container mx-auto px-4 py-6">
+    <!-- Hero Section -->
+    <section class="mb-10 relative overflow-hidden rounded-2xl shadow-2xl border border-gray-800">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
       
-      <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
-        <div class="flex items-center mb-1 sm:mb-2">
-          <span class="bg-[#9ad34d] text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2"></span>
-          <span class="text-[#9ad34d] text-xs sm:text-sm">Seasons 1-3</span>
+      <div class="relative w-full h-[320px] sm:h-[380px] md:h-[420px] lg:h-[500px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/GSycMV-_Csw?autoplay=1&mute=1&loop=1&playlist=GSycMV-_Csw&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-60"
+          ></iframe>
         </div>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">Reacher</h2>
-        <div class="flex items-center mb-2 sm:mb-4">
-          <div class="flex items-center mr-2 sm:mr-4">
-            <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
-            <span class="text-white text-xs sm:text-sm">7.0</span>
+        
+        <div class="absolute bottom-0 left-0 z-20 p-5 sm:p-8 md:p-10">
+          <div class="flex items-center mb-2">
+            <span class="bg-[#9ad34d] text-black text-xs font-bold px-2 py-0.5 rounded mr-2">PRIME</span>
+            <span class="text-[#9ad34d] text-xs sm:text-sm font-semibold">Seasons 1-3</span>
           </div>
-          <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 gradient-text marvel-font tracking-wide">Reacher</h2>
+          <div class="flex items-center mb-3">
+            <div class="flex items-center mr-4">
+              <i class="fas fa-star loki-accent mr-1 text-sm"></i>
+              <span class="text-white text-sm font-bold">8.1</span>
+            </div>
+            <span class="text-gray-300 text-sm mr-4">Action / Crime / Thriller</span>
+          </div>
+          <p class="text-gray-300 mb-5 max-w-xs sm:max-w-md md:max-w-lg text-xs sm:text-sm md:text-base leading-relaxed">
+            Former military police investigator Jack Reacher travels standard highways across America, stepping into high-stakes cover-ups, deadly ring operations, and personal vendettas.
+          </p>
+          <div class="flex space-x-3">
+            <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-bold py-2.5 px-7 rounded-full transition flex items-center pulse-hover shadow-lg">
+              <i class="fas fa-play mr-2"></i> Play All
+            </button>
+            <button class="bg-gray-800/80 hover:bg-gray-700 text-white font-semibold py-2.5 px-6 rounded-full transition flex items-center backdrop-blur-sm">
+              <i class="fas fa-info-circle mr-2"></i> Details
+            </button>
+          </div>
         </div>
-        <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">Former military police officer Jack Reacher drifts across America and becomes entangled in deadly conspiracies.</p>
-        <div class="flex space-x-2 sm:space-x-3">
-          <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
-            <i class="fas fa-play mr-2"></i> Play All
+        <div class="absolute bottom-4 right-4 z-20">
+          <button id="scroll-down" class="bg-black/60 text-[#9ad34d] rounded-full p-2.5 border border-[#9ad34d]/40 hover:bg-[#9ad34d] hover:text-black transition shadow-lg">
+            <i class="fas fa-chevron-down arrow-bounce"></i>
           </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-info-circle mr-2"></i> Details
-          </button>
         </div>
-      </div>
-      <div class="absolute bottom-4 right-4 z-20">
-        <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
-          <i class="fas fa-chevron-down arrow-bounce"></i>
-        </button>
-      </div>
-    </div>
-  </section>
-</main>
-
-    <!-- Season Navigation -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
-      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-tv loki-accent mr-2"></i>
-        <span class="marvel-font">EPISODES</span>
-      </h3>
-      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-        <div class="flex items-center space-x-2 min-w-max">
-          <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="2">Season 2</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="3">Season 3</button>
-        </div>
-      </div>
-    </div>
-
-
-      
-
-
-    <!-- Episodes Grid -->
-    <section class="container mx-auto px-4">
-      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-        <!-- Movie cards inserted by JS -->
       </div>
     </section>
 
-    <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+    <!-- Season Navigation -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-gray-800 pb-4">
+      <h3 class="text-xl sm:text-2xl font-bold flex items-center mb-3 sm:mb-0">
+        <i class="fas fa-tv loki-accent mr-2.5"></i>
+        <span class="marvel-font tracking-wider">EPISODES</span>
+      </h3>
+      <div class="w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max">
+          <button class="season-btn active bg-[#9ad34d] text-black px-4 py-1.5 rounded-full text-xs font-bold transition" data-season="all">All</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-gray-900 border border-gray-800 hover:border-[#9ad34d]/50 transition" data-season="1">Season 1</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-gray-900 border border-gray-800 hover:border-[#9ad34d]/50 transition" data-season="2">Season 2</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-gray-900 border border-gray-800 hover:border-[#9ad34d]/50 transition" data-season="3">Season 3</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Episodes Grid -->
+    <section>
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
+        <!-- Episode cards inserted by JS -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <div class="border-t border-gray-800/80 mt-12 pt-8 pb-8 text-center text-gray-500">
+    <div class="flex justify-center space-x-4 mb-3">
+      <a href="#" class="text-gray-400 hover:text-[#9ad34d] transition px-2"><i class="fab fa-facebook-f text-lg"></i></a>
+      <a href="#" class="text-gray-400 hover:text-[#9ad34d] transition px-2"><i class="fab fa-twitter text-lg"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#9ad34d] transition px-2"><i class="fab fa-instagram text-lg"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#9ad34d] transition px-2"><i class="fab fa-youtube text-lg"></i></a>
+    </div>
+    <p class="text-xs text-gray-600">Reacher &copy; 2026. All rights reserved.</p>
   </div>
 
-  <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
+  <!-- Replaced Tactical Modal Layout -->
   <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true">
-      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2">
+      <button id="closeModalBtn" class="absolute top-3 right-3 z-50 text-white hover:text-[#9ad34d] text-xl bg-black/60 hover:bg-black/90 rounded-full w-9 h-9 flex items-center justify-center transition">
         <i class="fas fa-times"></i>
       </button>
 
       <div class="player-wrapper" id="playerWrapper">
-        <!-- video or iframe injected here -->
         <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       </div>
 
       <div class="player-meta">
         <div class="meta-left">
           <h3 id="modalTitle">Episode Title</h3>
-          <p id="modalDesc" class="text-sm">Episode description will appear here.</p>
+          <p id="modalDesc">Episode description will appear here.</p>
         </div>
         <div class="controls-row">
+          <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20 hover:bg-red-600/40 border-red-500/50 text-red-400 hover:text-red-300" title="Open directly in new tab if embed is blocked">
+            <i class="fas fa-external-link-alt mr-2"></i> Direct
+          </a>
           <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
           <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
           <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
           <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+          <button id="closeBtn" class="btn border-gray-600 text-gray-300 hover:bg-gray-800"><i class="fas fa-times mr-2"></i>Close</button>
         </div>
       </div>
     </div>
@@ -314,56 +295,201 @@
   </div>
 
   <script>
-// ========================
-// SEASON SELECTOR + DATA
-// ========================
+    // ===============================================
+    // REACHER SERIES - ALL 3 SEASONS (ACCURATE METADATA)
+    // ===============================================
+    const movies = [
+      // Season 1 (Margrave, GA - Killing Floor)
+      { 
+        title: "S1E01 - Welcome to Margrave", 
+        description: "Jack Reacher is arrested for a murder he did not commit upon arriving in the quiet town of Margrave, Georgia.", 
+        season: 1, episode: 1, duration: "54 min", rating: "8.2",
+        image: "https://image.tmdb.org/t/p/w300/15xLLZN3LLAdvoiHnYL5DcXlsYu.jpg", 
+        video: "https://mega.nz/embed/DthyGLBC#yAC1cMufywbsHqxnqZkGPfRsRpFRo4ZpVuT2C_E5yFU" 
+      },
+      { 
+        title: "S1E02 - First Dance", 
+        description: "Reacher pairs up with Officer Roscoe and Chief Detective Finlay to dig deeper into the victim's identity.", 
+        season: 1, episode: 2, duration: "52 min", rating: "8.1",
+        image: "https://image.tmdb.org/t/p/w300/4nfnpqWMX8dHI1bYZcdxLEvy2c9.jpg", 
+        video: "https://mega.nz/embed/Tk5Rmbwa#Cb9PrEozUIYrfjoDhs7uFBTehYNiSCA7dWWqFKHcrrs" 
+      },
+      { 
+        title: "S1E03 - Spoonful", 
+        description: "An investigation into a missing banker reveals a multi-million dollar counterfeit money conspiracy.", 
+        season: 1, episode: 3, duration: "51 min", rating: "8.0",
+        image: "https://image.tmdb.org/t/p/w300/6dgLq2bUlEBuXz5SPzr1Dn7UpML.jpg", 
+        video: "https://mega.nz/embed/GpAzjQwa#yfgQ8GsEICCH-yN6VEJXf5wKzjhnBDAShusaybTa3hE"" 
+      },
+      { 
+        title: "S1E04 - In a Tree", 
+        description: "Reacher and Roscoe travel to Atlanta to meet an old friend and uncover dangerous secrets about Kliner Industries.", 
+        season: 1, episode: 4, duration: "49 min", rating: "8.3",
+        image: "https://image.tmdb.org/t/p/w300/8AgfxcL0WxcDCiTtanrKG9vGyug.jpg", 
+        video: "https://mega.nz/embed/D4xBVSqZ#UfxfzbQp2zq3fn4xWUlAhWGrb71wwhz21PnVJIT2yAQ" 
+      },
+      { 
+        title: "S1E05 - No Apologies", 
+        description: "Threats hit closer to home as Roscoe takes matters into her own hands and Reacher hunts down the hitmen.", 
+        season: 1, episode: 5, duration: "52 min", rating: "8.4",
+        image: "https://image.tmdb.org/t/p/w300/yvSWomTB7uiVOov0iQXrlmek81l.jpg", 
+        video: "https://mega.nz/embed/nkhXHKAL#0KX8bcjyZc3x9wOoOOy8yarBiru4i43JmPuriUreYcU" 
+      },
+      { 
+        title: "S1E06 - Papier", 
+        description: "Reacher tracks the supply chain of the counterfeit ring to New York while Finlay dodges corrupt officers.", 
+        season: 1, episode: 6, duration: "50 min", rating: "8.2",
+        image: "https://image.tmdb.org/t/p/w300/3GT2msFS0C4KdEDeD9TR2NPOS1s.jpg", 
+        video: "https://mega.nz/embed/j1QQWQxR#MlGNhxKHFocKPY3bGyu1YGJ7tcdFH7vFMY89nu8oVxE" 
+      },
+      { 
+        title: "S1E07 - Reacher Said Nothing", 
+        description: "With time running out, Reacher sets a deadly trap to draw out the remaining conspirators.", 
+        season: 1, episode: 7, duration: "54 min", rating: "8.6",
+        image: "https://image.tmdb.org/t/p/w300/i9z3J0xwImiuFhu5DQyYqnBxVDC.jpg", 
+        video: "https://mega.nz/embed/ykBSjRzQ#cktgU4SQtYAFld-k_c47qvUm5z5laQJ9afm5Q24gMqM" 
+      },
+      { 
+        title: "S1E08 - Pie", 
+        description: "Reacher leads an all-out assault on Kliner's warehouse to rescue hostages and clean up Margrave.", 
+        season: 1, episode: 8, duration: "56 min", rating: "8.8",
+        image: "https://image.tmdb.org/t/p/w300/8Pzg1MpVAAbyBGdfAUmRmfSmAWQ.jpg", 
+        video: "https://mega.nz/embed/ulpizZoB#hN-PVyLC1XJYICVohoUNfIm08k0x9sydOI8RGWiHfTk" 
+      },
 
-// Quantum Leap (2022) – Season 1 & 2
-const movies = [
-  // Season 1 (8 episodes)
-  { title:"Welcome to Margrave", season:1, episode:1, duration:"54 min", image:"https://image.tmdb.org/t/p/w300/15xLLZN3LLAdvoiHnYL5DcXlsYu.jpg", video:"https://sad.oravix.cyou:443/v4/epu/dvbkf/index-f1-v1-a1.txt" },
-  { title:"First Dance", season:1, episode:2, duration:"52 min", image:"https://image.tmdb.org/t/p/w300/4nfnpqWMX8dHI1bYZcdxLEvy2c9.jpg", video:"https://svz.nordivisnetwork.store:443/v4/hld/tbrzk/index-f1-v1-a1.txt" },
-  { title:"Spoonful", season:1, episode:3, duration:"51 min", image:"https://image.tmdb.org/t/p/w300/6dgLq2bUlEBuXz5SPzr1Dn7UpML.jpg", video:"https://sad.cometri.store:443/v4/hld/s51n9/index-f1-v1-a1.txt" },
-  { title:"In a Tree", season:1, episode:4, duration:"49 min", image:"https://image.tmdb.org/t/p/w300/8AgfxcL0WxcDCiTtanrKG9vGyug.jpg", video:"https://s36.velonovaenergy.sbs:443/v4/hld/n3jrk/index-f1-v1-a1.txt" },
-  { title:"No Apologies", season:1, episode:5, duration:"52 min", image:"https://image.tmdb.org/t/p/w300/yvSWomTB7uiVOov0iQXrlmek81l.jpg", video:"https://sri.solvonaacademy.sbs:443/v4/epu/vnioo/index-f1-v1-a1.txt" },
-  { title:"Papier", season:1, episode:6, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/3GT2msFS0C4KdEDeD9TR2NPOS1s.jpg", video:"https://sri.rivonadesign.cyou:443/v4/is9/ew81f/index-f1-v1-a1.txt" },
-  { title:"Reacher Said Nothing", season:1, episode:7, duration:"54 min", image:"https://image.tmdb.org/t/p/w300/i9z3J0xwImiuFhu5DQyYqnBxVDC.jpg", video:"https://s6mb.zenithraevents.store:443/v4/hld/qzpgd/index-f1-v1-a1.txt" },
-  { title:"Pie", season:1, episode:8, duration:"56 min", image:"https://image.tmdb.org/t/p/w300/8Pzg1MpVAAbyBGdfAUmRmfSmAWQ.jpg", video:"https://sy6.rivonadesign.cyou:443/v4/hld/ijesj/index-f1-v1-a1.txt" },
+      // Season 2 (110th Special Investigations - Bad Luck and Trouble)
+      { 
+        title: "S2E01 - ATM", 
+        description: "Reacher receives a coded message that a member of his former Army unit, the 110th MP Special Investigations, was murdered.", 
+        season: 2, episode: 1, duration: "50 min", rating: "8.2",
+        image: "https://image.tmdb.org/t/p/w300/j7hYdtMCzXsRtk8oeoynzcB1skZ.jpg", 
+        video: "https://mega.nz/embed/Kh5TCYjB#pNCcTvQRjcWrQhMGtjBT4Qs8Xd-hSCtVmsbagMsZI-g" 
+      },
+      { 
+        title: "S2E02 - What Happens in Atlantic City", 
+        description: "The surviving members of the 110th head to Atlantic City to investigate the defense contractor New Age.", 
+        season: 2, episode: 2, duration: "49 min", rating: "8.0",
+        image: "https://image.tmdb.org/t/p/w300/qdsegCgx8x5tXL7k1nwiQ0493J6.jpg", 
+        video: "https://mega.nz/embed/ep52GZ5B#LT4cDTi_CKW2V3IyJrhlgIZ7wNfcPAO3vbTdKRZOX38" 
+      },
+      { 
+        title: "S2E03 - Picture Says a Thousand Words", 
+        description: "Reacher and Neagley locate a lead on the mercenary named A.M., uncovering a plot involving hijacked missile technology.", 
+        season: 2, episode: 3, duration: "48 min", rating: "8.1",
+        image: "https://image.tmdb.org/t/p/w300/fRqRZZuBRMhxOw6QHIOL97MAj5P.jpg", 
+        video: "https://mega.nz/embed/ilA1jaiQ#LUJHbI-gneWcoWeAVRFK8tG8lBnOdXnp3ndSAbAY-P8" 
+      },
+      { 
+        title: "S2E04 - A Night at the Symphony", 
+        description: "The team sets a trap for a corrupt senator's aide to force answers about the Little Wing project.", 
+        season: 2, episode: 4, duration: "50 min", rating: "8.3",
+        image: "https://image.tmdb.org/t/p/w300/xZMIwWORGokHKxU4DgGSzcrvvJr.jpg", 
+        video: "https://mega.nz/embed/Pt5WBQSb#OMP2vx0FH7z-C1DRoYX_rvpno5OMtI8v3gZX-6ox2po" 
+      },
+      { 
+        title: "S2E05 - Burial", 
+        description: "Reacher and the 110th travel to Denver to honor a fallen teammate and confront hired assassins.", 
+        season: 2, episode: 5, duration: "52 min", rating: "8.2",
+        image: "https://image.tmdb.org/t/p/w300/qHoDmkiqipd7u8VzVDNcwVksRfd.jpg", 
+        video: "https://mega.nz/embed/7hIBWYoY#z44jPWeZFVLeas5vyv0Q7Pdwqp8EsJRbKOGkEnZZ0L8" 
+      },
+      { 
+        title: "S2E06 - New York's Finest", 
+        description: "A desperate ambush forces Reacher to rely on NYPD Officer Russo to protect an innocent witness.", 
+        season: 2, episode: 6, duration: "49 min", rating: "8.5",
+        image: "https://image.tmdb.org/t/p/w300/r0Xj9M0XfaX1tbuahIZECCo9y6S.jpg", 
+        video: "https://mega.nz/embed/asolHTCQ#yxU5KinrAfiBp9UNdp3_HDxkWYSOM_pGOUf6TsDZgaI" 
+      },
+      { 
+        title: "S2E07 - The Man Goes Through", 
+        description: "Reacher surrenders himself to Shane Langston in a high-stakes play to save O'Donnell and Dixon.", 
+        season: 2, episode: 7, duration: "55 min", rating: "8.7",
+        image: "https://image.tmdb.org/t/p/w300/xdX8ijvCkwM6erROSdZYqnlzEre.jpg", 
+        video: "https://mega.nz/embed/esoFWIgL#z8QMdyBwwQYco6DTdSZtZSE2kv8V8Tn3bWgpCsoboxw" 
+      },
+      { 
+        title: "S2E08 - Fly Boy", 
+        description: "A high-altitude helicopter battle resolves the clash with New Age before Reacher says his goodbyes.", 
+        season: 2, episode: 8, duration: "57 min", rating: "8.6",
+        image: "https://image.tmdb.org/t/p/w300/7Jt8ghfYb2jx7hg1H5UbEUEH101.jpg", 
+        video: "https://mega.nz/embed/v1oBgKwA#TvNWwlQcOMvWfM8gxTTGg9uhuMafzqX7_gURTDuk1oI" 
+      },
 
-  // Season 2 (8 episodes)
-  { title:"ATM", season:2, episode:1, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/j7hYdtMCzXsRtk8oeoynzcB1skZ.jpg", video:"https://sri.auroriacollective.cyou:443/v4/ox/ytoqi/index-f1-v1-a1.txt" },
-  { title:"What Happens in Atlantic City", season:2, episode:2, duration:"49 min", image:"https://image.tmdb.org/t/p/w300/qdsegCgx8x5tXL7k1nwiQ0493J6.jpg", video:"https://sri.oravialuxury.online:443/v4/ty/qzpg1/index-f1-v1-a1.txt" },
-  { title:"Picture Says a Thousand Words", season:2, episode:3, duration:"48 min", image:"https://image.tmdb.org/t/p/w300/fRqRZZuBRMhxOw6QHIOL97MAj5P.jpg", video:"https://sui.zenithraevents.store:443/v4/epu/3mucw/index-f2-v1-a1.txt" },
-  { title:"A Night at the Symphony", season:2, episode:4, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/xZMIwWORGokHKxU4DgGSzcrvvJr.jpg", video:"https://sui.fiorellagarden.sbs:443/v4/pq/59a3i/index-f1-v1-a1.txt" },
-  { title:"Burial", season:2, episode:5, duration:"52 min", image:"https://image.tmdb.org/t/p/w300/qHoDmkiqipd7u8VzVDNcwVksRfd.jpg", video:"https://sad.novacrestnetwork.online:443/v4/9a/8kzhj/index-f1-v1-a1.txt" },
-  { title:"New York's Finest", season:2, episode:6, duration:"49 min", image:"https://image.tmdb.org/t/p/w300/r0Xj9M0XfaX1tbuahIZECCo9y6S.jpg", video:"https://soq.zenithraevents.store:443/v4/db/aqfuh/index-f1-v1-a1.txt" },
-  { title:"The Man Goes Through", season:2, episode:7, duration:"55 min", image:"https://image.tmdb.org/t/p/w300/xdX8ijvCkwM6erROSdZYqnlzEre.jpg", video:"https://sq3.mistralstudio.shop:443/v4/ox/hfdwq/index-f1-v1-a1.txt" },
-  { title:"Fly Boy", season:2, episode:8, duration:"57 min", image:"https://image.tmdb.org/t/p/w300/7Jt8ghfYb2jx7hg1H5UbEUEH101.jpg", video:"https://sui.aurorionmarketing.site:443/v4/pq/61miy/index-f1-v1-a1.txt" },
+      // Season 3 (Undercover Operation - Persuader)
+      { 
+        title: "S3E01 - Persuader", 
+        description: "Reacher goes undercover in a dangerous smuggling operation to rescue a DEA informant and settle an old score.", 
+        season: 3, episode: 1, duration: "52 min", rating: "8.5",
+        image: "https://image.tmdb.org/t/p/w300/rOH23zL2aisDvZ3aCDlj65gsmdZ.jpg", 
+        video: "00" 
+      },
+      { 
+        title: "S3E02 - Truckin'", 
+        description: "Building trust inside a heavily guarded Maine estate requires Reacher to execute precise physical intimidation.", 
+        season: 3, episode: 2, duration: "50 min", rating: "8.3",
+        image: "https://image.tmdb.org/t/p/w300/cxjl8M0822xIaetKhseEC12znKY.jpg", 
+        video: "00" 
+      },
+      { 
+        title: "S3E03 - Number 2 with a Bullet", 
+        description: "Reacher discovers the true scale of Zachary Beck's rug import empire and its hidden criminal ties.", 
+        season: 3, episode: 3, duration: "51 min", rating: "8.4",
+        image: "https://image.tmdb.org/t/p/w300/xewDe800NB1qdxu1l3vjINtBwJK.jpg", 
+        video: "00" 
+      },
+      { 
+        title: "S3E04 - Dominique", 
+        description: "Flashbacks reveal Reacher's tragic past history with his nemesis Xavier Quinn.", 
+        season: 3, episode: 4, duration: "53 min", rating: "8.6",
+        image: "https://image.tmdb.org/t/p/w300/ypZpH089L0AD45fH0SiixqW3MK8.jpg", 
+        video: "00" 
+      },
+      { 
+        title: "S3E05 - Smackdown", 
+        description: "Tensions mount inside the fortress as Reacher works behind enemy lines without blowing his cover.", 
+        season: 3, episode: 5, duration: "49 min", rating: "8.4",
+        image: "https://image.tmdb.org/t/p/w300/4r5BUAgNyzhsk28Pr9OpnrQXsvZ.jpg", 
+        video: "00" 
+      },
+      { 
+        title: "S3E06 - Smoke on the Water", 
+        description: "A coastal intercept mission turns chaotic when an unexpected third party interferes.", 
+        season: 3, episode: 6, duration: "50 min", rating: "8.5",
+        image: "https://image.tmdb.org/t/p/w300/2gpbqF4AiqwuKuths8jKyap16I6.jpg", 
+        video: "00" 
+      },
+      { 
+        title: "S3E07 - L.A. Story", 
+        description: "Reacher closes in on Quinn's inner circle as the DEA prepares for a full-scale tactical raid.", 
+        season: 3, episode: 7, duration: "54 min", rating: "8.7",
+        image: "https://image.tmdb.org/t/p/w300/h6n5EXzNYTYycAH72J8FVMqXw9u.jpg", 
+        video: "00" 
+      },
+      { 
+        title: "S3E08 - Unfinished Business", 
+        description: "Reacher brings down the entire operation in an explosive final confrontation to avenge his past.", 
+        season: 3, episode: 8, duration: "58 min", rating: "8.9",
+        image: "https://image.tmdb.org/t/p/w300/y0LEFFyCAZqZPM7zggm4KysdF2h.jpg", 
+        video: "00" 
+      }
+    ];
 
-  // Season 3 (placeholder)
-  { title:"Persuader", season:3, episode:1, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/rOH23zL2aisDvZ3aCDlj65gsmdZ.jpg", video:"https://shh.eleviora.space:443/v4/epu/ugy9b/index-f1-v1-a1.txt" },
-  { title:"Truckin'", season:3, episode:2, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/cxjl8M0822xIaetKhseEC12znKY.jpg", video:"https://sri.brionix.cyou:443/v4/sc/aqfup/index-f1-v1-a1.txt" },
-  { title:"Number 2 with a Bullet", season:3, episode:3, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/xewDe800NB1qdxu1l3vjINtBwJK.jpg", video:"https://sui.glowhavenmedia.cyou:443/v4/sc/rc5x3/index-f2-v1-a1.txt" },
-  { title:"Dominique", season:3, episode:4, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/ypZpH089L0AD45fH0SiixqW3MK8.jpg", video:"https://sri.cosmavision.shop:443/v4/epu/wyka5/index-f2-v1-a1.txt" },
-  { title:"Smackdown", season:3, episode:5, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/4r5BUAgNyzhsk28Pr9OpnrQXsvZ.jpg", video:"https://s36.mistralstudio.shop:443/v4/ic/juwyw/index-f2-v1-a1.txt" },
-  { title:"Smoke on the Water", season:3, episode:6, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/2gpbqF4AiqwuKuths8jKyap16I6.jpg", video:"https://s36.clarynova.cyou:443/v4/36/ytoq5/index-f2-v1-a1.txt" },
-  { title:"L.A. Story", season:3, episode:7, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/h6n5EXzNYTYycAH72J8FVMqXw9u.jpg", video:"https://svz.velonovaenergy.sbs:443/v4/epu/kolfj/index-f2-v1-a1.txt" },
-  { title:"Unfinished Business", season:3, episode:8, duration:"50 min", image:"https://image.tmdb.org/t/p/w300/y0LEFFyCAZqZPM7zggm4KysdF2h.jpg", video:"https://sri.bellecrest.store:443/v4/36/fpvnk/index-f2-v1-a1.txt" }
-];
-    /* ------------------------
-       Modal / playback implementation (Illumination-style)
-       ------------------------ */
+    /* -----------------------------------------------
+       Modal & Player Integration
+       ----------------------------------------------- */
     const playerWrapper = document.getElementById('playerWrapper');
     const playbackModal = document.getElementById('playbackModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const modalTitle = document.getElementById('modalTitle');
     const modalDesc = document.getElementById('modalDesc');
 
+    const externalBtn = document.getElementById('externalBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const muteBtn = document.getElementById('muteBtn');
+    const closeBtn = document.getElementById('closeBtn');
 
     let currentHls = null;
     let currentFiltered = [];
@@ -414,29 +540,48 @@ const movies = [
       resetPlayerContainer();
       showModal();
 
-      // pick source
       let src = '';
       if (typeof item.video === 'object' && item.video !== null) {
         src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
       } else {
         src = item.video;
       }
-      if (!src) {
-        showError('No video url');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=`, 500);
+
+      // Wire external button link
+      if (externalBtn) {
+        externalBtn.href = (src && src !== '00') ? src : '#';
+      }
+
+      if (!src || src === "00") {
+        // Render dummy preview frame for "00" placeholder state
+        playerWrapper.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full w-full bg-gradient-to-br from-gray-900 to-black text-center p-6 border border-gray-800">
+            <i class="fas fa-play-circle text-[#9ad34d] text-6xl mb-4 animate-pulse"></i>
+            <h4 class="text-xl font-bold text-white mb-2">${item.title}</h4>
+            <p class="text-sm text-gray-400 max-w-md mb-4">${item.description}</p>
+            <span class="inline-block bg-[#9ad34d]/20 border border-[#9ad34d] text-[#9ad34d] text-xs px-3 py-1 rounded-full font-mono">Status: Stream URL "00" Placeholder</span>
+          </div>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
         return;
       }
 
       const lc = (src||'').toLowerCase();
 
-      // iframe hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+      if (
+        src.includes('m3u8-proxy.m3u8') ||
+        lc.includes('streamtape.com') ||
+        lc.includes('dood') ||
+        lc.includes('vidcdn') ||
+        lc.includes('ok.ru') ||
+        lc.includes('mega.nz') ||
+        lc.includes('openload') ||
+        lc.includes('drive.google.com')
+      ) {
         playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
         playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
       }
 
-      // youtube
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -453,7 +598,6 @@ const movies = [
         return;
       }
 
-      // HLS
       if (isHls(src)) {
         const v = document.getElementById('modalVideo');
         if (!v) { showError('Video element missing'); return; }
@@ -472,36 +616,27 @@ const movies = [
             if (data && data.fatal) {
               try { currentHls.destroy(); } catch(e){}
               currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
             }
           });
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
           playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
         }
         return;
       }
 
-      // MP4
       if (isMP4(src)) {
         const v = document.getElementById('modalVideo');
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
-        v.src = src;
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        if (v) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        }
         return;
       }
-
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
-    /* Controls */
     function togglePlayPause() {
       const v = document.getElementById('modalVideo');
       if (!v) return;
@@ -513,18 +648,19 @@ const movies = [
         playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
       }
     }
+
     function playNext() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
       if (currentIndex == null) return showError('No current video');
       if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
     }
+
     function playPrev() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
       if (currentIndex == null) return showError('No current video');
       if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
     }
+
     function toggleFullscreen() {
       const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
       if (!el) return;
@@ -534,6 +670,7 @@ const movies = [
         document.exitFullscreen();
       }
     }
+
     function toggleMute() {
       const v = document.getElementById('modalVideo');
       if (!v) return;
@@ -541,7 +678,6 @@ const movies = [
       muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
-    /* Close modal & cleanup */
     function closeModalHandler() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -559,19 +695,18 @@ const movies = [
       playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
     }
 
-    /* Events wiring */
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
     prevBtn.addEventListener('click', playPrev);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     muteBtn.addEventListener('click', toggleMute);
+    if (closeBtn) closeBtn.addEventListener('click', closeModalHandler);
 
     closeModalBtn.addEventListener('click', closeModalHandler);
     playbackModal.addEventListener('click', function(e){
       if (e.target === playbackModal) closeModalHandler();
     });
 
-    // Keyboard shortcuts when modal active
     document.addEventListener('keydown', (e) => {
       if (!playbackModal.classList.contains('active')) return;
       switch (e.key.toLowerCase()) {
@@ -586,92 +721,58 @@ const movies = [
       }
     });
 
-    /* Attach video timeupdate/ended listeners */
-    function attachVideoListeners() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.removeEventListener('timeupdate', onTimeUpdate);
-      v.addEventListener('timeupdate', onTimeUpdate);
-      v.removeEventListener('ended', onEnded);
-      v.addEventListener('ended', onEnded);
-    }
-    function onTimeUpdate() {
-      // If the original progress bar exists, update it (preserved element)
-      const progressBarFill = document.getElementById('progress-bar-fill');
-      const videoEl = document.getElementById('modalVideo');
-      if (!progressBarFill || !videoEl || !videoEl.duration) return;
-      const p = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = p + '%';
-    }
-    function onEnded() {
-      const playBtn = document.getElementById('play-btn') || playPauseBtn;
-      if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
-    }
-
-    /* Render episodes grid (wired to openPlayer) */
     const container = document.getElementById('movies');
     function renderMovies(list) {
       container.innerHTML = '';
       list.forEach((movie, index) => {
         const card = document.createElement('div');
-        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
+        card.className = 'movie-card fade-in glow-effect bg-gray-900/60 border border-gray-800/80 rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between';
         card.innerHTML = `
-          <div class="relative group overflow-hidden rounded-xl">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <div>
-                <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
-                <p class="text-gray-300 text-xs sm:text-sm">${movie.duration || ''}</p>
-              </div>
+          <div class="relative group overflow-hidden rounded-t-xl">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-36 sm:h-44 md:h-52 object-cover transition-transform duration-500 group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+              <p class="text-gray-300 text-xs line-clamp-2">${movie.description || ''}</p>
             </div>
-            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
-              <i class="fas fa-play"></i>
+            <div class="absolute top-2.5 right-2.5 bg-black/70 text-[#9ad34d] backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center shadow-md">
+              <i class="fas fa-play text-xs"></i>
             </div>
-            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
+            <div class="absolute top-2.5 left-2.5 flex items-center bg-black/75 backdrop-blur-sm px-2 py-0.5 rounded-full border border-gray-700">
               <i class="fas fa-star text-[#9ad34d] text-xs mr-1"></i>
-              <span class="text-white text-xs">${movie.rating || ''}</span>
+              <span class="text-white text-xs font-bold">${movie.rating || '8.0'}</span>
             </div>
           </div>
-          <div class="mt-3">
-            <h3 class="text-white font-medium">${movie.title}</h3>
-            <div class="flex items-center text-gray-400 text-sm mt-1">
-              <span>S${movie.season} • E${movie.episode}</span>
-              <span class="mx-2">•</span>
+          <div class="p-3">
+            <h3 class="text-white font-semibold text-sm line-clamp-1 group-hover:text-[#9ad34d] transition">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-xs mt-1.5 font-medium">
+              <span class="bg-gray-800 px-1.5 py-0.5 rounded text-[10px] text-gray-300">S${movie.season} E${movie.episode}</span>
+              <span class="mx-1.5">•</span>
               <span>${movie.duration || ''}</span>
             </div>
           </div>
         `;
         card.addEventListener('click', () => {
-          // show loading spinner while resolving
           const loadingSpinner = document.getElementById('loading-spinner');
           if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-          // open with the full current list and index
           openPlayer(list, index);
-          // attach listeners for the video element (a bit delayed to allow element to exist)
-          setTimeout(()=> attachVideoListeners(), 200);
           if (loadingSpinner) loadingSpinner.classList.add('hidden');
         });
         container.appendChild(card);
       });
     }
 
-    /* Init page (season filtering wired up) */
     function initPage() {
       renderMovies(movies);
 
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-        });
-      });
-
-      // Season buttons: filter content
       const seasonBtns = document.querySelectorAll('.season-btn');
       seasonBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
+          seasonBtns.forEach(b => {
+            b.classList.remove('active', 'bg-[#9ad34d]', 'text-black');
+            b.classList.add('text-gray-300', 'bg-gray-900');
+          });
           this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+          this.classList.remove('text-gray-300', 'bg-gray-900');
+          
           const season = this.dataset.season;
           let filtered;
           if (!season || season === 'all') filtered = movies;
@@ -680,16 +781,11 @@ const movies = [
         });
       });
 
-      // Play All behavior (starts at first)
       const playAllBtn = document.getElementById('play-all');
       if (playAllBtn) {
-        playAllBtn.addEventListener('click', () => {
-          openPlayer(movies, 0);
-          setTimeout(()=> attachVideoListeners(), 200);
-        });
+        playAllBtn.addEventListener('click', () => openPlayer(movies, 0));
       }
 
-      // Global search wiring
       const globalSearch = document.getElementById('global-search');
       if (globalSearch) {
         globalSearch.addEventListener('input', (e) => {
@@ -701,56 +797,13 @@ const movies = [
           renderMovies(list);
         });
       }
-
-      // Watchlist UI wiring preserved
-      updateWatchlist();
     }
 
-    /* Watchlist functions (preserved) */
-    const watchlistItems = document.getElementById('watchlist-items');
-    function updateWatchlist() {
-      if (!watchlistItems) return;
-      watchlistItems.innerHTML = '';
-      const watchlistMovies = movies.filter(m => m.inWatchlist);
-      if (watchlistMovies.length === 0) {
-        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
-        return;
-      }
-      watchlistMovies.forEach((movie, idx) => {
-        const index = movies.indexOf(movie);
-        const item = document.createElement('div');
-        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
-        item.innerHTML = `
-          <div class="flex items-center">
-            <span class="text-[#9ad34d] text-sm mr-2">${idx + 1}.</span>
-            <span class="text-white text-sm truncate">${movie.title}</span>
-          </div>
-          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
-            <i class="fas fa-times"></i>
-          </button>
-        `;
-        item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
-          e.stopPropagation();
-          removeFromWatchlist(index);
-        });
-        item.addEventListener('click', () => {
-          openPlayer(movies, index);
-          document.getElementById('watchlist-dropdown').classList.add('hidden');
-        });
-        watchlistItems.appendChild(item);
-      });
-    }
-    function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
-    function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
-
-    /* preserved UI event wiring (search, theme, watchlist, modal controls) */
-    const containerEl = document.getElementById('movies');
     const searchBtn = document.getElementById('search-btn');
     const searchBar = document.getElementById('search-bar');
     const themeToggle = document.getElementById('theme-toggle');
     const watchlistBtn = document.getElementById('watchlist-btn');
     const watchlistDropdown = document.getElementById('watchlist-dropdown');
-    const closeModal = document.getElementById('close-modal');
 
     searchBtn.addEventListener('click', () => {
       searchBar.classList.toggle('hidden');
@@ -768,31 +821,17 @@ const movies = [
       document.body.classList.toggle('text-gray-900');
       document.body.classList.toggle('bg-black');
       document.body.classList.toggle('text-gray-100');
-      const icon = themeToggle.querySelector('i');
-      if (document.body.classList.contains('bg-black')) {
-        icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
-      } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
     });
 
-    // close modal by clicking background already wired above via playbackModal click
-
-    // watchlist close on outside click & search close
     document.addEventListener('click', (e) => {
       if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
       if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
     });
 
-    // attach video listeners placeholder (modal video element created on demand)
-    function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
-
-    // init on DOMContentLoaded
     window.addEventListener('DOMContentLoaded', () => {
       initPage();
-      // ensure modal close button works
       document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
     });
   </script>
-  
-
 </body>
 </html>
