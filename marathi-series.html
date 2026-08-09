@@ -1,132 +1,194 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Marathi Web Series</title>
+  <title>Marathi Web Series | Tactical Intel Hub</title>
 
-  <!-- Tailwind -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
-    .series-card:hover img {
-      transform: scale(1.08);
+    /* 3D Depth Perspective Setup */
+    .grid-container {
+      perspective: 1200px;
     }
+
+    /* Hardware Accelerated Smooth Cards */
+    .series-card {
+      will-change: transform, box-shadow;
+      transform: translateZ(0);
+      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
+                  box-shadow 0.35s ease, 
+                  border-color 0.35s ease;
+      transform-style: preserve-3d;
+    }
+
     .series-card img {
-      transition: transform 0.45s ease;
+      will-change: transform, filter;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), filter 0.5s ease;
+    }
+
+    /* Tactile 3D Hover & Touch Active State (Optimized for Mobile Tap) */
+    .series-card:hover, .series-card:active, .series-card:focus {
+      transform: translateY(-8px) rotateX(4deg) scale(1.02);
+      border-color: rgba(6, 182, 212, 0.5); /* Glowing Cyan */
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.8), 
+                  0 0 20px rgba(6, 182, 212, 0.25);
+    }
+
+    .series-card:hover img, .series-card:active img {
+      transform: scale(1.08) translateZ(10px);
+      filter: contrast(1.08) brightness(1.05);
+    }
+
+    /* Tactical Ambient Background Glow */
+    .tactical-bg {
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 80% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+    }
+
+    /* Subtle Cyber Grid Accent Lines */
+    .cyber-grid {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#020617] to-black text-white">
+<body class="min-h-screen bg-[#050811] text-gray-100 tactical-bg cyber-grid antialiased selection:bg-cyan-500 selection:text-black">
 
   <!-- Header -->
-  <header class="py-14 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+  <header class="pt-12 pb-8 text-center relative px-4">
+    <!-- Tactical Badge -->
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 text-xs font-mono tracking-widest uppercase mb-4 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+      <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+      MARATHI INTEL ARCHIVE
+    </div>
+
+    <h1 class="text-4xl md:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-cyan-400 uppercase">
       Marathi Web Series
     </h1>
-    <p class="text-gray-400 mt-3 text-lg">
-      Watch the best Marathi  series & originals
+    <p class="text-slate-400 mt-3 text-sm md:text-base max-w-xl mx-auto font-light tracking-wide">
+      Watch the best Marathi series, thrillers & originals.
     </p>
   </header>
 
   <!-- Search -->
-  <div class="max-w-7xl mx-auto px-4 mb-10">
-    <div class="relative max-w-md mx-auto">
-      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+  <div class="max-w-7xl mx-auto px-4 mb-12">
+    <div class="relative max-w-lg mx-auto group">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-cyan-500/70 group-focus-within:text-cyan-400 transition-colors"></i>
       <input
         type="text"
         id="searchInput"
-        placeholder="Search web series..."
-        class="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/10 backdrop-blur border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400"
+        placeholder="Search web series / शो शोधा..."
+        class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 shadow-lg shadow-black/50 transition-all"
       />
+      <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 pointer-events-none">
+        LIVE FILTER
+      </div>
     </div>
   </div>
 
-  <!-- Grid -->
-  <div class="max-w-7xl mx-auto px-4 pb-24">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+  <!-- Grid Container -->
+  <div class="max-w-7xl mx-auto px-4 pb-24 grid-container">
+    <div id="seriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7">
 
-      <!-- CARD -->
-<!-- देवखेळ -->
-<a href="https://cloudtv.store/devkhel" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/fGOlVDJSF7hhw2sIQiZksXFhYJJ.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">देवखेळ</h3>
-    <p class="text-xs text-gray-400">ZEE5 • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- देवखेळ -->
+      <a href="https://cloudtv.store/devkhel" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/fGOlVDJSF7hhw2sIQiZksXFhYJJ.jpg" loading="lazy" alt="देवखेळ" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">देवखेळ</h3>
+          <p class="text-xs text-slate-400 mt-0.5">ZEE5</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- खोताची वाडी - एक शापित वास्तू -->
-<a href="https://cloudtv.store/khotachi-wadi" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/k1puhJ9DqQYmkggeM1XFjYDdhwC.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">खोताची वाडी - एक शापित वास्तू</h3>
-    <p class="text-xs text-gray-400">Ultra Marathi • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- खोताची वाडी - एक शापित वास्तू -->
+      <a href="https://cloudtv.store/khotachi-wadi" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/k1puhJ9DqQYmkggeM1XFjYDdhwC.jpg" loading="lazy" alt="खोताची वाडी" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">खोताची वाडी - एक शापित वास्तू</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Ultra Marathi</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- रानबाजार -->
-<a href="https://cloudtv.store/raanbaazaar" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/7/71/RaanBaazaar.jpeg/250px-RaanBaazaar.jpeg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">रानबाजार</h3>
-    <p class="text-xs text-gray-400">Planet-मराठी • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- रानबाजार -->
+      <a href="https://cloudtv.store/raanbaazaar" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://upload.wikimedia.org/wikipedia/en/thumb/7/71/RaanBaazaar.jpeg/250px-RaanBaazaar.jpeg" loading="lazy" alt="रानबाजार" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">रानबाजार</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Planet-मराठी</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- पेट पुराण -->
-<a href="https://cloudtv.store/pet-puraan" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://image.tmdb.org/t/p/w500/negijog2C7vdGhCjlaW6WnVB4IN.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">पेट पुराण</h3>
-    <p class="text-xs text-gray-400">Sony LIV • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
+      <!-- पेट पुराण -->
+      <a href="https://cloudtv.store/pet-puraan" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://image.tmdb.org/t/p/w500/negijog2C7vdGhCjlaW6WnVB4IN.jpg" loading="lazy" alt="पेट पुराण" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">पेट पुराण</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Sony LIV</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
-<!-- बी.ई. रोजगर -->
-<a href="https://cloudtv.store/berojgar" class="series-card rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:shadow-indigo-500/20 transition">
-  <div class="aspect-[2/3] overflow-hidden">
-    <img src="https://m.media-amazon.com/images/M/MV5BMDZmNGM0YmEtNzBmMS00YTBiLThiMDUtNmYzZGM2OTQ5MWNjXkEyXkFqcGc@._V1_.jpg" class="w-full h-full object-cover">
-  </div>
-  <div class="p-4">
-    <h3 class="font-semibold text-sm">बी.ई. रोजगर</h3>
-    <p class="text-xs text-gray-400">भाडिपा • Season 1</p>
-    <div class="mt-3 h-1.5 bg-white/10 rounded-full">
-      <div class="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 w-[75%] rounded-full"></div>
-    </div>
-  </div>
-</a>
-
-
-
-
-
-
-
+      <!-- बी.ई. रोजगर -->
+      <a href="https://cloudtv.store/berojgar" class="series-card rounded-xl overflow-hidden bg-slate-900/60 border border-slate-800/80 block group">
+        <div class="aspect-[2/3] overflow-hidden relative">
+          <img src="https://m.media-amazon.com/images/M/MV5BMDZmNGM0YmEtNzBmMS00YTBiLThiMDUtNmYzZGM2OTQ5MWNjXkEyXkFqcGc@._V1_.jpg" loading="lazy" alt="बी.ई. रोजगर" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80"></div>
+          <span class="absolute top-2.5 right-2.5 text-[10px] font-mono font-bold bg-black/70 backdrop-blur text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/30">
+            SEASON 1
+          </span>
+        </div>
+        <div class="p-3.5">
+          <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">बी.ई. रोजगर</h3>
+          <p class="text-xs text-slate-400 mt-0.5">भाडिपा</p>
+          <div class="mt-3 h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 w-[75%] rounded-full"></div>
+          </div>
+        </div>
+      </a>
 
     </div>
   </div>
@@ -137,15 +199,18 @@
     const cards = document.querySelectorAll(".series-card");
 
     searchInput.addEventListener("input", function () {
-      const query = this.value.toLowerCase();
+      const query = this.value.toLowerCase().trim();
       cards.forEach(card => {
-        card.style.display = card.innerText.toLowerCase().includes(query)
-          ? "block"
-          : "none";
+        const title = card.innerText.toLowerCase();
+        if (title.includes(query)) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
       });
     });
   </script>
- <!-- ========================================================= -->
+<!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -156,7 +221,7 @@
 <!-- ===================== -->
 
 <!-- POPUNDER -->
-<script type="text/javascript" src="https://bendspecimen.com/11/07/52/110752a01a9d540163da6fbfb98926f4.js"></script>
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
 
 <!-- SOCIAL BAR -->
 <script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
@@ -195,7 +260,7 @@
 <!-- ===================== -->
 
 <!-- POPUNDER -->
-<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
 
 <!-- SOCIAL BAR -->
 <script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
