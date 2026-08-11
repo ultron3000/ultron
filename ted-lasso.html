@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ted Lasso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js for HLS playback support -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    /* Custom Scrollbar - AFC Richmond Colors */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #000d1d; }
+    ::-webkit-scrollbar-thumb { background: #f2c94c; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ffd858; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes arrowBounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(5px);} }
+
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    .pulse-hover:hover { animation: pulse 1.5s infinite; }
+    .arrow-bounce { animation: arrowBounce 2s infinite; }
+
+    .glow-effect { position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .glow-effect:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(242, 201, 76, 0.2); }
+
+    .gradient-text { background: linear-gradient(90deg, #f2c94c, #0056b3, #e50914); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .title-font { font-family: 'Montserrat', sans-serif; }
+
+    /* Responsive Grid Adjustments */
+    @media (max-width: 640px) { .movie-card { width: calc(50% - 0.5rem); } }
+    @media (max-width: 400px) { .movie-card { width: 100%; } }
+
+    body { background: #000c18; color: #e6f3e9; font-family: 'Roboto', system-ui, -apple-system, sans-serif; }
+    header { background: linear-gradient(90deg, #001228, #001c3f); }
+    .theme-accent { color: #f2c94c; }
+    .btn-theme { background: #f2c94c; color: #001c3f; }
+    .btn-theme:hover { background: #ffd858; }
+
+    /* Modal Player Container Styles */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,12,24,0.95); backdrop-filter: blur(8px); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-backdrop.active { display:flex; }
+    .modal-card { width:92%; max-width:980px; border-radius:14px; overflow:hidden; background:#001733; border: 1px solid rgba(242, 201, 76, 0.3); box-shadow:0 30px 80px rgba(0,0,0,0.85); }
+    
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
+
+    .player-meta { display:flex; justify-content:space-between; gap:16px; padding:16px 20px; color:#ddd; align-items:center; background:#001126; border-top: 1px solid rgba(255,255,255,0.08); }
+    .player-meta .meta-left { max-width:55%; }
+    .player-meta h3 { margin:0; font-size:1.2rem; font-weight:700; color:#fff; }
+    .player-meta p { margin:4px 0 0 0; color:#9CA3AF; font-size:0.88rem; line-height:1.35; }
+
+    .controls-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+
+    .btn {
+      background: rgba(242, 201, 76, 0.1); border:1px solid #f2c94c; color:#f2c94c;
+      padding:8px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; font-size:0.88rem; font-weight:600; transition: all 0.2s ease;
+    }
+    .btn:hover { background: #f2c94c; color: #001c3f; }
+
+    .hidden { display:none; }
+
+    /* Mobile Responsive Layout Improvements */
+    @media (max-width: 767px) {
+      .player-wrapper { padding-bottom: 56.25% !important; height: 0 !important; position: relative !important; }
+      .player-wrapper video, .player-wrapper iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
+
+      .player-meta {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+        padding: 14px !important;
+        background: #001733 !important;
+      }
+
+      .player-meta .meta-left { max-width: 100% !important; }
+
+      .controls-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+      }
+
+      .btn {
+        padding: 8px !important;
+        font-size: 0 !important;
+        min-width: 42px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      .btn i { font-size: 1.1rem !important; margin: 0 !important; }
+    }
+  </style>
+</head>
+<body class="bg-[#000c18] text-gray-100 min-h-screen font-roboto">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-[#001228]/90 backdrop-blur-sm border-b border-[#f2c94c]/20 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#e50914] to-[#f2c94c] rounded-full flex items-center justify-center pulse-hover">
+         <i class="fas fa-futbol text-[#001c3f] text-sm sm:text-base"></i>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-bold gradient-text title-font tracking-wider uppercase">Ted Lasso</h1>
+      </div>
+      
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <button id="watchlist-btn" class="p-2 rounded-full hover:bg-gray-800 transition relative">
+          <i class="fas fa-bookmark theme-accent"></i>
+        </button>
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-moon theme-accent"></i>
+        </button>
+        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
+          <i class="fas fa-search theme-accent"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Search Bar -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-[#001228]/95">
+      <div class="relative max-w-xl mx-auto">
+        <input id="global-search" type="text" placeholder="Search episodes..." 
+               class="w-full bg-[#001d3d] border border-[#f2c94c]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#f2c94c] placeholder-gray-400 text-sm">
+        <i class="fas fa-search absolute left-3.5 top-3 text-[#f2c94c]"></i>
+      </div>
+    </div>
+    
+    <!-- Watchlist Dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-[#001a38] border border-[#f2c94c]/30 rounded-lg shadow-2xl z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-700">
+        <h3 class="font-semibold theme-accent title-font tracking-wider">My Watchlist</h3>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
+        <div class="px-4 py-3 text-center text-gray-400 text-xs">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-6">
+    <!-- Hero Section -->
+    <section class="mb-10 relative overflow-hidden rounded-xl shadow-2xl bg-[#001228] border border-[#f2c94c]/20">
+      <div class="absolute inset-0 bg-gradient-to-r from-[#000c18] via-[#000c18]/70 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-[#000c18] via-[#000c18]/50 to-transparent z-10"></div>
+      
+      <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[480px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/3u7EIioht6U?autoplay=1&mute=1&loop=1&playlist=3u7EIioht6U&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-50"
+          ></iframe>
+        </div>
+        
+        <div class="absolute bottom-0 left-0 z-20 p-5 sm:p-8 md:p-10 max-w-2xl">
+          <div class="flex items-center mb-2">
+            <span class="bg-[#e50914] text-white text-xs font-bold px-2 py-0.5 rounded mr-2">APPLE TV+</span>
+            <span class="text-[#f2c94c] text-xs sm:text-sm font-semibold">Seasons 1-4</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-2 gradient-text title-font tracking-wide">TED LASSO</h2>
+          <div class="flex items-center mb-3 text-xs sm:text-sm">
+            <div class="flex items-center mr-4">
+              <i class="fas fa-star theme-accent mr-1"></i>
+              <span class="text-white font-bold">8.8</span>
+            </div>
+            <span class="text-gray-300">Comedy • Drama • Sport</span>
+          </div>
+          <p class="text-gray-300 mb-5 text-xs sm:text-sm md:text-base leading-relaxed line-clamp-3">An American college football coach is hired to manage a British soccer team. What he lacks in knowledge, he makes up for with optimism, determination... and biscuits.</p>
+          <div class="flex items-center space-x-3">
+            <button id="play-all" class="btn-theme font-bold py-2.5 px-7 rounded-full transition flex items-center shadow-lg text-sm pulse-hover">
+              <i class="fas fa-play mr-2 text-xs"></i> Play S1E01
+            </button>
+            <button class="bg-gray-800/80 hover:bg-gray-700 text-white font-semibold py-2.5 px-6 rounded-full transition flex items-center border border-gray-700 text-sm">
+              <i class="fas fa-info-circle mr-2"></i> Details
+            </button>
+          </div>
+        </div>
+        <div class="absolute bottom-4 right-4 z-20">
+          <button id="scroll-down" class="bg-black/50 text-[#f2c94c] rounded-full p-2 border border-[#f2c94c]/30 hover:bg-[#f2c94c] hover:text-[#001c3f] transition">
+            <i class="fas fa-chevron-down arrow-bounce"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Season Navigation -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-gray-800 pb-4">
+      <h3 class="text-xl sm:text-2xl font-bold flex items-center mb-3 sm:mb-0">
+        <i class="fas fa-tv theme-accent mr-2.5"></i>
+        <span class="title-font tracking-wider uppercase">EPISODES</span>
+      </h3>
+      <div class="w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max">
+          <button class="season-btn active bg-[#f2c94c] text-[#001c3f] px-4 py-1.5 rounded-full text-xs font-bold transition" data-season="all">All</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-[#001c3f] border border-gray-800 hover:border-[#f2c94c]/50 transition" data-season="1">Season 1</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-[#001c3f] border border-gray-800 hover:border-[#f2c94c]/50 transition" data-season="2">Season 2</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-[#001c3f] border border-gray-800 hover:border-[#f2c94c]/50 transition" data-season="3">Season 3</button>
+          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-[#001c3f] border border-gray-800 hover:border-[#f2c94c]/50 transition" data-season="4">Season 4</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Episodes Grid -->
+    <section>
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
+        <!-- Episode cards inserted dynamically -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <div class="border-t border-gray-800 mt-12 pt-8 pb-8 text-center text-gray-500">
+    <div class="flex justify-center space-x-4 mb-3">
+      <a href="#" class="text-gray-400 hover:text-[#f2c94c] transition px-2"><i class="fab fa-facebook-f text-lg"></i></a>
+      <a href="#" class="text-gray-400 hover:text-[#f2c94c] transition px-2"><i class="fab fa-twitter text-lg"></i></a>
+      <a href="#" class="text-gray-400 hover:text-[#f2c94c] transition px-2"><i class="fab fa-instagram text-lg"></i></a>
+      <a href="#" class="text-gray-400 hover:text-[#f2c94c] transition px-2"><i class="fab fa-youtube text-lg"></i></a>
+    </div>
+    <p class="text-xs text-gray-600">Ted Lasso &copy; 2026. All rights reserved.</p>
+  </div>
+
+  <!-- Replaced Playback Modal -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button id="closeModalBtn" class="absolute top-3 right-3 z-50 text-white hover:text-[#f2c94c] text-xl bg-black/60 hover:bg-black/90 rounded-full w-9 h-9 flex items-center justify-center transition border border-gray-700">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      </div>
+
+      <div class="player-meta">
+        <div class="meta-left">
+          <h3 id="modalTitle">Episode Title</h3>
+          <p id="modalDesc">Episode description will appear here.</p>
+        </div>
+        <div class="controls-row">
+          <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20 hover:bg-red-600/40 border-red-500/50 text-red-400 hover:text-red-300" title="Open directly in new tab if embed is blocked">
+            <i class="fas fa-external-link-alt mr-2"></i> Direct
+          </a>
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+          <button id="closeBtn" class="btn border-gray-600 text-gray-300 hover:bg-gray-800"><i class="fas fa-times mr-2"></i>Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-[#f2c94c]"></div>
+  </div>
+
+  <script>
+    // Helper function for building dynamic release date placeholders
+    function makeReleasePlaceholder(epNum, releaseDate) {
+      const dateText = encodeURIComponent(`Airing ${releaseDate}`);
+      const titleText = encodeURIComponent(`Episode ${epNum}`);
+      return `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23001733'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23f2c94c' stroke-width='4' opacity='0.4'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3E${titleText}%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23f2c94c' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3E${dateText}%3C/text%3E%3C/svg%3E`;
+    }
+
+    // ===============================================
+    // TED LASSO (EPISODE DATA - SEASONS 1-4)
+    // ===============================================
+    const movies = [
+      // ===== SEASON 1 =====
+      {
+        title: "Pilot",
+        season: 1, episode: 1, year: 2020,
+        video: "https://mega.nz/embed/XoYDiALS#gub0Cjti7q737msf2ouX8LGnatuJc4nrCi605NUEk2w", image: "https://image.tmdb.org/t/p/w300/8YJqx02JNMu9gNX7Ok7qgaNJJgl.jpg",
+        runtime: "30 min", rating: "7.8/10",
+        description: "American football coach Ted Lasso is hired to manage British soccer club AFC Richmond."
+      },
+      {
+        title: "Biscuits",
+        season: 1, episode: 2, year: 2020,
+        video: "https://mega.nz/embed/bkpihRhL#q8Pnsg8SJptN02E87IVisv2wITbAUUM5Bm8TyogE_0k", image: "https://image.tmdb.org/t/p/w300/2pNZYWhkY0DdUyVU8FEaYDSSfTW.jpg",
+        runtime: "29 min", rating: "8.1/10",
+        description: "Ted attempts to win over Rebecca and the team with homemade treats."
+      },
+      {
+        title: "Trent Crimm: The Independent",
+        season: 1, episode: 3, year: 2020,
+        video: "https://mega.nz/embed/3sRjTYoY#StncJq4Kt7S9ENxgSbOwzm4bdE0giu7S7v5kxHyZKg8", image: "https://image.tmdb.org/t/p/w300/N280y3IWDEEimlOVxmvRljkKIN.jpg",
+        runtime: "30 min", rating: "8.6/10",
+        description: "A cynical journalist spends a day profile-building with Ted."
+      },
+      {
+        title: "For the Children",
+        season: 1, episode: 4, year: 2020,
+        video: "https://mega.nz/embed/bgAjFYqZ#mJB5Xj2ZhyI2ZVdK0cn99qlHlqx6tGr2G6RnA7AGVhk", image: "https://image.tmdb.org/t/p/w300/fbWzpmQlFENbnS6GbvHZhzywozo.jpg",
+        runtime: "33 min", rating: "8.2/10",
+        description: "Ted attends an annual charity gala while trying to mend tensions between Roy and Jamie."
+      },
+      {
+        title: "Tan Gooncies",
+        season: 1, episode: 5, year: 2020,
+        video: "https://mega.nz/embed/jg4h0CIR#q_dtTmvEwoGcosU1rzvg6mCHU-7GmOH67BkAgk9VBiw", image: "https://image.tmdb.org/t/p/w300/p4KDV9hxszklNHdkRm564qWfq9R.jpg",
+        runtime: "31 min", rating: "8.4/10",
+        description: "With Ted's wife visiting, he makes a bold benching decision during a critical match."
+      },
+      {
+        title: "Two Aces",
+        season: 1, episode: 6, year: 2020,
+        video: "https://mega.nz/embed/j1wG2JIb#RdLubjebudONJ3bWm152e6PyFu2-_wablaof1sS-McQ", image: "https://image.tmdb.org/t/p/w300/o9g5v73OPWNA0lP4R0QrOgTrH0k.jpg",
+        runtime: "30 min", rating: "8.6/10",
+        description: "When Jamie refuses to train, Ted turns to new talent and attempts to lift a team curse."
+      },
+      {
+        title: "Make Rebecca Great Again",
+        season: 1, episode: 7, year: 2020,
+        video: "https://mega.nz/embed/Lkx0FbCL#eE1t_5SGOVymyOfrbCx7yt-y3k_lfRqTvv1ppNFYoUs", image: "https://image.tmdb.org/t/p/w300/iHc295TFzpmAMstLQvJe00oiF6G.jpg",
+        runtime: "32 min", rating: "8.8/10",
+        description: "The team travels to Liverpool for a match, where major personal milestones occur."
+      },
+      {
+        title: "The Diamond Dogs",
+        season: 1, episode: 8, year: 2020,
+        video: "https://mega.nz/embed/b5hghDZD#spQhEC5J1MFA328g3avd7h5RzE6Mic1YTUvGUqKJJ-0", image: "https://image.tmdb.org/t/p/w300/bEs22idG5SWG1qObfyMnCGavjMN.jpg",
+        runtime: "30 min", rating: "9.0/10",
+        description: "Ted forms a support group with colleagues while confronting Rupert in a pub darts game."
+      },
+      {
+        title: "All Apologies",
+        season: 1, episode: 9, year: 2020,
+        video: "https://mega.nz/embed/X0ojTDDB#QJynbFNpaQR78p5A1Gdj1NYo-H9FEp8fAG5Z4gStJFA", image: "https://image.tmdb.org/t/p/w300/rmNyV9dUPi7VeluqxYq0OFFCKNs.jpg",
+        runtime: "33 min", rating: "8.9/10",
+        description: "Rebecca struggles with guilt and makes a fateful decision about her truth."
+      },
+      {
+        title: "The Hope That Kills You",
+        season: 1, episode: 10, year: 2020,
+        video: "https://mega.nz/embed/y94hwYjY#j3iduI9PEGoqjS872DQ6XwbKyUM124ubnfm7zAWUKrk", image: "https://image.tmdb.org/t/p/w300/i6AD9UGfac5wyP2wADG5cWS7EIZ.jpg",
+        runtime: "34 min", rating: "9.2/10",
+        description: "Richmond plays a decisive final match of the season with relegation on the line."
+      },
+
+      // ===== SEASON 2 =====
+      {
+        title: "Goodbye Earl",
+        season: 2, episode: 1, year: 2021,
+        video: "00", image: "00",
+        runtime: "37 min", rating: "8.2/10",
+        description: "A tragic penalty kick accident leads AFC Richmond to bring in sports psychologist Dr. Sharon."
+      },
+      {
+        title: "Lavender",
+        season: 2, episode: 2, year: 2021,
+        video: "00", image: "00",
+        runtime: "35 min", rating: "8.3/10",
+        description: "High-stakes coaching decisions arise as Jamie Tartt seeks a path back to Richmond."
+      },
+      {
+        title: "Do the Right-est Thing",
+        season: 2, episode: 3, year: 2021,
+        video: "00", image: "00",
+        runtime: "38 min", rating: "8.5/10",
+        description: "Sam takes a moral stand against team sponsor Dubai Air, rallying his teammates."
+      },
+      {
+        title: "Carol of the Bells",
+        season: 2, episode: 4, year: 2021,
+        video: "00", image: "00",
+        runtime: "38 min", rating: "8.7/10",
+        description: "Christmas brings unexpected holiday bonding across the entire Richmond squad."
+      },
+      {
+        title: "Rainbow",
+        season: 2, episode: 5, year: 2021,
+        video: "00", image: "00",
+        runtime: "40 min", rating: "9.1/10",
+        description: "Nate is encouraged to find his inner confidence, while Roy contemplates his future."
+      },
+      {
+        title: "The Signal",
+        season: 2, episode: 6, year: 2021,
+        video: "00", image: "00",
+        runtime: "38 min", rating: "8.8/10",
+        description: "Richmond experiences on-field success using a tactical signal, but Ted suffers a panic attack."
+      },
+      {
+        title: "Headspace",
+        season: 2, episode: 7, year: 2021,
+        video: "00", image: "00",
+        runtime: "37 min", rating: "8.3/10",
+        description: "Ted confronts personal vulnerability in therapy as Nate's ego begins to fracture."
+      },
+      {
+        title: "Man City",
+        season: 2, episode: 8, year: 2021,
+        video: "00", image: "00",
+        runtime: "45 min", rating: "9.1/10",
+        description: "An intense FA Cup semi-final at Wembley exposes deep family traumas for key figures."
+      },
+      {
+        title: "Beard After Hours",
+        season: 2, episode: 9, year: 2021,
+        video: "00", image: "00",
+        runtime: "43 min", rating: "6.9/10",
+        description: "Coach Beard embarks on an odyssey through London after a painful loss."
+      },
+      {
+        title: "No Weddings and a Funeral",
+        season: 2, episode: 10, year: 2021,
+        video: "00", image: "00",
+        runtime: "46 min", rating: "8.9/10",
+        description: "The team gathers for a solemn event where emotional secrets are laid bare."
+      },
+      {
+        title: "Midnight Train to Royston",
+        season: 2, episode: 11, year: 2021,
+        video: "00", image: "00",
+        runtime: "44 min", rating: "8.8/10",
+        description: "Sam weighs a major career offer while betrayal quietly breeds inside coaching staff."
+      },
+      {
+        title: "Inverting the Pyramid of Success",
+        season: 2, episode: 12, year: 2021,
+        video: "00", image: "00",
+        runtime: "49 min", rating: "9.2/10",
+        description: "Richmond fights for promotion in a dramatic final fixture as relationships reach a breaking point."
+      },
+
+      // ===== SEASON 3 =====
+      {
+        title: "Smells Like Mean Spirit",
+        season: 3, episode: 1, year: 2023,
+        video: "00", image: "00",
+        runtime: "44 min", rating: "8.0/10",
+        description: "AFC Richmond faces low media expectations as Nate settles in as West Ham's manager."
+      },
+      {
+        title: "I Don't Want to Go to Chelsea",
+        season: 3, episode: 2, year: 2023,
+        video: "00", image: "00",
+        runtime: "48 min", rating: "8.2/10",
+        description: "News of superstar Zava becoming available sparks a fierce recruiting war."
+      },
+      {
+        title: "360",
+        season: 3, episode: 3, year: 2023,
+        video: "00", image: "00",
+        runtime: "47 min", rating: "8.3/10",
+        description: "Zava's arrival transforms performance, but team dynamics face new strains."
+      },
+      {
+        title: "Big Week",
+        season: 3, episode: 4, year: 2023,
+        video: "00", image: "00",
+        runtime: "48 min", rating: "8.2/10",
+        description: "Richmond takes on West Ham in a highly anticipated matchup loaded with personal history."
+      },
+      {
+        title: "Signs",
+        season: 3, episode: 5, year: 2023,
+        video: "00", image: "00",
+        runtime: "49 min", rating: "8.0/10",
+        description: "A slump tests Richmond's resolve, forcing Ted to rethink his tactical philosophy."
+      },
+      {
+        title: "Sunflowers",
+        season: 3, episode: 6, year: 2023,
+        video: "00", image: "00",
+        runtime: "63 min", rating: "9.3/10",
+        description: "An unforgettable night in Amsterdam leads to epiphanies across the whole squad."
+      },
+      {
+        title: "The Strings That Bind Us",
+        season: 3, episode: 7, year: 2023,
+        video: "00", image: "00",
+        runtime: "58 min", rating: "8.5/10",
+        description: "Ted introduces the Total Football concept, requiring complete player trust."
+      },
+      {
+        title: "We'll Never Have Paris",
+        season: 3, episode: 8, year: 2023,
+        video: "00", image: "00",
+        runtime: "54 min", rating: "7.7/10",
+        description: "Ted wrestles with personal anxiety over Michelle while Keeley confronts an online privacy crisis."
+      },
+      {
+        title: "La Locker Room Aux Folles",
+        season: 3, episode: 9, year: 2023,
+        video: "00", image: "00",
+        runtime: "56 min", rating: "8.9/10",
+        description: "Colin's secret is revealed to the squad, rallying powerful support from Roy and teammates."
+      },
+      {
+        title: "International Break",
+        season: 3, episode: 10, year: 2023,
+        video: "00", image: "00",
+        runtime: "67 min", rating: "8.8/10",
+        description: "While players represent their national teams, Nate makes pivotal personal choices."
+      },
+      {
+        title: "Mom City",
+        season: 3, episode: 11, year: 2023,
+        video: "00", image: "00",
+        runtime: "69 min", rating: "9.3/10",
+        description: "Surprise maternal visits lead to emotional breakthroughs for Ted and Jamie."
+      },
+      {
+        title: "So Long, Farewell",
+        season: 3, episode: 12, year: 2023,
+        video: "00", image: "00",
+        runtime: "75 min", rating: "9.4/10",
+        description: "Richmond fights for the Premier League title in a emotionally charged season finale."
+      },
+
+      // ===== SEASON 4 (UPCOMING PREVIEW PLACEHOLDERS) =====
+      {
+        title: "New Beginnings",
+        season: 4, episode: 1, year: 2026,
+        video: "00",
+        image: makeReleasePlaceholder(1, "October 14, 2026"),
+        runtime: "45 min", rating: "TBD",
+        description: "A new chapter begins for AFC Richmond with fresh targets and familiar faces."
+      },
+      {
+        title: "The Richmond Way",
+        season: 4, episode: 2, year: 2026,
+        video: "00",
+        image: makeReleasePlaceholder(2, "October 21, 2026"),
+        runtime: "48 min", rating: "TBD",
+        description: "The club navigates tactical shifts as expectations reach an all-time high."
+      },
+      {
+        title: "Pitch Perfect",
+        season: 4, episode: 3, year: 2026,
+        video: "00",
+        image: makeReleasePlaceholder(3, "October 28, 2026"),
+        runtime: "50 min", rating: "TBD",
+        description: "An unexpected international friendly tests new roster additions."
+      },
+      {
+        title: "Believe Again",
+        season: 4, episode: 4, year: 2026,
+        video: "00",
+        image: makeReleasePlaceholder(4, "November 04, 2026"),
+        runtime: "52 min", rating: "TBD",
+        description: "Old rivalries reignite when Richmond embarks on a high-stakes away trip."
+      }
+    ];
+
+    /* -----------------------------------------------
+       Modal & Player Integration
+       ----------------------------------------------- */
+    const playerWrapper = document.getElementById('playerWrapper');
+    const playbackModal = document.getElementById('playbackModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+
+    const externalBtn = document.getElementById('externalBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+    function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
+    function isHls(u) {
+      if (!u) return false;
+      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master');
+    }
+    function isYouTube(u) {
+      if (!u) return false;
+      return u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/');
+    }
+
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
+
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+
+      currentFiltered = list;
+      currentIndex = index;
+      const item = list[index];
+      if (!item) return;
+
+      modalTitle.textContent = item.title || '';
+      modalDesc.textContent = item.description || '';
+
+      resetPlayerContainer();
+      showModal();
+
+      let src = (typeof item.video === 'object' && item.video !== null) 
+        ? (item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0]) 
+        : item.video;
+
+      if (externalBtn) {
+        externalBtn.href = (src && src !== '00') ? src : '#';
+      }
+
+      if (!src || src === "00") {
+        playerWrapper.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full w-full bg-gradient-to-br from-[#001733] to-[#000c18] text-center p-6 border border-[#f2c94c]/20">
+            <i class="fas fa-futbol text-[#f2c94c] text-5xl mb-3 animate-bounce"></i>
+            <h4 class="text-xl font-bold text-white mb-1 title-font tracking-wider">${item.title}</h4>
+            <p class="text-xs text-gray-300 max-w-md mb-3">${item.description}</p>
+            <span class="inline-block bg-[#f2c94c]/20 border border-[#f2c94c] text-[#f2c94c] text-xs px-3 py-1 rounded-full font-mono">Status: Video Link Pending ("00")</span>
+          </div>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+        return;
+      }
+
+      const lc = (src||'').toLowerCase();
+
+      if (
+        src.includes('m3u8-proxy.m3u8') ||
+        lc.includes('streamtape.com') ||
+        lc.includes('dood') ||
+        lc.includes('vidcdn') ||
+        lc.includes('ok.ru') ||
+        lc.includes('mega.nz') ||
+        lc.includes('openload') ||
+        lc.includes('drive.google.com')
+      ) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
+          }
+        } catch(e){}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      if (isHls(src)) {
+        const v = document.getElementById('modalVideo');
+        if (!v) return;
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        }
+        return;
+      }
+
+      if (isMP4(src)) {
+        const v = document.getElementById('modalVideo');
+        if (v) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        }
+      }
+    }
+
+    function togglePlayPause() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      }
+    }
+
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex < currentFiltered.length - 1) {
+        openPlayer(currentFiltered, currentIndex + 1);
+      }
+    }
+
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex > 0) {
+        openPlayer(currentFiltered, currentIndex - 1);
+      }
+    }
+
+    function toggleFullscreen() {
+      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el);
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function toggleMute() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById('modalVideo');
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+    }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    if (closeBtn) closeBtn.addEventListener('click', closeModalHandler);
+
+    closeModalBtn.addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime += 10; break; }
+        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime -= 10; break; }
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+        case 'n': playNext(); break;
+        case 'p': playPrev(); break;
+      }
+    });
+
+    // High Performance Dynamic Card Rendering
+    const container = document.getElementById('movies');
+    function renderMovies(list) {
+      container.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+
+      list.forEach((movie, index) => {
+        const card = document.createElement('div');
+        card.className = 'movie-card rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between glow-effect bg-[#001733]/80 border border-[#f2c94c]/20';
+        
+        let displayImg = movie.image;
+        if (!displayImg || displayImg === '00') {
+          displayImg = `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23001733'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23f2c94c' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='50%25' fill='%23f2c94c' font-family='sans-serif' font-size='38' font-weight='bold' text-anchor='middle'%3ES${movie.season} E${movie.episode} - ${encodeURIComponent(movie.title)}%3C/text%3E%3C/svg%3E`;
+        }
+
+        card.innerHTML = `
+          <div class="relative group overflow-hidden bg-[#000d1d]">
+            <img src="${displayImg}" alt="${movie.title}" loading="lazy" class="w-full h-36 sm:h-44 md:h-52 object-cover opacity-90 group-hover:opacity-100 transition-opacity">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#000c18] via-[#000c18]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end p-3">
+              <p class="text-gray-300 text-xs line-clamp-2">${movie.description || ''}</p>
+            </div>
+            <div class="absolute top-2.5 right-2.5 bg-[#000c18]/80 text-[#f2c94c] rounded-full w-8 h-8 flex items-center justify-center border border-[#f2c94c]/30">
+              <i class="fas fa-play text-xs"></i>
+            </div>
+            <div class="absolute top-2.5 left-2.5 flex items-center bg-[#000c18]/80 px-2 py-0.5 rounded border border-gray-800">
+              <i class="fas fa-star text-[#f2c94c] text-[10px] mr-1"></i>
+              <span class="text-white text-xs font-bold">${movie.rating || '8.5'}</span>
+            </div>
+          </div>
+          <div class="p-3">
+            <h3 class="text-white font-semibold text-sm line-clamp-1 group-hover:text-[#f2c94c] transition">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-xs mt-1.5 font-medium">
+              <span class="bg-[#000c18] text-[#f2c94c] border border-[#f2c94c]/30 px-1.5 py-0.5 rounded text-[10px] font-bold">S${movie.season} E${movie.episode}</span>
+              <span class="mx-1.5">•</span>
+              <span>${movie.runtime || '30 min'}</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => openPlayer(list, index));
+        fragment.appendChild(card);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    function initPage() {
+      renderMovies(movies);
+
+      const seasonBtns = document.querySelectorAll('.season-btn');
+      seasonBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          seasonBtns.forEach(b => {
+            b.classList.remove('active', 'bg-[#f2c94c]', 'text-[#001c3f]');
+            b.classList.add('text-gray-300', 'bg-[#001c3f]');
+          });
+          this.classList.add('active', 'bg-[#f2c94c]', 'text-[#001c3f]');
+          this.classList.remove('text-gray-300', 'bg-[#001c3f]');
+          
+          const season = this.dataset.season;
+          const filtered = (!season || season === 'all') 
+            ? movies 
+            : movies.filter(m => String(m.season) === String(season));
+          
+          renderMovies(filtered);
+        });
+      });
+
+      const playAllBtn = document.getElementById('play-all');
+      if (playAllBtn) {
+        playAllBtn.addEventListener('click', () => openPlayer(movies, 0));
+      }
+
+      const globalSearch = document.getElementById('global-search');
+      if (globalSearch) {
+        globalSearch.addEventListener('input', (e) => {
+          const q = e.target.value.trim().toLowerCase();
+          const activeSeasonBtn = document.querySelector('.season-btn.active');
+          const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+          let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+          if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
+          renderMovies(list);
+        });
+      }
+    }
+
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const themeToggle = document.getElementById('theme-toggle');
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+
+    searchBtn.addEventListener('click', () => {
+      searchBar.classList.toggle('hidden');
+      watchlistDropdown.classList.add('hidden');
+    });
+
+    watchlistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      watchlistDropdown.classList.toggle('hidden');
+      searchBar.classList.add('hidden');
+    });
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('bg-gray-100');
+      document.body.classList.toggle('text-gray-900');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
+      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initPage();
+    });
+  </script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
