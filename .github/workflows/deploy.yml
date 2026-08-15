@@ -1,24 +1,45 @@
-name: Deploy to InfinityFree
+name: Deploy Ultron to InfinityFree
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  deploy-siteje:
+    name: Deploy to cloudtv.site.je
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy to InfinityFree
+      - name: Deploy to cloudtv.site.je
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ftpupload.net
+          username: ${{ secrets.FTP_USERNAME_SITEJE }}
+          password: ${{ secrets.FTP_PASSWORD_SITEJE }}
+          server-dir: /htdocs/
           protocol: ftp
           port: 21
+
+
+  deploy-infinityfree:
+    name: Deploy to ultron3000.infinityfree.me
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to ultron3000.infinityfree.me
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftpupload.net
+          username: ${{ secrets.FTP_USERNAME_INFINITY }}
+          password: ${{ secrets.FTP_PASSWORD_INFINITY }}
           server-dir: /htdocs/
+          protocol: ftp
+          port: 21
