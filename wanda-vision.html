@@ -10,19 +10,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-  <!-- HLS.js (from Tukaram for HLS playback support) -->
+  <!-- HLS.js for HLS playback support -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
-    /* PRESERVE original Hawkeye CSS and animations but adjust theme to Loki */
+    /* WandaVision Chaos Magic Theme Customization */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #07060b; }
-    ::-webkit-scrollbar-thumb { background: #9ad34d; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #bfe67a; }
+    ::-webkit-scrollbar-track { background: #07040a; }
+    ::-webkit-scrollbar-thumb { background: #e6005c; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ff3377; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     @keyframes arrowBounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(5px);} }
+    @keyframes chaosGlow { 0%, 100% { box-shadow: 0 0 15px rgba(230, 0, 92, 0.4); } 50% { box-shadow: 0 0 25px rgba(255, 26, 64, 0.8); } }
 
     .fade-in { animation: fadeIn 0.5s ease-out forwards; }
     .pulse-hover:hover { animation: pulse 1.5s infinite; }
@@ -33,161 +34,109 @@
 
     .glow-effect { position: relative; transition: transform 0.3s ease; }
     .glow-effect:hover { transform: translateY(-5px); }
-    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(154,211,77,0); transition:box-shadow 0.3s; pointer-events:none;}
-    .glow-effect:hover::after { box-shadow:0 0 20px rgba(154,211,77,0.25); }
+    .glow-effect::after { content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(230, 0, 92, 0); transition:box-shadow 0.3s; pointer-events:none; }
+    .glow-effect:hover::after { box-shadow:0 0 20px rgba(230, 0, 92, 0.5); }
 
-    .gradient-text { background: linear-gradient(90deg, #9ad34d, #7f3cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .gradient-text { background: linear-gradient(90deg, #ff1a40, #e6005c, #ff7300); -webkit-background-clip:text; background-clip:text; color:transparent; }
     .marvel-font { font-family: 'Marvel', sans-serif; }
 
     /* Responsive adjustments */
     @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
     @media (max-width: 400px) { .movie-card { width: 100%; } }
 
-    /* Modal player container (Tukaram-style preserved) */
+    /* Modal player container */
     #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
     #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
 
-    /* small Loki tint changes to Hawkeye theme */
-    header { background: linear-gradient(90deg,#081018,#04040a); }
-    .bg-loki { background: linear-gradient(135deg,#7f3cff,#9ad34d); }
-    .loki-accent { color: #9ad34d; }
-    .btn-loki { background: #9ad34d; color: #061217; }
-    .btn-loki:hover { filter: brightness(0.95); }
-    .watchlist-checkbox .checkmark { border: 2px solid #9ad34d; }
-    .progress-bar-fill { background: #9ad34d; }
+    /* WandaVision Specific Palette */
+    header { background: linear-gradient(90deg, #0c0409, #050206); }
+    .bg-wanda { background: linear-gradient(135deg, #e6005c, #990033); }
+    .wanda-accent { color: #ff1a40; }
+    .btn-wanda { background: #e6005c; color: #ffffff; }
+    .btn-wanda:hover { background: #ff1a40; filter: brightness(1.1); }
+    .watchlist-checkbox .checkmark { border: 2px solid #e6005c; }
+    .progress-bar-fill { background: #e6005c; }
 
-    /* keep other original Hawkeye styles intact */
-    body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
+    body { background: #07040a; color: #f3e6ed; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
 
-    /* Illumination modal styles (keeps modal look consistent) */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    /* Modal styles */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.92); display:none; align-items:center; justify-content:center; z-index:9999; backdrop-filter: blur(5px); }
     .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#120710; box-shadow:0 30px 80px rgba(230,0,92,0.3); border: 1px solid rgba(230, 0, 92, 0.3); }
     .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
     .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
 
-    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
-    .player-meta .meta-left { max-width:65%; }
+    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:center; background: #120710; }
+    .player-meta .meta-left { max-width:55%; }
     .player-meta h3 { margin:0; font-size:1.125rem; }
     .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
 
-    .controls-row { display:flex; gap:8px; align-items:center; }
+    .controls-row { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
 
     .btn {
-      background:transparent; border:1px solid #9ad34d; color:#9ad34d;
-      padding:8px 12px; border-radius:8px; cursor:pointer;
+      background:transparent; border:1px solid #e6005c; color:#ff1a40;
+      padding:8px 12px; border-radius:8px; cursor:pointer; transition: all 0.2s ease;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem;
     }
-    .btn:hover { background: rgba(154,211,77,0.06); }
+    .btn:hover { background: rgba(230,0,92,0.15); border-color: #ff1a40; color: #ffffff; }
+    .btn-direct { background: #e6005c; color: #ffffff; border-color: #e6005c; font-weight: 600; }
+    .btn-direct:hover { background: #ff1a40; border-color: #ff1a40; color: #ffffff; box-shadow: 0 0 10px rgba(255,26,64,0.5); }
 
     .hidden { display:none; }
 
-    @media(max-width:640px){
-      .player-meta .meta-left { max-width:55%; }
-      .btn { padding:6px 8px; font-size:0.9rem; }
+    /* Mobile adjustments */
+    @media (max-width: 767px) {
+      .player-wrapper { padding-bottom: 56.25% !important; height: 0 !important; position: relative !important; }
+      .player-wrapper video, .player-wrapper iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
+      .player-meta { display: flex !important; flex-direction: column !important; gap: 12px !important; padding: 12px !important; background: #120710 !important; z-index: 20 !important; }
+      .player-meta .meta-left { max-width: 100% !important; text-align: center; }
+      .controls-row { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; gap: 8px !important; }
+      .btn { padding: 8px !important; min-width: 40px !important; height: 40px !important; }
+      .btn span { display: none; } /* hide text on small mobile screens */
+      .btn i { margin: 0 !important; font-size: 1rem !important; }
     }
-    /* ============================
-   MOBILE FIX — DOES NOT TOUCH DESKTOP
-   ============================ */
-
-@media (max-width: 767px) {
-
-  /* Proper mobile player layout (matches your working version) */
-  .player-wrapper {
-    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
-    height: 0 !important;
-    position: relative !important;
-  }
-
-  .player-wrapper video,
-  .player-wrapper iframe {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Proper stacked mobile controls */
-  .player-meta {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 12px !important;
-    background: #0b1220 !important;
-    z-index: 20 !important;
-  }
-
-  /* Mobile control row wraps properly */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 10px !important;
-  }
-
-  /* Mobile buttons use icon-only layout */
-  .btn {
-    padding: 8px !important;
-    font-size: 0 !important;      /* hides text on mobile */
-    min-width: 48px !important;
-    height: 44px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .btn i {
-    font-size: 1.1rem !important;
-    margin: 0 !important;
-  }
-
-  /* Close button always visible on mobile */
-  #topCloseBtn {
-    opacity: 1 !important;
-  }
-}
-
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
   <!-- Header -->
-  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+  <header class="sticky top-0 z-50 bg-black/90 backdrop-blur-sm border-b border-red-900/30 shadow-lg">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2 sm:space-x-3">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
-       <i class="fas fa-bullseye text-black text-xl"></i>
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#e6005c] to-[#ff7300] rounded-full flex items-center justify-center pulse-hover shadow-lg shadow-red-600/30">
+          <i class="fas fa-magic text-white text-lg sm:text-xl"></i>
         </div>
         <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">WandaVision</h1>
       </div>
       
       <div class="flex items-center space-x-2 sm:space-x-4">
         <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
-          <i class="fas fa-bookmark loki-accent"></i>
+          <i class="fas fa-bookmark wanda-accent"></i>
           <span class="tooltip-text">My Watchlist</span>
         </button>
         <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-moon loki-accent"></i>
+          <i class="fas fa-moon wanda-accent"></i>
           <span class="tooltip-text">Toggle Theme</span>
         </button>
         <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-search loki-accent"></i>
+          <i class="fas fa-search wanda-accent"></i>
           <span class="tooltip-text">Search</span>
         </button>
       </div>
     </div>
     
-    <!-- Search Bar (hidden by default) -->
-    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
-      <div class="relative">
+    <!-- Search Bar -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/90">
+      <div class="relative max-w-xl mx-auto">
         <input id="global-search" type="text" placeholder="Search episodes..." 
-               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400">
-        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d]"></i>
+               class="w-full bg-gray-900 border border-[#e6005c]/40 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#e6005c] placeholder-gray-400">
+        <i class="fas fa-search absolute left-3 top-3 text-[#ff1a40]"></i>
       </div>
     </div>
     
-    <!-- Watchlist dropdown (hidden by default) -->
-    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
-      <div class="px-4 py-2 border-b border-gray-700">
-        <h3 class="font-semibold loki-accent">My Watchlist</h3>
+    <!-- Watchlist Dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-red-900/50 rounded-lg shadow-xl z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-800">
+        <h3 class="font-semibold wanda-accent">My Watchlist</h3>
       </div>
       <div id="watchlist-items" class="max-h-60 overflow-y-auto">
         <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
@@ -196,196 +145,187 @@
   </header>
 
   <!-- Main Content -->
-<main class="container mx-auto px-4 py-6">
-  <!-- Hero Section -->
-  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
-    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
-    
-    <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
-      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <!-- Loki hero trailer (YouTube embed) -->
-        <iframe
-          src="https://www.youtube.com/embed/UBhlqe2OTt4?autoplay=1&mute=1&loop=1&playlist=UBhlqe2OTt4&controls=0&modestbranding=1"
-          frameborder="0"
-          allow="autoplay; fullscreen"
-          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        ></iframe>
-      </div>
+  <main class="container mx-auto px-4 py-6">
+    <!-- Hero Section -->
+    <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl border border-red-900/20">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
       
-      <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
-        <div class="flex items-center mb-1 sm:mb-2">
-          <span class="bg-[#9ad34d] text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2">MARVEL</span>
-          <span class="text-[#9ad34d] text-xs sm:text-sm">Seasons 1</span>
+      <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/UBhlqe2OTt4?autoplay=1&mute=1&loop=1&playlist=UBhlqe2OTt4&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-60"
+          ></iframe>
         </div>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">WandaVision</h2>
-        <div class="flex items-center mb-2 sm:mb-4">
-          <div class="flex items-center mr-2 sm:mr-4">
-            <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
-            <span class="text-white text-xs sm:text-sm">7.0</span>
+        
+        <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
+          <div class="flex items-center mb-1 sm:mb-2">
+            <span class="bg-[#e6005c] text-white text-xs font-bold px-2 py-1 rounded mr-2 tracking-wider">MARVEL</span>
+            <span class="text-[#ff1a40] text-xs sm:text-sm font-semibold">Season 1</span>
           </div>
-          <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 gradient-text marvel-font tracking-wide">WandaVision</h2>
+          <div class="flex items-center mb-3">
+            <div class="flex items-center mr-4">
+              <i class="fas fa-star wanda-accent mr-1 text-sm"></i>
+              <span class="text-white text-sm font-bold">7.9</span>
+            </div>
+            <span class="text-gray-300 text-xs sm:text-sm mr-4">TV-Mini Series</span>
+            <span class="border border-red-500/40 text-red-400 text-xs px-2 py-0.5 rounded">Sci-Fi / Drama</span>
+          </div>
+          <p class="text-gray-300 mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base leading-relaxed">Blends the style of classic sitcoms with the MCU, in which Wanda Maximoff and Vision - two super-powered beings living their ideal suburban lives - begin to suspect that everything is not as it seems.</p>
+          <div class="flex space-x-3">
+            <button id="play-all" class="btn-wanda font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover shadow-lg shadow-red-600/40">
+              <i class="fas fa-play mr-2"></i> Play All
+            </button>
+            <button class="bg-gray-900/80 hover:bg-gray-800 text-white border border-gray-700 font-semibold py-2 px-6 rounded-full transition flex items-center">
+              <i class="fas fa-info-circle mr-2"></i> Details
+            </button>
+          </div>
         </div>
-        <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">Blends the style of classic sitcoms with the MCU, in which Wanda Maximoff and Vision - two super-powered beings living their ideal suburban lives - begin to suspect that everything is not as it seems.</p>
-        <div class="flex space-x-2 sm:space-x-3">
-          <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
-            <i class="fas fa-play mr-2"></i> Play All
+
+        <div class="absolute bottom-4 right-4 z-20">
+          <button id="scroll-down" class="bg-black/60 text-[#ff1a40] rounded-full p-2 border border-[#e6005c]/40 hover:bg-[#e6005c] hover:text-white transition">
+            <i class="fas fa-chevron-down arrow-bounce"></i>
           </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-info-circle mr-2"></i> Details
-          </button>
         </div>
-      </div>
-
-      <div class="absolute bottom-4 right-4 z-20">
-        <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
-          <i class="fas fa-chevron-down arrow-bounce"></i>
-        </button>
-      </div>
-    </div>
-  </section>
-</main>
-
-    <!-- Season Navigation -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
-      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-tv loki-accent mr-2"></i>
-        <span class="marvel-font">EPISODES</span>
-      </h3>
-      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-        <div class="flex items-center space-x-2 min-w-max">
-          <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">Season 1</button>
-
-        </div>
-      </div>
-    </div>
-
-
-      
-
-
-    <!-- Episodes Grid -->
-    <section class="container mx-auto px-4">
-      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-        <!-- Movie cards inserted by JS -->
       </div>
     </section>
 
-    <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
-  </div>
+    <!-- Season Navigation -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4">
+      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
+        <i class="fas fa-tv wanda-accent mr-2"></i>
+        <span class="marvel-font text-2xl tracking-wide">EPISODES</span>
+      </h3>
+      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max">
+          <button class="season-btn active bg-[#e6005c] text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-md shadow-red-900/40" data-season="all">Season 1</button>
+        </div>
+      </div>
+    </div>
 
-  <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
+    <!-- Episodes Grid -->
+    <section>
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+        <!-- Cards inserted by JS -->
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="border-t border-gray-800 mt-12 pt-6 text-center text-gray-500">
+      <div class="flex justify-center space-x-4 mb-2">
+        <a href="#" class="text-gray-400 hover:text-[#e6005c] transition"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="text-gray-400 hover:text-[#e6005c] transition"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#e6005c] transition"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#e6005c] transition"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Playback Modal -->
   <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true">
-      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2">
+      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#ff1a40] text-2xl bg-black/60 rounded-full p-2 w-10 h-10 flex items-center justify-center transition">
         <i class="fas fa-times"></i>
       </button>
 
       <div class="player-wrapper" id="playerWrapper">
-        <!-- video or iframe injected here -->
         <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       </div>
 
       <div class="player-meta">
         <div class="meta-left">
-          <h3 id="modalTitle">Episode Title</h3>
+          <h3 id="modalTitle" class="font-bold text-white">Episode Title</h3>
           <p id="modalDesc" class="text-sm">Episode description will appear here.</p>
         </div>
         <div class="controls-row">
-          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-1"></i><span>Prev</span></button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-1"></i><span>Play</span></button>
+          <button id="nextBtn" class="btn"><span>Next</span><i class="fas fa-step-forward ml-1"></i></button>
+          <!-- Direct Stream / External Player Button -->
+          <button id="directBtn" class="btn btn-direct" title="Open Stream directly"><i class="fas fa-external-link-alt mr-1"></i><span>Direct</span></button>
           <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Loading Spinner -->
-  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#9ad34d]"></div>
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#e6005c]"></div>
   </div>
 
   <script>
-// ========================
-// SEASON SELECTOR + DATA
-// ========================
-
-// Quantum Leap (2022) – Season 1 & 2
-const movies = [
+    const movies = [
       { 
         title: "Filmed Before a Live Studio Audience", 
-        video: "https://sau.rivonadesign.cyou:443/v4/js/ytga5/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/LSIwATrJ#xdu2jYIpJ2pB5lKZ4q-tcXCa048zfIvfsQG6H4X_zzg", 
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/568/890568-h",
         description: "Wanda and Vision struggle to conceal their powers during dinner with Vision's boss and his wife.",
-        duration: "26 min"
+        duration: "26 min", season: 1, episode: 1, rating: "7.5"
       },
       { 
         title: "Don't Touch That Dial", 
-        video: "https://svz.arkadine.shop:443/v4/61/bivz1/index-f1-v1-a1.txt",
+        video: "https://mega.nz/embed/KKhFAYjT#esIpsSITNOUZrs815d8uqygnVnzfKcaGhrtKEgJ58pU",
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/340/890340-h",
         description: "In an effort to fit in, Wanda and Vision perform a magic act in their community talent show.",
-        duration: "33 min"
+        duration: "33 min", season: 1, episode: 2, rating: "7.7"
       },
       { 
         title: "Now in Color", 
-        video: "https://svz.bellecrest.store:443/v4/36/wyu1m/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/mXJVwILA#LuekcCtxrmjwF71vxGyrDPQ1sRZVxTPKNdoc-nnfOIA", 
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/333/890333-h",
         description: "Wanda's pregnancy fritzes her powers as she and Vision prepare for an accelerated delivery.",
-        duration: "30 min"
+        duration: "30 min", season: 1, episode: 3, rating: "8.1"
       },
       { 
         title: "We Interrupt This Program", 
-        video: "https://sri.glowhavenmedia.cyou:443/v4/9a/aq9jb/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/aeYUUKTT#K1th9jvE-RlJDiSzoC7T4B-npEJrpCOmim5t4qv-BaM", 
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/6312/896312-h",
         description: "Monica Rambeau, tasked with a special assignment regarding sentient weapons, goes missing.",
-        duration: "32 min"
+        duration: "32 min", season: 1, episode: 4, rating: "8.8"
       },
       { 
         title: "On a Very Special Episode...", 
-        video: "https://sui.rivonadesign.cyou:443/v4/hz/n3gnu/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/XSoxzRyS#HaX4kTSI8-o0o9EBRRZ86kaPulZIpg2t-Z8SoqMu8VY", 
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/2235/902235-h",
         description: "Wanda addresses Vision's worries when he grows suspicious of the neighbors' strange behaviour.",
-        duration: "38 min"
+        duration: "38 min", season: 1, episode: 5, rating: "9.0"
       },
       { 
         title: "All-New Halloween Spooktacular!", 
-        video: "https://sy6.mistralstudio.shop:443/v4/db/pxzy3/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/SOwWFSAK#GnoUBdZn7mvlzdfnLA5OmHtow8bmVfkXYSPMmu1uBHA", 
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/7856/907856-h",
         description: "Disturbances on Halloween separate Wanda from Vision, who looks into anomalous activity in Westview.",
-        duration: "34 min"
+        duration: "34 min", season: 1, episode: 6, rating: "8.8"
       },
       { 
         title: "Breaking the Fourth Wall", 
-        video: "https://sad.starlabdigital.sbs:443/v4/qu/hfa8b/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/aSZEASgS#4SFxIxaRzIinfcrOOdeCB_YtobP2-vgC1rF-DNiMFos", 
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/3631/913631-h",
         description: "Monica plots her return, Wanda navigates unsettling complications, and Vision forms a new alliance.",
-        duration: "34 min"
+        duration: "34 min", season: 1, episode: 7, rating: "8.4"
       },
       { 
         title: "Previously On", 
-        video: "https://sui.rivonadesign.cyou:443/v4/9a/8kwzt/index-f1-v1-a1.txt",
+        video: "https://mega.nz/embed/nWYzEAob#UXuJjgG7EZmX9EhXulqbvdl6xaWDe1pPJsqeZKuXRns",
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/9556/919556-h",
         description: "Wanda embarks on a troubling journey revisiting her past for insight into her present and future.",
-        duration: "43 min"
+        duration: "43 min", season: 1, episode: 8, rating: "8.9"
       },
       { 
         title: "The Series Finale", 
-        video: "https://sad.bellecrest.store:443/v4/db/wyuic/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/6bgkzZCQ#CY1ZJ0pCaC3MIhc0WSpZefV0l-4Qagvy7ki8OOaG9aE", 
         image: "https://img10.hotstar.com/image/upload/f_auto/sources/r1/cms/prod/5138/925138-h",
         description: "The events of WandaVision come to a head, and the destinies of all who took part are determined.",
-        duration: "46 min"
-      },
-];
-    /* ------------------------
-       Modal / playback implementation (Illumination-style)
-       ------------------------ */
+        duration: "46 min", season: 1, episode: 9, rating: "8.2"
+      }
+    ];
+
     const playerWrapper = document.getElementById('playerWrapper');
     const playbackModal = document.getElementById('playbackModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -395,12 +335,14 @@ const movies = [
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const playPauseBtn = document.getElementById('playPauseBtn');
+    const directBtn = document.getElementById('directBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const muteBtn = document.getElementById('muteBtn');
 
     let currentHls = null;
     let currentFiltered = [];
     let currentIndex = null;
+    let currentVideoSrc = "";
 
     function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
     function isHls(u) {
@@ -447,13 +389,15 @@ const movies = [
       resetPlayerContainer();
       showModal();
 
-      // pick source
       let src = '';
       if (typeof item.video === 'object' && item.video !== null) {
         src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
       } else {
         src = item.video;
       }
+
+      currentVideoSrc = src;
+
       if (!src) {
         showError('No video url');
         setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=`, 500);
@@ -462,14 +406,14 @@ const movies = [
 
       const lc = (src||'').toLowerCase();
 
-      // iframe hosts
+      // Iframes
       if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
         playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i><span>Pause</span>';
         return;
       }
 
-      // youtube
+      // YouTube
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -482,7 +426,7 @@ const movies = [
           }
         } catch(e){}
         playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i><span>Pause</span>';
         return;
       }
 
@@ -498,7 +442,7 @@ const movies = [
           } catch (e) { console.warn('HLS attach error', e); }
           currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
             v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i><span>Pause</span>';
           });
           currentHls.on(Hls.Events.ERROR, function(event, data) {
             console.warn('HLS error', data);
@@ -512,7 +456,7 @@ const movies = [
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i><span>Pause</span>';
         } else {
           showError('HLS not supported — redirecting to player.html');
           setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
@@ -526,11 +470,10 @@ const movies = [
         if (!v) { window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
         v.src = src;
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i><span>Pause</span>';
         return;
       }
 
-      // fallback
       window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
@@ -540,24 +483,35 @@ const movies = [
       if (!v) return;
       if (v.paused) {
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i><span>Pause</span>';
       } else {
         v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i><span>Play</span>';
       }
     }
+
     function playNext() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
       if (currentIndex == null) return showError('No current video');
       if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
       else showError('No next video');
     }
+
     function playPrev() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
       if (currentIndex == null) return showError('No current video');
       if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
       else showError('No previous video');
     }
+
+    /* Direct Button Handler */
+    function openDirectPlayer() {
+      if (currentIndex !== null && currentFiltered[currentIndex]) {
+        const item = currentFiltered[currentIndex];
+        window.location.href = `player.html?title=${encodeURIComponent(item.title || '')}&video=${encodeURIComponent(currentVideoSrc || '')}`;
+      }
+    }
+
     function toggleFullscreen() {
       const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
       if (!el) return;
@@ -567,6 +521,7 @@ const movies = [
         document.exitFullscreen();
       }
     }
+
     function toggleMute() {
       const v = document.getElementById('modalVideo');
       if (!v) return;
@@ -574,7 +529,6 @@ const movies = [
       muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
-    /* Close modal & cleanup */
     function closeModalHandler() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -589,13 +543,14 @@ const movies = [
       hideModal();
       currentIndex = null;
       currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i><span>Play</span>';
     }
 
-    /* Events wiring */
+    /* Event Listeners Wire-Up */
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
     prevBtn.addEventListener('click', playPrev);
+    directBtn.addEventListener('click', openDirectPlayer);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     muteBtn.addEventListener('click', toggleMute);
 
@@ -604,7 +559,6 @@ const movies = [
       if (e.target === playbackModal) closeModalHandler();
     });
 
-    // Keyboard shortcuts when modal active
     document.addEventListener('keydown', (e) => {
       if (!playbackModal.classList.contains('active')) return;
       switch (e.key.toLowerCase()) {
@@ -616,174 +570,82 @@ const movies = [
         case 'm': toggleMute(); break;
         case 'n': playNext(); break;
         case 'p': playPrev(); break;
+        case 'd': openDirectPlayer(); break;
       }
     });
 
-    /* Attach video timeupdate/ended listeners */
-    function attachVideoListeners() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.removeEventListener('timeupdate', onTimeUpdate);
-      v.addEventListener('timeupdate', onTimeUpdate);
-      v.removeEventListener('ended', onEnded);
-      v.addEventListener('ended', onEnded);
-    }
-    function onTimeUpdate() {
-      // If the original progress bar exists, update it (preserved element)
-      const progressBarFill = document.getElementById('progress-bar-fill');
-      const videoEl = document.getElementById('modalVideo');
-      if (!progressBarFill || !videoEl || !videoEl.duration) return;
-      const p = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = p + '%';
-    }
-    function onEnded() {
-      const playBtn = document.getElementById('play-btn') || playPauseBtn;
-      if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
-    }
-
-    /* Render episodes grid (wired to openPlayer) */
-    const container = document.getElementById('movies');
     function renderMovies(list) {
+      const container = document.getElementById('movies');
       container.innerHTML = '';
       list.forEach((movie, index) => {
         const card = document.createElement('div');
-        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
+        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer bg-gray-900/60 border border-red-900/20';
         card.innerHTML = `
-          <div class="relative group overflow-hidden rounded-xl">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+          <div class="relative group overflow-hidden rounded-t-xl">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-36 sm:h-44 md:h-48 lg:h-52 object-cover rounded-t-xl group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
               <div>
-                <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
-                <p class="text-gray-300 text-xs sm:text-sm">${movie.duration || ''}</p>
+                <p class="text-gray-300 text-xs">${movie.duration || ''}</p>
               </div>
             </div>
-            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
-              <i class="fas fa-play"></i>
+            <div class="absolute top-3 right-3 bg-black/70 text-[#ff1a40] rounded-full w-9 h-9 flex items-center justify-center border border-[#e6005c]/40 group-hover:bg-[#e6005c] group-hover:text-white transition">
+              <i class="fas fa-play text-xs"></i>
             </div>
-            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
-              <i class="fas fa-star text-[#9ad34d] text-xs mr-1"></i>
-              <span class="text-white text-xs">${movie.rating || ''}</span>
+            <div class="absolute top-3 left-3 flex items-center bg-black/80 px-2 py-0.5 rounded-full border border-red-900/40">
+              <i class="fas fa-star text-[#ff1a40] text-xs mr-1"></i>
+              <span class="text-white text-xs font-bold">${movie.rating || '8.0'}</span>
             </div>
           </div>
-          <div class="mt-3">
-            <h3 class="text-white font-medium">${movie.title}</h3>
-            <div class="flex items-center text-gray-400 text-sm mt-1">
+          <div class="p-3">
+            <h3 class="text-white font-semibold text-sm line-clamp-1">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-xs mt-1">
               <span>S${movie.season} • E${movie.episode}</span>
-              <span class="mx-2">•</span>
+              <span class="mx-1.5">•</span>
               <span>${movie.duration || ''}</span>
             </div>
           </div>
         `;
         card.addEventListener('click', () => {
-          // show loading spinner while resolving
           const loadingSpinner = document.getElementById('loading-spinner');
           if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-          // open with the full current list and index
           openPlayer(list, index);
-          // attach listeners for the video element (a bit delayed to allow element to exist)
-          setTimeout(()=> attachVideoListeners(), 200);
           if (loadingSpinner) loadingSpinner.classList.add('hidden');
         });
         container.appendChild(card);
       });
     }
 
-    /* Init page (season filtering wired up) */
     function initPage() {
       renderMovies(movies);
 
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-        });
-      });
-
-      // Season buttons: filter content
-      const seasonBtns = document.querySelectorAll('.season-btn');
-      seasonBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-          const season = this.dataset.season;
-          let filtered;
-          if (!season || season === 'all') filtered = movies;
-          else filtered = movies.filter(m => String(m.season) === String(season));
-          renderMovies(filtered);
-        });
-      });
-
-      // Play All behavior (starts at first)
       const playAllBtn = document.getElementById('play-all');
       if (playAllBtn) {
         playAllBtn.addEventListener('click', () => {
           openPlayer(movies, 0);
-          setTimeout(()=> attachVideoListeners(), 200);
         });
       }
 
-      // Global search wiring
       const globalSearch = document.getElementById('global-search');
       if (globalSearch) {
         globalSearch.addEventListener('input', (e) => {
           const q = e.target.value.trim().toLowerCase();
-          const activeSeasonBtn = document.querySelector('.season-btn.active');
-          const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
-          let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
+          let list = movies;
           if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
           renderMovies(list);
         });
       }
 
-      // Watchlist UI wiring preserved
-      updateWatchlist();
-    }
-
-    /* Watchlist functions (preserved) */
-    const watchlistItems = document.getElementById('watchlist-items');
-    function updateWatchlist() {
-      if (!watchlistItems) return;
-      watchlistItems.innerHTML = '';
-      const watchlistMovies = movies.filter(m => m.inWatchlist);
-      if (watchlistMovies.length === 0) {
-        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
-        return;
-      }
-      watchlistMovies.forEach((movie, idx) => {
-        const index = movies.indexOf(movie);
-        const item = document.createElement('div');
-        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
-        item.innerHTML = `
-          <div class="flex items-center">
-            <span class="text-[#9ad34d] text-sm mr-2">${idx + 1}.</span>
-            <span class="text-white text-sm truncate">${movie.title}</span>
-          </div>
-          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
-            <i class="fas fa-times"></i>
-          </button>
-        `;
-        item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
-          e.stopPropagation();
-          removeFromWatchlist(index);
-        });
-        item.addEventListener('click', () => {
-          openPlayer(movies, index);
-          document.getElementById('watchlist-dropdown').classList.add('hidden');
-        });
-        watchlistItems.appendChild(item);
+      document.getElementById('scroll-down')?.addEventListener('click', () => {
+        document.getElementById('movies').scrollIntoView({ behavior: 'smooth' });
       });
     }
-    function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
-    function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
 
-    /* preserved UI event wiring (search, theme, watchlist, modal controls) */
-    const containerEl = document.getElementById('movies');
+    /* UI Event Wire-ups */
     const searchBtn = document.getElementById('search-btn');
     const searchBar = document.getElementById('search-bar');
     const themeToggle = document.getElementById('theme-toggle');
     const watchlistBtn = document.getElementById('watchlist-btn');
     const watchlistDropdown = document.getElementById('watchlist-dropdown');
-    const closeModal = document.getElementById('close-modal');
 
     searchBtn.addEventListener('click', () => {
       searchBar.classList.toggle('hidden');
@@ -807,25 +669,336 @@ const movies = [
       } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
     });
 
-    // close modal by clicking background already wired above via playbackModal click
-
-    // watchlist close on outside click & search close
     document.addEventListener('click', (e) => {
       if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
       if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
     });
 
-    // attach video listeners placeholder (modal video element created on demand)
-    function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
-
-    // init on DOMContentLoaded
     window.addEventListener('DOMContentLoaded', () => {
       initPage();
-      // ensure modal close button works
-      document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
     });
   </script>
- 
+  <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
 
 </body>
 </html>
