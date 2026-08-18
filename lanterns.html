@@ -41,7 +41,6 @@
 
     .lantern-font { font-family: 'Orbitron', sans-serif; }
 
-    /* Keyframes */
     @keyframes ringSpin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -70,7 +69,7 @@
       color: transparent;
     }
 
-    /* 3D Kinetic Card Effects */
+    /* 3D Card Hover Effects */
     .card-3d-wrap { perspective: 1000px; }
     .card-3d {
       transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease, border-color 0.3s ease;
@@ -86,7 +85,7 @@
       }
     }
 
-    /* HUD Sci-Fi Elements */
+    /* HUD Lines */
     .hud-border { position: relative; }
     .hud-border::before {
       content: ''; position: absolute; top: 0; left: 0; width: 8px; height: 8px;
@@ -103,24 +102,36 @@
       border: 1.5px dashed var(--lantern-green); animation: ringSpin 12s linear infinite; opacity: 0.7;
     }
 
-    /* Modal Player Structure */
+    /* Modal Player Structure Fixed for Desktop and Mobile */
     .modal-backdrop {
       position: fixed; inset: 0; background: rgba(1, 8, 4, 0.94);
       backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center;
       z-index: 9999; padding: 12px;
     }
     .modal-backdrop.active { display: flex; }
+    
     .modal-card {
-      width: 100%; max-width: 960px; border-radius: 12px; overflow: hidden;
+      width: 100%; max-width: 900px; border-radius: 12px; overflow: hidden;
       background: #04120a; border: 1px solid var(--lantern-green);
-      box-shadow: 0 0 40px rgba(0, 255, 135, 0.3); max-height: 94vh; display: flex; flex-direction: column;
+      box-shadow: 0 0 40px rgba(0, 255, 135, 0.3); 
+      max-height: 90vh; display: flex; flex-direction: column;
     }
-    .player-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; width: 100%; }
-    .player-wrapper video, .player-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+
+    .player-wrapper { 
+      position: relative; 
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000; 
+      flex-shrink: 0;
+    }
+
+    .player-wrapper video, .player-wrapper iframe { 
+      position: absolute; inset: 0; width: 100%; height: 100%; border: none; 
+    }
 
     .btn-hud {
       background: rgba(0, 255, 135, 0.08); border: 1px solid var(--lantern-green);
-      color: var(--lantern-green); padding: 6px 12px; border-radius: 6px; cursor: pointer;
+      color: var(--lantern-green); padding: 6px 14px; border-radius: 6px; cursor: pointer;
       font-family: 'Orbitron', sans-serif; font-size: 0.75rem; transition: all 0.2s;
       display: inline-flex; align-items: center; justify-content: center; whitespace-nowrap;
     }
@@ -129,13 +140,12 @@
       box-shadow: 0 0 12px var(--lantern-green);
     }
 
-    /* Responsive adjustments for Mobile 2-column view */
     @media (max-width: 639px) {
       .card-title { font-size: 0.875rem !important; line-height: 1.1rem !important; }
       .card-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.725rem !important; }
       .card-padding { padding: 0.65rem !important; }
-      .modal-card { max-height: 98vh; }
-      .btn-hud { padding: 6px 8px; font-size: 0.65rem; }
+      .modal-card { max-height: 96vh; }
+      .btn-hud { padding: 5px 8px; font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -163,12 +173,6 @@
         <button id="search-btn" class="p-2 rounded-lg border border-[#00ff87]/30 hover:border-[#00ff87] hover:bg-[#00ff87]/10 transition relative">
           <i class="fas fa-search text-xs sm:text-sm lantern-accent"></i>
         </button>
-
-        <a href="https://www.imdb.com/title/tt26545992/episodes/" target="_blank" rel="noopener" 
-           class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded border border-[#00ff87]/40 text-[#00ff87] hover:bg-[#00ff87] hover:text-black transition font-mono text-xs">
-          <i class="fab fa-imdb text-sm"></i>
-          <span>Schedule</span>
-        </a>
       </div>
     </div>
 
@@ -197,10 +201,10 @@
       <div class="absolute inset-0 bg-gradient-to-r from-[#030a06] via-[#030a06]/85 to-transparent z-10"></div>
       <div class="absolute inset-0 bg-gradient-to-t from-[#030a06] via-transparent to-transparent z-10"></div>
       
-      <div class="relative w-full h-[280px] sm:h-[380px] md:h-[460px] overflow-hidden">
+      <div class="relative w-full h-[280px] sm:h-[380px] md:h-[440px] overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-full opacity-40 mix-blend-screen">
           <iframe
-            src="https://www.youtube.com/embed/fA39W8sffE8?autoplay=1&mute=1&loop=1&playlist=fA39W8sffE8&controls=0&modestbranding=1"
+            src="https://www.youtube.com/embed/fA39W8sffE8?autoplay=1&mute=1&loop=1&playlist=4trSu7ji0oU&controls=0&modestbranding=1"
             frameborder="0"
             allow="autoplay; fullscreen"
             class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
@@ -227,11 +231,6 @@
                     class="btn-lantern py-2 sm:py-2.5 px-5 sm:px-7 rounded-lg sm:rounded-xl flex items-center text-xs sm:text-sm cursor-pointer">
               <i class="fas fa-play mr-2"></i> WATCH EPISODE 1
             </button>
-
-            <a href="https://www.imdb.com/title/tt26545992/episodes/" target="_blank" rel="noopener" 
-               class="bg-[#04180f] hover:bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/40 py-2 sm:py-2.5 px-4 sm:px-6 rounded-lg sm:rounded-xl transition flex items-center font-mono text-xs sm:text-sm">
-              <i class="fas fa-calendar-alt mr-1.5"></i> SCHEDULE
-            </a>
           </div>
         </div>
       </div>
@@ -242,7 +241,7 @@
         <h3 class="text-lg sm:text-2xl font-extrabold flex items-center lantern-font text-white tracking-wide">
           <i class="fas fa-satellite-dish text-[#00ff87] mr-2 text-sm sm:text-lg"></i> SEASON 1 EPISODES
         </h3>
-        <p class="text-[10px] sm:text-xs text-[#00ff87]/70 font-mono mt-0.5">DYNAMIC EPISODE GRID</p>
+        <p class="text-[10px] sm:text-xs text-[#00ff87]/70 font-mono mt-0.5">DYNAMIC EPISODE MATRIX</p>
       </div>
       
       <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-mono bg-[#00ff87]/10 border border-[#00ff87]/40 text-[#00ff87]">
@@ -263,16 +262,13 @@
       <div>
         <span>HBO & DC STUDIOS • LANTERNS</span>
       </div>
-      <a href="https://www.imdb.com/title/tt26545992/episodes/" target="_blank" rel="noopener" class="hover:text-[#00ff87] underline">
-        IMDb Schedule
-      </a>
     </div>
   </footer>
 
   <div id="playbackModal" class="modal-backdrop">
     <div class="modal-card">
       
-      <div class="bg-[#020a05] px-3 sm:px-4 py-2 sm:py-2.5 border-b border-[#00ff87]/30 flex justify-between items-center">
+      <div class="bg-[#020a05] px-3 sm:px-4 py-2 sm:py-2.5 border-b border-[#00ff87]/30 flex justify-between items-center flex-shrink-0">
         <div class="flex items-center space-x-2 truncate pr-2">
           <div class="w-2.5 h-2.5 rounded-full bg-[#00ff87] animate-pulse flex-shrink-0"></div>
           <span id="modalEpisodeTitleHeader" class="text-[11px] sm:text-xs font-bold text-[#00ff87] lantern-font truncate">LANTERNS PLAYER</span>
@@ -286,19 +282,19 @@
         <video id="hlsVideoPlayer" controls playsinline class="w-full h-full bg-black"></video>
       </div>
 
-      <div class="player-meta bg-[#04120a] p-3 sm:p-4 flex flex-col sm:flex-row justify-between gap-3 overflow-y-auto">
-        <div class="meta-left">
+      <div class="player-meta bg-[#04120a] p-3 sm:p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 overflow-y-auto flex-grow">
+        <div class="meta-left max-w-lg">
           <h3 id="modalEpisodeTitle" class="lantern-font font-bold text-sm sm:text-base text-[#00ff87]">Episode Title</h3>
           <p id="modalEpisodeDesc" class="text-xs text-gray-300 font-sans mt-1">Episode description goes here.</p>
         </div>
         
-        <div class="controls-row flex flex-wrap gap-1.5 sm:gap-2 items-center">
+        <div class="controls-row flex flex-wrap gap-1.5 sm:gap-2 items-center w-full md:w-auto justify-start md:justify-end flex-shrink-0">
           <button id="directPlayBtn" onclick="openDirectSource()" class="btn-hud" title="Open Source Link">
-            <i class="fas fa-external-link-alt mr-1"></i> Direct Link
+            <i class="fas fa-external-link-alt mr-1.5"></i> Direct Link
           </button>
           
           <button id="copyLinkBtn" onclick="copySourceLink()" class="btn-hud" title="Copy Link">
-            <i class="fas fa-copy mr-1"></i> Copy Link
+            <i class="fas fa-copy mr-1.5"></i> Copy Link
           </button>
 
           <button id="prevBtn" onclick="playPrevEpisode()" class="btn-hud" title="Previous Episode">
@@ -314,11 +310,11 @@
           </button>
         </div>
       </div>
+
     </div>
   </div>
 
   <script>
-    // Master Episode Array with accurate links
     const episodes = [
       {
         ep: "01",
@@ -388,7 +384,6 @@
     const modal = document.getElementById('playbackModal');
     const playerWrapper = document.getElementById('playerWrapper');
 
-    // Render Episodes (Mobile 2-Column Responsive Layout)
     function renderEpisodes(list) {
       const container = document.getElementById('episodes-container');
       container.innerHTML = '';
@@ -439,10 +434,9 @@
                 <i class="fas fa-play mr-1.5"></i> STREAM
               </button>
             ` : `
-              <a href="https://www.imdb.com/title/tt26545992/episodes/" target="_blank" rel="noopener"
-                 class="w-full bg-[#04180f] hover:bg-[#00ff87]/20 border border-[#00ff87]/30 text-[#00ff87] py-1.5 sm:py-2 rounded text-[10px] sm:text-xs font-bold font-mono flex items-center justify-center transition">
-                <i class="fab fa-imdb mr-1"></i> IMDB
-              </a>
+              <button disabled class="w-full bg-[#04180f] text-gray-500 border border-gray-800 py-1.5 sm:py-2 rounded text-[10px] sm:text-xs font-bold font-mono flex items-center justify-center cursor-not-allowed">
+                COMING SOON
+              </button>
             `}
           </div>
         `;
@@ -450,7 +444,6 @@
       });
     }
 
-    // Modal Streaming Player Trigger
     function playEpisodeByIndex(index) {
       const ep = episodes[index];
       if (!ep || !ep.available) return;
@@ -468,13 +461,11 @@
 
       const src = ep.video;
 
-      // Handle Mega Embed & Iframes
       if (src.includes('mega.nz') || src.includes('iframe') || src.includes('embed')) {
         playerWrapper.innerHTML = `<iframe src="${src}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
         return;
       }
 
-      // Handle HLS streams (.m3u8)
       if (src.includes('.m3u8')) {
         playerWrapper.innerHTML = `<video id="hlsVideoPlayer" controls playsinline class="w-full h-full bg-black"></video>`;
         const video = document.getElementById('hlsVideoPlayer');
@@ -491,7 +482,6 @@
         return;
       }
 
-      // Default Standard Video Player
       playerWrapper.innerHTML = `<video id="hlsVideoPlayer" controls playsinline src="${src}" class="w-full h-full bg-black"></video>`;
       const video = document.getElementById('hlsVideoPlayer');
       video.play().catch(() => {});
@@ -505,9 +495,9 @@
       if (currentStreamUrl) {
         navigator.clipboard.writeText(currentStreamUrl);
         const copyBtn = document.getElementById('copyLinkBtn');
-        copyBtn.innerHTML = `<i class="fas fa-check mr-1"></i> Copied!`;
+        copyBtn.innerHTML = `<i class="fas fa-check mr-1.5"></i> Copied!`;
         setTimeout(() => {
-          copyBtn.innerHTML = `<i class="fas fa-copy mr-1"></i> Copy Link`;
+          copyBtn.innerHTML = `<i class="fas fa-copy mr-1.5"></i> Copy Link`;
         }, 2000);
       }
     }
@@ -559,7 +549,6 @@
       if (e.key === 'Escape') closePlayerModal();
     });
 
-    // Navigation and Search controls
     const searchBtn = document.getElementById('search-btn');
     const searchBar = document.getElementById('search-bar');
     const globalSearch = document.getElementById('global-search');
