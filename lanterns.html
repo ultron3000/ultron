@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LANTERNS | HBO & DC Studios</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    :root {
+      --lantern-green: #00ff87;
+      --lantern-glow: rgba(0, 255, 135, 0.4);
+      --lantern-dark-green: #003b1f;
+      --lantern-bg: #030a06;
+      --lantern-card-bg: rgba(6, 24, 15, 0.75);
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #020704; }
+    ::-webkit-scrollbar-thumb { background: var(--lantern-green); border-radius: 4px; box-shadow: 0 0 10px var(--lantern-green); }
+    ::-webkit-scrollbar-thumb:hover { background: #60ffb3; }
+
+    body {
+      background: var(--lantern-bg);
+      color: #e3faf0;
+      font-family: 'Rajdhani', sans-serif;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(0, 255, 135, 0.12) 0%, transparent 70%),
+        linear-gradient(to bottom, rgba(3, 10, 6, 0.85), rgba(2, 7, 4, 1)),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2000ff87' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .lantern-font { font-family: 'Orbitron', sans-serif; }
+
+    /* Animations & Glowing FX */
+    @keyframes ringSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .lantern-accent { color: var(--lantern-green); text-shadow: 0 0 8px rgba(0, 255, 135, 0.6); }
+
+    .btn-lantern {
+      background: linear-gradient(135deg, #00ff87 0%, #009951 100%);
+      color: #01140a;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      box-shadow: 0 0 20px rgba(0, 255, 135, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-lantern:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 35px rgba(0, 255, 135, 0.8);
+      background: linear-gradient(135deg, #33ff9e 0%, #00cc6c 100%);
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ffffff 0%, #00ff87 60%, #00b359 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* 3D Dynamic Card Effects */
+    .card-3d-wrap { perspective: 1000px; }
+    .card-3d {
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+      transform-style: preserve-3d;
+      background: var(--lantern-card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 255, 135, 0.2);
+      will-change: transform;
+    }
+    .card-3d:hover {
+      transform: translateY(-6px) rotateX(3deg) rotateY(-2deg) scale(1.02);
+      border-color: var(--lantern-green);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 255, 135, 0.35);
+    }
+
+    /* HUD Sci-Fi Elements */
+    .hud-border { position: relative; }
+    .hud-border::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 10px; height: 10px;
+      border-top: 2px solid var(--lantern-green); border-left: 2px solid var(--lantern-green);
+    }
+    .hud-border::after {
+      content: ''; position: absolute; bottom: 0; right: 0; width: 10px; height: 10px;
+      border-bottom: 2px solid var(--lantern-green); border-right: 2px solid var(--lantern-green);
+    }
+
+    /* Ring Icon Spinning Effect */
+    .lantern-ring-icon { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+    .lantern-ring-icon::after {
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      border: 2px dashed var(--lantern-green); animation: ringSpin 12s linear infinite; opacity: 0.7;
+    }
+
+    /* Modal Player Styles */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(1, 8, 4, 0.94);
+      backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-card {
+      width: 94%; max-width: 1020px; border-radius: 16px; overflow: hidden;
+      background: #04120a; border: 1px solid var(--lantern-green);
+      box-shadow: 0 0 50px rgba(0, 255, 135, 0.3); position: relative;
+    }
+    .player-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
+    .player-wrapper video, .player-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+
+    .player-meta { display: flex; justify-content: space-between; gap: 12px; padding: 16px; color: #ddd; align-items: flex-start; }
+    .controls-row { display: flex; gap: 8px; align-items: center; }
+
+    .btn-hud {
+      background: rgba(0, 255, 135, 0.08); border: 1px solid var(--lantern-green);
+      color: var(--lantern-green); padding: 8px 14px; border-radius: 6px; cursor: pointer;
+      font-family: 'Orbitron', sans-serif; font-size: 0.8rem; transition: all 0.2s;
+    }
+    .btn-hud:hover {
+      background: var(--lantern-green); color: #020a05;
+      box-shadow: 0 0 15px var(--lantern-green);
+    }
+
+    /* Mobile Layout Optimizations */
+    @media (max-width: 767px) {
+      .player-wrapper { padding-bottom: 56.25% !important; height: 0 !important; position: relative !important; }
+      .player-wrapper video, .player-wrapper iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
+      .player-meta { display: flex !important; flex-direction: column !important; gap: 12px !important; padding: 12px !important; background: #04120a !important; }
+      .controls-row { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; gap: 8px !important; width: 100%; }
+      .btn-hud { padding: 8px !important; font-size: 0.75rem !important; flex: 1; text-align: center; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between">
+
+  <header class="sticky top-0 z-50 bg-[#030a06]/90 backdrop-blur-md border-b border-[#00ff87]/20 shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-[#00ff87]/10 border border-[#00ff87] flex items-center justify-center lantern-ring-icon">
+          <i class="fas fa-ring text-[#00ff87] text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-black gradient-text lantern-font tracking-wider">LANTERNS</h1>
+          <p class="text-[9px] text-[#00ff87]/70 font-mono tracking-widest uppercase">HBO ORIGINAL • DC STUDIOS</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button id="watchlist-btn" class="p-2.5 rounded-lg border border-[#00ff87]/30 hover:border-[#00ff87] hover:bg-[#00ff87]/10 transition relative group">
+          <i class="fas fa-bookmark lantern-accent"></i>
+        </button>
+
+        <button id="search-btn" class="p-2.5 rounded-lg border border-[#00ff87]/30 hover:border-[#00ff87] hover:bg-[#00ff87]/10 transition group relative">
+          <i class="fas fa-search lantern-accent"></i>
+        </button>
+
+        <a href="https://www.imdb.com/title/tt26545992/episodes/" target="_blank" rel="noopener" 
+           class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded border border-[#00ff87]/40 text-[#00ff87] hover:bg-[#00ff87] hover:text-black transition font-mono text-xs">
+          <i class="fab fa-imdb text-base"></i>
+          <span>IMDb Schedule</span>
+        </a>
+      </div>
+    </div>
+
+    <div id="search-bar" class="hidden px-4 pb-4 bg-[#030a06]/95 border-b border-[#00ff87]/20">
+      <div class="container mx-auto relative">
+        <input id="global-search" type="text" placeholder="Search Green Lantern sectors, files, episodes..." 
+               class="w-full bg-[#05180f] border border-[#00ff87]/40 rounded-lg py-2.5 px-4 pl-10 text-white focus:outline-none focus:border-[#00ff87] focus:ring-1 focus:ring-[#00ff87] placeholder-emerald-600/60 font-mono text-sm">
+        <i class="fas fa-crosshairs absolute left-3.5 top-3.5 text-[#00ff87]"></i>
+      </div>
+    </div>
+
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-72 bg-[#04120a] border border-[#00ff87]/40 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.9)] z-50 py-3">
+      <div class="px-4 py-2 border-b border-[#00ff87]/20 flex justify-between items-center">
+        <h3 class="font-bold lantern-font text-xs text-[#00ff87] uppercase tracking-wider">Sector Watchlist</h3>
+        <i class="fas fa-shield-halved text-[#00ff87] text-xs"></i>
+      </div>
+      <div id="watchlist-items" class="max-h-64 overflow-y-auto px-4 py-3 font-mono text-xs text-gray-400">
+        Your sector log is currently empty.
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-6 flex-grow">
+    
+    <section class="mb-10 relative overflow-hidden rounded-2xl border border-[#00ff87]/30 shadow-[0_0_50px_rgba(0,255,135,0.15)] bg-[#020905]">
+      <div class="absolute inset-0 bg-gradient-to-r from-[#030a06] via-[#030a06]/85 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-[#030a06] via-transparent to-transparent z-10"></div>
+      
+      <div class="relative w-full h-[340px] sm:h-[420px] md:h-[480px] lg:h-[520px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-40 mix-blend-screen">
+          <iframe
+            src="https://www.youtube.com/embed/fA39W8sffE8?autoplay=1&mute=1&loop=1&playlist=4trSu7ji0oU&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          ></iframe>
+        </div>
+
+        <div class="absolute inset-0 pointer-events-none z-10 border border-[#00ff87]/20 m-4 rounded-xl hud-border"></div>
+
+        <div class="absolute bottom-0 left-0 z-20 p-6 sm:p-8 md:p-10 max-w-3xl">
+          <div class="flex items-center space-x-3 mb-3">
+            <span class="bg-[#00ff87] text-[#020a05] text-xs font-extrabold px-2.5 py-0.5 rounded lantern-font tracking-wider">HBO ORIGINAL</span>
+            <span class="bg-black/60 border border-[#00ff87]/40 text-[#00ff87] text-xs px-2.5 py-0.5 rounded font-mono">SECTOR 2814</span>
+            <span class="text-gray-400 text-xs font-mono">SEASON 1</span>
+          </div>
+
+          <h2 class="text-4xl sm:text-5xl md:text-6xl font-black mb-3 gradient-text lantern-font tracking-tight">LANTERNS</h2>
+          
+          <p class="text-gray-300 text-sm sm:text-base md:text-lg mb-6 leading-relaxed font-sans max-w-2xl border-l-2 border-[#00ff87] pl-4">
+            Lanterns follows new recruit <strong class="text-white">John Stewart</strong> and Lantern legend <strong class="text-white">Hal Jordan</strong>, two intergalactic cops drawn into a dark, Earth-based mystery as they investigate a murder in the American heartland.
+          </p>
+
+          <div class="flex flex-wrap gap-3">
+            <button onclick="playEpisodeByIndex(0)" 
+                    class="btn-lantern py-3 px-8 rounded-xl flex items-center text-sm sm:text-base cursor-pointer">
+              <i class="fas fa-play mr-2.5"></i> WATCH EPISODE 1
+            </button>
+
+            <a href="https://www.imdb.com/title/tt26545992/episodes/" target="_blank" rel="noopener" 
+               class="bg-[#04180f] hover:bg-[#00ff87]/20 text-[#00ff87] border border-[#00ff87]/40 py-3 px-6 rounded-xl transition flex items-center font-mono text-sm">
+              <i class="fas fa-calendar-alt mr-2"></i> EPISODE SCHEDULE
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-[#00ff87]/20 pb-4">
+      <div>
+        <h3 class="text-2xl font-extrabold flex items-center lantern-font text-white tracking-wide">
+          <i class="fas fa-satellite-dish text-[#00ff87] mr-3"></i> SEASON 1 EPISODES
+        </h3>
+        <p class="text-xs text-[#00ff87]/70 font-mono mt-1">STREAMING NOW & UPCOMING RELEASES</p>
+      </div>
+      
+      <div class="mt-4 sm:mt-0 flex items-center space-x-2">
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono bg-[#00ff87]/10 border border-[#00ff87]/40 text-[#00ff87]">
+          <span class="w-2 h-2 rounded-full bg-[#00ff87] mr-2 animate-ping"></span> Live Sector Database
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 card-3d-wrap" id="episodes-container">
+      </div>
+  </main>
+
+  <footer class="mt-16 border-t border-[#00ff87]/20 bg-[#020704] py-8 text-center text-xs text-gray-500 font-mono">
+    <div class="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center space-x-2 text-[#00ff87]">
+        <i class="fas fa-shield-halved"></i>
+        <span class="lantern-font font-bold">GREEN LANTERN CORPS DATA MATRIX</span>
+      </div>
+      <div>
+        <span>HBO & DC STUDIOS • LANTERNS SERIES</span>
+      </div>
+      <a href="https://www.imdb.com/title/tt26545992/episodes/" target="_blank" rel="noopener" class="hover:text-[#00ff87] underline">
+        Official IMDb Schedule
+      </a>
+    </div>
+  </footer>
+
+  <div id="playbackModal" class="modal-backdrop">
+    <div class="modal-card">
+      
+      <div class="bg-[#020a05] px-4 py-3 border-b border-[#00ff87]/30 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="w-3 h-3 rounded-full bg-[#00ff87] animate-pulse"></div>
+          <span id="modalEpisodeTitleHeader" class="text-xs font-bold text-[#00ff87] lantern-font">LANTERNS PREVIEW PLAYER</span>
+        </div>
+        <button id="closeModalBtn" onclick="closePlayerModal()" class="text-gray-400 hover:text-[#00ff87] transition p-1 text-xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="hlsVideoPlayer" controls playsinline class="w-full h-full bg-black"></video>
+      </div>
+
+      <div class="player-meta bg-[#04120a]">
+        <div class="meta-left">
+          <h3 id="modalEpisodeTitle" class="lantern-font font-bold text-lg text-[#00ff87]">Episode Title</h3>
+          <p id="modalEpisodeDesc" class="text-xs text-gray-300 font-sans mt-1">Episode description goes here.</p>
+        </div>
+        
+        <div class="controls-row">
+          <button id="prevBtn" onclick="playPrevEpisode()" class="btn-hud" title="Previous Episode">
+            <i class="fas fa-step-backward mr-1"></i> Prev
+          </button>
+          <button id="nextBtn" onclick="playNextEpisode()" class="btn-hud" title="Next Episode">
+            Next <i class="fas fa-step-forward ml-1"></i>
+          </button>
+          <button id="fullscreenBtn" onclick="toggleFullscreen()" class="btn-hud" title="Fullscreen">
+            <i class="fas fa-expand mr-1"></i> Expand
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Master Episode Array with actual Episode 1 Video & Thumbnail Links
+    const episodes = [
+      {
+        ep: "01",
+        season: 1,
+        episodeNum: 1,
+        title: "Pilot",
+        video: "https://mega.nz/embed/jDZSWYSZ#IJ_fnLnjgkCNI-Vel4mTVrBq0vdBLj8aQ0zTmwd_NmY",
+        image: "https://image.tmdb.org/t/p/w300/eamjkYDnuDcvS1MyynI4B9nE6KL.jpg",
+        desc: "After a fatal shooting, Green Lantern, Hal Jordan, and new recruit John Stewart set out to prove it was an extra-terrestrial event.",
+        available: true,
+        status: "AVAILABLE NOW"
+      },
+      {
+        ep: "02",
+        season: 1,
+        episodeNum: 2,
+        title: "Heartland",
+        video: "",
+        image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=800&q=80",
+        desc: "Hal Jordan and John Stewart dig deeper into the mystery surrounding the American heartland as extraterrestrial signals escalate.",
+        available: false,
+        status: "UPCOMING"
+      },
+      {
+        ep: "03",
+        season: 1,
+        episodeNum: 3,
+        title: "Sector 2814",
+        video: "",
+        image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80",
+        desc: "Uncovered evidence points to ancient Green Lantern history embedded within Earth's darkest secret installations.",
+        available: false,
+        status: "UPCOMING"
+      },
+      {
+        ep: "04",
+        season: 1,
+        episodeNum: 4,
+        title: "Ring Capacity",
+        video: "",
+        image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80",
+        desc: "Tensions flare between veteran Hal Jordan and recruit John Stewart during a high-stakes interrogation.",
+        available: false,
+        status: "UPCOMING"
+      },
+      {
+        ep: "05",
+        season: 1,
+        episodeNum: 5,
+        title: "Dark Matter",
+        video: "",
+        image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=800&q=80",
+        desc: "The investigation reaches a turning point when an unexpected interstellar adversary reveals their presence.",
+        available: false,
+        status: "UPCOMING"
+      },
+      {
+        ep: "06",
+        season: 1,
+        episodeNum: 6,
+        title: "Emerald Dawn",
+        video: "",
+        image: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=800&q=80",
+        desc: "The full threat to Earth is uncovered, forcing Hal and John to rely on willpower to prevent global catastrophe.",
+        available: false,
+        status: "SEASON FINALE"
+      }
+    ];
+
+    let currentEpisodeIndex = 0;
+    let hlsInstance = null;
+    const modal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+
+    // Render Episode Cards Grid
+    function renderEpisodes(list) {
+      const container = document.getElementById('episodes-container');
+      container.innerHTML = '';
+
+      list.forEach((item) => {
+        const originalIndex = episodes.indexOf(item);
+        const card = document.createElement('div');
+        card.className = `card-3d rounded-xl overflow-hidden flex flex-col justify-between group ${!item.available ? 'opacity-90' : ''}`;
+        
+        card.innerHTML = `
+          <div>
+            <div class="relative aspect-video overflow-hidden bg-black">
+              <img src="${item.image}" alt="${item.title}" 
+                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100">
+              
+              <div class="absolute inset-0 bg-gradient-to-t from-[#04120a] via-transparent to-transparent"></div>
+              
+              <span class="absolute top-3 left-3 bg-[#00ff87] text-[#01140a] font-black text-xs px-2.5 py-1 rounded lantern-font">
+                EPISODE ${item.ep}
+              </span>
+
+              <span class="absolute top-3 right-3 ${item.available ? 'bg-black/80 border border-[#00ff87]/50 text-[#00ff87]' : 'bg-black/80 text-gray-400 border border-gray-800'} text-xs px-2 py-0.5 rounded font-mono">
+                ${item.status}
+              </span>
+
+              ${item.available ? `
+                <button onclick="playEpisodeByIndex(${originalIndex})" 
+                        class="absolute inset-0 m-auto w-14 h-14 rounded-full bg-[#00ff87] text-[#01140a] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110 shadow-[0_0_25px_#00ff87]">
+                  <i class="fas fa-play text-xl ml-1"></i>
+                </button>
+              ` : ''}
+            </div>
+
+            <div class="p-5">
+              <div class="flex items-center justify-between text-xs text-[#00ff87] font-mono mb-2">
+                <span>S${item.season} • E${item.ep}</span>
+                <span>${item.available ? 'PREMIERE' : 'SCHEDULED'}</span>
+              </div>
+              <h4 class="text-xl font-bold text-white lantern-font mb-2 group-hover:text-[#00ff87] transition-colors">${item.title}</h4>
+              <p class="text-gray-300 text-sm leading-relaxed font-sans">${item.desc}</p>
+            </div>
+          </div>
+
+          <div class="p-5 pt-0 flex items-center justify-between border-t border-[#00ff87]/10 mt-4">
+            ${item.available ? `
+              <button onclick="playEpisodeByIndex(${originalIndex})"
+                      class="w-full btn-lantern py-2.5 rounded-lg text-xs font-bold flex items-center justify-center">
+                <i class="fas fa-play mr-2"></i> STREAM NOW
+              </button>
+            ` : `
+              <a href="https://www.imdb.com/title/tt26545992/episodes/" target="_blank" rel="noopener"
+                 class="w-full bg-[#04180f] hover:bg-[#00ff87]/20 border border-[#00ff87]/30 text-[#00ff87] py-2.5 rounded-lg text-xs font-bold font-mono flex items-center justify-center transition">
+                <i class="fab fa-imdb mr-2"></i> CHECK AIR DATE ON IMDB
+              </a>
+            `}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Play episode by array index
+    function playEpisodeByIndex(index) {
+      const ep = episodes[index];
+      if (!ep || !ep.available) return;
+
+      currentEpisodeIndex = index;
+      document.getElementById('modalEpisodeTitle').innerText = `S${ep.season}:E${ep.ep} - ${ep.title}`;
+      document.getElementById('modalEpisodeTitleHeader').innerText = `LANTERNS - S${ep.season}:E${ep.ep} ${ep.title.toUpperCase()}`;
+      document.getElementById('modalEpisodeDesc').innerText = ep.desc;
+
+      resetPlayerContainer();
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      const src = ep.video;
+
+      // Mega embed or external iframe host handler
+      if (src.includes('mega.nz') || src.includes('iframe') || src.includes('embed')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        return;
+      }
+
+      // HLS Handler (.m3u8 or txt stream)
+      if (src.includes('.m3u8') || src.includes('index-')) {
+        playerWrapper.innerHTML = `<video id="hlsVideoPlayer" controls playsinline class="w-full h-full bg-black"></video>`;
+        const video = document.getElementById('hlsVideoPlayer');
+        
+        if (Hls.isSupported()) {
+          hlsInstance = new Hls();
+          hlsInstance.loadSource(src);
+          hlsInstance.attachMedia(video);
+          hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = src;
+          video.play().catch(() => {});
+        }
+        return;
+      }
+
+      // MP4 Video standard handler
+      playerWrapper.innerHTML = `<video id="hlsVideoPlayer" controls playsinline src="${src}" class="w-full h-full bg-black"></video>`;
+      const video = document.getElementById('hlsVideoPlayer');
+      video.play().catch(() => {});
+    }
+
+    function resetPlayerContainer() {
+      if (hlsInstance) {
+        try { hlsInstance.destroy(); } catch (e) {}
+        hlsInstance = null;
+      }
+      playerWrapper.innerHTML = '';
+    }
+
+    function closePlayerModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      resetPlayerContainer();
+    }
+
+    function playNextEpisode() {
+      if (currentEpisodeIndex < episodes.length - 1 && episodes[currentEpisodeIndex + 1].available) {
+        playEpisodeByIndex(currentEpisodeIndex + 1);
+      }
+    }
+
+    function playPrevEpisode() {
+      if (currentEpisodeIndex > 0 && episodes[currentEpisodeIndex - 1].available) {
+        playEpisodeByIndex(currentEpisodeIndex - 1);
+      }
+    }
+
+    function toggleFullscreen() {
+      const el = playerWrapper.querySelector('video') || playerWrapper.querySelector('iframe');
+      if (!el) return;
+
+      if (!document.fullscreenElement) {
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // Modal Close via Background click & Keyboard Shortcuts
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closePlayerModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!modal.classList.contains('active')) return;
+      if (e.key === 'Escape') closePlayerModal();
+      if (e.key.toLowerCase() === 'f') toggleFullscreen();
+    });
+
+    // Header Interactive Inputs
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const globalSearch = document.getElementById('global-search');
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+
+    searchBtn.addEventListener('click', () => {
+      searchBar.classList.toggle('hidden');
+      watchlistDropdown.classList.add('hidden');
+    });
+
+    watchlistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      watchlistDropdown.classList.toggle('hidden');
+      searchBar.classList.add('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
+      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
+    });
+
+    globalSearch.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const filtered = episodes.filter(item => 
+        item.title.toLowerCase().includes(query) || 
+        item.desc.toLowerCase().includes(query) || 
+        item.ep.includes(query)
+      );
+      renderEpisodes(filtered);
+    });
+
+    // Initialize Page
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEpisodes(episodes);
+    });
+  </script>
+
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
