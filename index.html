@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+
 <style>
 :root {
   --primary: #8C52FF;
@@ -32,22 +33,32 @@ body {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--gray);
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--primary);
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-dark);
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-in {
@@ -68,7 +79,11 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.7) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 60%,
+    rgba(0,0,0,0.7) 100%
+  );
   z-index: 1;
 }
 
@@ -97,6 +112,159 @@ body {
 #searchResults {
   scrollbar-width: thin;
   scrollbar-color: var(--primary) var(--gray);
+}
+
+/* =========================================================
+   SEARCH BAR - ONLY NEW CODE
+   ========================================================= */
+
+.search-box {
+  position: relative;
+  width: 260px;
+}
+
+.search-box input {
+  width: 100%;
+  height: 40px;
+  padding: 0 40px 0 40px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  color: #1A1A2E;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.12);
+}
+
+.search-box .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748B;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.search-box .search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #64748B;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 2px;
+}
+
+/* Sidebar search */
+.sidebar-search {
+  position: relative;
+  padding: 12px 15px;
+  background: #111;
+}
+
+.sidebar-search input {
+  width: 100%;
+  height: 40px;
+  padding: 0 38px 0 38px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  outline: none;
+  background: #1f1f1f;
+  color: #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.sidebar-search input::placeholder {
+  color: #aaa;
+}
+
+.sidebar-search input:focus {
+  border-color: var(--primary);
+}
+
+.sidebar-search .search-icon {
+  position: absolute;
+  left: 27px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.sidebar-search .search-clear {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 2px;
+}
+
+/* Search results */
+#searchResults {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  max-width: calc(100vw - 30px);
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 10000;
+  display: none;
+}
+
+.search-result-item {
+  display: block;
+  padding: 12px 15px;
+  text-decoration: none;
+  color: #1A1A2E;
+  border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+  background: #f5f3ff;
+}
+
+.search-result-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.search-result-path {
+  font-size: 11px;
+  color: #8C52FF;
+  margin-top: 3px;
+}
+
+/* On smaller screens */
+@media (max-width: 767px) {
+  .search-box {
+    width: 150px;
+  }
+
+  #searchResults {
+    top: 65px;
+    width: calc(100vw - 20px);
+  }
 }
 
 /* Account menu */
@@ -131,8 +299,13 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Floating action button */
@@ -166,7 +339,7 @@ html {
   .category-card {
     min-height: 180px;
   }
-  
+
   .web-series-card {
     min-height: 120px;
   }
@@ -182,201 +355,551 @@ html {
 }
 </style>
 </head>
+
+
 <body class="bg-gray-50 min-h-screen transition-colors duration-200">
-  <!-- ☰ MENU BUTTON -->
+
+
+<!-- ☰ MENU BUTTON -->
 <div class="menu-btn" onclick="toggleMenu()">☰</div>
 
 <div class="overlay" onclick="toggleMenu()"></div>
 
+
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
+
+
+  <!-- =====================================================
+       SEARCH INSIDE HAMBURGER
+       ===================================================== -->
+
+  <div class="sidebar-search">
+
+    <i class="ri-search-line search-icon"></i>
+
+    <input
+      type="search"
+      id="sidebarSearch"
+      placeholder="Search Cloud TV..."
+      autocomplete="off"
+    >
+
+    <button
+      type="button"
+      class="search-clear"
+      id="sidebarSearchClear"
+      onclick="clearSearch()"
+      aria-label="Clear search"
+    >
+      <i class="ri-close-line"></i>
+    </button>
+
+  </div>
+
 
   <!-- Main Links -->
   <a href="https://cloudtv.store">Home</a>
-  <a href="https://cloudtv.store/chhatrapati-shivaji-maharaj">स्वराज्य</a>
-  <a href="https://cloudtv.store/marathi-movies">Marathi Movies</a>
-  <a href="https://cloudtv.store/hindi-movies">Hindi Movies</a>
+
+  <a href="https://cloudtv.store/chhatrapati-shivaji-maharaj">
+    स्वराज्य
+  </a>
+
+  <a href="https://cloudtv.store/marathi-movies">
+    Marathi Movies
+  </a>
+
+  <a href="https://cloudtv.store/hindi-movies">
+    Hindi Movies
+  </a>
+
 
   <!-- Animation Studios -->
-  <div class="menu-item" onclick="toggleSub('animationSub')">
+  <div
+    class="menu-item"
+    onclick="toggleSub('animationSub')"
+  >
     🎨 Animation Studios ▾
   </div>
-  <div class="submenu" id="animationSub">
-    <a href="https://cloudtv.store/pixar-animation">Pixar</a>
-    <a href="https://cloudtv.store/dreamworks-animation">DreamWorks</a>
-    <a href="https://cloudtv.store/sony-animation">Sony Animation</a>
-    <a href="https://cloudtv.store/illumination-animation">Illumination</a>
-    <a href="https://cloudtv.store/disney-animation">Disney</a>
-    <a href="https://cloudtv.store/other-animation">Other Studios</a>
+
+  <div
+    class="submenu"
+    id="animationSub"
+  >
+
+    <a href="https://cloudtv.store/pixar-animation">
+      Pixar
+    </a>
+
+    <a href="https://cloudtv.store/dreamworks-animation">
+      DreamWorks
+    </a>
+
+    <a href="https://cloudtv.store/sony-animation">
+      Sony Animation
+    </a>
+
+    <a href="https://cloudtv.store/illumination-animation">
+      Illumination
+    </a>
+
+    <a href="https://cloudtv.store/disney-animation">
+      Disney
+    </a>
+
+    <a href="https://cloudtv.store/other-animation">
+      Other Studios
+    </a>
+
   </div>
+
 
   <!-- Sequels -->
-  <div class="menu-item" onclick="toggleSub('sequelsSub')">
+  <div
+    class="menu-item"
+    onclick="toggleSub('sequelsSub')"
+  >
     🔁 Sequels ▾
   </div>
-  <div class="submenu" id="sequelsSub">
-    <a href="https://cloudtv.store/animation-sequels">Animation Sequels</a>
-    <a href="https://cloudtv.store/english-movie-sequels">Movie Sequels</a>
+
+  <div
+    class="submenu"
+    id="sequelsSub"
+  >
+
+    <a href="https://cloudtv.store/animation-sequels">
+      Animation Sequels
+    </a>
+
+    <a href="https://cloudtv.store/english-movie-sequels">
+      Movie Sequels
+    </a>
+
   </div>
+
 
   <!-- Web Series -->
-  <div class="menu-item" onclick="toggleSub('seriesSub')">
+  <div
+    class="menu-item"
+    onclick="toggleSub('seriesSub')"
+  >
     📺 Web Series ▾
   </div>
-  <div class="submenu" id="seriesSub">
-    <a href="https://cloudtv.store/animated-series">Animated Series</a>
-    <a href="https://cloudtv.store/english-series">English Series</a>
-    <a href="https://cloudtv.store/hindi-series">Hindi Series</a>
-    <a href="https://cloudtv.store/marathi-series">Marathi Series</a>
+
+  <div
+    class="submenu"
+    id="seriesSub"
+  >
+
+    <a href="https://cloudtv.store/animated-series">
+      Animated Series
+    </a>
+
+    <a href="https://cloudtv.store/english-series">
+      English Series
+    </a>
+
+    <a href="https://cloudtv.store/hindi-series">
+      Hindi Series
+    </a>
+
+    <a href="https://cloudtv.store/marathi-series">
+      Marathi Series
+    </a>
+
   </div>
 
- <!-- Studios & Franchises -->
-<div class="menu-item" onclick="toggleSub('studiosSub')">
-  🎬 Studios & Franchises ▾
-</div>
 
-<div class="submenu" id="studiosSub">
-  <a href="https://cloudtv.store/marvel">Marvel Studios</a>
-  <a href="https://cloudtv.store/wb">Warner Bros Pictures</a>
-  <a href="https://cloudtv.store/x-men">X-MEN</a>
-  <a href="https://cloudtv.store/wick">John Wick</a>
-  <a href="https://cloudtv.store/rambo">Rambo</a>
-  <a href="https://cloudtv.store/jack--ryan">Jack Ryan</a>
-  <a href="https://cloudtv.store/f-f">Fast & Furious</a>
-  <a href="https://cloudtv.store/transformers">Transformers</a>
-  <a href="https://cloudtv.store/bourne">Jason Bourne</a>
-  <a href="https://cloudtv.store/terminator">Terminator</a>
-  <a href="https://cloudtv.store/fd">Final Destination</a>
-  <a href="https://cloudtv.store/predator">Predator</a>
-  <a href="https://cloudtv.store/evil">Resident Evil</a>
-  <a href="https://cloudtv.store/mi">Mission Impossible</a>
-  <a href="https://cloudtv.store/007">007 (James Bond)</a>
-  <a href="https://cloudtv.store/rocky">Rocky Balboa</a>
-  <a href="https://cloudtv.store/sniper">Sniper</a>
-  <a href="https://cloudtv.store/vampire">Vampire</a>
-</div>
+  <!-- Studios & Franchises -->
+  <div
+    class="menu-item"
+    onclick="toggleSub('studiosSub')"
+  >
+    🎬 Studios & Franchises ▾
+  </div>
 
-<!-- Live TV -->
-<div class="menu-item" onclick="toggleSub('liveSub')">
-  📡 Live TV ▾
-</div>
-<div class="submenu" id="liveSub">
-  <a href="https://cloudtv.store/tv">Live TV</a>
-  <a href="https://cloudtv.store/live">All Channels</a>
-  <a href="https://cloudtv.store/fifa">Sports Channels</a>
-  <a href="https://tv.garden">Global TV</a>
-  <a href="https://radio.garden">Global Radio</a>
-</div>
+  <div
+    class="submenu"
+    id="studiosSub"
+  >
 
-<!-- Cartoons -->
-<div class="menu-item" onclick="toggleSub('cartoonSub')">
-  🧸 Cartoons ▾
-</div>
-<div class="submenu" id="cartoonSub">
-  <a href="https://cloudtv.store/swat-kats">
-    SWAT Kats
-  </a>
-  <a href="https://cloudtv.store/he-man">
-    He-Man
-  </a>
-</div>
+    <a href="https://cloudtv.store/marvel">
+      Marvel Studios
+    </a>
+
+    <a href="https://cloudtv.store/wb">
+      Warner Bros Pictures
+    </a>
+
+    <a href="https://cloudtv.store/x-men">
+      X-MEN
+    </a>
+
+    <a href="https://cloudtv.store/wick">
+      John Wick
+    </a>
+
+    <a href="https://cloudtv.store/rambo">
+      Rambo
+    </a>
+
+    <a href="https://cloudtv.store/jack--ryan">
+      Jack Ryan
+    </a>
+
+    <a href="https://cloudtv.store/f-f">
+      Fast & Furious
+    </a>
+
+    <a href="https://cloudtv.store/transformers">
+      Transformers
+    </a>
+
+    <a href="https://cloudtv.store/bourne">
+      Jason Bourne
+    </a>
+
+    <a href="https://cloudtv.store/terminator">
+      Terminator
+    </a>
+
+    <a href="https://cloudtv.store/fd">
+      Final Destination
+    </a>
+
+    <a href="https://cloudtv.store/predator">
+      Predator
+    </a>
+
+    <a href="https://cloudtv.store/evil">
+      Resident Evil
+    </a>
+
+    <a href="https://cloudtv.store/mi">
+      Mission Impossible
+    </a>
+
+    <a href="https://cloudtv.store/007">
+      007 (James Bond)
+    </a>
+
+    <a href="https://cloudtv.store/rocky">
+      Rocky Balboa
+    </a>
+
+    <a href="https://cloudtv.store/sniper">
+      Sniper
+    </a>
+
+    <a href="https://cloudtv.store/vampire">
+      Vampire
+    </a>
+
+  </div>
+
+
+  <!-- Live TV -->
+  <div
+    class="menu-item"
+    onclick="toggleSub('liveSub')"
+  >
+    📡 Live TV ▾
+  </div>
+
+  <div
+    class="submenu"
+    id="liveSub"
+  >
+
+    <a href="https://cloudtv.store/tv">
+      Live TV
+    </a>
+
+    <a href="https://cloudtv.store/live">
+      All Channels
+    </a>
+
+    <a href="https://cloudtv.store/fifa">
+      Sports Channels
+    </a>
+
+    <a href="https://tv.garden">
+      Global TV
+    </a>
+
+    <a href="https://radio.garden">
+      Global Radio
+    </a>
+
+  </div>
+
+
+  <!-- Cartoons -->
+  <div
+    class="menu-item"
+    onclick="toggleSub('cartoonSub')"
+  >
+    🧸 Cartoons ▾
+  </div>
+
+  <div
+    class="submenu"
+    id="cartoonSub"
+  >
+
+    <a href="https://cloudtv.store/swat-kats">
+      SWAT Kats
+    </a>
+
+    <a href="https://cloudtv.store/he-man">
+      He-Man
+    </a>
+
+  </div>
+
 
   <!-- Network Stream -->
   <a href="https://cloudtv.store/network-stream">
     🌐 Network Stream
   </a>
 
+
 </div>
 
 
-  
-<!-- Nav Bar -->
+<!-- =====================================================
+     NAV BAR
+     ===================================================== -->
+
 <nav class="sticky top-0 w-full bg-white shadow-sm z-50 backdrop-blur-sm bg-opacity-90 transition-colors duration-300">
+
   <div class="flex items-center justify-between px-4 py-3">
-    
+
+
     <!-- Logo with continuous pop/pulse animation -->
-<div class="flex items-center space-x-4 animate-logo-pulse">
-  <img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" 
-       alt="Logo" 
-       class="h-8 object-contain">
-  <span class="hidden md:block text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
-    
-  </span>
-</div>
 
-<style>
-/* Continuous pop/pulse animation */
-@keyframes logoPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-}
+    <div class="flex items-center space-x-4 animate-logo-pulse">
 
-.animate-logo-pulse {
-  animation: logoPulse 1.2s ease-in-out infinite;
-}
-</style>
+      <img
+        src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png"
+        alt="Logo"
+        class="h-8 object-contain"
+      >
+
+      <span class="hidden md:block text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+      </span>
+
+    </div>
+
+
+    <!-- Logo animation -->
+
+    <style>
+
+    @keyframes logoPulse {
+
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.2);
+      }
+
+    }
+
+    .animate-logo-pulse {
+      animation: logoPulse 1.2s ease-in-out infinite;
+    }
+
+    </style>
 
 
     <!-- Right Controls -->
+
     <div class="flex items-center space-x-4">
+
+
+      <!-- =================================================
+           MAIN / DESKTOP SEARCH
+           ================================================= -->
+
+      <div class="search-box">
+
+        <i class="ri-search-line search-icon"></i>
+
+        <input
+          type="search"
+          id="mainSearch"
+          placeholder="Search Cloud TV..."
+          autocomplete="off"
+        >
+
+        <button
+          type="button"
+          class="search-clear"
+          id="mainSearchClear"
+          onclick="clearSearch()"
+          aria-label="Clear search"
+        >
+          <i class="ri-close-line"></i>
+        </button>
+
+      </div>
+
+
       <!-- Dark Mode Toggle -->
-      <button id="darkModeToggle" class="dark-mode-toggle w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-300">
-        <i id="darkModeIcon" class="ri-sun-line text-gray-700"></i>
+
+      <button
+        id="darkModeToggle"
+        class="dark-mode-toggle w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-all duration-300"
+      >
+
+        <i
+          id="darkModeIcon"
+          class="ri-sun-line text-gray-700"
+        ></i>
+
       </button>
 
+
       <!-- Account Dropdown -->
-      <div class="relative" id="accountBtn">
-        <div class="w-10 h-10 flex items-center justify-center cursor-pointer">
+
+      <div
+        class="relative"
+        id="accountBtn"
+      >
+
+        <div
+          class="w-10 h-10 flex items-center justify-center cursor-pointer"
+        >
+
           <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white">
-<div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white">
-  <i class="ri-smartphone-line text-lg"></i>
-</div>        </div>
-        </div>
-        <div id="accountMenu" class="hidden absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden transition-all duration-200">
-          <div class="p-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50">
-            <p class="text-sm font-medium">Guest User</p>
-            <p class="text-xs text-gray-500">Sign in to access your account</p>
+
+            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white">
+
+              <i class="ri-smartphone-line text-lg"></i>
+
+            </div>
+
           </div>
-          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
-            <i class="ri-user-settings-line mr-3 text-gray-400"></i>
-            <span class="text-sm">Profile Settings</span>
-          </a>
-          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
-            <i class="ri-history-line mr-3 text-gray-400"></i>
-            <span class="text-sm">Watch History</span>
-          </a>
-          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors">
-            <i class="ri-settings-3-line mr-3 text-gray-400"></i>
-            <span class="text-sm">Settings</span>
-          </a>
-          <a href="#" class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500 transition-colors">
-            <i class="ri-logout-box-line mr-3"></i>
-            <span class="text-sm">Sign Out</span>
-          </a>
+
         </div>
+
+
+        <div
+          id="accountMenu"
+          class="hidden absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden transition-all duration-200"
+        >
+
+          <div class="p-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50">
+
+            <p class="text-sm font-medium">
+              Guest User
+            </p>
+
+            <p class="text-xs text-gray-500">
+              Sign in to access your account
+            </p>
+
+          </div>
+
+
+          <a
+            href="#"
+            class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors"
+          >
+
+            <i class="ri-user-settings-line mr-3 text-gray-400"></i>
+
+            <span class="text-sm">
+              Profile Settings
+            </span>
+
+          </a>
+
+
+          <a
+            href="#"
+            class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors"
+          >
+
+            <i class="ri-history-line mr-3 text-gray-400"></i>
+
+            <span class="text-sm">
+              Watch History
+            </span>
+
+          </a>
+
+
+          <a
+            href="#"
+            class="flex items-center px-4 py-3 hover:bg-gray-50 transition-colors"
+          >
+
+            <i class="ri-settings-3-line mr-3 text-gray-400"></i>
+
+            <span class="text-sm">
+              Settings
+            </span>
+
+          </a>
+
+
+          <a
+            href="#"
+            class="flex items-center px-4 py-3 hover:bg-gray-50 text-red-500 transition-colors"
+          >
+
+            <i class="ri-logout-box-line mr-3"></i>
+
+            <span class="text-sm">
+              Sign Out
+            </span>
+
+          </a>
+
+        </div>
+
       </div>
+
     </div>
+
   </div>
+
 </nav>
 
 
+<!-- =====================================================
+     SEARCH RESULTS CONTAINER
+     ===================================================== -->
+
+<div id="searchResults"></div>
+
+
+<!-- =====================================================
+     EXISTING DARK MODE + SIDEBAR CSS
+     ===================================================== -->
+
 <style>
-  body.dark {
-    background-color: #111827;
-    color: #f9fafb;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  .dark-mode-toggle i {
-    transition: transform 0.3s;
-  }
-  /* ===== SIDEBAR MENU ===== */
+
+body.dark {
+  background-color: #111827;
+  color: #f9fafb;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-mode-toggle i {
+  transition: transform 0.3s;
+}
+
+
+/* ===== SIDEBAR MENU ===== */
 
 .menu-btn {
   position: fixed;
-  top: 80px;   /* ⬅ increase this */
+  top: 80px;
   left: 15px;
   font-size: 26px;
   cursor: pointer;
@@ -389,10 +912,10 @@ html {
 
 .sidebar {
   position: fixed;
-  top: 100px;       /* 👈 match your header height */
+  top: 100px;
   left: -280px;
   width: 260px;
-  height: calc(100% - 100px);  /* 👈 important */
+  height: calc(100% - 100px);
   background: #111;
   padding-top: 20px;
   transition: 0.3s ease;
@@ -443,6 +966,7 @@ html {
 .overlay.active {
   display: block;
 }
+
 </style>
 
 <script>
@@ -3434,6 +3958,59 @@ function toggleSub(id) {
     }
   });
 })();
+</script>
+
+<script>
+/* =========================================================
+   CLOUD TV - SEARCH BAR SYNC
+   Step 1: Synchronize desktop + hamburger search
+   ========================================================= */
+
+const mainSearch = document.getElementById("mainSearch");
+const sidebarSearch = document.getElementById("sidebarSearch");
+
+
+/* ---------------------------------------------------------
+   Main Search → Sidebar Search
+   --------------------------------------------------------- */
+
+mainSearch.addEventListener("input", function () {
+    sidebarSearch.value = mainSearch.value;
+});
+
+
+/* ---------------------------------------------------------
+   Sidebar Search → Main Search
+   --------------------------------------------------------- */
+
+sidebarSearch.addEventListener("input", function () {
+    mainSearch.value = sidebarSearch.value;
+});
+
+
+/* ---------------------------------------------------------
+   Clear both search boxes
+   --------------------------------------------------------- */
+
+function clearSearch() {
+    mainSearch.value = "";
+    sidebarSearch.value = "";
+
+    mainSearch.focus();
+}
+
+
+/* ---------------------------------------------------------
+   ESC = Clear both search boxes
+   --------------------------------------------------------- */
+
+document.addEventListener("keydown", function (event) {
+
+    if (event.key === "Escape") {
+        clearSearch();
+    }
+
+});
 </script>
 
 <!-- ========================================================= -->
