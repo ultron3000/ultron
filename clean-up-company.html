@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CLEAN UP COMPANY | Season 1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Work+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+  <!-- HLS.js for Streaming Modal -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    :root {
+      --crime-yellow: #f59e0b;
+      --crime-red: #dc2626;
+      --industrial-dark: #0b0c0e;
+      --card-bg: #14171d;
+      --border-rust: rgba(245, 158, 11, 0.25);
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090b; }
+    ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+
+    body {
+      background-color: var(--industrial-dark);
+      color: #e2e8f0;
+      font-family: 'Work Sans', sans-serif;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(220, 38, 38, 0.1) 0%, transparent 75%),
+        linear-gradient(to bottom, rgba(11, 12, 14, 0.92), rgba(8, 9, 11, 1));
+      overflow-x: hidden;
+    }
+
+    .title-font { font-family: 'Teko', sans-serif; letter-spacing: 1px; }
+    .mono-font { font-family: 'JetBrains Mono', monospace; }
+
+    .caution-stripe {
+      background: repeating-linear-gradient(
+        -45deg,
+        #f59e0b,
+        #f59e0b 12px,
+        #111827 12px,
+        #111827 24px
+      );
+    }
+
+    .btn-hazard {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #0b0c0e;
+      font-family: 'Teko', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 1px;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+      transition: all 0.2s ease;
+    }
+    .btn-hazard:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+      background: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%);
+    }
+
+    .card-crime-wrap { perspective: 1000px; }
+    .card-crime {
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      background: var(--card-bg);
+      border: 1px solid var(--border-rust);
+      position: relative;
+    }
+    @media (min-width: 768px) {
+      .card-crime:hover {
+        transform: translateY(-4px);
+        border-color: var(--crime-yellow);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 15px rgba(245, 158, 11, 0.2);
+      }
+    }
+
+    /* Modal Styling */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(5, 6, 8, 0.95);
+      backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center;
+      z-index: 9999; padding: 12px;
+    }
+    .modal-backdrop.active { display: flex; }
+    
+    .modal-card {
+      width: 100%; max-width: 920px; border-radius: 8px; overflow: hidden;
+      background: #111318; border: 1px solid var(--crime-yellow);
+      box-shadow: 0 0 40px rgba(245, 158, 11, 0.2); 
+      max-height: 90vh; display: flex; flex-direction: column;
+    }
+
+    .player-wrapper { 
+      position: relative; 
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000; 
+      flex-shrink: 0;
+    }
+
+    .player-wrapper video, .player-wrapper iframe { 
+      position: absolute; inset: 0; width: 100%; height: 100%; border: none; 
+    }
+
+    .btn-action {
+      background: rgba(245, 158, 11, 0.08); border: 1px solid var(--crime-yellow);
+      color: var(--crime-yellow); padding: 6px 12px; border-radius: 4px; cursor: pointer;
+      font-family: 'Teko', sans-serif; font-size: 1.05rem; letter-spacing: 0.5px; transition: all 0.2s;
+      display: inline-flex; align-items: center; justify-content: center; whitespace-nowrap;
+    }
+    .btn-action:hover {
+      background: var(--crime-yellow); color: #0b0c0e;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+    }
+
+    @media (max-width: 639px) {
+      .card-title { font-size: 1.1rem !important; line-height: 1.1 !important; }
+      .card-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.725rem !important; }
+      .card-padding { padding: 0.65rem !important; }
+      .modal-card { max-height: 96vh; }
+      .btn-action { padding: 4px 8px; font-size: 0.95rem; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- Caution Tape Bar -->
+  <div class="h-1.5 w-full caution-stripe"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-[#0b0c0e]/95 backdrop-blur-md border-b border-[#f59e0b]/20">
+    <div class="container mx-auto px-3 sm:px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded bg-[#f59e0b]/10 border border-[#f59e0b] flex items-center justify-center">
+          <i class="fas fa-dumpster-fire text-[#f59e0b] text-lg sm:text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold title-font tracking-wider text-white uppercase leading-none">
+            CLEAN UP <span class="text-[#f59e0b]">COMPANY</span>
+          </h1>
+          <p class="text-[9px] sm:text-[10px] text-gray-400 mono-font tracking-widest uppercase">SARIBGUNJ CRIME DOSSIER • S1</p>
+        </div>
+      </div>
+
+      <button id="search-btn" class="p-2 rounded bg-[#14171d] border border-[#f59e0b]/30 hover:border-[#f59e0b] text-[#f59e0b] transition">
+        <i class="fas fa-search text-xs sm:text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Search Bar -->
+    <div id="search-bar" class="hidden px-3 sm:px-4 pb-3 bg-[#0b0c0e] border-b border-[#f59e0b]/20">
+      <div class="container mx-auto relative">
+        <input id="global-search" type="text" placeholder="Search Saribgunj files, episode titles..." 
+               class="w-full bg-[#14171d] border border-[#f59e0b]/40 rounded py-2 px-3 pl-9 text-white focus:outline-none focus:border-[#f59e0b] mono-font text-xs sm:text-sm">
+        <i class="fas fa-filter absolute left-3 top-3 text-[#f59e0b] text-xs"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container mx-auto px-2.5 sm:px-4 py-4 sm:py-6 flex-grow">
+    
+    <!-- Hero Banner with YouTube Video Background -->
+    <section class="mb-6 sm:mb-8 relative overflow-hidden rounded-lg border border-[#f59e0b]/30 bg-[#111318] shadow-2xl min-h-[320px] sm:min-h-[420px] flex items-end">
+      
+      <!-- YouTube Embed -->
+      <div class="absolute inset-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <iframe
+          src="https://www.youtube.com/embed/sjgRAPaSoZ4?autoplay=1&mute=1&loop=1&playlist=llpl-JJPEAI&controls=0&modestbranding=1&rel=0&enablejsapi=1"
+          frameborder="0"
+          allow="autoplay; fullscreen"
+          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 opacity-60"
+        ></iframe>
+      </div>
+
+      <!-- Gradient Overlays -->
+      <div class="absolute inset-0 bg-gradient-to-t from-[#0b0c0e] via-[#0b0c0e]/75 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-[#0b0c0e] via-[#0b0c0e]/60 to-transparent z-10"></div>
+      
+      <!-- Banner Content -->
+      <div class="relative w-full p-4 sm:p-7 md:p-8 z-20">
+        <div class="max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="bg-[#f59e0b] text-[#0b0c0e] text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-sm mono-font uppercase">OFFICIAL TRAILER</span>
+            <span class="bg-red-950/80 border border-red-600/50 text-red-400 text-[10px] sm:text-xs px-2 py-0.5 rounded-sm mono-font">CRIME / THRILLER</span>
+            <span class="text-gray-300 text-[10px] sm:text-xs mono-font">8 EPISODES</span>
+          </div>
+
+          <h2 class="text-4xl sm:text-6xl font-bold title-font text-white leading-none mb-2">
+            SARIBGUNJ <span class="text-[#f59e0b]">DISPOSAL HUB</span>
+          </h2>
+          
+          <p class="text-gray-300 text-xs sm:text-sm md:text-base mb-4 leading-relaxed max-w-2xl border-l-2 border-[#f59e0b] pl-3">
+            In the lawless heart of Saribgunj, three ordinary friends turning dead-body disposal into an unlikely business startup find themselves caught between trigger-happy mobsters, corrupt cops, and deadly rival gangs.
+          </p>
+
+          <button onclick="playEpisodeByIndex(0)" class="btn-hazard py-2 px-6 rounded flex items-center cursor-pointer">
+            <i class="fas fa-play mr-2 text-sm"></i> WATCH EPISODE 1 FULL
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Header Section -->
+    <div class="flex items-center justify-between mb-4 border-b border-[#f59e0b]/20 pb-2">
+      <h3 class="text-2xl sm:text-3xl font-bold title-font text-white flex items-center">
+        <i class="fas fa-skull text-[#f59e0b] mr-2 text-lg"></i> EPISODE FILES (SEASON 1)
+      </h3>
+      <span class="inline-flex items-center px-2.5 py-1 rounded text-xs mono-font bg-[#f59e0b]/10 border border-[#f59e0b]/40 text-[#f59e0b]">
+        <span class="w-2 h-2 rounded-full bg-[#f59e0b] mr-2 animate-ping"></span> Live Index
+      </span>
+    </div>
+
+    <!-- Episodes Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5 card-crime-wrap" id="episodes-container">
+      <!-- Generated Dynamically -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-10 border-t border-[#f59e0b]/20 bg-[#08090b] py-5 text-center text-xs text-gray-500 mono-font">
+    <div class="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div class="flex items-center space-x-2 text-[#f59e0b]">
+        <i class="fas fa-tape"></i>
+        <span>CLEAN UP COMPANY • OFFICIAL DOSSIER</span>
+      </div>
+      <div>
+        <span>ALL 8 EPISODES READY FOR STREAMING</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Streaming Modal -->
+  <div id="playbackModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="bg-[#0b0c0e] px-3 sm:px-4 py-2 border-b border-[#f59e0b]/30 flex justify-between items-center flex-shrink-0">
+        <div class="flex items-center space-x-2 truncate pr-2">
+          <div class="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse flex-shrink-0"></div>
+          <span id="modalEpisodeTitleHeader" class="text-xs font-bold text-[#f59e0b] mono-font truncate">PLAYER</span>
+        </div>
+        <button id="closeModalBtn" onclick="closePlayerModal()" class="text-gray-400 hover:text-[#f59e0b] transition p-1 text-base flex-shrink-0">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="hlsVideoPlayer" controls playsinline class="w-full h-full bg-black"></video>
+      </div>
+
+      <div class="bg-[#14171d] p-3 sm:p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 overflow-y-auto flex-grow">
+        <div class="meta-left max-w-lg">
+          <h3 id="modalEpisodeTitle" class="title-font font-bold text-xl sm:text-2xl text-[#f59e0b] leading-none">Episode Title</h3>
+          <p id="modalEpisodeDesc" class="text-xs text-gray-300 mt-1 leading-relaxed">Episode description goes here.</p>
+        </div>
+        
+        <div class="controls-row flex flex-wrap gap-1.5 sm:gap-2 items-center w-full md:w-auto justify-start md:justify-end flex-shrink-0">
+          <button onclick="openDirectSource()" class="btn-action"><i class="fas fa-external-link-alt mr-1"></i> Direct Link</button>
+          <button id="copyLinkBtn" onclick="copySourceLink()" class="btn-action"><i class="fas fa-copy mr-1"></i> Copy Link</button>
+          <button onclick="playPrevEpisode()" class="btn-action"><i class="fas fa-step-backward mr-1"></i> Prev</button>
+          <button onclick="playNextEpisode()" class="btn-action">Next <i class="fas fa-step-forward ml-1"></i></button>
+          <button onclick="toggleFullscreen()" class="btn-action"><i class="fas fa-expand mr-1"></i> Expand</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Code -->
+  <script>
+    const episodes = [
+      {
+        ep: "01",
+        season: 1,
+        title: "Clean Up Company",
+        video: "https://d3sgzbosmwirao.cloudfront.net/video/5f1124fb3ab9059b262632eeb2652e1b3319782d3e276d48486d1fa7b654e09f/2/hls/h264_high.m3u8",
+        image: "https://image.tmdb.org/t/p/w300/5wxZKwdi7MvRtocbfeYvB64sxC8.jpg", // Put your image URL here!
+        desc: "Three ordinary friends Raju, Swapan, and Goldie stumble into an unusual startup opportunity in Saribgunj—disposing of dead bodies for money.",
+        available: true,
+        status: "AVAILABLE NOW"
+      },
+      {
+        ep: "02",
+        season: 1,
+        title: "Yeh To Marr Gaya",
+        video: "https://d3sgzbosmwirao.cloudfront.net/video/3fc4cbc5706a0cff0b11747c9f1c538e886085ef83d1f064b8155eb2fec6c800/2/hls/h264_high.m3u8",
+        image: "https://image.tmdb.org/t/p/w300/vi4eKztz6TlM0Bxnnj0WIeOMXOG.jpg",
+        desc: "Raju, Swapan and Goldie are forced at gunpoint by Abbas to dispose of a corpse at Goldie's brickyard as IPS Indranath investigates a missing businessman.",
+        available: true,
+        status: "AVAILABLE NOW"
+      },
+      {
+        ep: "03",
+        season: 1,
+        title: "Dhandha Sahi Hai",
+        video: "https://d3sgzbosmwirao.cloudfront.net/video/52ef93bfb8aa1d5ef1251c7794bf2d19f5e16f15d8d74ce1cd0d652962160fb5/1/hls/h264_high.m3u8",
+        image: "https://image.tmdb.org/t/p/w300/yGoHXYZMwrBNycMM7eBRBawI6ny.jpg",
+        desc: "Seeing big money in disposal, the trio formalize their clean-up operation, using Goldie's brick kiln and Manisha's coroner insights to hide evidence.",
+        available: true,
+        status: "AVAILABLE NOW"
+      },
+      {
+        ep: "04",
+        season: 1,
+        title: "Ghar Wapsi",
+        video: "https://d3sgzbosmwirao.cloudfront.net/video/8c9f8b63da26c6de7c9ecde857e337df39895090e22907fa0d1c86117d7d1154/2/hls/h264_high.m3u8",
+        image: "https://image.tmdb.org/t/p/w300/plJNBe70lJ49OkVSJZGuZhLKRps.jpg",
+        desc: "As police pressure builds, local rivalries flare up at the Regal Bar while the boys attempt to shield their families from their deadly trade.",
+        available: true,
+        status: "AVAILABLE NOW"
+      },
+      {
+        ep: "05",
+        season: 1,
+        title: "Dharam Sankat",
+        video: "https://d3sgzbosmwirao.cloudfront.net/video/47541ca58a181061b47ee07adf9c36e75661a71ecc6005db6bc8c6080fe344a4/2/hls/h264_high.m3u8",
+        image: "https://image.tmdb.org/t/p/w300/7RymtRdtx93uq1HfeFt4D3GoOQs.jpg",
+        desc: "Dharam and Sultan's feud turns Saribgunj into a war zone. Swapan grows anxious about his civil service dream while deeper in the underworld.",
+        available: true,
+        status: "AVAILABLE NOW"
+      },
+      {
+        ep: "06",
+        season: 1,
+        title: "Laila Majnu",
+        video: "https://d3sgzbosmwirao.cloudfront.net/video/52c803e6ff42c81a2ee83bc29e86c1112e94720f9bc5f2ee35d73df12f8fffbf/2/hls/h264_high.m3u8",
+        image: "https://image.tmdb.org/t/p/w300/p0e4iEb10J9NvhbV09NtXJCGz3Q.jpg",
+        desc: "Laila executes her hidden agenda while chaos erupts at the bar, putting the trio in the line of fire between Mejda and rival factions.",
+        available: true,
+        status: "AVAILABLE NOW"
+      },
+      {
+        ep: "07",
+        season: 1,
+        title: "Saribgunj Ke Shaitan",
+        video: "https://d3sgzbosmwirao.cloudfront.net/video/5f69d5bcc36a60bc531932459af893e3c0cc6ebce04b0fd91224ad0df0b9cc71/2/hls/h264_high.m3u8",
+        image: "https://image.tmdb.org/t/p/w300/tTQbHpYp6pUFbFZ9rzGEa7zdDdd.jpg",
+        desc: "Officer Indranath Saha closes in on the clean-up ring as betrayal inside Saribgunj's mafia network reaches a boiling point.",
+        available: true,
+        status: "AVAILABLE NOW"
+      },
+      {
+        ep: "08",
+        season: 1,
+        title: "Aakhri Safaai",
+        video: "https://d3sgzbosmwirao.cloudfront.net/video/0dd5814265d0dd657c0b834373d278d52278cef458c68559614c98a21415d1b5/2/hls/h264_high.m3u8",
+        image: "https://image.tmdb.org/t/p/w300/gzYm4fEsy6CGYZXA5HX1zn8olfa.jpg",
+        desc: "In the explosive season finale, Raju, Swapan, and Goldie must hatch a dangerous double-cross scheme to escape Saribgunj alive.",
+        available: true,
+        status: "SEASON FINALE"
+      }
+    ];
+
+    let currentEpisodeIndex = 0;
+    let hlsInstance = null;
+    let currentStreamUrl = "";
+    const modal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+
+    function renderEpisodes(list) {
+      const container = document.getElementById('episodes-container');
+      container.innerHTML = '';
+
+      list.forEach((item) => {
+        const originalIndex = episodes.indexOf(item);
+        const card = document.createElement('div');
+        card.className = `card-crime rounded overflow-hidden flex flex-col justify-between group`;
+        
+        // Dynamic check for Image URL vs Text Fallback
+        const isImageURL = item.image && (item.image.startsWith('http') || item.image.startsWith('/') || item.image.startsWith('./'));
+        const thumbnailHTML = isImageURL 
+          ? `<img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">`
+          : `<span class="text-4xl font-bold text-[#f59e0b]/30 title-font tracking-widest">${item.image || '00'}</span>`;
+
+        card.innerHTML = `
+          <div>
+            <div class="relative aspect-video overflow-hidden bg-[#0b0c0e] flex items-center justify-center border-b border-[#f59e0b]/20">
+              ${thumbnailHTML}
+              
+              <div class="absolute inset-0 bg-gradient-to-t from-[#14171d] via-transparent to-transparent pointer-events-none"></div>
+              
+              <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-[#f59e0b] text-[#0b0c0e] font-bold text-[10px] sm:text-xs px-1.5 py-0.5 rounded-sm mono-font z-10">
+                EP ${item.ep}
+              </span>
+
+              <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-black/80 border border-[#f59e0b]/40 text-[#f59e0b] text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded-sm mono-font z-10">
+                ${item.status}
+              </span>
+
+              <button onclick="playEpisodeByIndex(${originalIndex})" 
+                      class="absolute inset-0 m-auto w-10 h-10 sm:w-12 sm:h-12 rounded bg-[#f59e0b] text-[#0b0c0e] flex items-center justify-center opacity-90 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-[0_0_15px_#f59e0b] z-20">
+                <i class="fas fa-play text-sm sm:text-base ml-0.5"></i>
+              </button>
+            </div>
+
+            <div class="p-2.5 sm:p-4 card-padding">
+              <div class="flex items-center justify-between text-[9px] sm:text-xs text-[#f59e0b] mono-font mb-0.5">
+                <span>FILE S${item.season}:E${item.ep}</span>
+                <span>H264 HLS</span>
+              </div>
+              <h4 class="text-sm sm:text-xl font-bold text-white title-font mb-1 group-hover:text-[#f59e0b] transition-colors card-title truncate">${item.title}</h4>
+              <p class="text-gray-400 text-[11px] sm:text-xs leading-relaxed font-sans card-desc">${item.desc}</p>
+            </div>
+          </div>
+
+          <div class="p-2.5 pt-0 sm:p-4 sm:pt-0 mt-2">
+            <button onclick="playEpisodeByIndex(${originalIndex})" class="w-full btn-hazard py-1.5 sm:py-2 rounded text-xs font-bold flex items-center justify-center">
+              <i class="fas fa-play mr-1.5 text-xs"></i> PLAY STREAM
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function playEpisodeByIndex(index) {
+      const ep = episodes[index];
+      if (!ep) return;
+
+      currentEpisodeIndex = index;
+      currentStreamUrl = ep.video;
+
+      document.getElementById('modalEpisodeTitle').innerText = `EPISODE ${ep.ep}: ${ep.title}`;
+      document.getElementById('modalEpisodeTitleHeader').innerText = `DOSSIER S${ep.season}:E${ep.ep} - ${ep.title.toUpperCase()}`;
+      document.getElementById('modalEpisodeDesc').innerText = ep.desc;
+
+      resetPlayerContainer();
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      const src = ep.video;
+
+      if (src.includes('.m3u8')) {
+        playerWrapper.innerHTML = `<video id="hlsVideoPlayer" controls playsinline class="w-full h-full bg-black"></video>`;
+        const video = document.getElementById('hlsVideoPlayer');
+        
+        if (Hls.isSupported()) {
+          hlsInstance = new Hls();
+          hlsInstance.loadSource(src);
+          hlsInstance.attachMedia(video);
+          hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = src;
+          video.play().catch(() => {});
+        }
+        return;
+      }
+
+      playerWrapper.innerHTML = `<video id="hlsVideoPlayer" controls playsinline src="${src}" class="w-full h-full bg-black"></video>`;
+      const video = document.getElementById('hlsVideoPlayer');
+      video.play().catch(() => {});
+    }
+
+    function openDirectSource() {
+      if (currentStreamUrl) window.open(currentStreamUrl, '_blank');
+    }
+
+    function copySourceLink() {
+      if (currentStreamUrl) {
+        navigator.clipboard.writeText(currentStreamUrl);
+        const copyBtn = document.getElementById('copyLinkBtn');
+        copyBtn.innerHTML = `<i class="fas fa-check mr-1"></i> Copied!`;
+        setTimeout(() => { copyBtn.innerHTML = `<i class="fas fa-copy mr-1"></i> Copy Link`; }, 2000);
+      }
+    }
+
+    function resetPlayerContainer() {
+      if (hlsInstance) {
+        try { hlsInstance.destroy(); } catch (e) {}
+        hlsInstance = null;
+      }
+      playerWrapper.innerHTML = '';
+    }
+
+    function closePlayerModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      resetPlayerContainer();
+    }
+
+    function playNextEpisode() {
+      if (currentEpisodeIndex < episodes.length - 1) playEpisodeByIndex(currentEpisodeIndex + 1);
+    }
+
+    function playPrevEpisode() {
+      if (currentEpisodeIndex > 0) playEpisodeByIndex(currentEpisodeIndex - 1);
+    }
+
+    function toggleFullscreen() {
+      const el = playerWrapper.querySelector('video') || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    modal.addEventListener('click', (e) => { if (e.target === modal) closePlayerModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) closePlayerModal(); });
+
+    document.getElementById('search-btn').addEventListener('click', () => {
+      document.getElementById('search-bar').classList.toggle('hidden');
+    });
+
+    document.getElementById('global-search').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const filtered = episodes.filter(item => 
+        item.title.toLowerCase().includes(query) || 
+        item.desc.toLowerCase().includes(query) || 
+        item.ep.includes(query)
+      );
+      renderEpisodes(filtered);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEpisodes(episodes);
+    });
+  </script>
+
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+
+<!-- NATIVE BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
+  <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+</div>
+
+<!-- SMART LINK -->
+<!-- https://bendspecimen.com/xryvjm9rea?key=b4e26d6e3cb4df0655e816b8991eeae3 -->
+
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
