@@ -18,41 +18,30 @@
       --gold-main: #eab308;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      background: var(--bg-dark);
-    }
-
     body {
-      margin: 0;
       font-family: 'Hind', 'Poppins', sans-serif;
       background-color: var(--bg-dark);
-      background-image:
-        radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(234, 179, 8, 0.06) 0px, transparent 50%);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(234, 179, 8, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(15, 10, 22, 1) 0px, transparent 100%);
       background-attachment: fixed;
       color: #f8fafc;
       min-height: 100vh;
       -webkit-tap-highlight-color: transparent;
     }
 
-    .font-cinzel {
-      font-family: 'Cinzel', serif;
-    }
+    .font-cinzel { font-family: 'Cinzel', serif; }
 
-    /* Logo animation - lightweight */
+    /* Continuous Glowing Logo Animation */
     @keyframes pulseGlow {
       0%, 100% {
-        filter: drop-shadow(0 0 7px rgba(249, 115, 22, 0.55));
+        filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.6)) drop-shadow(0 0 15px rgba(234, 179, 8, 0.3));
         transform: scale(1);
       }
-
       50% {
-        filter: drop-shadow(0 0 13px rgba(249, 115, 22, 0.8));
-        transform: scale(1.02);
+        filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.9)) drop-shadow(0 0 25px rgba(234, 179, 8, 0.6));
+        transform: scale(1.03);
       }
     }
 
@@ -61,389 +50,65 @@
       will-change: filter, transform;
     }
 
+    /* Animated Gold/Saffron Text */
     .royal-gradient-text {
-      background: linear-gradient(
-        135deg,
-        #FFF099 0%,
-        #F97316 50%,
-        #EAB308 100%
-      );
+      background: linear-gradient(135deg, #FFF099 0%, #F97316 50%, #EAB308 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    /* Movie cards */
+    /* Modern Card Aesthetic */
     .movie-card {
-      background: rgba(18, 14, 24, 0.88);
+      background: rgba(18, 14, 24, 0.7);
+      backdrop-filter: blur(12px);
       border: 1px solid rgba(249, 115, 22, 0.18);
-      transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-      contain: layout paint;
+      will-change: transform, box-shadow;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-
     .movie-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px) scale(1.02);
       border-color: rgba(234, 179, 8, 0.6);
-      box-shadow: 0 10px 22px -8px rgba(249, 115, 22, 0.3);
+      box-shadow: 0 12px 28px -6px rgba(249, 115, 22, 0.35);
     }
 
+    /* Glassmorphism Navigation & Floating UI */
     .glass-nav {
-      background: rgba(10, 7, 14, 0.94);
+      background: rgba(10, 7, 14, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(249, 115, 22, 0.2);
     }
 
-    /* =========================================================
-       MODAL
-       ========================================================= */
-
+    /* Modal Backdrop */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      z-index: 9999;
-
+      background: rgba(3, 2, 5, 0.92);
+      backdrop-filter: blur(12px);
       display: none;
       align-items: center;
       justify-content: center;
-
-      padding: 12px;
-
-      background: rgba(3, 2, 5, 0.96);
-
-      /* Removed expensive backdrop-filter blur.
-         This makes opening/closing the player much smoother. */
+      z-index: 9999;
     }
-
-    .modal-backdrop.active {
-      display: flex;
-    }
-
-    /* Main player modal */
-    .player-modal {
-      width: 100%;
-      max-width: 1180px;
-
-      background: #080808;
-      border: 1px solid rgba(249, 115, 22, 0.42);
-      border-radius: 16px;
-
-      overflow: hidden;
-
-      box-shadow:
-        0 25px 60px rgba(0, 0, 0, 0.75),
-        0 0 35px rgba(249, 115, 22, 0.08);
-
-      display: flex;
-      flex-direction: column;
-
-      max-height: calc(100vh - 24px);
-    }
-
-    /* =========================================================
-       PLAYER VIEWPORT
-
-       IMPORTANT:
-       Do not use flex:1 + h-full for Google Drive.
-       Google Drive's iframe works much better when it gets
-       an explicit aspect-ratio viewport.
-       ========================================================= */
-
-    .player-wrapper {
-      position: relative;
-      width: 100%;
-
-      background: #000;
-
-      /* Stable cinematic player size */
-      aspect-ratio: 16 / 9;
-
-      min-height: 0;
-
-      overflow: hidden;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      flex-shrink: 1;
-    }
-
-    /* Native video */
-    .player-wrapper video {
-      display: block;
-
-      width: 100%;
-      height: 100%;
-
-      object-fit: contain;
-
-      background: #000;
-
-      border: 0;
-    }
-
-    /* Google Drive iframe */
-    .drive-player {
-      position: absolute;
-
-      inset: 0;
-
-      width: 100%;
-      height: 100%;
-
-      display: block;
-
-      border: 0;
-
-      background: #000;
-
-      /*
-       * Prevent iframe from creating strange inline spacing.
-       */
-      vertical-align: middle;
-    }
-
-    /* Small loading overlay */
-    .player-loading {
-      position: absolute;
-      inset: 0;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background: #000;
-
-      z-index: 5;
-
-      pointer-events: none;
-
-      opacity: 0;
-      transition: opacity 0.15s ease;
-    }
-
-    .player-loading.active {
-      opacity: 1;
-    }
-
-    .loading-spinner {
-      width: 34px;
-      height: 34px;
-
-      border-radius: 50%;
-
-      border: 3px solid rgba(255, 255, 255, 0.18);
-      border-top-color: #f97316;
-
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* =========================================================
-       MODAL BOTTOM BAR
-       ========================================================= */
-
-    .player-info-bar {
-      flex: 0 0 auto;
-
-      background: #101010;
-
-      border-top: 1px solid rgba(249, 115, 22, 0.18);
-
-      padding: 10px 12px;
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      gap: 12px;
-    }
-
-    .player-title-area {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .player-buttons {
-      flex: 0 0 auto;
-
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-
-      gap: 6px;
-
-      flex-wrap: wrap;
-    }
-
-    /* Fullscreen state */
-    .player-wrapper:fullscreen {
-      width: 100vw;
-      height: 100vh;
-
-      max-width: none;
-      max-height: none;
-
-      aspect-ratio: auto;
-
-      background: #000;
-    }
-
-    .player-wrapper:-webkit-full-screen {
-      width: 100vw;
-      height: 100vh;
-
-      max-width: none;
-      max-height: none;
-
-      aspect-ratio: auto;
-
-      background: #000;
-    }
-
-    .player-wrapper:fullscreen .drive-player,
-    .player-wrapper:-webkit-full-screen .drive-player {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* =========================================================
-       MOBILE
-       ========================================================= */
-
-    @media (max-width: 640px) {
-
-      .modal-backdrop {
-        padding: 0;
-        align-items: center;
-      }
-
-      .player-modal {
-        width: 100%;
-        max-width: none;
-
-        border-radius: 0;
-
-        border-left: 0;
-        border-right: 0;
-
-        max-height: 100vh;
-      }
-
-      .player-wrapper {
-        /*
-         * 16:9 keeps Google Drive controls from being squeezed.
-         */
-        aspect-ratio: 16 / 9;
-
-        width: 100%;
-      }
-
-      .player-info-bar {
-        padding: 9px;
-
-        flex-direction: column;
-        align-items: stretch;
-
-        gap: 8px;
-      }
-
-      .player-title-area {
-        width: 100%;
-
-        display: flex;
-        justify-content: center;
-      }
-
-      .player-buttons {
-        width: 100%;
-
-        justify-content: center;
-      }
-
-      .player-buttons button,
-      .player-buttons a {
-        min-height: 32px;
-      }
-    }
-
-    /* Very short landscape phones */
-    @media (max-height: 500px) and (orientation: landscape) {
-
-      .modal-backdrop {
-        padding: 0;
-      }
-
-      .player-modal {
-        max-height: 100vh;
-        border-radius: 0;
-      }
-
-      .player-wrapper {
-        aspect-ratio: 16 / 9;
-      }
-
-      .player-info-bar {
-        padding: 5px 8px;
-      }
-    }
-
-    /* =========================================================
-       PERFORMANCE
-       ========================================================= */
-
-    img {
-      content-visibility: auto;
-    }
-
-    #movies,
-    #tvShows {
-      contain: layout;
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #07050a;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #c2410c;
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #ea580c;
-    }
+    .modal-backdrop.active { display: flex; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #07050a; }
+    ::-webkit-scrollbar-thumb { background: #c2410c; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ea580c; }
   </style>
 </head>
 
 <body class="flex flex-col min-h-screen">
 
-  <!-- =========================================================
-       NAVIGATION
-       ========================================================= -->
-
   <nav class="sticky top-0 z-50 glass-nav px-4 py-3">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
-
+      
       <a href="#" class="flex items-center gap-3 group">
-        <img
-          src="https://media.tenor.com/19hYW4oXAz4AAAAe/kaaleeya-shivmudra.png"
-          alt="Shivmudra Logo"
-          class="w-10 h-10 md:w-12 md:h-12 object-contain logo-pulse"
-          width="48"
-          height="48"
-        >
-
+        <img src="https://media.tenor.com/19hYW4oXAz4AAAAe/kaaleeya-shivmudra.png" 
+             alt="Shivmudra Logo" 
+             class="w-10 h-10 md:w-12 md:h-12 object-contain logo-pulse">
         <div class="flex flex-col">
           <span class="text-lg md:text-xl font-black font-cinzel royal-gradient-text tracking-wider leading-none">
             स्वराज्य
@@ -452,1292 +117,267 @@
       </a>
 
       <div class="flex items-center gap-3 text-sm">
-
-        <a
-          href="https://www.instagram.com/stark_4152/reels"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-8 h-8 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 hover:bg-orange-500 hover:text-white transition"
-          aria-label="Instagram"
-        >
+        <a href="https://www.instagram.com/stark_4152/reels" target="_blank" rel="noopener" 
+           class="w-8 h-8 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 hover:bg-orange-500 hover:text-white transition">
           <i class="fab fa-instagram"></i>
         </a>
-
-        <a
-          href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition"
-          aria-label="YouTube"
-        >
+        <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" target="_blank" rel="noopener" 
+           class="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition">
           <i class="fab fa-youtube"></i>
         </a>
-
       </div>
+
     </div>
   </nav>
 
-
-  <!-- =========================================================
-       MAIN CONTENT
-       ========================================================= -->
-
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 space-y-12 py-8 pb-20">
 
-    <!-- MOVIES -->
-
     <section>
-
       <div class="flex items-center justify-between mb-6 border-b border-orange-900/30 pb-3">
-
         <div class="flex items-center gap-3">
-
           <div class="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
             <i class="fa-solid fa-film"></i>
           </div>
-
-          <h2 class="text-xl md:text-2xl font-bold text-amber-400 font-cinzel tracking-wide">
-            चित्रपट (Movies)
-          </h2>
-
+          <h2 class="text-xl md:text-2xl font-bold text-amber-400 font-cinzel tracking-wide">चित्रपट (Movies)</h2>
         </div>
-
-        <span
-          class="text-xs text-orange-400/70 font-medium"
-          id="movieCount"
-        ></span>
-
+        <span class="text-xs text-orange-400/70 font-medium" id="movieCount"></span>
       </div>
-
-      <div
-        id="movies"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-5"
-      ></div>
-
+      
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-5"></div>
     </section>
 
-
-    <!-- TV SERIALS -->
-
     <section>
-
       <div class="flex items-center justify-between mb-6 border-b border-orange-900/30 pb-3">
-
         <div class="flex items-center gap-3">
-
           <div class="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
             <i class="fa-solid fa-tv"></i>
           </div>
-
-          <h2 class="text-xl md:text-2xl font-bold text-amber-400 font-cinzel tracking-wide">
-            मालिका (TV Serials)
-          </h2>
-
+          <h2 class="text-xl md:text-2xl font-bold text-amber-400 font-cinzel tracking-wide">मालिका (TV Serials)</h2>
         </div>
-
-        <span
-          class="text-xs text-orange-400/70 font-medium"
-          id="tvCount"
-        ></span>
-
+        <span class="text-xs text-orange-400/70 font-medium" id="tvCount"></span>
       </div>
 
-      <div
-        id="tvShows"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-5"
-      ></div>
-
+      <div id="tvShows" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-5"></div>
     </section>
 
   </main>
 
-
-  <!-- =========================================================
-       FOOTER
-       ========================================================= -->
-
-  <footer class="border-t border-orange-900/30 bg-black/70 py-8 text-center text-gray-400 mt-auto">
-
+  <footer class="border-t border-orange-900/30 bg-black/60 backdrop-blur-md py-8 text-center text-gray-400 mt-auto">
     <div class="max-w-7xl mx-auto px-4 space-y-4">
-
       <div class="flex justify-center items-center gap-2">
-
-        <img
-          src="https://media.tenor.com/19hYW4oXAz4AAAAe/kaaleeya-shivmudra.png"
-          class="w-6 h-6 object-contain logo-pulse"
-          alt="Swarajya"
-          width="24"
-          height="24"
-        >
-
-        <span class="font-cinzel text-amber-400 font-bold tracking-wider">
-          स्वराज्य
-        </span>
-
+        <img src="https://media.tenor.com/19hYW4oXAz4AAAAe/kaaleeya-shivmudra.png" class="w-6 h-6 object-contain logo-pulse">
+        <span class="font-cinzel text-amber-400 font-bold tracking-wider">स्वराज्य</span>
       </div>
-
-      <p class="text-xs text-gray-500">
-        © Swarajya Historical Media Collection. All rights reserved.
-      </p>
-
+      <p class="text-xs text-gray-500">© Swarajya Historical Media Collection. All rights reserved.</p>
     </div>
-
   </footer>
 
-
-  <!-- =========================================================
-       PLAYER MODAL
-       ========================================================= -->
-
-  <div
-    id="playbackModal"
-    class="modal-backdrop"
-    aria-hidden="true"
-  >
-
-    <div
-      id="playerModal"
-      class="player-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modalTitle"
-    >
-
-      <!-- PLAYER -->
-
-      <div
-        id="playerWrapper"
-        class="player-wrapper"
-      >
-
-        <video
-          id="modalVideo"
-          class="w-full h-full object-contain"
-          controls
-          playsinline
-          preload="metadata"
-        ></video>
-
-        <div
-          id="playerLoading"
-          class="player-loading"
-        >
-          <div class="loading-spinner"></div>
-        </div>
-
+  <!-- MOBILE-RESPONSIVE PLAYER MODAL -->
+  <div id="playbackModal" class="modal-backdrop p-2 sm:p-4 md:p-6">
+    <div class="w-full max-w-5xl bg-neutral-950/95 border border-orange-500/40 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] backdrop-blur-xl">
+      
+      <!-- Video Frame Container -->
+      <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden shrink" id="playerWrapper">
+        <video id="modalVideo" class="w-full h-full object-contain" controls playsinline></video>
       </div>
 
-
-      <!-- INFORMATION / BUTTON BAR -->
-
-      <div class="player-info-bar">
-
-        <div class="player-title-area">
-
-          <div class="flex items-center gap-2 min-w-0">
-
-            <span
-              class="w-2 h-2 rounded-full bg-orange-500 animate-pulse shrink-0"
-            ></span>
-
-            <h3
-              id="modalTitle"
-              class="text-xs sm:text-sm font-bold text-amber-400 truncate text-center sm:text-left"
-            ></h3>
-
-          </div>
-
+      <!-- Controls & Details Bar -->
+      <div class="p-3 sm:p-4 bg-neutral-900/90 border-t border-orange-950/80 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-2 overflow-hidden w-full sm:w-auto justify-center sm:justify-start">
+          <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse shrink-0"></span>
+          <h3 id="modalTitle" class="text-xs sm:text-base font-bold text-amber-400 truncate text-center sm:text-left"></h3>
         </div>
-
-
-        <div class="player-buttons">
-
-          <a
-            id="externalDriveBtn"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="hidden px-2.5 py-1 rounded-lg bg-orange-600/20 border border-orange-500/50 text-orange-400 hover:bg-orange-600/40 text-[11px] font-semibold transition items-center gap-1"
-          >
-            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-            Drive
+        
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center w-full sm:w-auto shrink-0">
+          <a id="externalDriveBtn" href="#" target="_blank" rel="noopener" 
+             class="hidden px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg bg-orange-600/20 border border-orange-500/50 text-orange-400 hover:bg-orange-600/40 text-[11px] sm:text-xs font-semibold transition items-center gap-1">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Drive
           </a>
 
-
-          <button
-            id="prevBtn"
-            type="button"
-            class="px-2.5 py-1 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-[11px] font-semibold transition"
-          >
+          <button id="prevBtn" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-[11px] sm:text-xs font-semibold transition">
             ⏮ Prev
           </button>
-
-
-          <button
-            id="nextBtn"
-            type="button"
-            class="px-2.5 py-1 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-[11px] font-semibold transition"
-          >
+          <button id="nextBtn" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-[11px] sm:text-xs font-semibold transition">
             Next ⏭
           </button>
-
-
-          <button
-            id="fullscreenBtn"
-            type="button"
-            class="px-2.5 py-1 rounded-lg border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-[11px] font-semibold transition"
-            aria-label="Fullscreen"
-          >
+          <button id="fullscreenBtn" class="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-[11px] sm:text-xs font-semibold transition">
             ⛶
           </button>
-
-
-          <button
-            id="closeBtn"
-            type="button"
-            class="px-3 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold transition"
-          >
+          <button id="closeBtn" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] sm:text-xs font-bold transition">
             ✕ Close
           </button>
-
         </div>
-
       </div>
-
     </div>
-
   </div>
 
-
   <script>
-    /* =========================================================
-       MOVIES DATA
-       ========================================================= */
-
+    /* MOVIES DATA */
     const movies = [
-      {
-        title: 'फर्जंद',
-        video: 'https://drive.google.com/file/d/14PPQfQJfspcFMmYCPfBwTcD6WGuxAt0x/preview',
-        image: 'https://image.tmdb.org/t/p/w500/7ImVIuDZbTpueg0yxG9WvzKPEwF.jpg'
-      },
-      {
-        title: 'फत्तेशिकस्त',
-        video: 'https://drive.google.com/file/d/1fIxfr-OWT7Hd5czMlTZ5oqswX_IUFKxf/preview',
-        image: 'https://upload.wikimedia.org/wikipedia/en/8/81/Fatteshikast.jpg'
-      },
-      {
-        title: 'पावनखिंड',
-        video: 'https://drive.google.com/file/d/1cTEVFdmlU17pFMVILTBh92OLdyMEJ-dD/preview',
-        image: 'https://image.tmdb.org/t/p/w500/ArI2G4lRFQz5eqo8cXUZ7PDVgdY.jpg'
-      },
-      {
-        title: 'शेर शिवराज',
-        video: 'https://drive.google.com/file/d/1BVpWybbG4QgQd8UYBFEPyVmdN3-Rs05S/preview',
-        image: 'https://image.tmdb.org/t/p/w500/kQdaTKgM2hWVsEQJKU3ix9SkEAB.jpg'
-      },
-      {
-        title: 'सुभेदार',
-        video: 'https://drive.google.com/file/d/1VOyEOjnTEtn8jcZs_XTwBDwGtCgFVLFx/preview',
-        image: 'https://image.tmdb.org/t/p/w500/vnM26ChrGes8dlT106LK9g3kaQu.jpg'
-      },
-      {
-        title: 'सरसेनापती हंबीरराव',
-        video: 'https://drive.google.com/file/d/1-Tt6UuGDgkev-bTQ-V2xTzq4pytP_Bq5/preview',
-        image: 'https://image.tmdb.org/t/p/w500/kFQP73QmjEojppYzywWreK6jEYb.jpg'
-      },
-      {
-        title: 'शिवप्रताप गरुडझेप',
-        video: 'https://drive.google.com/file/d/1X-z1n7TaLfeHUS54URe6cYmR9uFb6KT1/preview',
-        image: 'https://image.tmdb.org/t/p/w500/u7nGWMAEgKWY8TEt9swr7AHxo4y.jpg'
-      },
-      {
-        title: 'हिरकणी',
-        video: 'https://drive.google.com/file/d/1kcjXftfjQzzfmBhKXXNv0ZqeN9CB8zsR/preview',
-        image: 'https://m.media-amazon.com/images/M/MV5BMDRlZGNlY2MtMzZmZi00Yjg1LTliNDgtZjZhZmJmZGQxOGM5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'
-      },
-      {
-        title: 'शिवरायांचा छावा',
-        video: 'https://drive.google.com/file/d/1qnuEq-66vaxVPzfsHAL2E346kQVjvB45/preview',
-        image: 'https://image.tmdb.org/t/p/w500/6sQzGwxf3FoJMgmUdBTEjHsctJJ.jpg'
-      },
-      {
-        title: 'रणपती शिवराय स्वारी आग्रा',
-        video: 'https://drive.google.com/file/d/1ce3WUgh_tGF2q-qzt2B8QU_9kf1yPBZ5/preview',
-        image: 'https://in.bmscdn.com/events/moviecard/ET00476714.jpg'
-      },
-      {
-        title: 'धर्मरक्षक महावीर छत्रपती संभाजी महाराज',
-        video: 'https://drive.google.com/file/d/1y8foBArRlApJl7mzHGbWdWa0izC-GMP7/preview',
-        image: 'https://m.media-amazon.com/images/M/MV5BOTA3ZjJjYjMtNWY1Ni00NWUzLTkwZTEtZTViMGVhYzMwNDE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'
-      },
-      {
-        title: 'छावा',
-        video: 'https://drive.google.com/file/d/1rbcFq_-CB_O93maHIge_4BiARVbmGJqM/preview',
-        image: 'https://image.tmdb.org/t/p/w500/ubRsrzb6NRW8YhVTJ6jG1kpNvCi.jpg'
-      }
+      {title:'फर्जंद', video:'https://drive.google.com/file/d/14PPQfQJfspcFMmYCPfBwTcD6WGuxAt0x/preview', image:'https://image.tmdb.org/t/p/w500/7ImVIuDZbTpueg0yxG9WvzKPEwF.jpg'},
+      {title:'फत्तेशिकस्त', video:'https://drive.google.com/file/d/1fIxfr-OWT7Hd5czMlTZ5oqswX_IUFKxf/preview', image:'https://upload.wikimedia.org/wikipedia/en/8/81/Fatteshikast.jpg'},
+      {title:'पावनखिंड', video:'https://drive.google.com/file/d/1cTEVFdmlU17pFMVILTBh92OLdyMEJ-dD/preview', image:'https://image.tmdb.org/t/p/w500/ArI2G4lRFQz5eqo8cXUZ7PDVgdY.jpg'},
+      {title:'शेर शिवराज', video:'https://drive.google.com/file/d/1BVpWybbG4QgQd8UYBFEPyVmdN3-Rs05S/preview', image:'https://image.tmdb.org/t/p/w500/kQdaTKgM2hWVsEQJKU3ix9SkEAB.jpg'},
+      {title:'सुभेदार', video:'https://drive.google.com/file/d/1VOyEOjnTEtn8jcZs_XTwBDwGtCgFVLFx/preview', image:'https://image.tmdb.org/t/p/w500/vnM26ChrGes8dlT106LK9g3kaQu.jpg'},
+      {title:'सरसेनापती हंबीरराव', video:'https://drive.google.com/file/d/1-Tt6UuGDgkev-bTQ-V2xTzq4pytP_Bq5/preview', image:'https://image.tmdb.org/t/p/w500/kFQP73QmjEojppYzywWreK6jEYb.jpg'},
+      {title:'शिवप्रताप गरुडझेप', video:'https://drive.google.com/file/d/1X-z1n7TaLfeHUS54URe6cYmR9uFb6KT1/preview', image:'https://image.tmdb.org/t/p/w500/u7nGWMAEgKWY8TEt9swr7AHxo4y.jpg'},
+      {title:'हिरकणी', video:'https://drive.google.com/file/d/1kcjXftfjQzzfmBhKXXNv0ZqeN9CB8zsR/preview', image:'https://m.media-amazon.com/images/M/MV5BMDRlZGNlY2MtMzZmZi00Yjg1LTliNDgtZjZhZmJmZGQxOGM5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'},
+      {title:'शिवरायांचा छावा', video:'https://drive.google.com/file/d/1qnuEq-66vaxVPzfsHAL2E346kQVjvB45/preview', image:'https://image.tmdb.org/t/p/w500/6sQzGwxf3FoJMgmUdBTEjHsctJJ.jpg'},
+      {title:'रणपती शिवराय स्वारी आग्रा', video:'https://drive.google.com/file/d/1ce3WUgh_tGF2q-qzt2B8QU_9kf1yPBZ5/preview', image:'https://in.bmscdn.com/events/moviecard/ET00476714.jpg'},
+      {title:'धर्मरक्षक महावीर छत्रपती संभाजी महाराज', video:'https://drive.google.com/file/d/1y8foBArRlApJl7mzHGbWdWa0izC-GMP7/preview', image:'https://m.media-amazon.com/images/M/MV5BOTA3ZjJjYjMtNWY1Ni00NWUzLTkwZTEtZTViMGVhYzMwNDE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'},
+      {title:'छावा', video:'https://drive.google.com/file/d/1rbcFq_-CB_O93maHIge_4BiARVbmGJqM/preview', image:'https://image.tmdb.org/t/p/w500/ubRsrzb6NRW8YhVTJ6jG1kpNvCi.jpg'}
     ];
 
-
-    /* =========================================================
-       TV SERIAL DATA
-       ========================================================= */
-
+    /* TV SERIALS DATA */
     const tvShows = [
       {
-        title: 'स्वराज्यरक्षक संभाजी',
-        video: 'https://www.youtube.com/watch?v=xPV20XdWjrQ&list=PLMHrU-jxz0lES9o1kYK9H7f66uUcsx89m',
-        image: 'https://img.airtel.tv/unsafe/fit-in/500x0/filters:format(webp)/https://xstreamcp-assets-msp.streamready.in/assets/ZEEFIVE/SERIES/66ff9032966a8617a153c244/images/PORTRAIT/rsz630x945withlogo82f86a27af504b7ea226f1c85cc8f544.jpg?o=production',
+        title:'स्वराज्यरक्षक संभाजी',
+        video:'https://www.youtube.com/watch?v=xPV20XdWjrQ&list=PLMHrU-jxz0lES9o1kYK9H7f66uUcsx89m',
+        image:'https://img.airtel.tv/unsafe/fit-in/500x0/filters:format(webp)/https://xstreamcp-assets-msp.streamready.in/assets/ZEEFIVE/SERIES/66ff9032966a8617a153c244/images/PORTRAIT/rsz630x945withlogo82f86a27af504b7ea226f1c85cc8f544.jpg?o=production',
         isExternal: true
       },
       {
-        title: 'स्वराज्य सौदामिनी ताराराणी',
-        video: 'https://www.youtube.com/watch?v=zLB--Mpu-Po&list=PLoYBnLBgd5aZzE5XYK2Fv6OKJgdT-o06H&index=219',
-        image: 'https://m.media-amazon.com/images/M/MV5BYzIyZDYyYjItZTE5Ni00OTE2LWI2YTctZTBlNWJhNzhjNTEwXkEyXkFqcGc@._V1_.jpg',
+        title:'स्वराज्य सौदामिनी ताराराणी',
+        video:'https://www.youtube.com/watch?v=zLB--Mpu-Po&list=PLoYBnLBgd5aZzE5XYK2Fv6OKJgdT-o06H&index=219',
+        image:'https://m.media-amazon.com/images/M/MV5BYzIyZDYyYjItZTE5Ni00OTE2LWI2YTctZTBlNWJhNzhjNTEwXkEyXkFqcGc@._V1_.jpg',
         isExternal: true
       },
       {
-        title: 'स्वराज्यजननी जिजामाता',
-        video: 'https://www.youtube.com/watch?v=C5fTWpqe2Us&list=PL0U3wd8lGkb-PXFMBMnf_Y0ZQR0psVyfm&index=374',
-        image: 'https://pbs.twimg.com/profile_images/1309840125161922560/dK_cu5Xt_400x400.jpg',
+        title:'स्वराज्यजननी जिजामाता',
+        video:'https://www.youtube.com/watch?v=C5fTWpqe2Us&list=PL0U3wd8lGkb-PXFMBMnf_Y0ZQR0psVyfm&index=374',
+        image:'https://pbs.twimg.com/profile_images/1309840125161922560/dK_cu5Xt_400x400.jpg',
         isExternal: true
       }
     ];
 
-
-    /* =========================================================
-       ELEMENTS
-       ========================================================= */
-
-    const movieCount = document.getElementById('movieCount');
-    const tvCount = document.getElementById('tvCount');
-
-    const moviesContainer = document.getElementById('movies');
-    const tvContainer = document.getElementById('tvShows');
+    document.getElementById('movieCount').textContent = movies.length + ' चित्रपट';
+    document.getElementById('tvCount').textContent = tvShows.length + ' मालिका';
 
     const modal = document.getElementById('playbackModal');
-    const playerModal = document.getElementById('playerModal');
     const wrapper = document.getElementById('playerWrapper');
     const titleBox = document.getElementById('modalTitle');
-
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const closeBtn = document.getElementById('closeBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const externalDriveBtn = document.getElementById('externalDriveBtn');
 
-    const externalDriveBtn =
-      document.getElementById('externalDriveBtn');
+    let currentList = [], currentIndex = 0, currentHls = null;
 
-    const playerLoading =
-      document.getElementById('playerLoading');
-
-
-    /* =========================================================
-       STATE
-       ========================================================= */
-
-    let currentList = [];
-    let currentIndex = 0;
-    let currentHls = null;
-
-    let openRequestId = 0;
-
-
-    /* =========================================================
-       COUNTERS
-       ========================================================= */
-
-    movieCount.textContent = movies.length + ' चित्रपट';
-    tvCount.textContent = tvShows.length + ' मालिका';
-
-
-    /* =========================================================
-       HELPERS
-       ========================================================= */
-
-    function isYouTube(item) {
-      return (
-        item.isExternal ||
-        item.video.includes('youtube.com') ||
-        item.video.includes('youtu.be')
-      );
-    }
-
-
-    function isGoogleDrive(item) {
-      return item.video.includes('drive.google.com');
-    }
-
-
-    function showLoading() {
-      playerLoading.classList.add('active');
-    }
-
-
-    function hideLoading() {
-      playerLoading.classList.remove('active');
-    }
-
-
-    /* =========================================================
-       RENDER CARDS
-       ========================================================= */
-
+    /* Render Cards */
     function render(list, targetElement) {
-
-      const fragment = document.createDocumentFragment();
-
       list.forEach((item, index) => {
-
         const card = document.createElement('div');
-
-        card.className =
-          'movie-card group rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between';
-
-
-        const youtube = isYouTube(item);
-
+        card.className = 'movie-card group rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between';
+        
+        const isYT = item.isExternal || item.video.includes('youtube') || item.video.includes('youtu.be');
 
         card.innerHTML = `
           <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/40">
-
-            <img
-              src="${item.image}"
-              alt="${item.title}"
-              class="w-full h-full object-cover group-hover:scale-105 transition duration-200"
-              loading="lazy"
-              decoding="async"
-            >
-
+            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
             <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-70"></div>
-
+            
             <div class="absolute top-2 right-2">
-
-              <span
-                class="px-2 py-0.5 rounded text-[10px] font-bold
-                ${youtube
-                  ? 'bg-red-600/90 text-white'
-                  : 'bg-orange-600/90 text-white'}
-                backdrop-blur-sm shadow"
-              >
-                ${youtube ? 'YouTube' : 'Movie'}
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isYT ? 'bg-red-600/90 text-white' : 'bg-orange-600/90 text-white'} backdrop-blur-sm shadow">
+                ${isYT ? 'YouTube' : 'Movie'}
               </span>
-
             </div>
 
-            <div
-              class="absolute inset-0 flex items-center justify-center
-              opacity-0 group-hover:opacity-100 transition duration-150"
-            >
-
-              <span
-                class="w-12 h-12 rounded-full
-                ${youtube ? 'bg-red-600' : 'bg-orange-600'}
-                text-white flex items-center justify-center shadow-lg"
-              >
-                <i
-                  class="${youtube
-                    ? 'fa-brands fa-youtube'
-                    : 'fas fa-play'} text-lg"
-                ></i>
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
+              <span class="w-12 h-12 rounded-full ${isYT ? 'bg-red-600' : 'bg-orange-600'} text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition">
+                <i class="${isYT ? 'fa-brands fa-youtube' : 'fas fa-play'} text-lg"></i>
               </span>
-
             </div>
-
           </div>
-
           <div class="p-3">
-
-            <h3
-              class="text-xs sm:text-sm font-semibold text-gray-200
-              line-clamp-1 group-hover:text-amber-400 transition"
-            >
-              ${item.title}
-            </h3>
-
+            <h3 class="text-xs sm:text-sm font-semibold text-gray-200 line-clamp-1 group-hover:text-amber-400 transition">${item.title}</h3>
           </div>
         `;
 
-
-        card.addEventListener('click', () => {
-
-          if (youtube) {
-
-            window.open(
-              item.video,
-              '_blank',
-              'noopener,noreferrer'
-            );
-
+        card.onclick = () => {
+          if (isYT) {
+            window.open(item.video, '_blank', 'noopener,noreferrer');
           } else {
-
             openPlayer(list, index);
-
           }
+        };
 
-        }, { passive: true });
-
-
-        fragment.appendChild(card);
-
+        targetElement.appendChild(card);
       });
-
-
-      targetElement.appendChild(fragment);
     }
 
+    render(movies, document.getElementById('movies'));
+    render(tvShows, document.getElementById('tvShows'));
 
-    render(movies, moviesContainer);
-    render(tvShows, tvContainer);
-
-
-    /* =========================================================
-       DESTROY CURRENT PLAYER
-       ========================================================= */
-
-    function destroyCurrentPlayer() {
-
-      if (currentHls) {
-
-        try {
-          currentHls.destroy();
-        } catch (e) {}
-
-        currentHls = null;
+    function resetPlayer() {
+      if (currentHls) { 
+        currentHls.destroy(); 
+        currentHls = null; 
       }
-
-
-      const oldVideo =
-        document.getElementById('modalVideo');
-
-      if (oldVideo) {
-
-        try {
-          oldVideo.pause();
-          oldVideo.removeAttribute('src');
-          oldVideo.load();
-        } catch (e) {}
-
-      }
-
-
-      /*
-       * Clear the player viewport completely.
-       */
-      wrapper.innerHTML = '';
-
-
-      /*
-       * Re-create native video element.
-       */
-      const video = document.createElement('video');
-
-      video.id = 'modalVideo';
-
-      video.className =
-        'w-full h-full object-contain';
-
-      video.controls = true;
-      video.playsInline = true;
-      video.preload = 'metadata';
-
-      wrapper.appendChild(video);
-
-
-      /*
-       * Re-add loading overlay.
-       */
-      const loading = document.createElement('div');
-
-      loading.id = 'playerLoading';
-
-      loading.className = 'player-loading';
-
-      loading.innerHTML =
-        '<div class="loading-spinner"></div>';
-
-      wrapper.appendChild(loading);
-
-      playerLoadingRef = loading;
+      wrapper.innerHTML = '<video id="modalVideo" class="w-full h-full object-contain" controls playsinline></video>';
     }
-
-
-    let playerLoadingRef = playerLoading;
-
-
-    /* =========================================================
-       OPEN PLAYER
-       ========================================================= */
 
     function openPlayer(list, index) {
-
-      const requestId = ++openRequestId;
-
       currentList = list;
       currentIndex = index;
-
       const item = list[index];
 
-
-      /*
-       * Update title immediately.
-       */
       titleBox.textContent = item.title;
-
-
-      /*
-       * Stop existing player.
-       */
-      if (currentHls) {
-
-        try {
-          currentHls.destroy();
-        } catch (e) {}
-
-        currentHls = null;
-      }
-
-
-      wrapper.innerHTML = '';
-
-
-      /*
-       * Open modal before loading.
-       */
+      resetPlayer();
       modal.classList.add('active');
-
-      modal.setAttribute('aria-hidden', 'false');
-
       document.body.style.overflow = 'hidden';
 
-
-      /*
-       * Drive external button.
-       */
-      if (isGoogleDrive(item)) {
-
-        const driveUrl =
-          convertDriveToPreview(item.video);
-
-        externalDriveBtn.href = driveUrl;
-
+      if (item.video.includes('drive.google.com')) {
+        const directViewUrl = item.video.replace('/preview', '/view');
+        externalDriveBtn.href = directViewUrl;
         externalDriveBtn.classList.remove('hidden');
         externalDriveBtn.classList.add('flex');
-
       } else {
-
         externalDriveBtn.classList.add('hidden');
         externalDriveBtn.classList.remove('flex');
-
-        externalDriveBtn.href = '#';
       }
-
-
-      /*
-       * Disable previous / next appropriately.
-       */
-      prevBtn.disabled = currentIndex <= 0;
-      nextBtn.disabled =
-        currentIndex >= currentList.length - 1;
-
-
-      prevBtn.style.opacity =
-        currentIndex <= 0 ? '0.45' : '1';
-
-      nextBtn.style.opacity =
-        currentIndex >= currentList.length - 1 ? '0.45' : '1';
-
-
-      /* =======================================================
-         GOOGLE DRIVE
-         ======================================================= */
-
-      if (isGoogleDrive(item)) {
-
-        showLoading();
-
-
-        const embedUrl =
-          convertDriveToPreview(item.video);
-
-
-        const iframe =
-          document.createElement('iframe');
-
-
-        iframe.className = 'drive-player';
-
-        iframe.src = embedUrl;
-
-        iframe.title = item.title;
-
-        /*
-         * These permissions are important for the Google Drive
-         * embedded player, especially fullscreen/autoplay.
-         */
-        iframe.setAttribute(
-          'allow',
-          'autoplay; encrypted-media; fullscreen; picture-in-picture'
-        );
-
-        iframe.setAttribute(
-          'allowfullscreen',
-          ''
-        );
-
-        iframe.setAttribute(
-          'webkitallowfullscreen',
-          ''
-        );
-
-        iframe.setAttribute(
-          'mozallowfullscreen',
-          ''
-        );
-
-        iframe.setAttribute(
-          'referrerpolicy',
-          'strict-origin-when-cross-origin'
-        );
-
-
-        /*
-         * Hide loading once iframe has loaded.
-         *
-         * Note: "load" means the iframe document loaded,
-         * not necessarily that the actual movie has buffered.
-         */
-        iframe.addEventListener('load', () => {
-
-          if (requestId !== openRequestId) return;
-
-          hideLoading();
-
-        }, { once: true });
-
-
-        wrapper.appendChild(iframe);
-
-
-        /*
-         * Safety timeout so spinner cannot remain forever.
-         */
-        setTimeout(() => {
-
-          if (requestId === openRequestId) {
-            hideLoading();
-          }
-
-        }, 5000);
-
-
-        return;
-      }
-
-
-      /* =======================================================
-         HLS
-         ======================================================= */
 
       if (item.video.includes('.m3u8')) {
-
-        const video =
-          document.createElement('video');
-
-        video.id = 'modalVideo';
-
-        video.className =
-          'w-full h-full object-contain';
-
-        video.controls = true;
-        video.playsInline = true;
-        video.preload = 'metadata';
-
-        wrapper.appendChild(video);
-
-
-        const loading =
-          document.createElement('div');
-
-        loading.className = 'player-loading active';
-
-        loading.innerHTML =
-          '<div class="loading-spinner"></div>';
-
-        wrapper.appendChild(loading);
-
-
+        const v = document.getElementById('modalVideo');
         if (Hls.isSupported()) {
-
-          currentHls = new Hls({
-            enableWorker: true,
-
-            /*
-             * Keep buffering reasonable instead of allowing
-             * huge background buffers that can increase memory use.
-             */
-            maxBufferLength: 30,
-            maxMaxBufferLength: 60,
-
-            lowLatencyMode: false
-          });
-
-
+          currentHls = new Hls();
           currentHls.loadSource(item.video);
-
-          currentHls.attachMedia(video);
-
-
-          currentHls.on(
-            Hls.Events.MANIFEST_PARSED,
-            () => {
-
-              loading.classList.remove('active');
-
-              if (requestId !== openRequestId) return;
-
-              video.play().catch(() => {});
-
-            }
-          );
-
-
-          currentHls.on(
-            Hls.Events.ERROR,
-            (event, data) => {
-
-              if (data && data.fatal) {
-
-                loading.classList.remove('active');
-
-                console.warn(
-                  'HLS playback error:',
-                  data
-                );
-              }
-
-            }
-          );
-
-        } else if (
-          video.canPlayType(
-            'application/vnd.apple.mpegurl'
-          )
-        ) {
-
-          video.src = item.video;
-
-          video.addEventListener(
-            'loadedmetadata',
-            () => {
-
-              loading.classList.remove('active');
-
-              video.play().catch(() => {});
-
-            },
-            { once: true }
-          );
-
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => v.play());
+        } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = item.video;
+          v.play();
         }
-
-
-        return;
+      } 
+      else if (item.video.includes('drive.google.com')) {
+        const embedUrl = item.video.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+        wrapper.innerHTML = `<iframe class="w-full h-full object-contain border-0" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+      } 
+      else {
+        const v = document.getElementById('modalVideo');
+        v.src = item.video;
+        v.play();
       }
-
-
-      /* =======================================================
-         NORMAL VIDEO
-         ======================================================= */
-
-      const video =
-        document.createElement('video');
-
-      video.id = 'modalVideo';
-
-      video.className =
-        'w-full h-full object-contain';
-
-      video.controls = true;
-      video.playsInline = true;
-      video.preload = 'metadata';
-
-      video.src = item.video;
-
-
-      wrapper.appendChild(video);
-
-
-      const loading =
-        document.createElement('div');
-
-      loading.className =
-        'player-loading active';
-
-      loading.innerHTML =
-        '<div class="loading-spinner"></div>';
-
-      wrapper.appendChild(loading);
-
-
-      video.addEventListener(
-        'loadedmetadata',
-        () => {
-
-          loading.classList.remove('active');
-
-        },
-        { once: true }
-      );
-
-
-      video.addEventListener(
-        'canplay',
-        () => {
-
-          loading.classList.remove('active');
-
-          video.play().catch(() => {});
-
-        },
-        { once: true }
-      );
-
     }
-
-
-    /* =========================================================
-       GOOGLE DRIVE URL CONVERTER
-       ========================================================= */
-
-    function convertDriveToPreview(url) {
-
-      if (!url) return '';
-
-      /*
-       * Already a preview URL.
-       */
-      if (url.includes('/preview')) {
-
-        return url;
-      }
-
-
-      /*
-       * /view URL
-       */
-      const viewMatch =
-        url.match(/\/file\/d\/([^/]+)/);
-
-
-      if (viewMatch && viewMatch[1]) {
-
-        return (
-          'https://drive.google.com/file/d/' +
-          viewMatch[1] +
-          '/preview'
-        );
-
-      }
-
-
-      /*
-       * Fallback.
-       */
-      return url
-        .replace('/view', '/preview')
-        .replace('/edit', '/preview');
-
-    }
-
-
-    /* =========================================================
-       CLOSE PLAYER
-       ========================================================= */
 
     function closeModal() {
-
-      openRequestId++;
-
-
-      /*
-       * Exit fullscreen first.
-       */
-      try {
-
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-        }
-
-      } catch (e) {}
-
-
-      /*
-       * Destroy HLS.
-       */
-      if (currentHls) {
-
-        try {
-          currentHls.destroy();
-        } catch (e) {}
-
-        currentHls = null;
-      }
-
-
-      /*
-       * Stop native video.
-       */
-      const video =
-        document.getElementById('modalVideo');
-
-      if (video) {
-
-        try {
-          video.pause();
-          video.removeAttribute('src');
-          video.load();
-        } catch (e) {}
-
-      }
-
-
-      /*
-       * Remove iframe/video.
-       */
-      wrapper.innerHTML = '';
-
-
-      /*
-       * Close modal.
-       */
+      resetPlayer();
       modal.classList.remove('active');
-
-      modal.setAttribute('aria-hidden', 'true');
-
       document.body.style.overflow = '';
-
-
-      currentList = [];
-      currentIndex = 0;
-
     }
 
-
-    /* =========================================================
-       PREVIOUS
-       ========================================================= */
-
-    prevBtn.addEventListener('click', () => {
-
-      if (currentIndex > 0) {
-
-        openPlayer(
-          currentList,
-          currentIndex - 1
-        );
-
-      }
-
-    });
-
-
-    /* =========================================================
-       NEXT
-       ========================================================= */
-
-    nextBtn.addEventListener('click', () => {
-
-      if (
-        currentIndex <
-        currentList.length - 1
-      ) {
-
-        openPlayer(
-          currentList,
-          currentIndex + 1
-        );
-
-      }
-
-    });
-
-
-    /* =========================================================
-       CLOSE BUTTON
-       ========================================================= */
-
-    closeBtn.addEventListener(
-      'click',
-      closeModal
-    );
-
-
-    /* =========================================================
-       FULLSCREEN
-       ========================================================= */
-
-    fullscreenBtn.addEventListener(
-      'click',
-      async () => {
-
-        try {
-
-          if (
-            !document.fullscreenElement &&
-            !document.webkitFullscreenElement
-          ) {
-
-            if (wrapper.requestFullscreen) {
-
-              await wrapper.requestFullscreen();
-
-            } else if (
-              wrapper.webkitRequestFullscreen
-            ) {
-
-              wrapper.webkitRequestFullscreen();
-
-            }
-
-          } else {
-
-            if (document.exitFullscreen) {
-
-              await document.exitFullscreen();
-
-            } else if (
-              document.webkitExitFullscreen
-            ) {
-
-              document.webkitExitFullscreen();
-
-            }
-
-          }
-
-        } catch (error) {
-
-          console.warn(
-            'Fullscreen unavailable:',
-            error
-          );
-
-        }
-
-      }
-    );
-
-
-    /* =========================================================
-       CLICK OUTSIDE MODAL
-       ========================================================= */
-
-    modal.addEventListener('click', (event) => {
-
-      if (event.target === modal) {
-        closeModal();
-      }
-
-    });
-
-
-    /* =========================================================
-       ESCAPE KEY
-       ========================================================= */
-
-    document.addEventListener('keydown', (event) => {
-
-      if (
-        event.key === 'Escape' &&
-        modal.classList.contains('active')
-      ) {
-
-        closeModal();
-
-      }
-
-    });
-
-
-    /* =========================================================
-       KEYBOARD NEXT / PREVIOUS
-       ========================================================= */
-
-    document.addEventListener('keydown', (event) => {
-
-      if (!modal.classList.contains('active')) {
-        return;
-      }
-
-
-      /*
-       * Don't interfere while typing.
-       */
-      if (
-        event.target.tagName === 'INPUT' ||
-        event.target.tagName === 'TEXTAREA'
-      ) {
-        return;
-      }
-
-
-      if (event.key === 'ArrowLeft') {
-
-        if (currentIndex > 0) {
-
-          openPlayer(
-            currentList,
-            currentIndex - 1
-          );
-
-        }
-
-      }
-
-
-      if (event.key === 'ArrowRight') {
-
-        if (
-          currentIndex <
-          currentList.length - 1
-        ) {
-
-          openPlayer(
-            currentList,
-            currentIndex + 1
-          );
-
-        }
-
-      }
-
-    });
-
-
-    /* =========================================================
-       PREVENT BODY SCROLL WHEN MODAL IS OPEN
-       ========================================================= */
-
-    window.addEventListener(
-      'resize',
-      () => {
-
-        if (
-          modal.classList.contains('active')
-        ) {
-
-          /*
-           * The iframe itself uses width/height:100%,
-           * so browser resize automatically recalculates it.
-           */
-
-        }
-
-      },
-      { passive: true }
-    );
-
+    prevBtn.onclick = () => currentIndex > 0 && openPlayer(currentList, currentIndex - 1);
+    nextBtn.onclick = () => currentIndex < currentList.length - 1 && openPlayer(currentList, currentIndex + 1);
+    closeBtn.onclick = closeModal;
+
+    fullscreenBtn.onclick = () => {
+      if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+      else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+    };
+
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
   </script>
-
 </body>
 </html>
