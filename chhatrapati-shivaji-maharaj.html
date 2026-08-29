@@ -113,7 +113,6 @@
           <span class="text-lg md:text-xl font-black font-cinzel royal-gradient-text tracking-wider leading-none">
             स्वराज्य
           </span>
-
         </div>
       </a>
 
@@ -131,12 +130,7 @@
     </div>
   </nav>
 
-  <header class="relative py-12 px-4 text-center overflow-hidden">
-
- 
-
-
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 space-y-12 pb-20">
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 space-y-12 py-8 pb-20">
 
     <section>
       <div class="flex items-center justify-between mb-6 border-b border-orange-900/30 pb-3">
@@ -178,35 +172,38 @@
     </div>
   </footer>
 
-  <div id="playbackModal" class="modal-backdrop p-3 md:p-6">
-    <div class="w-full max-w-5xl bg-neutral-950/90 border border-orange-500/40 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] backdrop-blur-xl">
+  <!-- MOBILE-RESPONSIVE PLAYER MODAL -->
+  <div id="playbackModal" class="modal-backdrop p-2 sm:p-4 md:p-6">
+    <div class="w-full max-w-5xl bg-neutral-950/95 border border-orange-500/40 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] backdrop-blur-xl">
       
-      <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden" id="playerWrapper">
-        <video id="modalVideo" class="w-full h-full" controls playsinline></video>
+      <!-- Video Frame Container -->
+      <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden shrink" id="playerWrapper">
+        <video id="modalVideo" class="w-full h-full object-contain" controls playsinline></video>
       </div>
 
-      <div class="p-4 bg-neutral-900/90 border-t border-orange-950 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-2 overflow-hidden w-full sm:w-auto">
+      <!-- Controls & Details Bar -->
+      <div class="p-3 sm:p-4 bg-neutral-900/90 border-t border-orange-950/80 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-2 overflow-hidden w-full sm:w-auto justify-center sm:justify-start">
           <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse shrink-0"></span>
-          <h3 id="modalTitle" class="text-base font-bold text-amber-400 truncate text-center sm:text-left"></h3>
+          <h3 id="modalTitle" class="text-xs sm:text-base font-bold text-amber-400 truncate text-center sm:text-left"></h3>
         </div>
         
-        <div class="flex items-center gap-2 flex-wrap justify-center w-full sm:w-auto shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center w-full sm:w-auto shrink-0">
           <a id="externalDriveBtn" href="#" target="_blank" rel="noopener" 
-             class="hidden px-3.5 py-1.5 rounded-lg bg-orange-600/20 border border-orange-500/50 text-orange-400 hover:bg-orange-600/40 text-xs font-semibold transition items-center gap-1.5">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Link
+             class="hidden px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg bg-orange-600/20 border border-orange-500/50 text-orange-400 hover:bg-orange-600/40 text-[11px] sm:text-xs font-semibold transition items-center gap-1">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Drive
           </a>
 
-          <button id="prevBtn" class="px-3.5 py-1.5 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-xs font-semibold transition">
+          <button id="prevBtn" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-[11px] sm:text-xs font-semibold transition">
             ⏮ Prev
           </button>
-          <button id="nextBtn" class="px-3.5 py-1.5 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-xs font-semibold transition">
+          <button id="nextBtn" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-[11px] sm:text-xs font-semibold transition">
             Next ⏭
           </button>
-          <button id="fullscreenBtn" class="px-3 py-1.5 rounded-lg border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs font-semibold transition">
+          <button id="fullscreenBtn" class="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-[11px] sm:text-xs font-semibold transition">
             ⛶
           </button>
-          <button id="closeBtn" class="px-3.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition">
+          <button id="closeBtn" class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] sm:text-xs font-bold transition">
             ✕ Close
           </button>
         </div>
@@ -317,7 +314,7 @@
         currentHls.destroy(); 
         currentHls = null; 
       }
-      wrapper.innerHTML = '<video id="modalVideo" class="w-full h-full" controls playsinline></video>';
+      wrapper.innerHTML = '<video id="modalVideo" class="w-full h-full object-contain" controls playsinline></video>';
     }
 
     function openPlayer(list, index) {
@@ -354,7 +351,7 @@
       } 
       else if (item.video.includes('drive.google.com')) {
         const embedUrl = item.video.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
-        wrapper.innerHTML = `<iframe class="w-full h-full border-0" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        wrapper.innerHTML = `<iframe class="w-full h-full object-contain border-0" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
       } 
       else {
         const v = document.getElementById('modalVideo');
