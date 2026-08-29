@@ -1,253 +1,386 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>स्वराज्य – Movies & TV Serials</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>स्वराज्य – Movies & TV Serials</title>
 
-<!-- Tailwind -->
-<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Hind:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap');
 
-<!-- HLS.js -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+    :root {
+      --bg-dark: #07050a;
+      --saffron-main: #f97316;
+      --gold-main: #eab308;
+    }
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind:wght@400;600;700&display=swap');
+    body {
+      font-family: 'Hind', 'Poppins', sans-serif;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(249, 115, 22, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(234, 179, 8, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(15, 10, 22, 1) 0px, transparent 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-body{
-  font-family:Hind,Poppins,sans-serif;
-  background:linear-gradient(135deg,#0f172a,#1e293b);
-  color:#fff;
-  margin:0;
-  overflow-x:hidden
-}
+    .font-cinzel { font-family: 'Cinzel', serif; }
 
-.logo-glow{
-  filter:drop-shadow(0 0 6px rgba(251,146,60,.6));
-  animation:logoGlow 3s ease-in-out infinite;
-}
-@keyframes logoGlow{
-  50%{filter:drop-shadow(0 0 14px rgba(251,146,60,1))}
-}
+    /* Continuous Glowing Logo Animation */
+    @keyframes pulseGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.6)) drop-shadow(0 0 15px rgba(234, 179, 8, 0.3));
+        transform: scale(1);
+      }
+      50% {
+        filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.9)) drop-shadow(0 0 25px rgba(234, 179, 8, 0.6));
+        transform: scale(1.03);
+      }
+    }
 
-.movie-card{
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 8px 20px rgba(0,0,0,.3);
-  transition:.35s;
-}
-.movie-card:hover{transform:translateY(-6px) scale(1.03)}
+    .logo-pulse {
+      animation: pulseGlow 3.5s infinite ease-in-out;
+      will-change: filter, transform;
+    }
 
-.play-overlay{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.6);
-  opacity:0;transition:.3s
-}
-.movie-card:hover .play-overlay{opacity:1}
+    /* Animated Gold/Saffron Text */
+    .royal-gradient-text {
+      background: linear-gradient(135deg, #FFF099 0%, #F97316 50%, #EAB308 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-.modal-backdrop{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.92);
-  display:none;align-items:center;justify-content:center;
-  z-index:9999
-}
-.modal-backdrop.active{display:flex}
+    /* Modern Card Aesthetic */
+    .movie-card {
+      background: rgba(18, 14, 24, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(249, 115, 22, 0.18);
+      will-change: transform, box-shadow;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .movie-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: rgba(234, 179, 8, 0.6);
+      box-shadow: 0 12px 28px -6px rgba(249, 115, 22, 0.35);
+    }
 
-.modal-card{
-  width:100%;max-width:1050px;
-  background:#020617;border-radius:16px;
-  overflow:hidden;display:flex;flex-direction:column
-}
+    /* Glassmorphism Navigation & Floating UI */
+    .glass-nav {
+      background: rgba(10, 7, 14, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(249, 115, 22, 0.2);
+    }
 
-.player-wrapper{
-  position:relative;padding-top:56.25%;background:#000
-}
-.player-wrapper video,.player-wrapper iframe{
-  position:absolute;inset:0;width:100%;height:100%
-}
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 2, 5, 0.92);
+      backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal-backdrop.active { display: flex; }
 
-.player-meta{
-  padding:14px;background:#020617;
-  display:flex;flex-wrap:wrap;gap:10px;
-  align-items:center;justify-content:space-between
-}
-
-.controls-row{display:flex;gap:8px;flex-wrap:wrap}
-.btn{
-  border:1px solid #fb923c;color:#fb923c;
-  padding:6px 14px;border-radius:8px;
-  font-size:.8rem;transition:.25s
-}
-.btn:hover{background:rgba(251,146,60,.15)}
-
-@media(max-width:640px){
-  .modal-card{border-radius:0;height:100%}
-  .player-meta{flex-direction:column;align-items:flex-start}
-}
-</style>
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #07050a; }
+    ::-webkit-scrollbar-thumb { background: #c2410c; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ea580c; }
+  </style>
 </head>
 
-<body>
+<body class="flex flex-col min-h-screen">
 
-<!-- HEADER -->
-<header class="text-center py-8 px-4">
-  <img src="https://media.tenor.com/19hYW4oXAz4AAAAe/kaaleeya-shivmudra.png"
-       class="mx-auto w-20 md:w-28 logo-glow">
-  <h1 class="text-2xl md:text-4xl font-bold mt-3 text-orange-400">स्वराज्य</h1>
-  <p class="text-gray-300 text-sm md:text-base mt-2 max-w-2xl mx-auto">
-    मराठी इतिहासावर आधारित चित्रपट व मालिका
-  </p>
-</header>
+  <nav class="sticky top-0 z-50 glass-nav px-4 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <a href="#" class="flex items-center gap-3 group">
+        <img src="https://media.tenor.com/19hYW4oXAz4AAAAe/kaaleeya-shivmudra.png" 
+             alt="Shivmudra Logo" 
+             class="w-10 h-10 md:w-12 md:h-12 object-contain logo-pulse">
+        <div class="flex flex-col">
+          <span class="text-lg md:text-xl font-black font-cinzel royal-gradient-text tracking-wider leading-none">
+            स्वराज्य
+          </span>
 
-<!-- MOVIES -->
-<section class="max-w-7xl mx-auto px-4 pb-16">
-  <h2 class="text-2xl font-bold mb-6 text-center text-orange-400">
-    चित्रपट (Movies)
-  </h2>
-  <div id="movies"
-       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5
-              gap-3 sm:gap-4 md:gap-6">
-  </div>
-</section>
+        </div>
+      </a>
 
-<!-- TV SERIALS -->
-<section class="max-w-7xl mx-auto px-4 pb-24">
-  <h2 class="text-2xl font-bold mb-6 text-center text-orange-400">
-    मालिका (TV Serials)
-  </h2>
-  <div id="tvShows"
-       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5
-              gap-3 sm:gap-4 md:gap-6">
-  </div>
-</section>
+      <div class="flex items-center gap-3 text-sm">
+        <a href="https://www.instagram.com/stark_4152/reels" target="_blank" rel="noopener" 
+           class="w-8 h-8 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 hover:bg-orange-500 hover:text-white transition">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" target="_blank" rel="noopener" 
+           class="w-8 h-8 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition">
+          <i class="fab fa-youtube"></i>
+        </a>
+      </div>
 
-<!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
-  </div>
-
-<!-- MODAL PLAYER -->
-<div id="playbackModal" class="modal-backdrop">
-  <div class="modal-card">
-    <div class="player-wrapper" id="playerWrapper">
-      <video id="modalVideo" controls playsinline></video>
     </div>
-    <div class="player-meta">
-      <h3 id="modalTitle" class="font-semibold"></h3>
-      <div class="controls-row">
-        <button class="btn" id="prevBtn">⏮ Prev</button>
-        <button class="btn" id="playPauseBtn">▶ Play</button>
-        <button class="btn" id="nextBtn">Next ⏭</button>
-        <button class="btn" id="fullscreenBtn">⛶</button>
-        <button class="btn" id="closeBtn">✕</button>
+  </nav>
+
+  <header class="relative py-12 px-4 text-center overflow-hidden">
+
+ 
+
+
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 space-y-12 pb-20">
+
+    <section>
+      <div class="flex items-center justify-between mb-6 border-b border-orange-900/30 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+            <i class="fa-solid fa-film"></i>
+          </div>
+          <h2 class="text-xl md:text-2xl font-bold text-amber-400 font-cinzel tracking-wide">चित्रपट (Movies)</h2>
+        </div>
+        <span class="text-xs text-orange-400/70 font-medium" id="movieCount"></span>
+      </div>
+      
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-5"></div>
+    </section>
+
+    <section>
+      <div class="flex items-center justify-between mb-6 border-b border-orange-900/30 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+            <i class="fa-solid fa-tv"></i>
+          </div>
+          <h2 class="text-xl md:text-2xl font-bold text-amber-400 font-cinzel tracking-wide">मालिका (TV Serials)</h2>
+        </div>
+        <span class="text-xs text-orange-400/70 font-medium" id="tvCount"></span>
+      </div>
+
+      <div id="tvShows" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-5"></div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-orange-900/30 bg-black/60 backdrop-blur-md py-8 text-center text-gray-400 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 space-y-4">
+      <div class="flex justify-center items-center gap-2">
+        <img src="https://media.tenor.com/19hYW4oXAz4AAAAe/kaaleeya-shivmudra.png" class="w-6 h-6 object-contain logo-pulse">
+        <span class="font-cinzel text-amber-400 font-bold tracking-wider">स्वराज्य</span>
+      </div>
+      <p class="text-xs text-gray-500">© Swarajya Historical Media Collection. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div id="playbackModal" class="modal-backdrop p-3 md:p-6">
+    <div class="w-full max-w-5xl bg-neutral-950/90 border border-orange-500/40 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] backdrop-blur-xl">
+      
+      <div class="relative w-full aspect-video bg-black flex items-center justify-center overflow-hidden" id="playerWrapper">
+        <video id="modalVideo" class="w-full h-full" controls playsinline></video>
+      </div>
+
+      <div class="p-4 bg-neutral-900/90 border-t border-orange-950 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2 overflow-hidden w-full sm:w-auto">
+          <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse shrink-0"></span>
+          <h3 id="modalTitle" class="text-base font-bold text-amber-400 truncate text-center sm:text-left"></h3>
+        </div>
+        
+        <div class="flex items-center gap-2 flex-wrap justify-center w-full sm:w-auto shrink-0">
+          <a id="externalDriveBtn" href="#" target="_blank" rel="noopener" 
+             class="hidden px-3.5 py-1.5 rounded-lg bg-orange-600/20 border border-orange-500/50 text-orange-400 hover:bg-orange-600/40 text-xs font-semibold transition items-center gap-1.5">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Link
+          </a>
+
+          <button id="prevBtn" class="px-3.5 py-1.5 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-xs font-semibold transition">
+            ⏮ Prev
+          </button>
+          <button id="nextBtn" class="px-3.5 py-1.5 rounded-lg border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 text-xs font-semibold transition">
+            Next ⏭
+          </button>
+          <button id="fullscreenBtn" class="px-3 py-1.5 rounded-lg border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs font-semibold transition">
+            ⛶
+          </button>
+          <button id="closeBtn" class="px-3.5 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition">
+            ✕ Close
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-/* ================= DATA ================= */
-const movies=[
-{title:'फर्जंद',video:'https://drive.google.com/file/d/14PPQfQJfspcFMmYCPfBwTcD6WGuxAt0x/preview',image:'https://static.digit.in/OTT/v2/images/farzand-70297jpg'},
-{title:'फत्तेशिकस्त',video:'https://drive.google.com/file/d/1fIxfr-OWT7Hd5czMlTZ5oqswX_IUFKxf/preview',image:'https://upload.wikimedia.org/wikipedia/en/8/81/Fatteshikast.jpg'},
-{title:'पावनखिंड',video:'https://drive.google.com/file/d/1cTEVFdmlU17pFMVILTBh92OLdyMEJ-dD/preview',image:'https://m.media-amazon.com/images/M/MV5BOTMyYTEyYWMtNjI2Ny00MGZkLThjZTUtY2VhZTc5OTc5NmY0XkEyXkFqcGc@._V1_.jpg'},
-{title:'शेर शिवराज',video:'https://drive.google.com/file/d/1BVpWybbG4QgQd8UYBFEPyVmdN3-Rs05S/preview',image:'https://i.pinimg.com/736x/de/aa/b4/deaab43ec3cafec25c5b36a3650a7989.jpg'},
-{title:'सुभेदार',video:'https://drive.google.com/file/d/1VOyEOjnTEtn8jcZs_XTwBDwGtCgFVLFx/preview',image:'https://media-cache.cinematerial.com/p/500x/cu5tefq3/subhedar-indian-movie-poster.jpg'},
-{title:'सरसेनापती हंबीरराव',video:'https://drive.google.com/file/d/1-Tt6UuGDgkev-bTQ-V2xTzq4pytP_Bq5/preview',image:'https://marathimovieworld.com/images/sarsenapati-hambirrao-movie-posters-pravin-tarde.jpg'},
-{title:'शिवप्रताप गरुडझेप',video:'https://drive.google.com/file/d/1X-z1n7TaLfeHUS54URe6cYmR9uFb6KT1/preview',image:'https://www.loksatta.com/wp-content/uploads/2022/09/Shivpratap-Garudjhep-Cast-2.jpg?w=350'},
-{title:'हिरकणी',video:'https://drive.google.com/file/d/1kcjXftfjQzzfmBhKXXNv0ZqeN9CB8zsR/preview',image:'https://m.media-amazon.com/images/M/MV5BMDRlZGNlY2MtMzZmZi00Yjg1LTliNDgtZjZhZmJmZGQxOGM5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'},
-{title:'शिवरायांचा छावा',video:'https://drive.google.com/file/d/1qnuEq-66vaxVPzfsHAL2E346kQVjvB45/preview',image:'https://m.media-amazon.com/images/M/MV5BMjhkMTI5MTktMjc0MC00N2I3LWFlMGMtOTY0YmNmYzJlNTM3XkEyXkFqcGc@._V1_.jpg'},
-{title:'रणपती शिवराय स्वारी आग्रा',video:'https://drive.google.com/file/d/1ce3WUgh_tGF2q-qzt2B8QU_9kf1yPBZ5/preview',image:'https://in.bmscdn.com/events/moviecard/ET00476714.jpg'},
-{title:'धर्मरक्षक महावीर छत्रपती संभाजी महाराज',video:'https://drive.google.com/file/d/1y8foBArRlApJl7mzHGbWdWa0izC-GMP7/preview',image:'https://m.media-amazon.com/images/M/MV5BOTA3ZjJjYjMtNWY1Ni00NWUzLTkwZTEtZTViMGVhYzMwNDE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'},
-{title:'छावा',video:'https://drive.google.com/file/d/1rbcFq_-CB_O93maHIge_4BiARVbmGJqM/preview',image:'https://images.tv9hindi.com/wp-content/uploads/2024/08/chhaava-poster.jpg'},
-];
+  <script>
+    /* MOVIES DATA */
+    const movies = [
+      {title:'फर्जंद', video:'https://drive.google.com/file/d/14PPQfQJfspcFMmYCPfBwTcD6WGuxAt0x/preview', image:'https://image.tmdb.org/t/p/w500/7ImVIuDZbTpueg0yxG9WvzKPEwF.jpg'},
+      {title:'फत्तेशिकस्त', video:'https://drive.google.com/file/d/1fIxfr-OWT7Hd5czMlTZ5oqswX_IUFKxf/preview', image:'https://upload.wikimedia.org/wikipedia/en/8/81/Fatteshikast.jpg'},
+      {title:'पावनखिंड', video:'https://drive.google.com/file/d/1cTEVFdmlU17pFMVILTBh92OLdyMEJ-dD/preview', image:'https://image.tmdb.org/t/p/w500/ArI2G4lRFQz5eqo8cXUZ7PDVgdY.jpg'},
+      {title:'शेर शिवराज', video:'https://drive.google.com/file/d/1BVpWybbG4QgQd8UYBFEPyVmdN3-Rs05S/preview', image:'https://image.tmdb.org/t/p/w500/kQdaTKgM2hWVsEQJKU3ix9SkEAB.jpg'},
+      {title:'सुभेदार', video:'https://drive.google.com/file/d/1VOyEOjnTEtn8jcZs_XTwBDwGtCgFVLFx/preview', image:'https://image.tmdb.org/t/p/w500/vnM26ChrGes8dlT106LK9g3kaQu.jpg'},
+      {title:'सरसेनापती हंबीरराव', video:'https://drive.google.com/file/d/1-Tt6UuGDgkev-bTQ-V2xTzq4pytP_Bq5/preview', image:'https://image.tmdb.org/t/p/w500/kFQP73QmjEojppYzywWreK6jEYb.jpg'},
+      {title:'शिवप्रताप गरुडझेप', video:'https://drive.google.com/file/d/1X-z1n7TaLfeHUS54URe6cYmR9uFb6KT1/preview', image:'https://image.tmdb.org/t/p/w500/u7nGWMAEgKWY8TEt9swr7AHxo4y.jpg'},
+      {title:'हिरकणी', video:'https://drive.google.com/file/d/1kcjXftfjQzzfmBhKXXNv0ZqeN9CB8zsR/preview', image:'https://m.media-amazon.com/images/M/MV5BMDRlZGNlY2MtMzZmZi00Yjg1LTliNDgtZjZhZmJmZGQxOGM5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'},
+      {title:'शिवरायांचा छावा', video:'https://drive.google.com/file/d/1qnuEq-66vaxVPzfsHAL2E346kQVjvB45/preview', image:'https://image.tmdb.org/t/p/w500/6sQzGwxf3FoJMgmUdBTEjHsctJJ.jpg'},
+      {title:'रणपती शिवराय स्वारी आग्रा', video:'https://drive.google.com/file/d/1ce3WUgh_tGF2q-qzt2B8QU_9kf1yPBZ5/preview', image:'https://in.bmscdn.com/events/moviecard/ET00476714.jpg'},
+      {title:'धर्मरक्षक महावीर छत्रपती संभाजी महाराज', video:'https://drive.google.com/file/d/1y8foBArRlApJl7mzHGbWdWa0izC-GMP7/preview', image:'https://m.media-amazon.com/images/M/MV5BOTA3ZjJjYjMtNWY1Ni00NWUzLTkwZTEtZTViMGVhYzMwNDE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg'},
+      {title:'छावा', video:'https://drive.google.com/file/d/1rbcFq_-CB_O93maHIge_4BiARVbmGJqM/preview', image:'https://image.tmdb.org/t/p/w500/ubRsrzb6NRW8YhVTJ6jG1kpNvCi.jpg'}
+    ];
 
-const tvShows=[
-{title:'स्वराज्यरक्षक संभाजी',video:'https://www.youtube.com/watch?v=xPV20XdWjrQ&list=PLMHrU-jxz0lES9o1kYK9H7f66uUcsx89m',image:'https://img.airtel.tv/unsafe/fit-in/500x0/filters:format(webp)/https://xstreamcp-assets-msp.streamready.in/assets/ZEEFIVE/SERIES/66ff9032966a8617a153c244/images/PORTRAIT/rsz630x945withlogo82f86a27af504b7ea226f1c85cc8f544.jpg?o=production',external:true
- },
-{title:'स्वराज्य सौदामिनी ताराराणी',
- video:'https://www.youtube.com/watch?v=zLB--Mpu-Po&list=PLoYBnLBgd5aZzE5XYK2Fv6OKJgdT-o06H&index=219',
- image:'https://m.media-amazon.com/images/M/MV5BYzIyZDYyYjItZTE5Ni00OTE2LWI2YTctZTBlNWJhNzhjNTEwXkEyXkFqcGc@._V1_.jpg',
- external:true
- },
-{
-  title:'स्वराज्यजननी जिजामाता',
-  video:'https://www.youtube.com/watch?v=C5fTWpqe2Us&list=PL0U3wd8lGkb-PXFMBMnf_Y0ZQR0psVyfm&index=374',
-  image:'https://pbs.twimg.com/profile_images/1309840125161922560/dK_cu5Xt_400x400.jpg',
-  external:true
-}
+    /* TV SERIALS DATA */
+    const tvShows = [
+      {
+        title:'स्वराज्यरक्षक संभाजी',
+        video:'https://www.youtube.com/watch?v=xPV20XdWjrQ&list=PLMHrU-jxz0lES9o1kYK9H7f66uUcsx89m',
+        image:'https://img.airtel.tv/unsafe/fit-in/500x0/filters:format(webp)/https://xstreamcp-assets-msp.streamready.in/assets/ZEEFIVE/SERIES/66ff9032966a8617a153c244/images/PORTRAIT/rsz630x945withlogo82f86a27af504b7ea226f1c85cc8f544.jpg?o=production',
+        isExternal: true
+      },
+      {
+        title:'स्वराज्य सौदामिनी ताराराणी',
+        video:'https://www.youtube.com/watch?v=zLB--Mpu-Po&list=PLoYBnLBgd5aZzE5XYK2Fv6OKJgdT-o06H&index=219',
+        image:'https://m.media-amazon.com/images/M/MV5BYzIyZDYyYjItZTE5Ni00OTE2LWI2YTctZTBlNWJhNzhjNTEwXkEyXkFqcGc@._V1_.jpg',
+        isExternal: true
+      },
+      {
+        title:'स्वराज्यजननी जिजामाता',
+        video:'https://www.youtube.com/watch?v=C5fTWpqe2Us&list=PL0U3wd8lGkb-PXFMBMnf_Y0ZQR0psVyfm&index=374',
+        image:'https://pbs.twimg.com/profile_images/1309840125161922560/dK_cu5Xt_400x400.jpg',
+        isExternal: true
+      }
+    ];
 
-];
+    document.getElementById('movieCount').textContent = movies.length + ' चित्रपट';
+    document.getElementById('tvCount').textContent = tvShows.length + ' मालिका';
 
-const modal=document.getElementById('playbackModal');
-const wrapper=document.getElementById('playerWrapper');
-const titleBox=document.getElementById('modalTitle');
+    const modal = document.getElementById('playbackModal');
+    const wrapper = document.getElementById('playerWrapper');
+    const titleBox = document.getElementById('modalTitle');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const externalDriveBtn = document.getElementById('externalDriveBtn');
 
-let currentList=[],currentIndex=0,currentHls=null;
+    let currentList = [], currentIndex = 0, currentHls = null;
 
-function render(list,target){
-  list.forEach((m,i)=>{
-    const d=document.createElement('div');
-    d.className='movie-card relative cursor-pointer';
-    d.innerHTML=`
-      <img src="${m.image}" class="w-full h-40 sm:h-48 md:h-56 lg:h-64 object-cover">
-      <div class="play-overlay"><i class="fas fa-play text-3xl"></i></div>
-      <div class="absolute bottom-0 w-full bg-black/70 p-2 text-sm">${m.title}</div>`;
-    d.onclick=()=>{
-  if(m.external){
-    window.open(m.video,'_blank','noopener noreferrer');
-  }else{
-    openPlayer(list,i);
-  }
-};
+    /* Render Cards */
+    function render(list, targetElement) {
+      list.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'movie-card group rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between';
+        
+        const isYT = item.isExternal || item.video.includes('youtube') || item.video.includes('youtu.be');
 
-    target.appendChild(d);
-  });
-}
+        card.innerHTML = `
+          <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/40">
+            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-70"></div>
+            
+            <div class="absolute top-2 right-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isYT ? 'bg-red-600/90 text-white' : 'bg-orange-600/90 text-white'} backdrop-blur-sm shadow">
+                ${isYT ? 'YouTube' : 'Movie'}
+              </span>
+            </div>
 
-render(movies,document.getElementById('movies'));
-render(tvShows,document.getElementById('tvShows'));
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
+              <span class="w-12 h-12 rounded-full ${isYT ? 'bg-red-600' : 'bg-orange-600'} text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition">
+                <i class="${isYT ? 'fa-brands fa-youtube' : 'fas fa-play'} text-lg"></i>
+              </span>
+            </div>
+          </div>
+          <div class="p-3">
+            <h3 class="text-xs sm:text-sm font-semibold text-gray-200 line-clamp-1 group-hover:text-amber-400 transition">${item.title}</h3>
+          </div>
+        `;
 
-function resetPlayer(){
-  if(currentHls){currentHls.destroy();currentHls=null}
-  wrapper.innerHTML='<video id="modalVideo" controls playsinline></video>';
-}
+        card.onclick = () => {
+          if (isYT) {
+            window.open(item.video, '_blank', 'noopener,noreferrer');
+          } else {
+            openPlayer(list, index);
+          }
+        };
 
-function openPlayer(list,index){
-  currentList=list;currentIndex=index;
-  const m=list[index];
-  titleBox.textContent=m.title;
-  resetPlayer();
-  modal.classList.add('active');
+        targetElement.appendChild(card);
+      });
+    }
 
-  const v=document.getElementById('modalVideo');
-  if(m.video.includes('.m3u8')&&Hls.isSupported()){
-    currentHls=new Hls();
-    currentHls.loadSource(m.video);
-    currentHls.attachMedia(v);
-    currentHls.on(Hls.Events.MANIFEST_PARSED,()=>v.play());
-  }else if(m.video.includes('youtube')||m.video.includes('drive.google')){
-    wrapper.innerHTML=`<iframe src="${m.video}" allow="autoplay" allowfullscreen></iframe>`;
-  }else{
-    v.src=m.video;v.play();
-  }
-}
+    render(movies, document.getElementById('movies'));
+    render(tvShows, document.getElementById('tvShows'));
 
-prevBtn.onclick=()=>currentIndex>0&&openPlayer(currentList,currentIndex-1);
-nextBtn.onclick=()=>currentIndex<currentList.length-1&&openPlayer(currentList,currentIndex+1);
-closeBtn.onclick=()=>{resetPlayer();modal.classList.remove('active')};
-fullscreenBtn.onclick=()=>{
-  const el=document.getElementById('modalVideo')||wrapper;
-  el.requestFullscreen&&el.requestFullscreen();
-};
-modal.onclick=e=>{if(e.target===modal)closeBtn.onclick()};
-</script>
+    function resetPlayer() {
+      if (currentHls) { 
+        currentHls.destroy(); 
+        currentHls = null; 
+      }
+      wrapper.innerHTML = '<video id="modalVideo" class="w-full h-full" controls playsinline></video>';
+    }
 
+    function openPlayer(list, index) {
+      currentList = list;
+      currentIndex = index;
+      const item = list[index];
+
+      titleBox.textContent = item.title;
+      resetPlayer();
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      if (item.video.includes('drive.google.com')) {
+        const directViewUrl = item.video.replace('/preview', '/view');
+        externalDriveBtn.href = directViewUrl;
+        externalDriveBtn.classList.remove('hidden');
+        externalDriveBtn.classList.add('flex');
+      } else {
+        externalDriveBtn.classList.add('hidden');
+        externalDriveBtn.classList.remove('flex');
+      }
+
+      if (item.video.includes('.m3u8')) {
+        const v = document.getElementById('modalVideo');
+        if (Hls.isSupported()) {
+          currentHls = new Hls();
+          currentHls.loadSource(item.video);
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => v.play());
+        } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = item.video;
+          v.play();
+        }
+      } 
+      else if (item.video.includes('drive.google.com')) {
+        const embedUrl = item.video.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+        wrapper.innerHTML = `<iframe class="w-full h-full border-0" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+      } 
+      else {
+        const v = document.getElementById('modalVideo');
+        v.src = item.video;
+        v.play();
+      }
+    }
+
+    function closeModal() {
+      resetPlayer();
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    prevBtn.onclick = () => currentIndex > 0 && openPlayer(currentList, currentIndex - 1);
+    nextBtn.onclick = () => currentIndex < currentList.length - 1 && openPlayer(currentList, currentIndex + 1);
+    closeBtn.onclick = closeModal;
+
+    fullscreenBtn.onclick = () => {
+      if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+      else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+    };
+
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
+  </script>
 </body>
 </html>
