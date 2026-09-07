@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Terminal List: Dark Wolf - Season 1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js for playback support -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    :root {
+      --accent-saffron: #d97706;
+      --accent-gold: #f59e0b;
+      --bg-dark: #090a0f;
+      --card-bg: #11131a;
+    }
+
+    body { 
+      background: var(--bg-dark); 
+      color: #f3f4f6; 
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif; 
+    }
+
+    .cinzel-font { font-family: 'Cinzel', serif; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #090a0f; }
+    ::-webkit-scrollbar-thumb { background: var(--accent-saffron); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #b45309; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px);} to { opacity: 1; transform: translateY(0);} }
+    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .gradient-text { 
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #FFFFFF 100%); 
+      -webkit-background-clip: text; 
+      background-clip: text; 
+      color: transparent; 
+    }
+
+    .glow-effect { position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .glow-effect:hover { transform: translateY(-4px); }
+    .glow-effect::after { 
+      content:''; position:absolute; inset:0; border-radius:12px; 
+      box-shadow:0 0 20px rgba(217, 119, 6, 0); transition:box-shadow 0.3s; pointer-events:none;
+    }
+    .glow-effect:hover::after { box-shadow:0 0 20px rgba(217, 119, 6, 0.25); }
+
+    .season-btn {
+      transition: all 0.25s ease;
+      border: 1px solid rgba(217, 119, 6, 0.2);
+    }
+    .season-btn:hover {
+      border-color: var(--accent-saffron);
+      background: rgba(217, 119, 6, 0.1);
+    }
+    .season-btn.active {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-weight: 600;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    }
+
+    /* Modal player styling */
+    .modal-backdrop { 
+      position:fixed; inset:0; background: rgba(0,0,0,0.92); 
+      backdrop-filter: blur(8px); display:none; align-items:center; 
+      justify-content:center; z-index:9999; padding: 1rem;
+    }
+    .modal-backdrop.active { display:flex; }
+    
+    .modal-card { 
+      width:100%; max-width:1000px; border-radius:16px; overflow:hidden; 
+      background:#11131a; border: 1px solid rgba(217, 119, 6, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(217, 119, 6, 0.15);
+      position: relative;
+    }
+
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+    .player-meta { 
+      display:flex; justify-content:space-between; gap:16px; padding:18px 24px; 
+      color:#e5e7eb; align-items:center; background: #181b24;
+    }
+
+    .btn-player {
+      background: transparent; border: 1px solid rgba(217, 119, 6, 0.4); 
+      color: var(--accent-saffron); padding: 8px 14px; border-radius: 8px; 
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
+      font-size: 0.875rem; transition: all 0.2s; font-weight: 500;
+    }
+    .btn-player:hover { background: rgba(217, 119, 6, 0.15); border-color: var(--accent-saffron); }
+
+    /* Mobile Responsive Polish */
+    @media (max-width: 768px) {
+      .player-meta { flex-direction: column; align-items: flex-start; padding: 14px; }
+      .controls-row { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+      .btn-player { padding: 8px 12px; font-size: 0.8rem; }
+    }
+
+    video:fullscreen, video:-webkit-full-screen, iframe:fullscreen, iframe:-webkit-full-screen {
+      width: 100vw !important; height: 100vh !important; object-fit: contain !important; background: #000;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-[#090a0f]/90 backdrop-blur-md border-b border-[#d97706]/20 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-[#f59e0b] to-[#d97706] rounded-lg flex items-center justify-center shadow-lg shadow-[#d97706]/20">
+          <i class="fas fa-crosshairs text-black text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold gradient-text cinzel-font tracking-wider">DARK WOLF</h1>
+          <p class="text-[10px] sm:text-xs text-amber-200/60 uppercase tracking-widest hidden sm:block">The Terminal List Prequel Series</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <button id="watchlist-btn" class="p-2.5 rounded-full hover:bg-white/5 transition relative text-amber-400">
+          <i class="fas fa-bookmark"></i>
+        </button>
+        <button id="search-btn" class="p-2.5 rounded-full hover:bg-white/5 transition text-amber-400">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Search Bar -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-[#090a0f]/95">
+      <div class="relative container mx-auto">
+        <input id="global-search" type="text" placeholder="Search episodes..." 
+               class="w-full bg-[#161821] border border-[#d97706]/30 rounded-xl py-2.5 px-4 pl-10 text-white focus:outline-none focus:border-[#d97706] placeholder-gray-500">
+        <i class="fas fa-search absolute left-3.5 top-3.5 text-[#d97706]"></i>
+      </div>
+    </div>
+    
+    <!-- Watchlist dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-72 bg-[#11131a] border border-[#d97706]/20 rounded-xl shadow-2xl z-50 py-2">
+      <div class="px-4 py-2 border-b border-white/10 flex justify-between items-center">
+        <h3 class="font-semibold text-amber-400 text-sm">My Saved Episodes</h3>
+        <span id="watchlist-count" class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">0</span>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto divide-y divide-white/5">
+        <div class="px-4 py-4 text-center text-gray-500 text-sm">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container mx-auto px-4 py-6">
+
+   <!-- Hero Banner with Video Overlay -->
+<section class="mb-8 sm:mb-10 relative overflow-hidden rounded-2xl border border-[#d97706]/20 bg-[#090a0f] shadow-2xl">
+  <!-- Container with flexible height on mobile & fixed height/aspect ratio on larger screens -->
+  <div class="relative w-full min-h-[480px] sm:min-h-0 sm:aspect-[16/9] md:h-[420px] lg:h-[480px] flex items-end sm:items-center">
+    
+    <!-- Video Background Container -->
+    <div class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+      <iframe
+        src="https://www.youtube.com/embed/z5orlqLCvv4?autoplay=1&mute=1&loop=1&playlist=l8tZ07FLDdU&controls=0&modestbranding=1"
+        frameborder="0"
+        allow="autoplay; fullscreen"
+        class="absolute top-1/2 left-1/2 w-[300%] h-[300%] sm:w-[177.78vw] sm:h-[56.25vw] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-60 sm:opacity-100"
+      ></iframe>
+    </div>
+
+    <!-- Gradient Overlay for Contrast and Mobile Readability -->
+    <div class="absolute inset-0 bg-gradient-to-t from-[#090a0f] via-[#090a0f]/80 sm:via-[#090a0f]/70 to-[#090a0f]/30 sm:bg-gradient-to-r sm:from-[#090a0f] sm:via-[#090a0f]/85 sm:to-transparent z-10"></div>
+
+    <!-- Content Wrapper -->
+    <div class="relative z-20 w-full p-5 sm:p-8 md:p-10">
+      <div class="max-w-2xl">
+        <!-- Prime Video Badge -->
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#d97706]/20 border border-[#d97706]/40 text-[#d97706] text-[11px] sm:text-xs font-medium mb-3 backdrop-blur-md">
+          <i class="fas fa-[#d97706] text-xs"></i> Amazon Prime Video Original
+        </div>
+
+        <!-- Title -->
+        <h2 class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white cinzel-font tracking-wide mb-2 sm:mb-3 leading-tight drop-shadow-md">
+          The Terminal List: <span class="gradient-text">Dark Wolf</span>
+        </h2>
+
+        <!-- Description -->
+        <p class="text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed mb-5 font-light drop-shadow line-clamp-3 sm:line-clamp-none">
+          A prequel series following Ben Edwards and James Reece as Ben transitions from Navy SEAL to CIA paramilitary operator, unraveling covert operations and betrayal.
+        </p>
+
+        <!-- CTA & Metadata Container -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <button id="play-first" class="w-full sm:w-auto justify-center bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-black font-semibold px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl hover:brightness-110 transition flex items-center shadow-lg shadow-[#d97706]/25 text-sm sm:text-base">
+            <i class="fas fa-play mr-2 text-xs sm:text-sm"></i> Watch Episode 1
+          </button>
+          
+          <div class="flex items-center justify-between sm:justify-start gap-4 text-xs text-gray-300 border-t sm:border-t-0 sm:border-l border-white/15 pt-3 sm:pt-0 sm:pl-4">
+            <div><span class="block text-white font-bold text-xs sm:text-sm">7</span> Episodes</div>
+            <div><span class="block text-white font-bold text-sm">1</span> Season</div>
+            <div><span class="block text-amber-400 font-bold text-xs sm:text-sm">Action / Thriller</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+    <!-- Season Navigation Tabs -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 border-b border-white/10 pb-4 gap-4">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-layer-group text-[#d97706]"></i>
+        <h3 class="text-lg font-bold text-white cinzel-font tracking-wider">SEASONS</h3>
+      </div>
+      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max" id="season-tabs">
+          <button class="season-btn active px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="all">All</button>
+          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="1">Season 1</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Episodes Grid (2 columns on mobile) -->
+    <section>
+      <div id="episodes-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
+        <!-- JS Dynamic rendering -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Player Modal -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+      <button id="closeModalBtn" class="absolute top-3 right-3 z-50 text-gray-400 hover:text-white bg-black/60 hover:bg-black/90 rounded-full w-9 h-9 flex items-center justify-center transition">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      </div>
+
+      <div class="player-meta">
+        <div class="max-w-md">
+          <span id="modalSeasonBadge" class="text-[11px] font-semibold text-[#d97706] uppercase tracking-wider">Season 1</span>
+          <h3 id="modalTitle" class="text-base sm:text-lg font-bold text-white mt-0.5">Episode Title</h3>
+          <p id="modalDesc" class="text-xs text-gray-400 mt-1 line-clamp-2">Episode description will appear here.</p>
+        </div>
+        <div class="controls-row flex items-center gap-2">
+          <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn-player text-xs" title="Open Stream Direct">
+            <i class="fas fa-external-link-alt mr-1.5"></i> Direct
+          </a>
+          <button id="prevBtn" class="btn-player"><i class="fas fa-step-backward"></i></button>
+          <button id="playPauseBtn" class="btn-player"><i class="fas fa-play"></i></button>
+          <button id="nextBtn" class="btn-player"><i class="fas fa-step-forward"></i></button>
+          <button id="fullscreenBtn" class="btn-player"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // THE TERMINAL LIST: DARK WOLF - EPISODES DATA
+    // ==========================================
+    const episodes = [
+      { 
+        id: 1, 
+        season: 1, 
+        epNum: 1, 
+        title: 'INHERENT RESOLVE', 
+        video: '00', 
+        image: 'https://image.tmdb.org/t/p/w300/alv68jhd6I5Aqvn5jv79u0et7Tw.jpg', 
+        duration: '--', 
+        description: 'Ben Edwards begins his journey transitioning from Navy SEAL operator into the shadowy world of CIA paramilitary operations.' 
+      },
+      { 
+        id: 2, 
+        season: 1, 
+        epNum: 2, 
+        title: 'THE AUDITION', 
+        video: '00', 
+        image: 'https://image.tmdb.org/t/p/w300/orI29i5mDUgQ95MZIhvprt1VYv7.jpg', 
+        duration: '--', 
+        description: 'Ben undergoes rigorous tactical evaluation for high-stakes intelligence assignments in foreign territories.' 
+      },
+      { 
+        id: 3, 
+        season: 1, 
+        epNum: 3, 
+        title: 'WHAT\'S PAST IS PROLOGUE', 
+        video: '00', 
+        image: 'https://image.tmdb.org/t/p/w300/748hbs7OwEsCCFQ6DawihDHyQdN.jpg', 
+        duration: '--', 
+        description: 'Past military engagements resurface, complicating current black-ops objectives.' 
+      },
+      { 
+        id: 4, 
+        season: 1, 
+        epNum: 4, 
+        title: 'THE SOUND OF GUNS', 
+        video: '00', 
+        image: 'https://image.tmdb.org/t/p/w300/7pBuDeNvSJdwS7O9DSZlJ1HXzt8.jpg', 
+        duration: '--', 
+        description: 'A covert operation in hostile territory leads to intense tactical confrontations.' 
+      },
+      { 
+        id: 5, 
+        season: 1, 
+        epNum: 5, 
+        title: 'E & E', 
+        video: '00', 
+        image: 'https://image.tmdb.org/t/p/w300/1zSeRX4MH4pFuBLgZmoob6RvniH.jpg', 
+        duration: '--', 
+        description: 'Trapped behind enemy lines, evasion and escape protocols become vital for survival.' 
+      },
+      { 
+        id: 6, 
+        season: 1, 
+        epNum: 6, 
+        title: 'PAWNS & KINGS', 
+        video: '00', 
+        image: 'https://image.tmdb.org/t/p/w300/2QNqrV5zNqzvhPhF61ZoO86j9pn.jpg', 
+        duration: '--', 
+        description: 'Intelligence networks reveal deeper conspiracies within internal operational command.' 
+      },
+      { 
+        id: 7, 
+        season: 1, 
+        epNum: 7, 
+        title: 'THE WOLF YOU FEED', 
+        video: '00', 
+        image: 'https://image.tmdb.org/t/p/w300/p88wQia1SYh4f0078Pt0nzQIQuW.jpg', 
+        duration: '--', 
+        description: 'Ben Edwards faces critical choices as loyalty and survival collide in the season finale.' 
+      }
+    ];
+
+    // ==========================================
+    // UI & PLAYBACK CONTROLLER
+    // ==========================================
+    let filteredList = [...episodes];
+    let currentIndex = 0;
+    let watchlist = new Set();
+
+    const gridEl = document.getElementById('episodes-grid');
+    const modal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalSeasonBadge = document.getElementById('modalSeasonBadge');
+    const externalBtn = document.getElementById('externalBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+
+    function renderCards(list) {
+      gridEl.innerHTML = '';
+      if(list.length === 0) {
+        gridEl.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500">No episodes found matching your criteria.</div>`;
+        return;
+      }
+
+      list.forEach((ep, idx) => {
+        const isSaved = watchlist.has(ep.id);
+        const card = document.createElement('div');
+        card.className = 'fade-in glow-effect bg-[#11131a] border border-white/5 hover:border-[#d97706]/40 rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer group';
+        
+        card.innerHTML = `
+          <div>
+            <div class="relative overflow-hidden bg-[#181a24] h-32 sm:h-36 flex items-center justify-center">
+              <img src="${ep.image}" alt="${ep.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.onerror=null; this.src='https://way2movies.live/img/noImage.png';">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#11131a] via-transparent to-black/30"></div>
+              <span class="absolute bottom-2 left-2 text-[10px] font-extrabold tracking-widest text-[#d97706] uppercase bg-black/70 px-2 py-0.5 rounded border border-[#d97706]/30 backdrop-blur-sm">S${ep.season} E${ep.epNum}</span>
+              <button class="watchlist-toggle absolute top-2 right-2 text-gray-300 hover:text-amber-400 p-1.5 z-20 bg-black/50 rounded-full backdrop-blur-sm" data-id="${ep.id}">
+                <i class="${isSaved ? 'fas text-amber-400' : 'far'} fa-bookmark"></i>
+              </button>
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div class="w-10 h-10 rounded-full bg-[#d97706] text-black flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition">
+                  <i class="fas fa-play text-sm ml-0.5"></i>
+                </div>
+              </div>
+            </div>
+            <div class="p-3 sm:p-3.5">
+              <h4 class="text-xs sm:text-sm font-semibold text-white group-hover:text-[#d97706] transition line-clamp-1">${ep.title}</h4>
+              <p class="text-[11px] sm:text-xs text-gray-400 mt-1 line-clamp-2 font-light">${ep.description}</p>
+            </div>
+          </div>
+          <div class="px-3 sm:px-3.5 pb-2.5 sm:pb-3 flex items-center justify-between text-[10px] sm:text-[11px] text-gray-500 border-t border-white/5 pt-2">
+            <span><i class="far fa-clock mr-1"></i>${ep.duration}</span>
+            <span class="text-amber-300/80">Ep ${ep.id}</span>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          if(e.target.closest('.watchlist-toggle')) return;
+          openPlayer(list, idx);
+        });
+
+        card.querySelector('.watchlist-toggle').addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleWatchlist(ep.id);
+        });
+
+        gridEl.appendChild(card);
+      });
+    }
+
+    function toggleWatchlist(id) {
+      if(watchlist.has(id)) watchlist.delete(id);
+      else watchlist.add(id);
+      updateWatchlistUI();
+      renderCards(filteredList);
+    }
+
+    function updateWatchlistUI() {
+      const countEl = document.getElementById('watchlist-count');
+      const itemsEl = document.getElementById('watchlist-items');
+      countEl.textContent = watchlist.size;
+
+      if(watchlist.size === 0) {
+        itemsEl.innerHTML = `<div class="px-4 py-4 text-center text-gray-500 text-sm">Your watchlist is empty</div>`;
+        return;
+      }
+
+      itemsEl.innerHTML = '';
+      watchlist.forEach(id => {
+        const ep = episodes.find(e => e.id === id);
+        if(!ep) return;
+        const row = document.createElement('div');
+        row.className = 'px-4 py-2.5 hover:bg-white/5 transition flex items-center justify-between cursor-pointer';
+        row.innerHTML = `
+          <div class="truncate pr-2">
+            <p class="text-xs font-medium text-white truncate">${ep.title}</p>
+            <span class="text-[10px] text-amber-400">S${ep.season} E${ep.epNum}</span>
+          </div>
+          <button class="text-gray-500 hover:text-red-400 p-1 text-xs"><i class="fas fa-times"></i></button>
+        `;
+        row.addEventListener('click', (e) => {
+          if(e.target.closest('button')) {
+            toggleWatchlist(ep.id);
+          } else {
+            const idx = filteredList.findIndex(item => item.id === ep.id);
+            openPlayer(idx !== -1 ? filteredList : episodes, idx !== -1 ? idx : episodes.indexOf(ep));
+          }
+        });
+        itemsEl.appendChild(row);
+      });
+    }
+
+    function openPlayer(list, index) {
+      filteredList = list;
+      currentIndex = index;
+      const item = list[index];
+      if(!item) return;
+
+      modalTitle.textContent = item.title;
+      modalDesc.textContent = item.description;
+      modalSeasonBadge.textContent = `Season ${item.season} • Episode ${item.epNum}`;
+
+      playerWrapper.innerHTML = '';
+      const src = item.video;
+
+      if(src === '00' || !src) {
+        playerWrapper.innerHTML = `
+          <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#0d0c12]">
+            <i class="fas fa-film text-4xl text-[#d97706]/40 mb-3"></i>
+            <h4 class="text-base font-semibold text-gray-200">Video Source Placeholder ("00")</h4>
+            <p class="text-xs text-gray-400 mt-1 max-w-sm">Replace "00" with your preferred video stream link (.mp4, .m3u8, or embed iframe) in the JS episodes array.</p>
+          </div>
+        `;
+      } else if(src.includes('youtube') || src.includes('embed') || src.includes('mega.nz')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" allowfullscreen allow="autoplay"></iframe>`;
+      } else {
+        playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%"><source src="${src}" type="video/mp4"></video>`;
+      }
+
+      externalBtn.href = (src !== '00' && src) ? src : '#';
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      playerWrapper.innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    // Event Listeners
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if(currentIndex > 0) openPlayer(filteredList, currentIndex - 1);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if(currentIndex < filteredList.length - 1) openPlayer(filteredList, currentIndex + 1);
+    });
+
+    document.getElementById('fullscreenBtn').addEventListener('click', () => {
+      const el = playerWrapper.querySelector('video') || playerWrapper.querySelector('iframe');
+      if(el && el.requestFullscreen) el.requestFullscreen();
+    });
+
+    playPauseBtn.addEventListener('click', () => {
+      const v = document.getElementById('modalVideo');
+      if(v) {
+        if(v.paused) { v.play(); playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; }
+        else { v.pause(); playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; }
+      }
+    });
+
+    document.getElementById('play-first').addEventListener('click', () => openPlayer(episodes, 0));
+
+    // Filter Season Tabs
+    document.querySelectorAll('.season-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const s = this.dataset.season;
+        filteredList = s === 'all' ? [...episodes] : episodes.filter(e => e.season.toString() === s);
+        renderCards(filteredList);
+      });
+    });
+
+    // Search Handling
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const searchInput = document.getElementById('global-search');
+
+    searchBtn.addEventListener('click', () => {
+      searchBar.classList.toggle('hidden');
+      if(!searchBar.classList.contains('hidden')) searchInput.focus();
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const activeSeasonBtn = document.querySelector('.season-btn.active');
+      const s = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+      
+      let base = s === 'all' ? episodes : episodes.filter(ep => ep.season.toString() === s);
+      filteredList = base.filter(ep => ep.title.toLowerCase().includes(q) || ep.description.toLowerCase().includes(q));
+      renderCards(filteredList);
+    });
+
+    // Watchlist Dropdown Toggle
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+
+    watchlistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      watchlistDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if(!watchlistDropdown.contains(e.target) && !watchlistBtn.contains(e.target)) {
+        watchlistDropdown.classList.add('hidden');
+      }
+    });
+
+    // Initialize Page
+    renderCards(episodes);
+  </script>
+
+</body>
+</html>
