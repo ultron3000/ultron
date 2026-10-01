@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Citadel: Diana - All Episodes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent-crimson: #DC143C;
+      --accent-gold: #FFB703;
+      --bg-dark: #0a080d;
+      --card-bg: #141018;
+    }
+
+    body { 
+      background: var(--bg-dark); 
+      color: #f3f4f6; 
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif; 
+    }
+
+    .cinzel-font { font-family: 'Cinzel', serif; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0a080d; }
+    ::-webkit-scrollbar-thumb { background: var(--accent-crimson); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #b01030; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px);} to { opacity: 1; transform: translateY(0);} }
+    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .gradient-text { 
+      background: linear-gradient(135deg, #FF2A2A 0%, #DC143C 50%, #FFA500 100%); 
+      -webkit-background-clip: text; 
+      background-clip: text; 
+      color: transparent; 
+    }
+
+    /* Hero Background Video Wrapper & Aspect Ratio */
+    .video-hero-wrapper {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      overflow: hidden;
+      border-radius: 1rem;
+    }
+    @media (min-width: 640px) { .video-hero-wrapper { height: 440px; } }
+    @media (min-width: 1024px) { .video-hero-wrapper { height: 520px; } }
+
+    .video-hero-iframe {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100vw;
+      height: 56.25vw; /* 16:9 ratio */
+      min-height: 100%;
+      min-width: 177.77vh; /* 16:9 ratio */
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      object-fit: cover;
+    }
+
+    .glow-effect { position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .glow-effect:hover { transform: translateY(-4px); }
+    .glow-effect::after { 
+      content:''; position:absolute; inset:0; border-radius:12px; 
+      box-shadow:0 0 20px rgba(220, 20, 60, 0); transition:box-shadow 0.3s; pointer-events:none;
+    }
+    .glow-effect:hover::after { box-shadow:0 0 22px rgba(220, 20, 60, 0.3); }
+
+    .season-btn {
+      transition: all 0.25s ease;
+      border: 1px solid rgba(220, 20, 60, 0.25);
+    }
+    .season-btn:hover {
+      border-color: var(--accent-crimson);
+      background: rgba(220, 20, 60, 0.15);
+    }
+    .season-btn.active {
+      background: linear-gradient(135deg, #DC143C, #8B0000);
+      color: #fff;
+      font-weight: 600;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(220, 20, 60, 0.4);
+    }
+
+    /* Modal Player Styling */
+    .modal-backdrop { 
+      position:fixed; inset:0; background: rgba(0,0,0,0.92); 
+      backdrop-filter: blur(10px); display:none; align-items:center; 
+      justify-content:center; z-index:9999; padding: 1rem;
+    }
+    .modal-backdrop.active { display:flex; }
+    
+    .modal-card { 
+      width:100%; max-width:1000px; border-radius:16px; overflow:hidden; 
+      background:#120e17; border: 1px solid rgba(220, 20, 60, 0.25);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(220, 20, 60, 0.2);
+      position: relative;
+    }
+
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+    .player-meta { 
+      display:flex; justify-content:space-between; gap:16px; padding:18px 24px; 
+      color:#e5e7eb; align-items:center; background: #17121e;
+    }
+
+    .btn-player {
+      background: transparent; border: 1px solid rgba(220, 20, 60, 0.4); 
+      color: var(--accent-crimson); padding: 8px 14px; border-radius: 8px; 
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
+      font-size: 0.875rem; transition: all 0.2s; font-weight: 500;
+    }
+    .btn-player:hover { background: rgba(220, 20, 60, 0.2); border-color: var(--accent-crimson); }
+
+    @media (max-width: 768px) {
+      .player-meta { flex-direction: column; align-items: flex-start; padding: 14px; }
+      .controls-row { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+      .btn-player { padding: 8px 12px; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-[#0a080d]/90 backdrop-blur-md border-b border-[#DC143C]/20 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-[#DC143C] to-[#8B0000] rounded-lg flex items-center justify-center shadow-lg shadow-[#DC143C]/20">
+          <i class="fas fa-shield-alt text-white text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black gradient-text cinzel-font tracking-widest">CITADEL: DIANA</h1>
+          <p class="text-[10px] sm:text-xs text-red-200/60 uppercase tracking-widest hidden sm:block">Amazon Original Series • Citadel Universe</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <button id="watchlist-btn" class="p-2.5 rounded-full hover:bg-white/5 transition relative text-red-500">
+          <i class="fas fa-bookmark"></i>
+        </button>
+        <button id="search-btn" class="p-2.5 rounded-full hover:bg-white/5 transition text-red-500">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Search Bar -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-[#0a080d]/95">
+      <div class="relative container mx-auto">
+        <input id="global-search" type="text" placeholder="Search Citadel: Diana episodes..." 
+               class="w-full bg-[#18131f] border border-[#DC143C]/30 rounded-xl py-2.5 px-4 pl-10 text-white focus:outline-none focus:border-[#DC143C] placeholder-gray-500">
+        <i class="fas fa-search absolute left-3.5 top-3.5 text-[#DC143C]"></i>
+      </div>
+    </div>
+    
+    <!-- Watchlist dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-72 bg-[#141018] border border-[#DC143C]/20 rounded-xl shadow-2xl z-50 py-2">
+      <div class="px-4 py-2 border-b border-white/10 flex justify-between items-center">
+        <h3 class="font-semibold text-red-400 text-sm">My Saved Episodes</h3>
+        <span id="watchlist-count" class="text-xs bg-red-600/30 text-red-300 px-2 py-0.5 rounded-full">0</span>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto divide-y divide-white/5">
+        <div class="px-4 py-4 text-center text-gray-500 text-sm">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container mx-auto px-4 py-6">
+
+    <!-- Video Banner Hero Section -->
+    <section class="mb-12 video-hero-wrapper border border-white/10 shadow-2xl">
+      <!-- Background Looping YouTube Trailer Video -->
+      <iframe class="video-hero-iframe" 
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&controls=0&loop=1&playlist=S7AErSAxxJ8&playsinline=1&enablejsapi=1" 
+              title="Citadel: Diana Official Trailer Background" 
+              allow="autoplay; encrypted-media">
+      </iframe>
+
+      <!-- Dark Gradient Overlays -->
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-[#0a080d] via-black/40 to-transparent z-10"></div>
+
+      <!-- Hero Content -->
+      <div class="relative z-20 h-full flex items-end p-6 sm:p-10 max-w-2xl">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#DC143C]/20 border border-[#DC143C]/40 text-[#DC143C] text-xs font-semibold mb-4 backdrop-blur-md">
+            <i class="fas fa-user-secret text-xs"></i> Amazon Original Series
+          </div>
+          <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white cinzel-font tracking-wide mb-3">CITADEL: DIANA</h2>
+          <p class="text-gray-300 text-xs sm:text-sm leading-relaxed mb-6 font-light line-clamp-3">
+            In 2030 Milan, eight years after independent global spy agency Citadel was destroyed by Manticore, undercover agent Diana Cavalieri remains trapped behind enemy lines as a mole in Manticore Europe.
+          </p>
+          <div class="flex flex-wrap items-center gap-4">
+            <button id="play-first" class="bg-gradient-to-r from-[#DC143C] to-[#900C3F] text-white font-semibold px-6 py-3 rounded-xl hover:brightness-110 transition flex items-center shadow-lg shadow-[#DC143C]/30">
+              <i class="fas fa-play mr-2 text-sm"></i> Start S1 E1
+            </button>
+            <button id="play-trailer" class="bg-white/10 hover:bg-white/20 text-white font-medium px-5 py-3 rounded-xl backdrop-blur-md border border-white/15 transition flex items-center">
+              <i class="fas fa-film mr-2 text-sm text-[#DC143C]"></i> Watch Trailer
+            </button>
+            <div class="flex items-center gap-4 text-xs text-gray-400 border-l border-white/10 pl-4 hidden sm:flex">
+              <div><span class="block text-white font-bold text-sm">6</span> Episodes</div>
+              <div><span class="block text-white font-bold text-sm">1</span> Season</div>
+              <div><span class="block text-red-500 font-bold text-sm">TV-14</span> Rated</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Season Navigation Tabs -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 border-b border-white/10 pb-4 gap-4">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-layer-group text-[#DC143C]"></i>
+        <h3 class="text-lg font-bold text-white cinzel-font tracking-wider">SEASONS</h3>
+      </div>
+      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max" id="season-tabs">
+          <button class="season-btn active px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="all">All</button>
+          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="1">Season 1</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Episodes Grid -->
+    <section>
+      <div id="episodes-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+        <!-- Dynamic Cards -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Player Modal -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+      <button id="closeModalBtn" class="absolute top-3 right-3 z-50 text-gray-400 hover:text-white bg-black/60 hover:bg-black/90 rounded-full w-9 h-9 flex items-center justify-center transition">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      </div>
+
+      <div class="player-meta">
+        <div class="max-w-md">
+          <span id="modalSeasonBadge" class="text-[11px] font-semibold text-[#DC143C] uppercase tracking-wider">Season 1</span>
+          <h3 id="modalTitle" class="text-base sm:text-lg font-bold text-white mt-0.5">Episode Title</h3>
+          <p id="modalDesc" class="text-xs text-gray-400 mt-1 line-clamp-2">Episode description will appear here.</p>
+        </div>
+        <div class="controls-row flex items-center gap-2">
+          <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn-player text-xs" title="Open Stream Direct">
+            <i class="fas fa-external-link-alt mr-1.5"></i> Direct
+          </a>
+          <button id="prevBtn" class="btn-player"><i class="fas fa-step-backward"></i></button>
+          <button id="playPauseBtn" class="btn-player"><i class="fas fa-play"></i></button>
+          <button id="nextBtn" class="btn-player"><i class="fas fa-step-forward"></i></button>
+          <button id="fullscreenBtn" class="btn-player"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // CITADEL: DIANA EPISODES DATA
+    // ==========================================
+    const episodes = [
+      { id: 101, season: 1, epNum: 1, title: 'Split in Two', video: 'https://mega.nz/embed/06ZBiTTQ#Ke_E0bUuxjPIbV1fxiJeX-ET21MUxiARp6ucSVCeG60', image: 'https://image.tmdb.org/t/p/w300/fQZz58bKGWr7gh37G6gIljcvwyb.jpg', airDate: '2024-10-10', duration: '50m', description: 'In a gray and hyper-controlled Milan, Diana and Luca are sent on a mission to Lugano to spy on a secret meeting between Manticore France and Manticore Germany. Flashbacks reveal Diana\'s past as she investigates her parents\' mysterious plane crash and meets Citadel agent Gabriele.' },
+      { id: 102, season: 1, epNum: 2, title: 'War', video: 'https://mega.nz/embed/42BRwSLY#ROH5FlDp4teZCcmzmv5T418xFhZvOrxydip16WAPR6Y', image: 'https://image.tmdb.org/t/p/w300/9gFXm9OKSERnpnvQQa55xYPMooX.jpg', airDate: '2024-10-10', duration: '47m', description: 'Diana and Edo team up, but Edo discovers that the French half of the weapon stolen by Diana is a fake. Cecile launches a fierce assault on Manticore Italia, placing Diana and her family in immediate peril.' },
+      { id: 103, season: 1, epNum: 3, title: 'Together', video: 'https://mega.nz/embed/Evw12BCA#zLWHORQtfPH1nwHcryRrvzvi_phupPjTNm7GuIptZzE', image: 'https://image.tmdb.org/t/p/w300/vXjQuftUlWfbDpqDhuAnxkoeE6I.jpg', airDate: '2024-10-10', duration: '48m', description: 'Ettore assigns Edo to capture Weber near Palermo on the condition that Diana accompanies him. The high-stakes pursuit leads through the ghost town of Gibellina before a dark surprise awaits back in Milan.' },
+      { id: 104, season: 1, epNum: 4, title: 'The Zanis', video: 'https://mega.nz/embed/xqJnxZ5D#I22ObR7l5x4WP4wXK-BhdeC2ivdALV8Nzejez0ToVPE', image: 'https://image.tmdb.org/t/p/w300/pqdcBZV6FYqTZd9J3es83rILLbi.jpg', airDate: '2024-10-10', duration: '35m', description: 'Ettore ousts Edo from Manticore and imprisons Diana. Edo uses his knowledge of Manticore\'s security systems to infiltrate the cells and orchestrate a desperate escape plan using Diana as a Trojan horse.' },
+      { id: 105, season: 1, epNum: 5, title: 'Attack', video: 'https://mega.nz/embed/QrhAQQ5B#Pr01s4p5kipDjsodTYpBRuT_HVUnkAlerSfg1-63M5s', image: 'https://image.tmdb.org/t/p/w300/jwh16a10blfYTkXjgTPYcHDjYyN.jpg', airDate: '2024-10-10', duration: '45m', description: 'Diana is handed over to Manticore France in Paris as Italian forces initiate their assault. Amidst the chaos, Diana gets a chance to destroy a world-threatening weapon powered by legacy Citadel technology.' },
+      { id: 106, season: 1, epNum: 6, title: 'Jupiter', video: 'https://mega.nz/embed/JnBkyIpR#heADc1begtjx2fR0_SceEYJHY6ksDqd91kFPXA-Q6BE', image: 'https://image.tmdb.org/t/p/w300/51N91s7MQ4ZImtCTeJJMEsw1H3P.jpg', airDate: '2024-10-10', duration: '42m', description: 'In the explosive season finale, alliances fracture across Manticore Europe as Diana makes her ultimate choice regarding her identity, her loyalty to Citadel, and her future.' }
+    ];
+
+    // Check if episode is released relative to current date
+    function isReleasedEpisode(airDateStr) {
+      if(!airDateStr) return true;
+      const today = new Date();
+      const releaseDate = new Date(airDateStr);
+      return releaseDate <= today;
+    }
+
+    // Dynamic Image Placeholder
+    function getEpisodeImage(ep) {
+      if (ep.image !== '00' && ep.image) return ep.image;
+      
+      const released = isReleasedEpisode(ep.airDate);
+      const formattedDate = ep.airDate ? new Date(ep.airDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA';
+
+      if (!released) {
+        return `https://placehold.co/600x340/1a0b12/DC143C?text=Coming+${encodeURIComponent(formattedDate)}&font=playfair`;
+      }
+      return `https://placehold.co/600x340/120e17/888888?text=Citadel+Diana+S${ep.season}+E${ep.epNum}+-+${encodeURIComponent(ep.title)}`;
+    }
+
+    let filteredList = [...episodes];
+    let currentIndex = 0;
+    let watchlist = new Set();
+
+    const gridEl = document.getElementById('episodes-grid');
+    const modal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalSeasonBadge = document.getElementById('modalSeasonBadge');
+    const externalBtn = document.getElementById('externalBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+
+    function renderCards(list) {
+      gridEl.innerHTML = '';
+      if(list.length === 0) {
+        gridEl.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500">No Citadel: Diana episodes found.</div>`;
+        return;
+      }
+
+      list.forEach((ep, idx) => {
+        const isSaved = watchlist.has(ep.id);
+        const card = document.createElement('div');
+        card.className = 'fade-in glow-effect bg-[#141018] border border-white/5 hover:border-[#DC143C]/50 rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer group';
+        
+        const cardImageSrc = getEpisodeImage(ep);
+        const released = isReleasedEpisode(ep.airDate);
+
+        card.innerHTML = `
+          <div>
+            <div class="relative overflow-hidden bg-[#1a1420] h-32 sm:h-36 flex items-center justify-center">
+              <img src="${cardImageSrc}" alt="${ep.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x340/120e17/888888?text=Citadel+Diana';">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#141018] via-transparent to-black/30"></div>
+              <span class="absolute bottom-2 left-2 text-[10px] font-extrabold tracking-widest text-[#DC143C] uppercase bg-black/80 px-2 py-0.5 rounded border border-[#DC143C]/40 backdrop-blur-sm">S${ep.season} E${ep.epNum}</span>
+              <button class="watchlist-toggle absolute top-2 right-2 text-gray-300 hover:text-red-500 p-1.5 z-20 bg-black/60 rounded-full backdrop-blur-sm" data-id="${ep.id}">
+                <i class="${isSaved ? 'fas text-red-500' : 'far'} fa-bookmark"></i>
+              </button>
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div class="w-10 h-10 rounded-full bg-[#DC143C] text-white flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition">
+                  <i class="fas fa-play text-sm ml-0.5"></i>
+                </div>
+              </div>
+            </div>
+            <div class="p-3 sm:p-3.5">
+              <h4 class="text-xs sm:text-sm font-semibold text-white group-hover:text-[#DC143C] transition line-clamp-1">${ep.title}</h4>
+              <p class="text-[11px] sm:text-xs text-gray-400 mt-1 line-clamp-2 font-light">${ep.description}</p>
+            </div>
+          </div>
+          <div class="px-3 sm:px-3.5 pb-2.5 sm:pb-3 flex items-center justify-between text-[10px] sm:text-[11px] text-gray-500 border-t border-white/5 pt-2">
+            <span><i class="far fa-clock mr-1"></i>${ep.duration}</span>
+            <span class="${released ? 'text-red-400/80' : 'text-amber-400/80'} font-medium">${released ? 'Available' : 'Upcoming'}</span>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          if(e.target.closest('.watchlist-toggle')) return;
+          openPlayer(list, idx);
+        });
+
+        card.querySelector('.watchlist-toggle').addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleWatchlist(ep.id);
+        });
+
+        gridEl.appendChild(card);
+      });
+    }
+
+    function toggleWatchlist(id) {
+      if(watchlist.has(id)) watchlist.delete(id);
+      else watchlist.add(id);
+      updateWatchlistUI();
+      renderCards(filteredList);
+    }
+
+    function updateWatchlistUI() {
+      const countEl = document.getElementById('watchlist-count');
+      const itemsEl = document.getElementById('watchlist-items');
+      countEl.textContent = watchlist.size;
+
+      if(watchlist.size === 0) {
+        itemsEl.innerHTML = `<div class="px-4 py-4 text-center text-gray-500 text-sm">Your watchlist is empty</div>`;
+        return;
+      }
+
+      itemsEl.innerHTML = '';
+      watchlist.forEach(id => {
+        const ep = episodes.find(e => e.id === id);
+        if(!ep) return;
+        const row = document.createElement('div');
+        row.className = 'px-4 py-2.5 hover:bg-white/5 transition flex items-center justify-between cursor-pointer';
+        row.innerHTML = `
+          <div class="truncate pr-2">
+            <p class="text-xs font-medium text-white truncate">${ep.title}</p>
+            <span class="text-[10px] text-red-400">S${ep.season} E${ep.epNum}</span>
+          </div>
+          <button class="text-gray-500 hover:text-red-400 p-1 text-xs"><i class="fas fa-times"></i></button>
+        `;
+        row.addEventListener('click', (e) => {
+          if(e.target.closest('button')) {
+            toggleWatchlist(ep.id);
+          } else {
+            const idx = filteredList.findIndex(item => item.id === ep.id);
+            openPlayer(idx !== -1 ? filteredList : episodes, idx !== -1 ? idx : episodes.indexOf(ep));
+          }
+        });
+        itemsEl.appendChild(row);
+      });
+    }
+
+    function openPlayer(list, index, customTrailerUrl = null) {
+      if(customTrailerUrl) {
+        modalTitle.textContent = 'Citadel: Diana Official Trailer';
+        modalDesc.textContent = 'Watch the official trailer for Citadel: Diana on Prime Video.';
+        modalSeasonBadge.textContent = 'Trailer';
+        playerWrapper.innerHTML = `<iframe src="${customTrailerUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        externalBtn.href = customTrailerUrl;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        return;
+      }
+
+      filteredList = list;
+      currentIndex = index;
+      const item = list[index];
+      if(!item) return;
+
+      modalTitle.textContent = item.title;
+      modalDesc.textContent = item.description;
+      modalSeasonBadge.textContent = `Season ${item.season} • Episode ${item.epNum}`;
+
+      playerWrapper.innerHTML = '';
+      const src = item.video;
+      const released = isReleasedEpisode(item.airDate);
+
+      if(src === '00' || !src) {
+        const dateStr = item.airDate ? new Date(item.airDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'TBA';
+        playerWrapper.innerHTML = `
+          <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#0e0a12]">
+            <i class="fas fa-film text-5xl text-[#DC143C]/40 mb-3"></i>
+            <h4 class="text-base font-semibold text-gray-200">Episode Media Source ("00")</h4>
+            <p class="text-xs text-gray-400 mt-1 max-w-md">
+              ${!released ? `This episode is scheduled for release on <strong>${dateStr}</strong>.` : 'Replace "00" with your video stream link (.mp4, .m3u8, iframe embed) in the JS episodes array.'}
+            </p>
+          </div>
+        `;
+      } else if(src.includes('youtube') || src.includes('embed') || src.includes('mega.nz')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" allowfullscreen allow="autoplay"></iframe>`;
+      } else {
+        playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%"><source src="${src}" type="video/mp4"></video>`;
+      }
+
+      externalBtn.href = (src !== '00' && src) ? src : '#';
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      playerWrapper.innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    // Event Listeners
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if(currentIndex > 0) openPlayer(filteredList, currentIndex - 1);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if(currentIndex < filteredList.length - 1) openPlayer(filteredList, currentIndex + 1);
+    });
+
+    document.getElementById('fullscreenBtn').addEventListener('click', () => {
+      const el = playerWrapper.querySelector('video') || playerWrapper.querySelector('iframe');
+      if(el && el.requestFullscreen) el.requestFullscreen();
+    });
+
+    playPauseBtn.addEventListener('click', () => {
+      const v = document.getElementById('modalVideo');
+      if(v) {
+        if(v.paused) { v.play(); playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; }
+        else { v.pause(); playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; }
+      }
+    });
+
+    document.getElementById('play-first').addEventListener('click', () => openPlayer(episodes, 0));
+    document.getElementById('play-trailer').addEventListener('click', () => {
+      openPlayer(null, null, 'https://www.youtube.com/embed/S7AErSAxxJ8?autoplay=1');
+    });
+
+    // Filter Season Tabs
+    document.querySelectorAll('.season-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const s = this.dataset.season;
+        filteredList = s === 'all' ? [...episodes] : episodes.filter(e => e.season.toString() === s);
+        renderCards(filteredList);
+      });
+    });
+
+    // Search Handling
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const searchInput = document.getElementById('global-search');
+
+    searchBtn.addEventListener('click', () => {
+      searchBar.classList.toggle('hidden');
+      if(!searchBar.classList.contains('hidden')) searchInput.focus();
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const activeSeasonBtn = document.querySelector('.season-btn.active');
+      const s = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+      
+      let base = s === 'all' ? episodes : episodes.filter(ep => ep.season.toString() === s);
+      filteredList = base.filter(ep => ep.title.toLowerCase().includes(q) || ep.description.toLowerCase().includes(q));
+      renderCards(filteredList);
+    });
+
+    // Watchlist Dropdown Toggle
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+
+    watchlistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      watchlistDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if(!watchlistDropdown.contains(e.target) && !watchlistBtn.contains(e.target)) {
+        watchlistDropdown.classList.add('hidden');
+      }
+    });
+
+    // Initialize Page
+    renderCards(episodes);
+  </script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+
+<!-- NATIVE BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
+  <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+</div>
+
+<!-- SMART LINK -->
+<!-- https://bendspecimen.com/xryvjm9rea?key=b4e26d6e3cb4df0655e816b8991eeae3 -->
+
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
