@@ -45,15 +45,13 @@
   @media(min-width:1200px){ .mode-card .movie-grid{grid-template-columns:repeat(5,1fr)} }
 
   /* cards */
-  .movie-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .28s,box-shadow .28s;display:flex;flex-direction:column;align-items:stretch;perspective:1000px}
+  .movie-card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .28s,box-shadow .28s;display:flex;flex-direction:column;align-items:stretch;perspective:1000px;will-change:transform}
   .movie-card:focus{outline:3px solid rgba(255,193,7,.14);outline-offset:3px}
-  .card-inner{transform-style:preserve-3d;transition:transform .35s}
-  .poster{width:100%;height:300px;object-fit:cover;display:block;transition:transform .35s,box-shadow .35s}
+  .card-inner{transform-style:preserve-3d;transition:transform .15s ease-out;will-change:transform}
+  .poster{width:100%;height:300px;object-fit:cover;display:block;transition:transform .15s ease-out,box-shadow .15s ease-out;will-change:transform}
   .title{padding:.7rem .6rem;font-weight:700;color:var(--accent);text-align:center;font-size:.95rem}
 
   .mode-card .movie-card:hover{transform:translateY(-6px)}
-  .mode-card .movie-card:hover .card-inner{transform:translateZ(6px) rotateX(6deg) rotateY(-6deg) scale(1.03)}
-  .mode-card .movie-card:hover .poster{transform:translateZ(40px) scale(1.06);box-shadow:0 30px 50px rgba(0,0,0,.55)}
 
   .mode-dense .title{display:none}
   .mode-dense .movie-card:hover .title{display:block;position:relative;padding:.35rem .4rem;background:linear-gradient(180deg,rgba(0,0,0,.0),rgba(0,0,0,.45));color:#fff;font-size:.85rem;text-align:center}
@@ -76,10 +74,8 @@
    ============================ */
 
 @media (max-width: 767px) {
-
-  /* Proper mobile player layout (matches your working version) */
   .player-wrapper {
-    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
+    padding-bottom: 56.25% !important;   
     height: 0 !important;
     position: relative !important;
   }
@@ -92,7 +88,6 @@
     height: 100% !important;
   }
 
-  /* Proper stacked mobile controls */
   .player-meta {
     display: flex !important;
     flex-direction: column !important;
@@ -102,20 +97,18 @@
     z-index: 20 !important;
   }
 
-  /* Mobile control row wraps properly */
   .controls-row {
     display: flex !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
 
-  /* Mobile buttons use icon-only layout */
   .btn {
     padding: 8px !important;
-    font-size: 0 !important;      /* hides text on mobile */
-    min-width: 48px !important;
-    height: 44px !important;
+    font-size: 0 !important;      
+    min-width: 42px !important;
+    height: 40px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -126,14 +119,13 @@
     margin: 0 !important;
   }
 
-  /* Close button always visible on mobile */
   #topCloseBtn {
     opacity: 1 !important;
   }
 }
 
 /* =========================
-   CARS-STYLE PLAYER CONTROLS
+   PLAYER CONTROLS
    ========================= */
 
 .player-meta{
@@ -145,31 +137,28 @@
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
+  gap:8px;
   padding:12px;
-  flex-wrap:nowrap;
+  flex-wrap:wrap;
 }
 
-/* Buttons like Cars */
 .controls-row .btn{
   display:flex;
   align-items:center;
   justify-content:center;
   gap:6px;
-  min-width:44px;
-  height:44px;
-  padding:0 12px;
-  font-size:14px;
+  min-width:40px;
+  height:40px;
+  padding:0 10px;
+  font-size:13px;
   border-radius:999px;
   touch-action:manipulation;
 }
 
-/* Icon-only buttons (mobile friendly) */
 .controls-row .btn i{
-  font-size:16px;
+  font-size:15px;
 }
 
-/* Video height tuning */
 .player-container video,
 .player-container iframe{
   max-height:70vh;
@@ -179,7 +168,6 @@
    MOBILE OPTIMIZATION
    ========================= */
 @media (max-width: 768px){
-
   .player-container video,
   .player-container iframe{
     height:52vh;
@@ -190,32 +178,29 @@
   }
 
   .meta-left{
-    display:none; /* Cars hides title on mobile */
+    display:none; 
   }
 
   .controls-row{
-    justify-content:space-between;
+    justify-content:center;
     gap:6px;
   }
 
   .controls-row .btn{
-  flex:1;
-  padding:0;
-  height:42px;
-}
+    flex:0 1 auto;
+    padding:0 10px;
+    height:38px;
+  }
 
-.controls-row .btn span{
-  display:none;
-}
+  .controls-row .btn span{
+    display:inline;
+  }
 
   .controls-row .btn i{
-    font-size:18px;
+    font-size:16px;
   }
 }
 
-/* =========================
-   VERY SMALL SCREENS
-   ========================= */
 @media (max-width: 420px){
   .player-container video,
   .player-container iframe{
@@ -223,10 +208,8 @@
   }
 }
 
-
-
 /* =========================
-   CARS BUTTON COLORS FIX
+   BUTTON COLORS & STYLING
    ========================= */
 
 .controls-row .btn{
@@ -239,12 +222,10 @@
   color:#ffc107;
 }
 
-/* hover / active */
 .controls-row .btn:hover{
   background:rgba(255,193,7,0.15);
 }
 
-/* mobile icon-only buttons */
 @media (max-width:768px){
   .controls-row .btn{
     background:rgba(255,193,7,0.12);
@@ -252,7 +233,7 @@
   }
 }
 
-/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
+/* === SMART FULLSCREEN VIDEO FIX === */
 video:fullscreen,
 video:-webkit-full-screen,
 iframe:fullscreen,
@@ -261,12 +242,10 @@ iframe:-webkit-full-screen {
   height: 100vh !important;
   max-width: 100vw !important;
   max-height: 100vh !important;
-
   object-fit: contain !important;
   background-color: black;
 }
 
-/* Only cover when video aspect is cinematic */
 @media (min-aspect-ratio: 16/9) {
   video:fullscreen,
   video:-webkit-full-screen,
@@ -275,7 +254,6 @@ iframe:-webkit-full-screen {
     object-fit: cover !important;
   }
 }
-
 </style>
 </head>
 <body class="mode-standard">
@@ -290,7 +268,6 @@ iframe:-webkit-full-screen {
 <!-- toolbar -->
 <div class="toolbar" role="toolbar" aria-label="View controls">
   <button id="themeBtn" class="tool-btn" aria-pressed="false" title="Toggle dark/light">
-    <!-- two-icon SVG: we'll swap by toggling class, keep both paths -->
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <g id="icon-sun" style="display:none">
         <path d="M6.76 4.84l-1.8-1.79L3.17 5.85l1.79 1.79L6.76 4.84zM1 13h3v-2H1v2zm10 9h2v-3h-2v3zm7.04-1.16l1.79-1.79-1.79-1.79-1.79 1.79 1.79 1.79zM17 13h3v-2h-3v2zM12 7a5 5 0 100 10 5 5 0 000-10z"/>
@@ -336,13 +313,14 @@ iframe:-webkit-full-screen {
       </div>
 
       <div class="controls-row">
-  <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i><span>Prev</span></button>
-  <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i><span>Play</span></button>
-  <button id="nextBtn" class="btn"><i class="fas fa-step-forward"></i><span>Next</span></button>
-  <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-  <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-  <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
-</div>
+        <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i><span>Prev</span></button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i><span>Play</span></button>
+        <button id="nextBtn" class="btn"><i class="fas fa-step-forward"></i><span>Next</span></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i><span>Full</span></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i><span>Mute</span></button>
+        <button id="directBtn" class="btn" title="Open movie direct URL in new tab"><i class="fas fa-external-link-alt"></i><span>Direct</span></button>
+        <button id="closeBtn" class="btn"><i class="fas fa-times"></i><span>Close</span></button>
+      </div>
     </div>
 
   </div>
@@ -432,7 +410,7 @@ const movies = [
  { title: "शिवप्रताप गरुडझेप", url: "https://drive.google.com/file/d/1X-z1n7TaLfeHUS54URe6cYmR9uFb6KT1/preview", image: "https://www.loksatta.com/wp-content/uploads/2022/09/Shivpratap-Garudjhep-Cast-2.jpg?w=350" },
  { title: "हिरकणी", url: "https://drive.google.com/file/d/1kcjXftfjQzzfmBhKXXNv0ZqeN9CB8zsR/preview", image: "https://m.media-amazon.com/images/M/MV5BMDRlZGNlY2MtMzZmZi00Yjg1LTliNDgtZjZhZmJmZGQxOGM5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
  { title: "शिवरायांचा छावा", url: "https://drive.google.com/file/d/1qnuEq-66vaxVPzfsHAL2E346kQVjvB45/preview", image: "https://m.media-amazon.com/images/M/MV5BMjhkMTI5MTktMjc0MC00N2I3LWFlMGMtOTY0YmNmYzJlNTM3XkEyXkFqcGc@._V1_.jpg" },
- { title: "रणपती शिवराय स्वारी आग्राा", url: "https://drive.google.com/file/d/18EP8hK7PnIXuckjz0uqY-o5tDKJXxdB1/preview", image: "https://in.bmscdn.com/events/moviecard/ET00476714.jpg" },
+ { title: "रणपती शिवराय स्व आग्रा", url: "https://drive.google.com/file/d/18EP8hK7PnIXuckjz0uqY-o5tDKJXxdB1/preview", image: "https://in.bmscdn.com/events/moviecard/ET00476714.jpg" },
  { title: "धर्मरक्षक महावीर छत्रपती संभाजी महाराज", url: "https://drive.google.com/file/d/1y8foBArRlApJl7mzHGbWdWa0izC-GMP7/preview", image: "https://m.media-amazon.com/images/M/MV5BOTA3ZjJjYjMtNWY1Ni00NWUzLTkwZTEtZTViMGVhYzMwNDE5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg" },
  { title: "उबुंटू", url: "https://mega.nz/embed/dJMAnJrD#eLXG3SZn3298ChmWD74qZvEnYT4BmcH5Rf2VXxU-bpQ", image: "https://image.tmdb.org/t/p/w500/pokht6u6inlHIKOR2kvat9yx5AF.jpg" },
  { title: "काय द्याचं बोला", url: "https://mega.nz/embed/JANGiCJI#2nHTBjMIsqtuNFXeERULTtjTJjhueynsZ4vRKPyEDDI", image: "https://m.media-amazon.com/images/M/MV5BNTAyNTA2ODc5NF5BMl5BanBnXkFtZTcwMTg3MjgyOQ@@._V1_FMjpg_UX1000_.jpg" },
@@ -452,34 +430,30 @@ const movies = [
  { title: "अल्याड पल्याड", url: "https://mega.nz/embed/huJBTL7Y#tfihGxFr864Chk394J30dI2TNcnqFk3UY4YVkVxcCRA", image: "https://image.tmdb.org/t/p/w500/thD5q8bhZHX3fq4gWK1cR5bEMDp.jpg" },
  { title: "मुळशी पॅटर्न", url: "https://mega.nz/embed/3pA11CTa#5CKxRW88oSsr8vULXCE13klvLELE8iUQgGpQKzssrPE", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5jmPmTrvUJYpswRV42IT1WzUgUiG9XD6xkQ&s" },
  { title: "मुरांबा", url: "https://sw5.meadowstoneinnovationworks.space:443/v4/xq/hejblr/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/8yFpV5mVZZ8VfWfzINd6kB01Llz.jpg" },
-{ title: "येक नंबर", url: "https://sxd.clarionedgeventures.sbs:443/v4/np/oxv3yn/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/tM0BH9by7nfPIeTubP2djJwHmvP.jpg" },
-{ title: "लोकमान्य: एक युगपुरुष", url: "https://suw.oakridgecreativecollect.sbs/v4/us/w8upbc/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/iGzM2HtGAlaH1vPwmOSgRgryXHA.jpg" },
-{ title: "घरत गणपती", url: "https://skr.novaquestmedical.space/v4/onm/w8usyz/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/xEU9UhUIKRRru8A0TVPseqhZzF5.jpg" },
-{ title: "उत्तर", url: "https://skr.sunsetlaneproductionworks.store:443/v4/9a/w8t3jr/index-f1-v1-a1.txt", image: "https://cdn.district.in/movies-assets/images/cinema/Uttar-78ea7b20-bfa4-11f0-990f-b52cb6d9ac04.jpg" },
-{ title: "डिलिव्हरी बॉय", url: "https://sipt.greenpulseventures.store:443/v4/9ow/mh5waw/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/nnMwx3wAqzc2xySu3KfiJlKuunS.jpg" },
-{ title: "न्यूड", url: "https://s3u.goldenridgeproductionworks.space/v4/kdv/96qytl/cf-master.1766249272.txt", image: "https://image.tmdb.org/t/p/w300/IoGkeEzN9KhT9uDH0aclneVi2v.jpg" },
-{ title: "माऊली", url: "https://a8ix.store/watch/mauli/", image: "https://image.tmdb.org/t/p/w500/nz6ecOmTt1CAKLBFIhjb3w1z0gd.jpg" },
-{ title: "भिकारी", url: "https://s6p9.vyntrixconsultancy.sbs:443/v4/epu/suyglo/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/vSpmLgTHlTYb7bVURN6ZqUza6b3.jpg" },
-{ title: "सरला एक कोटी", url: "https://s3u.silverpathacademy.cyou/v4/ox/up61t9/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/xXD7yS4pcMedB5nk9trVXtcY1fi.jpg" },
-{ title: "शुभचिंतक", url: "https://s8i.brightluneventures.site/v4/hl1/fdxfks/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/8MwdODHJGywV83ufC4CEThvIjbJ.jpg" },
-{ title: "लाईक आणि सबस्क्राईब", url: "https://shkn.bluehavenhospitality.sbs:443/v4/s93/q5lnqx/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/9oqoHIhZ12aTc4a0uh800MysKll.jpg" },
-{ title: "मुंबईचा डबेवाला", url: "https://www.youtube.com/embed/sJgKX_LbKCA", image: "https://image.tmdb.org/t/p/w500/zaznTwhbDXoxvlx5Cvg5JmcGx0W.jpg" },
-{ title: "मी शिवाजीराजे भोसले बोलतोय!", url: "https://mega.nz/embed/7EV0yRyR#vJy113Z_dfricBkPXEXSbQ4qTsYeERqg7yA05NWaCHQ", image: "https://image.tmdb.org/t/p/w500/4K5snmaSqwNJPixWu9DMcVd7QmE.jpg" },
-{ title: "पुन्हा शिवाजीराजे भोसले", url: "https://mega.nz/embed/4np3wQ5D#hUgeObsQoo8nZSI25I_WJjkCo1gtvOr9gCQ2eHJcoFA", image: "https://cdn.district.in/movies-assets/images/cinema/punha%20shivaji%20cover-157e9940-ad07-11f0-99cc-0da11cc427a8.jpg?format=webp&imwidth=256" },
-{ title: "फुलवंती", url: "https://mega.nz/embed/4JdXzRjY#u4yNoWdqrAgZ-WeTmRLboKoNdvJkAgT3MF75rBrVBW4", image: "https://image.tmdb.org/t/p/w500/1vZBlfnbFAiwedoBTBohJH2LD9O.jpg" },
-{ title: "गुलकंद", url: "https://mega.nz/embed/qN1C2R5Y#tDZegJ_XtpxqegC8b4r0fULS50dL-ghaubqHBsL5GKc", image: "https://image.tmdb.org/t/p/w500/64gl71tIpVPDwxYZKJNP1rbo1Xl.jpg" },
-{ title: "अरण्य", url: "https://mega.nz/embed/nZshkA6B#Hh288A5yj7RaI9kB9VQ-yQBaLedLk0Q2QLEE8LOGTyc", image: "https://image.tmdb.org/t/p/w500/zkgeUujXuuogVL1bvDoZg7ZwOB7.jpg" },
-{ title: "चंद्रमुखी", url: "https://mega.nz/embed/uNtTxLZa#-KklMVZcbXVyBQY7z4siNO47hdN3zKNB2xaiJQjPKuQ", image: "https://image.tmdb.org/t/p/w500/nhPxuXvRnv2hP20Jsemt8A0Ww1.jpg" },
-{ title: "रेगे", url: "https://mega.nz/embed/UqZnWCTK#AXibecFyZIAlUKvc9PcgMWdJGka47ItSf8Tgr4Tr9jM", image: "https://image.tmdb.org/t/p/w500/1P57ufuzkmndcDH6y4e3Fyu4JHg.jpg" },
-{ title: "कच्चा लिंबू", url: "https://mega.nz/embed/XYd22T5L#dgyPCGkvk5J3uiUbTq_S501-U0c9EJVVS8TPiQg1zlI", image: "https://image.tmdb.org/t/p/w500/mHrnnUNiWd7TaAFPYp1QlAxh3o9.jpg" },
-{ title: "नटसम्राट", url: "https://mega.nz/embed/iIVnlTTI#uI5gSg3TEBsqA6CF-scUDCkrlTnghBDCpOqdZjI6qys", image: "https://image.tmdb.org/t/p/w500/idpdndC9eRM4CLH3rttMaMAeXv.jpg" },
-{ title: "देवमाणूस", url: "https://mega.nz/embed/jUEiFAZK#R_-hJjigBPXoySf2orj-qReC46lF7czlPeF9yRlH5hc", image: "https://image.tmdb.org/t/p/w500/iavhG6GeBzK5w4QYyqks2LTywH3.jpg" },
-{ title: "रावरंभा", url: "https://sw5.stellarcrestagency.sbs/v4/mik/d1n5p/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/lIzjFQb6HsAA5eSAgK6mkxd5BKX.jpg" },
-
-  
+ { title: "येक नंबर", url: "https://sxd.clarionedgeventures.sbs:443/v4/np/oxv3yn/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/tM0BH9by7nfPIeTubP2djJwHmvP.jpg" },
+ { title: "लोकमान्य: एक युगपुरुष", url: "https://suw.oakridgecreativecollect.sbs/v4/us/w8upbc/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/iGzM2HtGAlaH1vPwmOSgRgryXHA.jpg" },
+ { title: "घरत गणपती", url: "https://skr.novaquestmedical.space/v4/onm/w8usyz/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/xEU9UhUIKRRru8A0TVPseqhZzF5.jpg" },
+ { title: "उत्तर", url: "https://skr.sunsetlaneproductionworks.store:443/v4/9a/w8t3jr/index-f1-v1-a1.txt", image: "https://cdn.district.in/movies-assets/images/cinema/Uttar-78ea7b20-bfa4-11f0-990f-b52cb6d9ac04.jpg" },
+ { title: "डिलिव्हरी बॉय", url: "https://sipt.greenpulseventures.store:443/v4/9ow/mh5waw/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/nnMwx3wAqzc2xySu3KfiJlKuunS.jpg" },
+ { title: "न्यूड", url: "https://s3u.goldenridgeproductionworks.space/v4/kdv/96qytl/cf-master.1766249272.txt", image: "https://image.tmdb.org/t/p/w300/IoGkeEzN9KhT9uDH0aclneVi2v.jpg" },
+ { title: "माऊली", url: "https://a8ix.store/watch/mauli/", image: "https://image.tmdb.org/t/p/w500/nz6ecOmTt1CAKLBFIhjb3w1z0gd.jpg" },
+ { title: "भिकारी", url: "https://s6p9.vyntrixconsultancy.sbs:443/v4/epu/suyglo/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/vSpmLgTHlTYb7bVURN6ZqUza6b3.jpg" },
+ { title: "सरला एक कोटी", url: "https://s3u.silverpathacademy.cyou/v4/ox/up61t9/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/xXD7yS4pcMedB5nk9trVXtcY1fi.jpg" },
+ { title: "शुभचिंतक", url: "https://s8i.brightluneventures.site/v4/hl1/fdxfks/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/8MwdODHJGywV83ufC4CEThvIjbJ.jpg" },
+ { title: "लाईक आणि सबस्क्राईब", url: "https://shkn.bluehavenhospitality.sbs:443/v4/s93/q5lnqx/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/9oqoHIhZ12aTc4a0uh800MysKll.jpg" },
+ { title: "मुंबईचा डबेवाला", url: "https://www.youtube.com/embed/sJgKX_LbKCA", image: "https://image.tmdb.org/t/p/w500/zaznTwhbDXoxvlx5Cvg5JmcGx0W.jpg" },
+ { title: "मी शिवाजीराजे भोसले बोलतोय!", url: "https://mega.nz/embed/7EV0yRyR#vJy113Z_dfricBkPXEXSbQ4qTsYeERqg7yA05NWaCHQ", image: "https://image.tmdb.org/t/p/w500/4K5snmaSqwNJPixWu9DMcVd7QmE.jpg" },
+ { title: "पुन्हा शिवाजीराजे भोसले", url: "https://mega.nz/embed/4np3wQ5D#hUgeObsQoo8nZSI25I_WJjkCo1gtvOr9gCQ2eHJcoFA", image: "https://cdn.district.in/movies-assets/images/cinema/punha%20shivaji%20cover-157e9940-ad07-11f0-99cc-0da11cc427a8.jpg?format=webp&imwidth=256" },
+ { title: "फुलवंती", url: "https://mega.nz/embed/4JdXzRjY#u4yNoWdqrAgZ-WeTmRLboKoNdvJkAgT3MF75rBrVBW4", image: "https://image.tmdb.org/t/p/w500/1vZBlfnbFAiwedoBTBohJH2LD9O.jpg" },
+ { title: "गुलकंद", url: "https://mega.nz/embed/qN1C2R5Y#tDZegJ_XtpxqegC8b4r0fULS50dL-ghaubqHBsL5GKc", image: "https://image.tmdb.org/t/p/w500/64gl71tIpVPDwxYZKJNP1rbo1Xl.jpg" },
+ { title: "अरण्य", url: "https://mega.nz/embed/nZshkA6B#Hh288A5yj7RaI9kB9VQ-yQBaLedLk0Q2QLEE8LOGTyc", image: "https://image.tmdb.org/t/p/w500/zkgeUujXuuogVL1bvDoZg7ZwOB7.jpg" },
+ { title: "चंद्रमुखी", url: "https://mega.nz/embed/uNtTxLZa#-KklMVZcbXVyBQY7z4siNO47hdN3zKNB2xaiJQjPKuQ", image: "https://image.tmdb.org/t/p/w500/nhPxuXvRnv2hP20Jsemt8A0Ww1.jpg" },
+ { title: "रेगे", url: "https://mega.nz/embed/UqZnWCTK#AXibecFyZIAlUKvc9PcgMWdJGka47ItSf8Tgr4Tr9jM", image: "https://image.tmdb.org/t/p/w500/1P57ufuzkmndcDH6y4e3Fyu4JHg.jpg" },
+ { title: "कच्चा लिंबू", url: "https://mega.nz/embed/XYd22T5L#dgyPCGkvk5J3uiUbTq_S501-U0c9EJVVS8TPiQg1zlI", image: "https://image.tmdb.org/t/p/w500/mHrnnUNiWd7TaAFPYp1QlAxh3o9.jpg" },
+ { title: "नटसम्राट", url: "https://mega.nz/embed/iIVnlTTI#uI5gSg3TEBsqA6CF-scUDCkrlTnghBDCpOqdZjI6qys", image: "https://image.tmdb.org/t/p/w500/idpdndC9eRM4CLH3rttMaMAeXv.jpg" },
+ { title: "देवमाणूस", url: "https://mega.nz/embed/jUEiFAZK#R_-hJjigBPXoySf2orj-qReC46lF7czlPeF9yRlH5hc", image: "https://image.tmdb.org/t/p/w500/iavhG6GeBzK5w4QYyqks2LTywH3.jpg" },
+ { title: "रावरंभा", url: "https://sw5.stellarcrestagency.sbs/v4/mik/d1n5p/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/lIzjFQb6HsAA5eSAgK6mkxd5BKX.jpg" }
 ];
-
-
 
 /* DOM refs */
 const gridWrap = document.getElementById('gridWrap');
@@ -489,7 +463,6 @@ const modalVideoId = 'modalVideo';
 let currentHls = null;
 let currentIndex = -1;
 
-
 /* helper checks */
 const isYouTube = u => /youtu/i.test(u);
 const isHls = u => u && (u.includes('.m3u8') || u.includes('index-') || /\.txt/i.test(u));
@@ -498,8 +471,6 @@ const isMega = u => u && u.includes('mega.nz');
 const isStreamtape = u => u && u.includes('streamtape.com');
 const isIndexer = u => u && u.includes("indexer.eu.org");
 const isGDrive = u => u.includes("drive.google.com");
-
-
 
 /* render grid safely */
 function makeCard(m){
@@ -519,13 +490,13 @@ function makeCard(m){
   inner.appendChild(img);
   inner.appendChild(t);
   card.appendChild(inner);
- const index = movies.indexOf(m);
+  const index = movies.indexOf(m);
 
-card.addEventListener('click', ()=> playInModal(m.title, m.url, index));
-card.addEventListener('keydown', e=> { 
-  if(e.key==='Enter' || e.key===' ')
-    playInModal(m.title, m.url, index);
-});
+  card.addEventListener('click', ()=> playInModal(m.title, m.url, index));
+  card.addEventListener('keydown', e=> { 
+    if(e.key==='Enter' || e.key===' ')
+      playInModal(m.title, m.url, index);
+  });
   return card;
 }
 movies.forEach(m => gridWrap.appendChild(makeCard(m)));
@@ -543,7 +514,6 @@ function playInModal(title, url, index){
   resetPlayer();
 
   const videoEl = document.getElementById(modalVideoId);
-  const lower = url.toLowerCase();
 
   // STREAMTAPE
   if (isStreamtape(url)) {
@@ -632,20 +602,22 @@ function playInModal(title, url, index){
 function getVideo(){
   return document.getElementById(modalVideoId);
 }
+
 /* =========================
-   PLAYER CONTROLS (WORKING)
+   PLAYER CONTROLS
    ========================= */
 const playPauseBtn = document.getElementById('playPauseBtn');
 const nextBtn = document.getElementById('nextBtn');
 const prevBtn = document.getElementById('prevBtn');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
 const muteBtn = document.getElementById('muteBtn');
+const directBtn = document.getElementById('directBtn');
 const closeBtn = document.getElementById('closeBtn');
 const topCloseBtn = document.getElementById('topCloseBtn');
 
 playPauseBtn.addEventListener('click', () => {
   const v = getVideo();
-  if (!v) return; // iframe → ignore
+  if (!v) return;
   v.paused ? v.play() : v.pause();
 });
 
@@ -668,7 +640,6 @@ fullscreenBtn.addEventListener('click', () => {
   if (v && v.requestFullscreen) {
     v.requestFullscreen();
   } else {
-    // iframe fullscreen fallback (Cars behavior)
     const iframe = playerContainer.querySelector('iframe');
     iframe && iframe.requestFullscreen && iframe.requestFullscreen();
   }
@@ -678,6 +649,13 @@ muteBtn.addEventListener('click', () => {
   const v = getVideo();
   if (!v) return;
   v.muted = !v.muted;
+});
+
+/* Direct Link Button Action */
+directBtn && directBtn.addEventListener('click', () => {
+  if (currentIndex >= 0 && movies[currentIndex]) {
+    window.open(movies[currentIndex].url, '_blank');
+  }
 });
 
 closeBtn && closeBtn.addEventListener('click', () => {
@@ -690,13 +668,12 @@ topCloseBtn && topCloseBtn.addEventListener('click', () => {
   hideModal();
 });
 
-
 /* close handlers */
 document.getElementById('modalClose').addEventListener('click', ()=>{ resetPlayer(); hideModal(); });
 modal.addEventListener('click', e=>{ if(e.target === modal){ resetPlayer(); hideModal(); } });
 window.addEventListener('keydown', e=>{ if(e.key==='Escape' && modal.classList.contains('active')){ resetPlayer(); hideModal(); } });
 
-/* Grid mode cycling (safe) */
+/* Grid mode cycling */
 const body = document.body;
 const gridBtn = document.getElementById('gridBtn');
 const GRID_KEY = 'marathi_grid_mode';
@@ -715,7 +692,7 @@ gridBtn.addEventListener('click', cycleMode);
 const saved = localStorage.getItem(GRID_KEY);
 if(saved && modes.includes(saved)){ idx = modes.indexOf(saved); applyMode(idx); } else { idx = 0; applyMode(0); }
 
-/* Theme toggle (safe DOM-only approach) */
+/* Theme toggle */
 const themeBtn = document.getElementById('themeBtn');
 const iconSun = document.getElementById('icon-sun');
 const iconMoon = document.getElementById('icon-moon');
@@ -729,7 +706,6 @@ themeBtn.addEventListener('click', ()=> setTheme(document.documentElement.classL
 const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
 setTheme(savedTheme);
 
-/* Accessibility nicety: update grid title tooltip */
 function updateGridTitle(){
   const names = ['Standard Grid','Dense Posters','Card Mode'];
   gridBtn.title = `Grid mode: ${names[idx]}. Click to change.`;
@@ -738,70 +714,54 @@ updateGridTitle();
 gridBtn.addEventListener('click', () => setTimeout(updateGridTitle, 120));
 
 /* =========================
-   EXTREME 3D HOVER EFFECT
+   THROTTLED 3D HOVER EFFECT (NO LAGGING)
    ========================= */
-
 function enable3DEffects() {
   document.querySelectorAll('.movie-card').forEach(card => {
-    
-    // Skip in DENSE mode
     if (document.body.classList.contains('mode-dense')) return;
 
     const inner = card.querySelector('.card-inner');
     const poster = card.querySelector('.poster');
+    let ticking = false;
 
-    // Reset first
     card.addEventListener('mouseleave', () => {
       inner.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
       poster.style.transform = `translateZ(0px) scale(1)`;
       poster.style.boxShadow = `none`;
     });
 
-    // Mouse move tilt
     card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;  
-      const y = e.clientY - rect.top;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;  
+          const y = e.clientY - rect.top;
 
-      const midX = rect.width / 2;
-      const midY = rect.height / 2;
+          const midX = rect.width / 2;
+          const midY = rect.height / 2;
 
-      // EXTREME settings
-      const rotateY = ((x - midX) / midX) * 14;  
-      const rotateX = -((y - midY) / midY) * 14;
+          const rotateY = ((x - midX) / midX) * 12;  
+          const rotateX = -((y - midY) / midY) * 12;
+          const pop = 45;
 
-      const pop = 65; // poster pop-out depth
-
-      inner.style.transform = `
-        perspective(1000px)
-        rotateX(${rotateX}deg)
-        rotateY(${rotateY}deg)
-        scale(1.08)
-      `;
-
-      poster.style.transform = `
-        translateZ(${pop}px) 
-        scale(1.15)
-      `;
-
-      poster.style.boxShadow = `
-        0 40px 80px rgba(0,0,0,0.55)
-      `;
+          inner.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+          poster.style.transform = `translateZ(${pop}px) scale(1.1)`;
+          poster.style.boxShadow = `0 30px 60px rgba(0,0,0,0.5)`;
+          ticking = false;
+        });
+        ticking = true;
+      }
     });
   });
 }
 
-/* Re-enable on grid mode change */
 gridBtn.addEventListener('click', () => {
   setTimeout(enable3DEffects, 150);
 });
 
-/* Initial call */
 enable3DEffects();
-
-
 </script>
- <!-- ========================================================= -->
+  <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -1156,7 +1116,6 @@ img {
     background: transparent;
 }
 </style>
-
 
 </body>
 </html>
