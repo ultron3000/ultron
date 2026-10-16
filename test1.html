@@ -8,6 +8,10 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <!-- HLS.js for HLS playback -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+<!-- LOAD EXTERNAL MOVIE DATABASE DIRECTLY -->
+<script src="movies.js"></script>
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
     
@@ -38,10 +42,6 @@
     .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
     
     /* Futuristic 3D Dimensional Movie Card Styling */
-    .movie-grid {
-      transform-style: preserve-3d;
-    }
-
     .movie-card {
       transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.4s ease;
       transform-origin: center;
@@ -84,9 +84,7 @@
       scrollbar-color: #991b1b #070a12;
     }
 
-    .category-scroll-container::-webkit-scrollbar {
-      height: 4px;
-    }
+    .category-scroll-container::-webkit-scrollbar { height: 4px; }
 
     .category-btn {
       background: rgba(15, 23, 42, 0.9);
@@ -128,7 +126,6 @@
       align-items: center; 
       justify-content: center; 
       z-index: 9999; 
-      padding: 0;
     }
     .modal-backdrop.active { display: flex; }
     .modal-card { 
@@ -136,8 +133,6 @@
       height: 100%;
       max-width: 980px;
       max-height: 90vh;
-      border-radius: 0;
-      overflow: hidden;
       background: #0f172a;
       border: 1px solid rgba(239, 68, 68, 0.5);
       box-shadow: 0 0 50px rgba(239, 68, 68, 0.25);
@@ -168,10 +163,7 @@
       justify-content: center;
       transition: all 0.2s;
     }
-    #topCloseBtn:hover {
-      background: var(--primary);
-      color: #000;
-    }
+    #topCloseBtn:hover { background: var(--primary); color: #000; }
     .player-wrapper video, 
     .player-wrapper iframe { 
       position: absolute;
@@ -190,7 +182,6 @@
       background: #0f172a;
       border-top: 1px solid rgba(239, 68, 68, 0.3);
     }
-    .player-meta .meta-left { width: 100%; }
     .player-meta h3 { 
       margin: 0;
       font-size: 1.2rem;
@@ -244,21 +235,9 @@
     }
 
     @media (min-width: 768px) {
-      .modal-card {
-        width: 92%;
-        height: auto;
-        border-radius: 12px;
-        max-height: 85vh;
-      }
-      .player-wrapper {
-        height: 55vh !important;
-        position: relative !important;
-      }
-      .player-meta {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-      }
+      .modal-card { width: 92%; height: auto; border-radius: 12px; max-height: 85vh; }
+      .player-wrapper { height: 55vh !important; }
+      .player-meta { flex-direction: row; justify-content: space-between; align-items: flex-start; }
       .player-meta .meta-left { max-width: 55%; }
       .controls-row { flex-wrap: nowrap !important; justify-content: flex-end !important; }
       .btn { flex: unset !important; min-width: 75px !important; }
@@ -269,7 +248,7 @@
 
 <div class="container mx-auto px-3 py-4 md:py-6 max-w-7xl">
 
-  <!-- Header Section with Search & Categories -->
+  <!-- Header Section -->
   <div class="mb-6 border-b border-red-500/20 pb-4">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
       <div>
@@ -294,20 +273,12 @@
     </div>
 
     <!-- Scrollable Category Bar -->
-    <div class="category-scroll-container" id="categoryContainer">
-      <!-- Generated via JavaScript -->
-    </div>
+    <div class="category-scroll-container" id="categoryContainer"></div>
   </div>
 
   <!-- Movies Grid -->
   <div class="mb-8">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 movie-grid" id="movies">
-      <!-- Loading indicator -->
-      <div class="col-span-full py-20 text-center font-mono-tech text-red-400 animate-pulse">
-        <i class="fas fa-satellite-dish text-3xl mb-3"></i>
-        <p class="text-xs">LOADING CLASSIFIED DATABASE FROM MOVIES.JSON...</p>
-      </div>
-    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4" id="movies"></div>
   </div>
 
   <!-- Footer -->
@@ -322,9 +293,7 @@
   <div class="modal-card" role="dialog" aria-modal="true">
     <div class="player-wrapper" id="playerWrapper">
       <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" title="Close Player">
-        <i class="fas fa-times text-lg"></i>
-      </button>
+      <button id="topCloseBtn" title="Close Player"><i class="fas fa-times text-lg"></i></button>
     </div>
 
     <div class="player-meta">
@@ -333,7 +302,7 @@
         <p id="modalDesc"></p>
       </div>
       <div class="controls-row">
-        <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20" title="Open directly in new tab if embed is blocked">
+        <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20" title="Open directly in new tab">
           <i class="fas fa-external-link-alt"></i> Direct
         </a>
         <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i>Prev</button>
@@ -356,9 +325,6 @@
     const searchInput = document.getElementById('searchInput');
     const categoryContainer = document.getElementById('categoryContainer');
 
-    /******************************
-     * Consolidated Categories Map
-     ******************************/
     function normalizeCategory(cat) {
       if (!cat) return "Action & Ops";
       const c = cat.toLowerCase();
@@ -367,35 +333,24 @@
       if (c.includes("sniper")) return "Sniper & Tactical";
       if (c.includes("espionage") || c.includes("intel") || c.includes("covert")) return "Espionage & Intel";
       if (c.includes("thriller") || c.includes("psychological")) return "Psychological & Thriller";
-      if (c.includes("sci-fi") || c.includes("fantasy") || c.includes("horror")) return "Sci-Fi & Fantasy";
-      if (c.includes("action") || c.includes("mercenary") || c.includes("tactical") || c.includes("vigilante") || c.includes("submarine")) return "Action & Ops";
+      if (c.includes("sci-fi") || c.includes("fantasy")) return "Sci-Fi & Fantasy";
       return "Action & Ops";
     }
 
-    /******************************
-     * Fetch Movies from movies.json
-     ******************************/
-    async function loadMovies() {
-      try {
-        const response = await fetch('movies.json');
-        if (!response.ok) throw new Error('Failed to load movies.json');
-        movies = await response.json();
-        
-        movies.forEach(m => {
-          m.normCategory = normalizeCategory(m.category);
-        });
-
-        buildCategoryFilters();
-        applyFilters();
-      } catch (error) {
-        console.error('Error fetching movie database:', error);
-        container.innerHTML = `
-          <div class="col-span-full py-12 text-center font-mono-tech text-red-500">
-            <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
-            <p class="text-xs">CRITICAL ERROR: UNABLE TO FETCH movies.json</p>
-            <p class="text-[10px] text-gray-500 mt-1">Ensure movies.json is placed in the same directory and served via a local/web server.</p>
-          </div>`;
+    // Initialize database directly from movies.js variable
+    function initDatabase() {
+      if (typeof movieDatabase !== 'undefined') {
+        movies = movieDatabase.map(m => ({
+          ...m,
+          normCategory: normalizeCategory(m.category)
+        }));
+      } else {
+        movies = [];
+        console.error("movieDatabase not found. Make sure movies.js is uploaded in the same folder.");
       }
+
+      buildCategoryFilters();
+      applyFilters();
     }
 
     function buildCategoryFilters() {
@@ -418,13 +373,9 @@
 
     function debounce(func, wait) {
       let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
+      return function(...args) {
         clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+        timeout = setTimeout(() => func(...args), wait);
       };
     }
 
@@ -436,7 +387,6 @@
                               (movie.description && movie.description.toLowerCase().includes(searchQuery));
         return matchesCat && matchesSearch;
       });
-
       renderMovies(filtered);
     }
 
@@ -445,9 +395,7 @@
       applyFilters();
     }, 150));
 
-    /******************************
-     * DOM Refs for Modal Controls
-     ******************************/
+    // Modal & Player setup
     const playbackModal = document.getElementById('playbackModal');
     const playerWrapper = document.getElementById('playerWrapper');
     const modalVideoId = 'modalVideo';
@@ -468,7 +416,7 @@
     function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
     function isHls(url) {
       if (!url) return false;
-      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest');
     }
 
     function resetPlayerContainer() {
@@ -479,15 +427,6 @@
       playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
     }
 
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
     function openPlayer(list, index) {
       if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
       currentFiltered = list;
@@ -496,15 +435,13 @@
       if (!movie) return;
 
       modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.title || '');
+      modalDesc.textContent = movie.description || '';
 
       resetPlayerContainer();
-      showModal();
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
 
-      let src = typeof movie.video === 'object' && movie.video !== null 
-        ? (movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0]) 
-        : movie.video;
-
+      let src = movie.video;
       if (src && src !== "00") {
         externalBtn.href = src.replace('/embed/', '/file/').replace('/embed', '');
         externalBtn.style.display = 'inline-flex';
@@ -512,173 +449,88 @@
         externalBtn.style.display = 'none';
       }
 
-      if (!src || src === "00") {
-        playerWrapper.innerHTML = `
-          <div class="flex flex-col items-center justify-center h-full text-center p-6 text-gray-400 font-mono-tech">
-            <i class="fas fa-user-shield text-3xl text-red-500 mb-2"></i>
-            <p class="text-xs">TACTICAL SOURCE UNCONNECTED [ERR: 00]</p>
-            <p class="text-[10px] text-gray-500 mt-1">STREAM FILE PURGED OR TEMPORARILY OFFLINE</p>
-          </div>`;
-        return;
-      }
-
+      if (!src || src === "00") return;
       const lc = (src || '').toLowerCase();
 
       if (lc.includes('mega.nz') || lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('ok.ru') || lc.includes('drive.google.com') || lc.includes('youtube.com')) {
-        let embedSrc = src;
-        if (lc.includes('youtube.com/watch?v=')) {
-          embedSrc = src.replace('watch?v=', 'embed/');
-        }
+        let embedSrc = lc.includes('watch?v=') ? src.replace('watch?v=', 'embed/') : src;
         playerWrapper.innerHTML = `<iframe src="${embedSrc}" allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer" allowfullscreen></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
         return;
       }
 
       if (isHls(src)) {
         const v = document.getElementById(modalVideoId);
-        if (!v) return;
         if (window.Hls && Hls.isSupported()) {
           currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
-          });
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => v.play().catch(()=>{}));
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
         }
         return;
       }
 
       if (isMP4(src)) {
         const v = document.getElementById(modalVideoId);
-        if (v) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
-        }
-        return;
+        if (v) { v.src = src; v.play().catch(()=>{}); }
       }
-    }
-
-    function togglePlayPause() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
-      } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
-      }
-    }
-    function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex != null && currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-    }
-    function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex != null && currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-    }
-    function toggleFullscreen() {
-      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
-      } else {
-        document.exitFullscreen();
-      }
-    }
-    function toggleMute() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
     function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
+      if (currentHls) { currentHls.destroy(); currentHls = null; }
       const v = document.getElementById(modalVideoId);
-      if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
-      }
+      if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
       resetPlayerContainer();
-      hideModal();
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
       currentIndex = null;
       currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
     }
 
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
+    playPauseBtn.addEventListener('click', () => {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.paused ? v.play() : v.pause();
+    });
+    nextBtn.addEventListener('click', () => { if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1); });
+    prevBtn.addEventListener('click', () => { if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1); });
+    fullscreenBtn.addEventListener('click', () => {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!document.fullscreenElement) el.requestFullscreen?.(); else document.exitFullscreen?.();
+    });
+    muteBtn.addEventListener('click', () => { const v = document.getElementById(modalVideoId); if (v) v.muted = !v.muted; });
     document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
     document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', (e) => { if (e.target === playbackModal) closeModalHandler(); });
 
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': playNext(); break;
-        case 'arrowleft': playPrev(); break;
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-      }
-    });
-
-    /******************************
-     * Render Movies Grid
-     ******************************/
     function renderMovies(moviesToRender) {
       container.innerHTML = '';
       if (moviesToRender.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-full py-12 text-center font-mono-tech text-gray-500">
-            <i class="fas fa-search-minus text-3xl mb-2 text-red-500/50"></i>
-            <p class="text-xs">NO CLASSIFIED FILES FOUND MATCHING SPECIFIED CRITERIA.</p>
-          </div>`;
+        container.innerHTML = `<div class="col-span-full py-12 text-center font-mono-tech text-gray-500"><p class="text-xs">NO CLASSIFIED FILES FOUND.</p></div>`;
         return;
       }
 
       const fragment = document.createDocumentFragment();
-
       moviesToRender.forEach((movie, index) => {
-        const posterSrc = (movie.image && movie.image !== "00") 
-          ? movie.image 
-          : `https://via.placeholder.com/500x750/0f172a/ef4444?text=${encodeURIComponent(movie.title)}`;
-
+        const posterSrc = movie.image && movie.image !== "00" ? movie.image : `https://via.placeholder.com/500x750/0f172a/ef4444?text=${encodeURIComponent(movie.title)}`;
         const div = document.createElement('div');
         div.className = `movie-card rounded-xl overflow-hidden cursor-pointer relative group flex flex-col justify-between`;
         div.innerHTML = `
           <div class="relative overflow-hidden bg-slate-950">
             <img loading="lazy" src="${posterSrc}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2">
-              <button class="bg-red-600 hover:bg-red-500 text-white font-rajdhani font-bold py-1.5 px-4 rounded-lg text-xs flex items-center gap-1.5 tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.6)]">
+              <button class="bg-red-600 text-white font-rajdhani font-bold py-1.5 px-4 rounded-lg text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(239,68,68,0.6)]">
                 <i class="fas fa-play text-[10px]"></i> PLAY MISSION
               </button>
             </div>
-            ${movie.normCategory ? `<span class="absolute top-2 left-2 bg-slate-950/90 border border-red-500/40 text-red-400 text-[9px] font-mono-tech px-2 py-0.5 rounded shadow-md">${movie.normCategory}</span>` : ''}
+            ${movie.normCategory ? `<span class="absolute top-2 left-2 bg-slate-950/90 border border-red-500/40 text-red-400 text-[9px] font-mono-tech px-2 py-0.5 rounded">${movie.normCategory}</span>` : ''}
           </div>
           <div class="p-3 flex flex-col justify-between flex-1">
             <div>
-              <h3 class="font-rajdhani font-bold text-sm text-red-400 truncate tracking-wide">${movie.title}</h3>
-              <p class="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-tight">${movie.description}</p>
+              <h3 class="font-rajdhani font-bold text-sm text-red-400 truncate">${movie.title}</h3>
+              <p class="text-[11px] text-gray-400 mt-1 line-clamp-2">${movie.description}</p>
             </div>
             <div class="flex justify-between items-center mt-3 pt-2 border-t border-red-500/20 text-[10px] font-mono-tech text-red-400/80">
               <span><i class="far fa-calendar-alt mr-1"></i>${movie.year}</span>
@@ -686,19 +538,14 @@
             </div>
           </div>
         `;
-
-        div.addEventListener('click', () => {
-          openPlayer(moviesToRender, index);
-        });
-
+        div.addEventListener('click', () => openPlayer(moviesToRender, index));
         fragment.appendChild(div);
       });
-
       container.appendChild(fragment);
     }
 
-    // Initialize application execution
-    loadMovies();
+    // Run initialization on load
+    initDatabase();
 </script>
 
 </body>
