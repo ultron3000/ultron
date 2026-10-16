@@ -1,4 +1,4 @@
-[
+const movieDatabase = [
   { 
         title: "Unthinkable", 
         category: "Psychological Thriller",
@@ -5480,4 +5480,4 @@
   image: "https://image.tmdb.org/t/p/w500/dl1cA7wdwePc9QU2Rc24EPqlcyJ.jpg",
   video: "00"
 }
-]
+];
