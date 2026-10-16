@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Tactical Intelligence & Espionage Collection</title>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- HLS.js for HLS playback -->
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
+    
+    :root {
+      --primary: #ef4444;
+      --primary-glow: rgba(239, 68, 68, 0.4);
+      --secondary: #0f172a;
+      --accent: #38bdf8;
+      --muted: #94a3b8;
+      --bg-dark: #05070c;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.12) 0%, transparent 60%),
+        linear-gradient(to bottom, rgba(5, 7, 12, 0.9), rgba(5, 7, 12, 0.99));
+      color: #f8fafc;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      perspective: 1200px;
+    }
+
+    .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
+    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+    
+    /* Futuristic 3D Dimensional Movie Card Styling */
+    .movie-grid {
+      transform-style: preserve-3d;
+    }
+
+    .movie-card {
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+      transform-origin: center;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      background: linear-gradient(145deg, #0f172a 0%, #090d16 100%);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      content-visibility: auto;
+      contain-intrinsic-size: 320px;
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-8px) rotateX(4deg) rotateY(-4deg) scale(1.02);
+      border-color: var(--primary);
+      box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.35), 0 0 20px rgba(239, 68, 68, 0.2);
+      z-index: 10;
+    }
+
+    .crimson-gradient-text {
+      background: linear-gradient(135deg, #ffffff 0%, #fca5a5 40%, #ef4444 80%, #b91c1c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .movie-poster {
+      aspect-ratio: 2/3;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: scale(1.06);
+    }
+    
+    /* Category Filter Buttons */
+    .category-scroll-container {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: #991b1b #070a12;
+    }
+
+    .category-scroll-container::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .category-btn {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #94a3b8;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    
+    .category-btn:hover {
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .category-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #000000;
+      font-weight: 700;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #070a12; }
+    ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+    
+    /* Responsive Modal Setup */
+    .modal-backdrop { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(5, 7, 12, 0.96); 
+      backdrop-filter: blur(8px);
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 9999; 
+      padding: 0;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      border-radius: 0;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      box-shadow: 0 0 50px rgba(239, 68, 68, 0.25);
+      display: flex;
+      flex-direction: column;
+    }
+    .player-wrapper { 
+      position: relative;
+      width: 100%;
+      height: 350px;
+      min-height: 250px;
+      background: #000;
+      flex-grow: 1;
+    }
+    #topCloseBtn { 
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 20;
+      background: rgba(0,0,0,0.8);
+      color: var(--primary);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    #topCloseBtn:hover {
+      background: var(--primary);
+      color: #000;
+    }
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px;
+      color: #ddd;
+      background: #0f172a;
+      border-top: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .player-meta .meta-left { width: 100%; }
+    .player-meta h3 { 
+      margin: 0;
+      font-size: 1.2rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .player-meta p { 
+      margin: 4px 0 0 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .controls-row { 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      flex: 1;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn:hover { 
+      background: var(--primary);
+      color: #000;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    @media (min-width: 768px) {
+      .modal-card {
+        width: 92%;
+        height: auto;
+        border-radius: 12px;
+        max-height: 85vh;
+      }
+      .player-wrapper {
+        height: 55vh !important;
+        position: relative !important;
+      }
+      .player-meta {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .player-meta .meta-left { max-width: 55%; }
+      .controls-row { flex-wrap: nowrap !important; justify-content: flex-end !important; }
+      .btn { flex: unset !important; min-width: 75px !important; }
+    }
+</style>
+</head>
+<body class="relative">
+
+<div class="container mx-auto px-3 py-4 md:py-6 max-w-7xl">
+
+  <!-- Header Section with Search & Categories -->
+  <div class="mb-6 border-b border-red-500/20 pb-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+      <div>
+        <span class="text-[10px] font-mono-tech text-red-400 bg-red-500/10 px-2.5 py-0.5 rounded border border-red-500/20 tracking-widest uppercase shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+          TACTICAL ARCHIVES // SECURE v3.5
+        </span>
+        <h1 class="font-rajdhani text-2xl md:text-3xl font-bold uppercase crimson-gradient-text mt-1 tracking-wider">
+          TACTICAL INTELLIGENCE ARCHIVE
+        </h1>
+      </div>
+
+      <!-- Live Search Box -->
+      <div class="relative w-full md:w-72">
+        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-red-500/70 text-xs"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Search mission files..." 
+          class="w-full pl-9 pr-3 py-2 bg-slate-900/90 border border-red-500/30 rounded-lg text-xs font-mono-tech text-gray-200 placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all"
+        />
+      </div>
+    </div>
+
+    <!-- Scrollable Category Bar -->
+    <div class="category-scroll-container" id="categoryContainer">
+      <!-- Generated via JavaScript -->
+    </div>
+  </div>
+
+  <!-- Movies Grid -->
+  <div class="mb-8">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 movie-grid" id="movies">
+      <!-- Loading indicator -->
+      <div class="col-span-full py-20 text-center font-mono-tech text-red-400 animate-pulse">
+        <i class="fas fa-satellite-dish text-3xl mb-3"></i>
+        <p class="text-xs">LOADING CLASSIFIED DATABASE FROM MOVIES.JSON...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 pt-4 text-center text-gray-500">
+    <p class="font-mono-tech text-[10px] text-red-500/60 mb-1 tracking-widest">TACTICAL COMMAND ARCHIVES // RESTRICTED ACCESS</p>
+    <p class="text-xs">© Intelligence & Covert Ops Universe</p>
+  </footer>
+</div>
+
+<!-- Modal Player -->
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <div class="player-wrapper" id="playerWrapper">
+      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      <button id="topCloseBtn" title="Close Player">
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+
+    <div class="player-meta">
+      <div class="meta-left">
+        <h3 id="modalTitle">Title</h3>
+        <p id="modalDesc"></p>
+      </div>
+      <div class="controls-row">
+        <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20" title="Open directly in new tab if embed is blocked">
+          <i class="fas fa-external-link-alt"></i> Direct
+        </a>
+        <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i>Prev</button>
+        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i>Play</button>
+        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward"></i></button>
+        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    let movies = [];
+    let activeCategory = "All";
+    let searchQuery = "";
+
+    const container = document.getElementById('movies');
+    const searchInput = document.getElementById('searchInput');
+    const categoryContainer = document.getElementById('categoryContainer');
+
+    /******************************
+     * Consolidated Categories Map
+     ******************************/
+    function normalizeCategory(cat) {
+      if (!cat) return "Action & Ops";
+      const c = cat.toLowerCase();
+      if (c.includes("animation") || c.includes("anime") || c.includes("cartoon")) return "Animation & Anime";
+      if (c.includes("martial arts") || c.includes("fighting") || c.includes("combat")) return "Martial Arts";
+      if (c.includes("sniper")) return "Sniper & Tactical";
+      if (c.includes("espionage") || c.includes("intel") || c.includes("covert")) return "Espionage & Intel";
+      if (c.includes("thriller") || c.includes("psychological")) return "Psychological & Thriller";
+      if (c.includes("sci-fi") || c.includes("fantasy") || c.includes("horror")) return "Sci-Fi & Fantasy";
+      if (c.includes("action") || c.includes("mercenary") || c.includes("tactical") || c.includes("vigilante") || c.includes("submarine")) return "Action & Ops";
+      return "Action & Ops";
+    }
+
+    /******************************
+     * Fetch Movies from movies.json
+     ******************************/
+    async function loadMovies() {
+      try {
+        const response = await fetch('movies.json');
+        if (!response.ok) throw new Error('Failed to load movies.json');
+        movies = await response.json();
+        
+        movies.forEach(m => {
+          m.normCategory = normalizeCategory(m.category);
+        });
+
+        buildCategoryFilters();
+        applyFilters();
+      } catch (error) {
+        console.error('Error fetching movie database:', error);
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center font-mono-tech text-red-500">
+            <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+            <p class="text-xs">CRITICAL ERROR: UNABLE TO FETCH movies.json</p>
+            <p class="text-[10px] text-gray-500 mt-1">Ensure movies.json is placed in the same directory and served via a local/web server.</p>
+          </div>`;
+      }
+    }
+
+    function buildCategoryFilters() {
+      const categories = ["All", "Action & Ops", "Espionage & Intel", "Animation & Anime", "Martial Arts", "Sniper & Tactical", "Psychological & Thriller", "Sci-Fi & Fantasy"];
+      categoryContainer.innerHTML = '';
+
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `category-btn text-xs font-rajdhani px-3 py-1.5 rounded-md uppercase tracking-wider ${cat === activeCategory ? 'active' : ''}`;
+        btn.textContent = cat;
+        btn.addEventListener('click', () => {
+          activeCategory = cat;
+          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyFilters();
+        });
+        categoryContainer.appendChild(btn);
+      });
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    function applyFilters() {
+      const filtered = movies.filter(movie => {
+        const matchesCat = activeCategory === "All" || movie.normCategory === activeCategory;
+        const matchesSearch = !searchQuery || 
+                              movie.title.toLowerCase().includes(searchQuery) || 
+                              (movie.description && movie.description.toLowerCase().includes(searchQuery));
+        return matchesCat && matchesSearch;
+      });
+
+      renderMovies(filtered);
+    }
+
+    searchInput.addEventListener('input', debounce((e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      applyFilters();
+    }, 150));
+
+    /******************************
+     * DOM Refs for Modal Controls
+     ******************************/
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalVideoId = 'modalVideo';
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const externalBtn = document.getElementById('externalBtn');
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+
+    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+    function isHls(url) {
+      if (!url) return false;
+      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+    }
+
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
+
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      currentFiltered = list;
+      currentIndex = index;
+      const movie = list[index];
+      if (!movie) return;
+
+      modalTitle.textContent = movie.title || '';
+      modalDesc.textContent = movie.description || (movie.title || '');
+
+      resetPlayerContainer();
+      showModal();
+
+      let src = typeof movie.video === 'object' && movie.video !== null 
+        ? (movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0]) 
+        : movie.video;
+
+      if (src && src !== "00") {
+        externalBtn.href = src.replace('/embed/', '/file/').replace('/embed', '');
+        externalBtn.style.display = 'inline-flex';
+      } else {
+        externalBtn.style.display = 'none';
+      }
+
+      if (!src || src === "00") {
+        playerWrapper.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-full text-center p-6 text-gray-400 font-mono-tech">
+            <i class="fas fa-user-shield text-3xl text-red-500 mb-2"></i>
+            <p class="text-xs">TACTICAL SOURCE UNCONNECTED [ERR: 00]</p>
+            <p class="text-[10px] text-gray-500 mt-1">STREAM FILE PURGED OR TEMPORARILY OFFLINE</p>
+          </div>`;
+        return;
+      }
+
+      const lc = (src || '').toLowerCase();
+
+      if (lc.includes('mega.nz') || lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('ok.ru') || lc.includes('drive.google.com') || lc.includes('youtube.com')) {
+        let embedSrc = src;
+        if (lc.includes('youtube.com/watch?v=')) {
+          embedSrc = src.replace('watch?v=', 'embed/');
+        }
+        playerWrapper.innerHTML = `<iframe src="${embedSrc}" allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer" allowfullscreen></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+        return;
+      }
+
+      if (isHls(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (!v) return;
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          try {
+            currentHls.loadSource(src);
+            currentHls.attachMedia(v);
+          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+        }
+        return;
+      }
+
+      if (isMP4(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (v) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+        }
+        return;
+      }
+    }
+
+    function togglePlayPause() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById(modalVideoId);
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
+    }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': playNext(); break;
+        case 'arrowleft': playPrev(); break;
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+      }
+    });
+
+    /******************************
+     * Render Movies Grid
+     ******************************/
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      if (moviesToRender.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center font-mono-tech text-gray-500">
+            <i class="fas fa-search-minus text-3xl mb-2 text-red-500/50"></i>
+            <p class="text-xs">NO CLASSIFIED FILES FOUND MATCHING SPECIFIED CRITERIA.</p>
+          </div>`;
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      moviesToRender.forEach((movie, index) => {
+        const posterSrc = (movie.image && movie.image !== "00") 
+          ? movie.image 
+          : `https://via.placeholder.com/500x750/0f172a/ef4444?text=${encodeURIComponent(movie.title)}`;
+
+        const div = document.createElement('div');
+        div.className = `movie-card rounded-xl overflow-hidden cursor-pointer relative group flex flex-col justify-between`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden bg-slate-950">
+            <img loading="lazy" src="${posterSrc}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2">
+              <button class="bg-red-600 hover:bg-red-500 text-white font-rajdhani font-bold py-1.5 px-4 rounded-lg text-xs flex items-center gap-1.5 tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.6)]">
+                <i class="fas fa-play text-[10px]"></i> PLAY MISSION
+              </button>
+            </div>
+            ${movie.normCategory ? `<span class="absolute top-2 left-2 bg-slate-950/90 border border-red-500/40 text-red-400 text-[9px] font-mono-tech px-2 py-0.5 rounded shadow-md">${movie.normCategory}</span>` : ''}
+          </div>
+          <div class="p-3 flex flex-col justify-between flex-1">
+            <div>
+              <h3 class="font-rajdhani font-bold text-sm text-red-400 truncate tracking-wide">${movie.title}</h3>
+              <p class="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-tight">${movie.description}</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-red-500/20 text-[10px] font-mono-tech text-red-400/80">
+              <span><i class="far fa-calendar-alt mr-1"></i>${movie.year}</span>
+              <span><i class="far fa-clock mr-1"></i>${movie.duration || 'N/A'}</span>
+            </div>
+          </div>
+        `;
+
+        div.addEventListener('click', () => {
+          openPlayer(moviesToRender, index);
+        });
+
+        fragment.appendChild(div);
+      });
+
+      container.appendChild(fragment);
+    }
+
+    // Initialize application execution
+    loadMovies();
+</script>
+
+</body>
+</html>
