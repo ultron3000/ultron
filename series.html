@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CloudTV Store | Ultimate Multiverse Series Hub</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkbg: '#030712',
+            lightbg: '#f1f5f9',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    /* 3D Depth Perspective Setup */
+    .grid-container {
+      perspective: 1400px;
+    }
+
+    /* Hardware Accelerated Smooth 3D Cards */
+    .series-card {
+      will-change: transform, box-shadow;
+      transform: translateZ(0);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                  box-shadow 0.4s ease, 
+                  border-color 0.3s ease;
+      transform-style: preserve-3d;
+    }
+
+    .series-card img {
+      will-change: transform, filter;
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.5s ease;
+    }
+
+    .series-card:hover, .series-card:active, .series-card:focus {
+      transform: translateY(-12px) rotateX(4deg) scale(1.04);
+      border-color: rgba(6, 182, 212, 0.8);
+      box-shadow: 0 30px 40px -15px rgba(0, 0, 0, 0.9), 
+                  0 0 30px rgba(6, 182, 212, 0.35);
+    }
+
+    .series-card:hover img, .series-card:active img {
+      transform: scale(1.12) translateZ(15px);
+      filter: saturate(1.2) brightness(1.08);
+    }
+
+    /* Futuristic Backgrounds */
+    .cyber-bg-dark {
+      background: radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.15) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 40%),
+                  #030712;
+    }
+
+    .cyber-bg-light {
+      background: radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.1) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 85%, rgba(219, 39, 119, 0.08) 0%, transparent 40%),
+                  #f1f5f9;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen cyber-bg-dark text-slate-100 antialiased selection:bg-cyan-500 selection:text-black transition-colors duration-300" id="bodyTag">
+
+  <!-- Header & Control Center (Top Right Buttons) -->
+  <header class="pt-6 pb-4 px-4 sticky top-0 z-50 backdrop-blur-2xl bg-slate-950/80 dark:bg-slate-950/80 border-b border-slate-800/80 shadow-2xl">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-pink-500 flex items-center justify-center shadow-lg shadow-cyan-500/40">
+          <i class="fas fa-satellite-dish text-white text-lg animate-pulse"></i>
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400 uppercase">
+            Cloud TV
+          </h1>
+          <p class="text-[10px] font-mono text-cyan-400 tracking-widest uppercase">130+ Series Master Vault</p>
+        </div>
+      </div>
+
+      <!-- Top Right Floating Action Controls -->
+      <div class="flex items-center gap-2.5">
+        <!-- Grid Density Toggle Button -->
+        <button id="gridToggleBtn" title="Toggle Grid View" class="w-10 h-10 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-center transition-all shadow-lg hover:border-cyan-500 group">
+          <i class="fas fa-th-large text-cyan-400 group-hover:scale-110 transition-transform" id="gridIcon"></i>
+        </button>
+
+        <!-- Dark / Light Mode Toggle Button -->
+        <button id="themeToggleBtn" title="Toggle Theme" class="w-10 h-10 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center justify-center transition-all shadow-lg hover:border-amber-400 group">
+          <i class="fas fa-sun text-amber-400 group-hover:rotate-90 transition-transform duration-500" id="themeIcon"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Category Tabs (Short, Visible in Front, No Sliding Needed) -->
+    <div class="max-w-7xl mx-auto mt-5 flex flex-wrap items-center justify-center gap-2 md:gap-3">
+      <button onclick="filterCategory('all')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/30 flex items-center gap-2" data-category="all">
+        <i class="fas fa-globe"></i> All (<span id="countAll">0</span>)
+      </button>
+      <button onclick="filterCategory('animation')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center gap-2" data-category="animation">
+        <i class="fas fa-wand-magic-sparkles text-pink-400"></i> Animation (<span id="countAnim">0</span>)
+      </button>
+      <button onclick="filterCategory('english')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center gap-2" data-category="english">
+        <i class="fas fa-film text-blue-400"></i> English (<span id="countEng">0</span>)
+      </button>
+      <button onclick="filterCategory('hindi')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center gap-2" data-category="hindi">
+        <i class="fas fa-video text-amber-400"></i> Hindi (<span id="countHin">0</span>)
+      </button>
+      <button onclick="filterCategory('marathi')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center gap-2" data-category="marathi">
+        <i class="fas fa-tv text-emerald-400"></i> Marathi (<span id="countMar">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <!-- Search Bar Section -->
+  <div class="max-w-2xl mx-auto px-4 mt-6 mb-8">
+    <div class="relative group">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400 group-focus-within:text-yellow-300 transition-colors"></i>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search series titles, platforms, or keywords..."
+        class="w-full pl-11 pr-24 py-3.5 rounded-2xl bg-slate-900/90 border border-cyan-500/30 text-slate-100 placeholder-slate-400 text-sm focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 shadow-2xl transition-all"
+      />
+      <div class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold text-cyan-300 bg-cyan-950/80 border border-cyan-500/40 px-2.5 py-1 rounded-full pointer-events-none">
+        LIVE ENGINE
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Grid Container -->
+  <main class="max-w-7xl mx-auto px-4 pb-24 grid-container">
+    <div id="seriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7">
+      <!-- Dynamically injected series cards -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="noResults" class="hidden text-center py-20">
+      <i class="fas fa-satellite-dish text-5xl text-slate-600 mb-4 animate-bounce"></i>
+      <h3 class="text-xl font-bold text-slate-300">No matching series found</h3>
+      <p class="text-sm text-slate-500 mt-1">Try adjusting your search keywords or category filters.</p>
+    </div>
+  </main>
+
+  <!-- JavaScript Database & Controller Logic -->
+  <script>
+    const seriesData = [
+      // ================= ANIMATION SERIES =================
+      { title: "Win or Lose", category: "animation", url: "https://cloudtv.store/win-or-lose.html", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5-PAkIS5iMf2Go-_zWeDx70dwYFlwOuRYOQ&s", badge: "PIXAR", badgeColor: "bg-pink-600", subtitle: "8 Episodes", progress: 85 },
+      { title: "Cars on the Road", category: "animation", url: "https://cloudtv.store/cars-on-the-road.html", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT71F3hLwCgzLY-ZQsapvoC1Udaox8pyPY_MQ&s", badge: "PIXAR", badgeColor: "bg-pink-600", subtitle: "9 Episodes", progress: 90 },
+      { title: "INVINCIBLE", category: "animation", url: "https://cloudtv.store/invincible.html", img: "https://image.tmdb.org/t/p/w500/4tblBrslcKSifMVZ3TmtT2ukMor.jpg", badge: "PRIME", badgeColor: "bg-indigo-600", subtitle: "4 Seasons", progress: 95 },
+      { title: "Iron Man", category: "animation", url: "https://cloudtv.store/ironman-2010", img: "https://image.tmdb.org/t/p/w500/zOTJT7JbzSrMBX2OCGPqUnkQA4y.jpg", badge: "MARVEL", badgeColor: "bg-red-600", subtitle: "Season 1", progress: 80 },
+      { title: "What If...?", category: "animation", url: "https://cloudtv.store/what-if", img: "https://cdn.marvel.com/content/1x/online_2_0.jpg", badge: "MARVEL", badgeColor: "bg-red-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Dream Productions", category: "animation", url: "https://cloudtv.store/dream-productions.html", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYUs8_SYgbb3yq-blX7NjKAPCwZxKhFNTF_g&s", badge: "PIXAR", badgeColor: "bg-pink-600", subtitle: "4 Episodes", progress: 85 },
+      { title: "Sausage Party", category: "animation", url: "https://cloudtv.store/sausage-party", img: "https://image.tmdb.org/t/p/w500/cPLk5uvh0Am0UQlxRP4xqNcVQD3.jpg", badge: "PRIME", badgeColor: "bg-indigo-600", subtitle: "2 Seasons", progress: 85 },
+      { title: "Dug Days", category: "animation", url: "https://cloudtv.store/dug-days.html", img: "https://m.media-amazon.com/images/M/MV5BZTc3NzY3MjctZWQ1Ny00NjUwLWE2YzgtMTBiMzNhZWQ1ZjdjXkEyXkFqcGc@._V1_.jpg", badge: "PIXAR", badgeColor: "bg-pink-600", subtitle: "5 Episodes", progress: 90 },
+      { title: "The Croods", category: "animation", url: "https://cloudtv.store/the-croods-family-tree.html", img: "https://image.tmdb.org/t/p/w500/c0x8dGn1eurgf2TxvLHsPBrJKks.jpg", badge: "DREAMWORKS", badgeColor: "bg-amber-600", subtitle: "8 Seasons", progress: 90 },
+      { title: "Abominable & City", category: "animation", url: "https://cloudtv.store/abominable", img: "https://lh6.googleusercontent.com/proxy/mghSAYUOeUgw7Ulu3eCYOOg2nf_kSlFN68AB-4UtCXrl0Tl-FdCRJIuzXR57dQDGChPPdF2wuirAdfmgCMA9s_32opr3Eq3lx2IYgqRinMBMio57sK42lXKSyOQsKYgT", badge: "DREAMWORKS", badgeColor: "bg-amber-600", subtitle: "2 Seasons", progress: 85 },
+      { title: "Wondla", category: "animation", url: "https://cloudtv.store/wondla", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpRlRATUJ0r6raTqqAAsZ_UO1T3itiRjdIFg&s", badge: "APPLE TV", badgeColor: "bg-cyan-600", subtitle: "3 Seasons", progress: 90 },
+      { title: "Knuckles", category: "animation", url: "https://cloudtv.store/knuckles", img: "https://image.tmdb.org/t/p/w500/sK6Nr6KNUA4WlAHyNBTioz9FK87.jpg", badge: "PARAMOUNT+", badgeColor: "bg-blue-600", subtitle: "6 Episodes", progress: 90 },
+      { title: "Ice Age: Scrat Tales", category: "animation", url: "https://cloudtv.store/scrat-tales", img: "https://image.tmdb.org/t/p/w500/mTfYwY7DELH08SeO8LyUMe9Tvfr.jpg", badge: "DISNEY+", badgeColor: "bg-sky-600", subtitle: "6 Episodes", progress: 95 },
+      { title: "Monsters at Work", category: "animation", url: "https://cloudtv.store/monsters-at-work", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTj4_ar3ZlwYNDw5wr_QyMBBSphxRAVUIQt9w&s", badge: "DISNEY", badgeColor: "bg-sky-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "I Am Groot", category: "animation", url: "https://cloudtv.store/i-am-groot", img: "https://images.ottplay.com/images/groot-571.jpeg", badge: "MARVEL", badgeColor: "bg-red-600", subtitle: "10 Shorts", progress: 95 },
+      { title: "The Bad Guys", category: "animation", url: "https://cloudtv.store/bad-guys-breaking-in", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrr07eYbxhQJ6EeV29Dbi4RAwM_tvsXS87DA&s", badge: "DREAMWORKS", badgeColor: "bg-amber-600", subtitle: "9 Episodes", progress: 85 },
+      { title: "Baymax!", category: "animation", url: "https://cloudtv.store/baymax", img: "https://lh6.googleusercontent.com/proxy/8RyEOqikJ7y3b_L3uOWS7HrPDqVN2H86o6sB9msfNiR1eeu4Mnqj9WSg72V9ZFuX5fc9WvG2RJk17QIwP6paFPQ", badge: "DISNEY", badgeColor: "bg-sky-600", subtitle: "6 Episodes", progress: 90 },
+      { title: "Iwájú", category: "animation", url: "https://cloudtv.store/iwaju", img: "https://lh4.googleusercontent.com/proxy/TUhifyNdbC-PHS9kbMseJD6rbygctVcjnxIbBKrGNBTl_E80tQsA_YVzRdWCmoOpVZotswVxaRXBoBHAkpweqAb1LXX7", badge: "DISNEY", badgeColor: "bg-sky-600", subtitle: "6 Episodes", progress: 85 },
+      { title: "Zootopia+", category: "animation", url: "https://cloudtv.store/zootopia+", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDZPFzT3xLSB71qXFd8eV4w9rQUMQ-v_t5xw&s", badge: "DISNEY", badgeColor: "bg-sky-600", subtitle: "6 Episodes", progress: 90 },
+      { title: "Unicorn Academy", category: "animation", url: "https://cloudtv.store/unicorn-academy", img: "https://f.woowoowoowoo.net/resize/250x400/f0/c1/f0c195e3383bcbd83d3536005cbaa8d7/f0c195e3383bcbd83d3536005cbaa8d7.jpg", badge: "NETFLIX", badgeColor: "bg-pink-600", subtitle: "Season 1", progress: 85 },
+      { title: "X-MEN '97", category: "animation", url: "https://cloudtv.store/x-men-97", img: "https://i.pinimg.com/736x/82/3e/55/823e55dc793055395586756b089419b5.jpg", badge: "MARVEL", badgeColor: "bg-red-600", subtitle: "10 Episodes", progress: 95 },
+      { title: "Knights: Black Panther", category: "animation", url: "https://cloudtv.store/marvel-knights-black-panther.html", img: "https://m.media-amazon.com/images/M/MV5BN2VkMTMwZTAtZDVlNi00MDY3LTliMjQtMDk0MTc2ZTcwZjMzXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", badge: "MARVEL", badgeColor: "bg-red-600", subtitle: "6 Episodes", progress: 85 },
+      { title: "Eyes of Wakanda", category: "animation", url: "https://cloudtv.store/eyes-of-wakanda", img: "https://lh4.googleusercontent.com/proxy/BI80_Yqnhae0EiOl3xmdrvNDqRqxKEJuEUKzPIOH-BLfAlNe3cdO0Evv4ma5xs76Q-5IHEHAiBl22bPNqBMbGsrxi7vhPM1FRn_4jzQYvQ", badge: "MARVEL", badgeColor: "bg-red-600", subtitle: "4 Episodes", progress: 90 },
+      { title: "Marvel Zombies", category: "animation", url: "https://cloudtv.store/marvel-zombies.html", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSN2O1qLQy2qb7fR0amvZcoD5eS5g2Xsae-0A&s", badge: "MARVEL", badgeColor: "bg-red-600", subtitle: "4 Episodes", progress: 90 },
+      { title: "Black Panther's Quest", category: "animation", url: "https://cloudtv.store/black-panthers-quest.html", img: "https://i.ebayimg.com/images/g/Zw4AAOSwI2hgGgce/s-l1200.jpg", badge: "AVENGERS", badgeColor: "bg-red-600", subtitle: "23 Episodes", progress: 95 },
+
+      // ================= HINDI SERIES =================
+      { title: "Rocket Boys", category: "hindi", url: "https://cloudtv.store/rocket-boys", img: "https://image.tmdb.org/t/p/w500/esNv5JwxVsvu6vZE7bTVeu0mLaA.jpg", badge: "SONY LIV", badgeColor: "bg-cyan-600", subtitle: "2 Seasons", progress: 75 },
+      { title: "Space Gen: Chandrayaan", category: "hindi", url: "https://cloudtv.store/chandrayaan", img: "https://image.tmdb.org/t/p/w500/d6WIr1vycFCCdYewgRf8dpWxQQE.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Saare Jahan Se Accha", category: "hindi", url: "https://cloudtv.store/saare-jahan-se-accha", img: "https://image.tmdb.org/t/p/w500/p4moj0PXeFILF3mNBJywHqmfBm7.jpg", badge: "NETFLIX", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Operation Safed Sagar", category: "hindi", url: "https://cloudtv.store/operation", img: "https://image.tmdb.org/t/p/w500/v4i6T3oDXMYJsYMKFH0Dvnd1laD.jpg", badge: "NETFLIX", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Bose: Dead/Alive", category: "hindi", url: "https://cloudtv.store/bose", img: "https://image.tmdb.org/t/p/w500/avXCgz1dJAZwCUxPyLrFbNZWHJL.jpg", badge: "MINITV", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Swaraj - Samagra Gatha", category: "hindi", url: "https://cloudtv.store/swaraj", img: "https://image.tmdb.org/t/p/w780/5e3pFG4CzL3aypx5w6Lvk18Pile.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "2 Seasons", progress: 75 },
+      { title: "Aspirants", category: "hindi", url: "https://cloudtv.store/aspirants", img: "https://image.tmdb.org/t/p/w500/lG8wK40jH4EX6dbVFI1fzw2E96N.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "3 Seasons", progress: 75 },
+      { title: "Matka King", category: "hindi", url: "https://cloudtv.store/matka-king", img: "https://image.tmdb.org/t/p/w500/cAWIMbCmzVBi86kEOHKjHZCKGyo.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Made in India: Titan", category: "hindi", url: "https://cloudtv.store/titan", img: "https://image.tmdb.org/t/p/w500/fFr4AFhf8nTW2VGJ15fkeHIyMW5.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "The Revolutionaries", category: "hindi", url: "https://cloudtv.store/revolutionaries", img: "https://image.tmdb.org/t/p/w500/7oikzZ6QgHsTjZ2JqkmKH1NRS9A.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Gram Chikitsalay", category: "hindi", url: "https://cloudtv.store/gram-chikitsalay", img: "https://image.tmdb.org/t/p/w500/zlGrtv8yrNW6hqdHpPH6YDJckVB.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "2 Seasons", progress: 75 },
+      { title: "Adarsh Baal Vidyalaya", category: "hindi", url: "https://cloudtv.store/adarsh-baal-vidyalaya", img: "https://image.tmdb.org/t/p/w500/1XbcSqURUvhgu2nnoQRZ7cXmTsJ.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Pritam & Pedro", category: "hindi", url: "https://cloudtv.store/pritam-pedro", img: "https://image.tmdb.org/t/p/w500/lC0MtWrnC0SZICFHazagIfVKy0x.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Family Kirana Store", category: "hindi", url: "https://cloudtv.store/kirana", img: "https://image.tmdb.org/t/p/w500/a1IqCytKqLJrqAvI5o9KjsTkQb2.jpg", badge: "TVF", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Chiraiya", category: "hindi", url: "https://cloudtv.store/chiraiya", img: "https://image.tmdb.org/t/p/w500/cNoZPewe859o7JAI1Qde4lrZjrN.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Raakh", category: "hindi", url: "https://cloudtv.store/raakh", img: "https://image.tmdb.org/t/p/w500/5MbNy94ia4ZLf8OGtSfSjjlxxWN.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Murshid", category: "hindi", url: "https://cloudtv.store/murshid", img: "https://image.tmdb.org/t/p/w500/mlE61XHa1LlVTOdXn1hZvtlLoa7.jpg", badge: "ZEE5", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Clean Up Company", category: "hindi", url: "https://cloudtv.store/clean-up-company", img: "https://image.tmdb.org/t/p/w500/t5HvXT9HYB5R9niBG4y0AMypTfC.jpg", badge: "MX PLAYER", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Waiting Hai", category: "hindi", url: "https://cloudtv.store/waiting-hai", img: "https://image.tmdb.org/t/p/w500/6jBdFWwgKgkcrAGaDfTC9bpudaN.jpg", badge: "MX PLAYER", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Ab Hoga Hisaab", category: "hindi", url: "https://cloudtv.store/ab-hoga-hisaab", img: "https://image.tmdb.org/t/p/w500/4QKn1CDbWnONAeBbZsyDM2mfp4k.jpg", badge: "MX PLAYER", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Tribhuvan Mishra CA Topper", category: "hindi", url: "https://cloudtv.store/ca-topper", img: "https://image.tmdb.org/t/p/w500/OELqaq5LTrsR8l8GsjrArbxN0a.jpg", badge: "NETFLIX", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Musafir Cafe", category: "hindi", url: "https://cloudtv.store/musafir-cafe", img: "https://image.tmdb.org/t/p/w500/1SbKjtoRKIpVQG5iYnumnfQIqhd.jpg", badge: "NETFLIX", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Gullak", category: "hindi", url: "https://cloudtv.store/gullak", img: "https://image.tmdb.org/t/p/w500/arn3mvRYSrEqO7vaKbH8QxM8EEK.jpg", badge: "SONY LIV", badgeColor: "bg-cyan-600", subtitle: "5 Seasons", progress: 75 },
+      { title: "Chumbak", category: "hindi", url: "https://cloudtv.store/chumbak", img: "https://image.tmdb.org/t/p/w500/r2TJ9s9uhfxTssar1gBAWcxIXx7.jpg", badge: "NETFLIX", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Real Kashmir FC", category: "hindi", url: "https://cloudtv.store/real-kashmir-football-club", img: "https://image.tmdb.org/t/p/w500/zsoQmFWqLuCzpNvyeIrggUsoc9I.jpg", badge: "SONY LIV", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Special Ops", category: "hindi", url: "https://cloudtv.store/special-ops", img: "https://image.tmdb.org/t/p/w500/rTOGcNzVMYGezpx9AxX7ilzLNEp.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "3 Seasons", progress: 75 },
+      { title: "Shoorveer", category: "hindi", url: "https://cloudtv.store/shoorveer", img: "https://image.tmdb.org/t/p/w500/trAAMkLOR86Iuxf1P0c3By7uinQ.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Inspector Avinash", category: "hindi", url: "https://cloudtv.store/inspector-avinash", img: "https://image.tmdb.org/t/p/w500/cyX4lDfLOtejavCY5PbtRlk4C63.jpg", badge: "JIOCINEMA", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Avrodh: Siege Within", category: "hindi", url: "https://ultron3000.github.io/hindiseries/avrodh", img: "https://image.tmdb.org/t/p/w500/t4fMUfvXYdkUBNNvHoU1tbOkicl.jpg", badge: "SONY LIV", badgeColor: "bg-cyan-600", subtitle: "2 Seasons", progress: 75 },
+      { title: "Kurukshetra", category: "hindi", url: "https://cloudtv.store/kurukshetra", img: "https://image.tmdb.org/t/p/w500/amNFukSD0hpj5omLkikfaNw42sp.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Hunkkaar: The Roar", category: "hindi", url: "https://cloudtv.store/hunkkaar", img: "https://image.tmdb.org/t/p/w780/uL2qCVBou6WYMRxMbP5olmBpTjD.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Legend of Karna", category: "hindi", url: "https://cloudtv.store/karna", img: "https://image.tmdb.org/t/p/w500/jzVP9rqT2YH2nTx3l3csmmU9B1q.jpg", badge: "SONY LIV", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "The Family Man", category: "hindi", url: "https://cloudtv.store/the-family-man.html", img: "https://image.tmdb.org/t/p/w500/tE1NUJqw9gV6AVjQ1GTK78LbWJ9.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "3 Seasons", progress: 75 },
+      { title: "Aakhri Sach", category: "hindi", url: "https://cloudtv.store/aakhri-sach", img: "https://image.tmdb.org/t/p/w500/3IECENDEtwSkNS7QeTleI3FmEk4.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Brown", category: "hindi", url: "https://cloudtv.store/brown", img: "https://image.tmdb.org/t/p/w500/nE56qEFNNTMtnsx4jcGD9pikZCs.jpg", badge: "ZEE5", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Single Papa", category: "hindi", url: "https://cloudtv.store/single-papa", img: "https://image.tmdb.org/t/p/w500/kSj4h1uVAKGn9yVjJTC1tQGcnoZ.jpg", badge: "NETFLIX", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Scam 1992", category: "hindi", url: "https://cloudtv.store/scam-1992", img: "https://image.tmdb.org/t/p/w500/fiimZ9Xt5cPTPHNrbS4QautBXpU.jpg", badge: "SONY LIV", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Taskaree", category: "hindi", url: "https://cloudtv.store/taskaree", img: "https://image.tmdb.org/t/p/w500/25fKRXvQLBq4nXu9vjOVJcvCiiD.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Sankalp", category: "hindi", url: "https://cloudtv.store/sankalp", img: "https://image.tmdb.org/t/p/w500/pEDJjtxj1PPd10PvJLo9w9RlQx6.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Vimal Khanna", category: "hindi", url: "https://cloudtv.store/vimal-khanna", img: "https://qqcdnpictest.mxplay.com/pic/22dc5916536783a08f631b98c884448d/en/2x3/320x480/test_pic1778767073485_badged_1778994018588.webp", badge: "MX PLAYER", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Maamla Legal Hai", category: "hindi", url: "https://cloudtv.store/maamla-legal-hai", img: "https://image.tmdb.org/t/p/w500/A9krYovvsiUXcQLOnQ2O53MHVwd.jpg", badge: "NETFLIX", badgeColor: "bg-cyan-600", subtitle: "2 Seasons", progress: 75 },
+      { title: "Daldal", category: "hindi", url: "https://cloudtv.store/daldal", img: "https://image.tmdb.org/t/p/w500/wvAwkKeIs7bkb6EJAYRzpANhfxM.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Raktanchal", category: "hindi", url: "https://cloudtv.store/raktanchal", img: "https://image.tmdb.org/t/p/w500/tSLQ7AUHCbu5COsInB3WnrZKMgt.jpg", badge: "MX PLAYER", badgeColor: "bg-cyan-600", subtitle: "3 Seasons", progress: 75 },
+      { title: "Panchayat", category: "hindi", url: "https://cloudtv.store/panchayat", img: "https://image.tmdb.org/t/p/w500/cPPhduQk1eX0MAE2JDaQRh3UZB5.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "4 Seasons", progress: 75 },
+      { title: "Mirzapur", category: "hindi", url: "https://cloudtv.store/mirzapur", img: "https://image.tmdb.org/t/p/w500/p0qM8hhlMF5DuxHBzl2EZR6TehX.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "3 Seasons", progress: 75 },
+      { title: "Undekhi", category: "hindi", url: "https://cloudtv.store/undekhi", img: "https://image.tmdb.org/t/p/w500/zpYt71i0A85oRmZloT1eBkgwpbr.jpg", badge: "SONY LIV", badgeColor: "bg-cyan-600", subtitle: "3 Seasons", progress: 75 },
+      { title: "Bhaukaal", category: "hindi", url: "https://cloudtv.store/bhaukaal", img: "https://image.tmdb.org/t/p/w500/AtJ3wC0GhROcelqE8RNM5j4vgNj.jpg", badge: "MX PLAYER", badgeColor: "bg-cyan-600", subtitle: "2 Seasons", progress: 75 },
+      { title: "Secret of Shiledars", category: "hindi", url: "https://cloudtv.store/the-secret-of-the-shiledars", img: "https://image.tmdb.org/t/p/w500/toe159W0ykkX6m9h3RSRBZv46ZA.jpg", badge: "HOTSTAR", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Dharavi Bank", category: "hindi", url: "https://cloudtv.store/dharavi-bank", img: "https://image.tmdb.org/t/p/w500/uL54l2L1Jynqcq26LVZrp5GV6pE.jpg", badge: "MX PLAYER", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Paatal Lok", category: "hindi", url: "https://cloudtv.store/paatal-lok", img: "https://image.tmdb.org/t/p/w500/qL8f1E0W42CFHG8NtpyJFMPeKnw.jpg", badge: "PRIME", badgeColor: "bg-cyan-600", subtitle: "2 Seasons", progress: 75 },
+      { title: "Kashmir Files Unreported", category: "hindi", url: "https://cloudtv.store/the-kashmir-files-unreported", img: "https://image.tmdb.org/t/p/w500/2YxCVXIvFA9voveLtE61yj4to4S.jpg", badge: "ZEE5", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Jeet Ki Zid", category: "hindi", url: "https://cloudtv.store/jeet-ki-zid", img: "https://image.tmdb.org/t/p/w500/gD8TIqKlbP7ksEoArJ4tstqTgIC.jpg", badge: "ZEE5", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+      { title: "Bastards of Bollywood", category: "hindi", url: "https://cloudtv.store/the-bastards-of-bollywood", img: "https://image.tmdb.org/t/p/w500/6QFnXFx5XJAp0SxMd9g23cbti4m.jpg", badge: "NETFLIX", badgeColor: "bg-cyan-600", subtitle: "Season 1", progress: 75 },
+
+      // ================= MARATHI SERIES =================
+      { title: "देवखेळ", category: "marathi", url: "https://cloudtv.store/devkhel", img: "https://image.tmdb.org/t/p/w500/fGOlVDJSF7hhw2sIQiZksXFhYJJ.jpg", badge: "ZEE5", badgeColor: "bg-emerald-600", subtitle: "SEASON 1", progress: 75 },
+      { title: "खोताची वाडी", category: "marathi", url: "https://cloudtv.store/khotachi-wadi", img: "https://image.tmdb.org/t/p/w500/k1puhJ9DqQYmkggeM1XFjYDdhwC.jpg", badge: "ULTRA", badgeColor: "bg-emerald-600", subtitle: "SEASON 1", progress: 75 },
+      { title: "रानबाजार", category: "marathi", url: "https://cloudtv.store/raanbaazaar", img: "https://upload.wikimedia.org/wikipedia/en/thumb/7/71/RaanBaazaar.jpeg/250px-RaanBaazaar.jpeg", badge: "PLANET", badgeColor: "bg-emerald-600", subtitle: "SEASON 1", progress: 75 },
+      { title: "पेट पुराण", category: "marathi", url: "https://cloudtv.store/pet-puraan", img: "https://image.tmdb.org/t/p/w500/negijog2C7vdGhCjlaW6WnVB4IN.jpg", badge: "SONY LIV", badgeColor: "bg-emerald-600", subtitle: "SEASON 1", progress: 75 },
+      { title: "बी.ई. रोजगर", category: "marathi", url: "https://cloudtv.store/berojgar", img: "https://m.media-amazon.com/images/M/MV5BMDZmNGM0YmEtNzBmMS00YTBiLThiMDUtNmYzZGM2OTQ5MWNjXkEyXkFqcGc@._V1_.jpg", badge: "भाडिपा", badgeColor: "bg-emerald-600", subtitle: "SEASON 1", progress: 75 },
+
+      // ================= ENGLISH SERIES =================
+      { title: "Loki", category: "english", url: "https://cloudtv.store/loki", img: "https://cdn.marvel.com/content/1x/online_9.jpg", badge: "MARVEL", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 75 },
+      { title: "The Boys", category: "english", url: "https://cloudtv.store/the-boys", img: "https://image.tmdb.org/t/p/w500/2zmTngn1tYC1AvfnrFLhxeD82hz.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "4 Seasons", progress: 90 },
+      { title: "Avatar: Last Airbender", category: "english", url: "https://cloudtv.store/airbender", img: "https://image.tmdb.org/t/p/w500/lzZpWEaqzP0qVA5nkCc5ASbNcSy.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Below", category: "english", url: "https://cloudtv.store/below", img: "https://image.tmdb.org/t/p/w500/qadm9To9UfMVenVzGVLt0m0iuxv.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "The Trap", category: "english", url: "https://cloudtv.store/trap", img: "https://image.tmdb.org/t/p/w500/dkLTaC44QqnCAgzCf180TxMmmG5.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "East of Eden", category: "english", url: "https://cloudtv.store/eden", img: "https://image.tmdb.org/t/p/w780/axdUor6gLMTrrB1UF4Qfy0TTSyX.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Widow's Bay", category: "english", url: "https://cloudtv.store/widows-bay", img: "https://image.tmdb.org/t/p/w500/5lcxWLVAEICkFpuAiV1aMy7ZZj3.jpg", badge: "APPLE TV+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Dutton Ranch", category: "english", url: "https://cloudtv.store/dutton-ranch", img: "https://image.tmdb.org/t/p/w500/xsiecCxd8lkcAluw0wWwbW5CwSv.jpg", badge: "PARAMOUNT+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Mobland", category: "english", url: "https://cloudtv.store/mobland", img: "https://image.tmdb.org/t/p/w780/5Xc7WpWsgflfgEMoBlf9TmWhfbH.jpg", badge: "PARAMOUNT+", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Little House Prairie", category: "english", url: "https://cloudtv.store/prairie", img: "https://image.tmdb.org/t/p/w500/oWUGSadxC9vQPOCeHDDVfDezmQC.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Wonder Man", category: "english", url: "https://cloudtv.store/wonder-man", img: "https://image.tmdb.org/t/p/w500/6yy9nQlFt2l6UVWzrfhszFCaZ5C.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Stranger Things", category: "english", url: "https://cloudtv.store/stranger-things", img: "https://image.tmdb.org/t/p/w500/cVxVGwHce6xnW8UaVUggaPXbmoE.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "5 Seasons", progress: 90 },
+      { title: "Wednesday", category: "english", url: "https://cloudtv.store/wednesday", img: "https://m.media-amazon.com/images/I/712iUgQM16L._AC_UF894,1000_QL80_.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Transporter Series", category: "english", url: "https://cloudtv.store/transporter-series", img: "https://image.tmdb.org/t/p/w500/23ESZ6mTcJw8zHOkW4G38uIz147.jpg", badge: "TNT", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Stuart Fails Universe", category: "english", url: "https://cloudtv.store/stuart", img: "https://image.tmdb.org/t/p/w500/iQbTbwmLX5Nh1nlH21YUJPWt3Zo.jpg", badge: "HBO MAX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Steal", category: "english", url: "https://cloudtv.store/steal", img: "https://image.tmdb.org/t/p/w500/6KmlaPhsohh3Ki9XJUq0jiUYbf3.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Lanterns", category: "english", url: "https://cloudtv.store/lanterns", img: "https://image.tmdb.org/t/p/w500/isYpgPQdjxJ0Ht04uKgilVYGPp9.jpg", badge: "DC", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Reacher", category: "english", url: "https://cloudtv.store/reacher", img: "https://image.tmdb.org/t/p/w500/31GlRQMiDunO8cl3NxTz34U64rf.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "4 Seasons", progress: 90 },
+      { title: "Neagley", category: "english", url: "https://cloudtv.store/neagley", img: "https://image.tmdb.org/t/p/w500/1m6CxPAuGv2oHc1ahERrcVWnk2J.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Fallout", category: "english", url: "https://cloudtv.store/fallout", img: "https://i.redd.it/fallout-2024-textless-official-posters-for-amazon-prime-v0-rtl87qakzxmc1.jpg?width=864&format=pjpg&auto=webp&s=791f85b10cd16ce59c77a39c187c67a494197eae", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "One Piece", category: "english", url: "https://cloudtv.store/one-piece", img: "https://image.tmdb.org/t/p/w500/blWCPEqDGLBuLB9u89CxP9ORQP4.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "CIA", category: "english", url: "https://cloudtv.store/cia", img: "https://image.tmdb.org/t/p/w500/8XbgWv137Umc8resTDeWh9ff7Y0.jpg", badge: "PARAMOUNT+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "The Day of the Jackal", category: "english", url: "https://cloudtv.store/jackal", img: "https://image.tmdb.org/t/p/w500/tYLecM3WSEjlkKhkGiH5G68Dprm.jpg", badge: "PEACOCK", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Crystal Lake", category: "english", url: "https://cloudtv.store/crystal-lake", img: "https://image.tmdb.org/t/p/w500/3ENhExiD2fcjk5FX0AcAXcvLu9N.jpg", badge: "PEACOCK", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "The Copenhagen Test", category: "english", url: "https://cloudtv.store/copenhagen", img: "https://image.tmdb.org/t/p/w500/iAjcpCceLixP5k9lRw1y4fhsLwV.jpg", badge: "PEACOCK", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Legends", category: "english", url: "https://cloudtv.store/legends", img: "https://image.tmdb.org/t/p/w500/eYYTgBtsvvA3fC1feyvoqv0G9Gl.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "I Will Find You", category: "english", url: "https://cloudtv.store/i-will-find-you", img: "https://image.tmdb.org/t/p/w500/7WJJucDKypqoF27vfvErMPigP3P.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Man on Fire", category: "english", url: "https://cloudtv.store/man-on-fire", img: "https://image.tmdb.org/t/p/w500/9cZzmT8rhBXbZ1QFBPs3ggABYB3.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Bodyguard", category: "english", url: "https://cloudtv.store/bodyguard", img: "https://image.tmdb.org/t/p/w780/5DUJTrHTRLHLCKWriPhdusQogAv.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "NCIS: Sydney", category: "english", url: "https://cloudtv.store/ncis-sydney", img: "https://image.tmdb.org/t/p/w500/6dYDa6h1AOZ7iZ1zv3nlw7qhErX.jpg", badge: "CBS", badgeColor: "bg-blue-600", subtitle: "3 Seasons", progress: 90 },
+      { title: "HIS & HERS", category: "english", url: "https://cloudtv.store/his-hers", img: "https://image.tmdb.org/t/p/w500/cDSXLVQLkCSBIpBx3UW04TsfZ5c.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Pluribus", category: "english", url: "https://cloudtv.store/pluribus", img: "https://image.tmdb.org/t/p/w500/nrM2xFUfKJJEmZzd5d7kohT2G0C.jpg", badge: "APPLE TV+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 75 },
+      { title: "Spider-Noir", category: "english", url: "https://cloudtv.store/spider-noir", img: "https://image.tmdb.org/t/p/w500/oD8WSVqz84ZRfelkr7JPeJwR9Iv.jpg", badge: "MGM+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 75 },
+      { title: "Hijack", category: "english", url: "https://cloudtv.store/hijack", img: "https://image.tmdb.org/t/p/w500/szDEqqarPi3YqiPLevm7LObYrDJ.jpg", badge: "APPLE TV+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Alien: Earth", category: "english", url: "https://cloudtv.store/alien-earth", img: "https://image.tmdb.org/t/p/w500/yueXS3q8BtoWekcHOATFHicLl3e.jpg", badge: "FX / HULU", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Has Fallen", category: "english", url: "https://cloudtv.store/has-fallen", img: "https://image.tmdb.org/t/p/w780/eyK6fy2NWfjmyBjUvRAR14FynPK.jpg", badge: "CANAL+", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Upload", category: "english", url: "https://cloudtv.store/upload", img: "https://image.tmdb.org/t/p/w500/6TPGDrU9MyWbn2TpggJphVAVXiq.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "4 Seasons", progress: 90 },
+      { title: "Last Resort", category: "english", url: "https://cloudtv.store/last-resort", img: "https://image.tmdb.org/t/p/w500/1SxZtDZIEuc077pm8uacHiWTrBZ.jpg", badge: "ABC", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Memory of a Killer", category: "english", url: "https://cloudtv.store/memory-of-a-killer", img: "https://image.tmdb.org/t/p/w500/3kpXrWW6gmlngwgSa52IhBpjPuz.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Kill Jackie", category: "english", url: "https://cloudtv.store/jackie", img: "https://image.tmdb.org/t/p/w500/vvMpr6wO4EMtA7lqftffTel5c1R.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Carrie", category: "english", url: "https://cloudtv.store/carrie", img: "https://image.tmdb.org/t/p/w500/eXjk4W4robXs7l1YXwaXMv4f2qb.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Tulsa King", category: "english", url: "https://cloudtv.store/tulsa-king", img: "https://image.tmdb.org/t/p/w500/rOYLWCdAifpUtPlTf1WHxyaxeMt.jpg", badge: "PARAMOUNT+", badgeColor: "bg-blue-600", subtitle: "3 Seasons", progress: 90 },
+      { title: "Mr. Robot", category: "english", url: "https://cloudtv.store/mr-robot", img: "https://image.tmdb.org/t/p/w500/kv1nRqgebSsREnd7vdC2pSGjpLo.jpg", badge: "USA / NETFLIX", badgeColor: "bg-blue-600", subtitle: "4 Seasons", progress: 90 },
+      { title: "Jack Ryan", category: "english", url: "https://cloudtv.store/jack-ryan", img: "https://artworks.thetvdb.com/banners/series/336261/posters/5faa6c7f6a93e.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "4 Seasons", progress: 90 },
+      { title: "War: Land & Sea", category: "english", url: "https://cloudtv.store/the-war-between-the-land-and-the-sea", img: "https://image.tmdb.org/t/p/w500/4wDU61HtpXbcwpgCy1xnodxKRYN.jpg", badge: "BBC / DISNEY", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Peacemaker", category: "english", url: "https://cloudtv.store/peacemaker", img: "https://image.tmdb.org/t/p/w500/eYzbGcYnOUlvj2fa76pTgIXogd7.jpg", badge: "MAX", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Furious", category: "english", url: "https://cloudtv.store/furious", img: "https://image.tmdb.org/t/p/w500/xnxxrEKtBaIcI1ewq50pLkOMU6u.jpg", badge: "HULU", badgeColor: "bg-blue-600", subtitle: "8 Episodes", progress: 90 },
+      { title: "Scorpion", category: "english", url: "https://cloudtv.store/scorpion", img: "https://image.tmdb.org/t/p/w500/hzeirSF6bRjssDh5JFrm5WRwFLd.jpg", badge: "CBS", badgeColor: "bg-blue-600", subtitle: "4 Seasons", progress: 90 },
+      { title: "Trigger Point", category: "english", url: "https://cloudtv.store/trigger-point", img: "https://image.tmdb.org/t/p/w500/cjMpwyWL0l1n0EkNw88QyzWRsHW.jpg", badge: "ITV", badgeColor: "bg-blue-600", subtitle: "3 Seasons", progress: 90 },
+      { title: "The Night Manager", category: "english", url: "https://cloudtv.store/the-night-manager", img: "https://image.tmdb.org/t/p/w500/f99GnEDXsfF3sicqZzSqjzQutAB.jpg", badge: "BBC / AMC", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Citadel", category: "english", url: "https://cloudtv.store/citadel", img: "https://indianexpress.com/wp-content/uploads/2023/05/Citadel.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "6 Episodes", progress: 90 },
+      { title: "Daredevil: Born Again", category: "english", url: "https://cloudtv.store/daredevil-born-again", img: "https://image.tmdb.org/t/p/w500/9lLuhV703HGCbnz6FxnqCwIwzAZ.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Falcon & Winter Soldier", category: "english", url: "https://cloudtv.store/falcon-winter", img: "https://image.tmdb.org/t/p/w500/6kbAMLteGO8yyewYau6bJ683sw7.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Agent Carter", category: "english", url: "https://cloudtv.store/agent-carter", img: "https://image.tmdb.org/t/p/w500/fe79VYyLp5ZBstpJ4oukpuUT3B.jpg", badge: "ABC", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Hawkeye", category: "english", url: "https://cloudtv.store/hawkeye", img: "https://image.tmdb.org/t/p/w500/ct5pNE5dDHryHLDnxyZPYcqO1sz.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "She-Hulk: Attorney", category: "english", url: "https://cloudtv.store/she-hulk", img: "https://image.tmdb.org/t/p/w500/hJfI6AGrmr4uSHRccfJuSsapvOb.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Ironheart", category: "english", url: "https://cloudtv.store/ironheart", img: "https://image.tmdb.org/t/p/w500/2mdVj5ObYOroWlPWz3gegxi45ND.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Moon Knight", category: "english", url: "https://cloudtv.store/moon-knight", img: "https://image.tmdb.org/t/p/w500/vKDUmKO6F9bSKKyHhg7YGbgcEeF.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "WandaVision", category: "english", url: "https://cloudtv.store/wanda-vision", img: "https://image.tmdb.org/t/p/w500/frobUz2X5Pc8OiVZU8Oo5K3NKMM.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "VisionQuest", category: "english", url: "https://cloudtv.store/vision", img: "https://image.tmdb.org/t/p/w500/WGyAyBPncfuu8MZhLY9RtfZPM0.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Drug Lords", category: "english", url: "https://cloudtv.store/drug-lords", img: "https://image.tmdb.org/t/p/original/LnhreOwWRHrsahhj1NXwknHUyH.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Secret Invasion", category: "english", url: "https://cloudtv.store/secret-invasion", img: "https://image.tmdb.org/t/p/w500/f5ZMzzCvt2IzVDxr54gHPv9jlC9.jpg", badge: "DISNEY+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Silo", category: "english", url: "https://cloudtv.store/silo", img: "https://image.tmdb.org/t/p/w500/c2OijvbFEXBW1onbzuvENr4CGQB.jpg", badge: "APPLE TV+", badgeColor: "bg-blue-600", subtitle: "3 Seasons", progress: 90 },
+      { title: "Cape Fear", category: "english", url: "https://cloudtv.store/cape-fear", img: "https://image.tmdb.org/t/p/w500/3ZLy3cfQa9prahoRq1teMmr5pvW.jpg", badge: "APPLE TV+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Lucky", category: "english", url: "https://cloudtv.store/lucky", img: "https://image.tmdb.org/t/p/w500/xsrkiXg8EuNNtbPtbmvCxg95gK7.jpg", badge: "APPLE TV+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Star City", category: "english", url: "https://cloudtv.store/star-city", img: "https://image.tmdb.org/t/p/w500/b8VtW6IEIyEWYdnJHx8bG8RdAak.jpg", badge: "APPLE TV+", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Quantum Leap", category: "english", url: "https://cloudtv.store/quantum-leap", img: "https://m.media-amazon.com/images/M/MV5BOThjYzU0YTYtMDBhNC00ZjczLTg0NGEtNGZlZmY2ODgxYTY1XkEyXkFqcGc@._V1_.jpg", badge: "NBC", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "IT: Welcome to Derry", category: "english", url: "https://cloudtv.store/it", img: "https://image.tmdb.org/t/p/w500/nyy3BITeIjviv6PFIXtqvc8i6xi.jpg", badge: "HBO MAX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "FUBAR", category: "english", url: "https://cloudtv.store/fubar", img: "https://image.tmdb.org/t/p/w500/6fM34tcGFp3A0csyxJJomknZB4b.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Man vs Baby", category: "english", url: "https://cloudtv.store/man-vs-baby", img: "https://image.tmdb.org/t/p/w500/x7UZVTEr26H5yCSVQoKTeBdvUvg.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Man vs Bee", category: "english", url: "https://cloudtv.store/man-vs-bee", img: "https://image.tmdb.org/t/p/w185/c80mxgOPvSWJBcgWoI5bf3et5Ws.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Ted", category: "english", url: "https://cloudtv.store/ted", img: "https://image.tmdb.org/t/p/w500/cPn71YFDENH0JkWUezlsLyWmLfN.jpg", badge: "PEACOCK", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "True Lies", category: "english", url: "https://cloudtv.store/true-lies", img: "https://image.tmdb.org/t/p/w500/lTnVIuHiXPnFALOSBQWUOkSR8Ya.jpg", badge: "CBS", badgeColor: "bg-blue-600", subtitle: "Season 1", progress: 90 },
+      { title: "Space Force", category: "english", url: "https://cloudtv.store/space-force", img: "https://image.tmdb.org/t/p/w500/zgu3p4NvisS8CI68cUfBKbvAvu8.jpg", badge: "NETFLIX", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 },
+      { title: "Silicon Valley", category: "english", url: "https://cloudtv.store/silicon-valley", img: "https://image.tmdb.org/t/p/w500/4ptpmWBVD9HY9hMh8Cbs6SMiy7p.jpg", badge: "HBO", badgeColor: "bg-blue-600", subtitle: "6 Seasons", progress: 90 },
+      { title: "Citadel: Diana", category: "english", url: "https://cloudtv.store/diana", img: "https://artworks.thetvdb.com/banners/v4/series/435360/posters/670853135c84f.jpg", badge: "PRIME", badgeColor: "bg-blue-600", subtitle: "6 Episodes", progress: 90 },
+      { title: "Special Ops: Lioness", category: "english", url: "https://cloudtv.store/lioness", img: "https://image.tmdb.org/t/p/w500/ajaXSmdAlYYhnvx1EIsvpfN949y.jpg", badge: "PARAMOUNT+", badgeColor: "bg-blue-600", subtitle: "2 Seasons", progress: 90 }
+    ];
+
+    let currentCategory = 'all';
+    let isCompactGrid = false;
+
+    function updateCounts() {
+      document.getElementById('countAll').innerText = seriesData.length;
+      document.getElementById('countAnim').innerText = seriesData.filter(s => s.category === 'animation').length;
+      document.getElementById('countEng').innerText = seriesData.filter(s => s.category === 'english').length;
+      document.getElementById('countHin').innerText = seriesData.filter(s => s.category === 'hindi').length;
+      document.getElementById('countMar').innerText = seriesData.filter(s => s.category === 'marathi').length;
+    }
+
+    function renderSeries(filter = '', category = 'all') {
+      const grid = document.getElementById('seriesGrid');
+      const noResults = document.getElementById('noResults');
+      grid.innerHTML = '';
+
+      const filtered = seriesData.filter(item => {
+        const matchesCategory = category === 'all' || item.category === category;
+        const matchesSearch = item.title.toLowerCase().includes(filter) || item.badge.toLowerCase().includes(filter);
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+        filtered.forEach(item => {
+          const card = document.createElement('a');
+          card.href = item.url;
+          card.className = "series-card rounded-2xl overflow-hidden bg-slate-900/90 dark:bg-slate-900/90 border border-slate-800 block group shadow-xl";
+          card.innerHTML = `
+            <div class="aspect-[2/3] overflow-hidden relative">
+              <img src="${item.img}" loading="lazy" alt="${item.title}" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+              <span class="absolute top-2.5 right-2.5 text-[10px] font-extrabold ${item.badgeColor} text-white px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
+                ${item.badge}
+              </span>
+            </div>
+            <div class="p-3.5">
+              <h3 class="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors truncate">${item.title}</h3>
+              <p class="text-xs text-slate-400 mt-0.5">${item.subtitle}</p>
+              <div class="mt-3 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-cyan-500 via-indigo-500 to-pink-500 w-[${item.progress}%] rounded-full"></div>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+    }
+
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        if (btn.getAttribute('data-category') === cat) {
+          btn.className = "cat-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/30 flex items-center gap-2";
+        } else {
+          btn.className = "cat-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 flex items-center gap-2";
+        }
+      });
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      renderSeries(query, currentCategory);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      renderSeries(query, currentCategory);
+    });
+
+    // Grid Density Toggle
+    const gridToggleBtn = document.getElementById('gridToggleBtn');
+    const seriesGrid = document.getElementById('seriesGrid');
+    const gridIcon = document.getElementById('gridIcon');
+
+    gridToggleBtn.addEventListener('click', () => {
+      isCompactGrid = !isCompactGrid;
+      if (isCompactGrid) {
+        seriesGrid.className = "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4";
+        gridIcon.className = "fas fa-th text-pink-400";
+      } else {
+        seriesGrid.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-7";
+        gridIcon.className = "fas fa-th-large text-cyan-400";
+      }
+    });
+
+    // Dark / Light Mode Toggle
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const bodyTag = document.getElementById('bodyTag');
+    const themeIcon = document.getElementById('themeIcon');
+    let isDarkMode = true;
+
+    themeToggleBtn.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      if (isDarkMode) {
+        bodyTag.className = "min-h-screen cyber-bg-dark text-slate-100 antialiased selection:bg-cyan-500 selection:text-black transition-colors duration-300";
+        themeIcon.className = "fas fa-sun text-amber-400 group-hover:rotate-90 transition-transform duration-500";
+      } else {
+        bodyTag.className = "min-h-screen cyber-bg-light text-slate-900 antialiased selection:bg-cyan-500 selection:text-white transition-colors duration-300";
+        themeIcon.className = "fas fa-moon text-indigo-600 group-hover:rotate-90 transition-transform duration-500";
+      }
+    });
+
+    updateCounts();
+    renderSeries('', 'all');
+  </script>
+
+  <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+
+<!-- NATIVE BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
+  <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+</div>
+
+<!-- SMART LINK -->
+<!-- https://bendspecimen.com/xryvjm9rea?key=b4e26d6e3cb4df0655e816b8991eeae3 -->
+
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+  
+</body>
+</html>
