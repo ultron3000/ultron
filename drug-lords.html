@@ -10,15 +10,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-  <!-- HLS.js (from Tukaram for HLS playback support) -->
+  <!-- HLS.js for HLS video playback support -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
-    /* PRESERVE original Hawkeye CSS and animations but adjust theme to Loki */
+    /* Theme Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #07060b; }
-    ::-webkit-scrollbar-thumb { background: #9ad34d; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #bfe67a; }
+    ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
@@ -28,324 +28,315 @@
     .pulse-hover:hover { animation: pulse 1.5s infinite; }
     .arrow-bounce { animation: arrowBounce 2s infinite; }
 
-    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
-
     .glow-effect { position: relative; transition: transform 0.3s ease; }
-    .glow-effect:hover { transform: translateY(-5px); }
-    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(154,211,77,0); transition:box-shadow 0.3s; pointer-events:none;}
-    .glow-effect:hover::after { box-shadow:0 0 20px rgba(154,211,77,0.25); }
+    .glow-effect:hover { transform: translateY(-3px); }
+    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(220,38,38,0); transition:box-shadow 0.3s; pointer-events:none;}
+    .glow-effect:hover::after { box-shadow:0 0 20px rgba(220,38,38,0.3); }
 
-    .gradient-text { background: linear-gradient(90deg, #9ad34d, #7f3cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .gradient-text { background: linear-gradient(90deg, #ef4444, #f59e0b); -webkit-background-clip:text; background-clip:text; color:transparent; }
     .marvel-font { font-family: 'Marvel', sans-serif; }
 
-    /* Responsive adjustments */
-    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
-    @media (max-width: 400px) { .movie-card { width: 100%; } }
+    /* Theme Accents */
+    header { background: linear-gradient(90deg, #0f0505, #080303); }
+    .narco-accent { color: #dc2626; }
+    .btn-narco { background: #dc2626; color: #ffffff; }
+    .btn-narco:hover { background: #b91c1c; }
 
-    /* Modal player container (Tukaram-style preserved) */
-    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
-    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
+    body { background: #0a0a0c; color: #e5e7eb; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
 
-    /* small Loki tint changes to Hawkeye theme */
-    header { background: linear-gradient(90deg,#081018,#04040a); }
-    .bg-loki { background: linear-gradient(135deg,#7f3cff,#9ad34d); }
-    .loki-accent { color: #9ad34d; }
-    .btn-loki { background: #9ad34d; color: #061217; }
-    .btn-loki:hover { filter: brightness(0.95); }
-    .watchlist-checkbox .checkmark { border: 2px solid #9ad34d; }
-    .progress-bar-fill { background: #9ad34d; }
-
-    /* keep other original Hawkeye styles intact */
-    body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
-
-    /* Illumination modal styles (keeps modal look consistent) */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    /* Modal Backdrop & Card */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.92); display:none; align-items:center; justify-content:center; z-index:9999; }
     .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#121217; border: 1px solid rgba(220, 38, 38, 0.2); box-shadow:0 30px 80px rgba(0,0,0,0.9); }
     .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
     .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
 
     .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
     .player-meta .meta-left { max-width:65%; }
-    .player-meta h3 { margin:0; font-size:1.125rem; }
+    .player-meta h3 { margin:0; font-size:1.125rem; font-weight:700; color: #ffffff; }
     .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
 
     .controls-row { display:flex; gap:8px; align-items:center; }
 
     .btn {
-      background:transparent; border:1px solid #9ad34d; color:#9ad34d;
-      padding:8px 12px; border-radius:8px; cursor:pointer;
+      background:transparent; border:1px solid #dc2626; color:#ef4444;
+      padding:8px 12px; border-radius:8px; cursor:pointer; transition: all 0.2s;
     }
-    .btn:hover { background: rgba(154,211,77,0.06); }
+    .btn:hover { background: rgba(220,38,38,0.15); color: #ffffff; }
 
     .hidden { display:none; }
 
-    @media(max-width:640px){
-      .player-meta .meta-left { max-width:55%; }
-      .btn { padding:6px 8px; font-size:0.9rem; }
+    /* MOBILE GRID & PLAYER ADAPTATIONS */
+    @media (max-width: 640px) {
+      .player-wrapper {
+        padding-bottom: 56.25% !important;
+        height: 0 !important;
+        position: relative !important;
+      }
+      .player-meta {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 12px !important;
+        background: #121217 !important;
+      }
+      .controls-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 8px !important;
+      }
+      .btn {
+        padding: 6px 10px !important;
+        font-size: 0.85rem !important;
+      }
     }
-    /* ============================
-   MOBILE FIX — DOES NOT TOUCH DESKTOP
-   ============================ */
-
-@media (max-width: 767px) {
-
-  /* Proper mobile player layout (matches your working version) */
-  .player-wrapper {
-    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
-    height: 0 !important;
-    position: relative !important;
-  }
-
-  .player-wrapper video,
-  .player-wrapper iframe {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Proper stacked mobile controls */
-  .player-meta {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 12px !important;
-    background: #0b1220 !important;
-    z-index: 20 !important;
-  }
-
-  /* Mobile control row wraps properly */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 10px !important;
-  }
-
-  /* Mobile buttons use icon-only layout */
-  .btn {
-    padding: 8px !important;
-    font-size: 0 !important;      /* hides text on mobile */
-    min-width: 48px !important;
-    height: 44px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .btn i {
-    font-size: 1.1rem !important;
-    margin: 0 !important;
-  }
-
-  /* Close button always visible on mobile */
-  #topCloseBtn {
-    opacity: 1 !important;
-  }
-}
-
   </style>
 </head>
-<body class="bg-black text-gray-100 min-h-screen font-roboto">
+<body class="bg-[#0a0a0c] text-gray-100 min-h-screen font-roboto">
   <!-- Header -->
-  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+  <header class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-red-900/40 shadow-xl">
+    <div class="container mx-auto px-3 sm:px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2 sm:space-x-3">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
-         <span class="text-2xl">💊</span>
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-red-700 to-amber-600 rounded-full flex items-center justify-center pulse-hover shadow-lg">
+          <span class="text-xl">💊</span>
         </div>
-        <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">Drug Lords</h1>
+        <h1 class="text-xl sm:text-3xl font-bold gradient-text marvel-font tracking-wider">DRUG LORDS</h1>
       </div>
       
-      <div class="flex items-center space-x-2 sm:space-x-4">
-        <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
-          <i class="fas fa-bookmark loki-accent"></i>
-          <span class="tooltip-text">My Watchlist</span>
+      <div class="flex items-center space-x-1 sm:space-x-3">
+        <button id="watchlist-btn" class="p-2 rounded-full hover:bg-red-950/40 transition relative">
+          <i class="fas fa-bookmark narco-accent"></i>
         </button>
-        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-moon loki-accent"></i>
-          <span class="tooltip-text">Toggle Theme</span>
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-red-950/40 transition">
+          <i class="fas fa-moon narco-accent"></i>
         </button>
-        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-search loki-accent"></i>
-          <span class="tooltip-text">Search</span>
+        <button id="search-btn" class="p-2 rounded-full hover:bg-red-950/40 transition">
+          <i class="fas fa-search narco-accent"></i>
         </button>
       </div>
     </div>
     
-    <!-- Search Bar (hidden by default) -->
-    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
-      <div class="relative">
-        <input id="global-search" type="text" placeholder="Search episodes..." 
-               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400">
-        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d]"></i>
+    <!-- Search Bar -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/90">
+      <div class="relative max-w-xl mx-auto">
+        <input id="global-search" type="text" placeholder="Search kingpins, cartels, or episodes..." 
+               class="w-full bg-gray-900 border border-red-800/40 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-red-600 placeholder-gray-500 text-sm">
+        <i class="fas fa-search absolute left-3 top-3 text-red-500 text-sm"></i>
       </div>
     </div>
     
-    <!-- Watchlist dropdown (hidden by default) -->
-    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
-      <div class="px-4 py-2 border-b border-gray-700">
-        <h3 class="font-semibold loki-accent">My Watchlist</h3>
+    <!-- Watchlist Dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-72 bg-gray-900 border border-red-900/50 rounded-xl shadow-2xl z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-800 flex justify-between items-center">
+        <h3 class="font-semibold narco-accent marvel-font tracking-wide">MY WATCHLIST</h3>
       </div>
       <div id="watchlist-items" class="max-h-60 overflow-y-auto">
-        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
+        <div class="px-4 py-3 text-center text-gray-500 text-sm">Your watchlist is empty</div>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-<main class="container mx-auto px-4 py-6">
-  <!-- Hero Section -->
-  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
-    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
-    
-    <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
-      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <!-- Loki hero trailer (YouTube embed) -->
-        <iframe
-          src="https://www.youtube.com/embed/MHibrUkSWiU?autoplay=1&mute=1&loop=1&playlist=MHibrUkSWiU&controls=0&modestbranding=1"
-          frameborder="0"
-          allow="autoplay; fullscreen"
-          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        ></iframe>
-      </div>
+  <main class="container mx-auto px-3 sm:px-4 py-6">
+    <!-- Hero Section -->
+    <section class="mb-10 relative overflow-hidden rounded-2xl border border-red-900/30 shadow-2xl bg-black">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
       
-      <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
-        <div class="flex items-center mb-1 sm:mb-2">
-          <span class="bg-[#9ad34d] text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2">NETFLIX</span>
-          <span class="text-[#9ad34d] text-xs sm:text-sm">Seasons 1-2</span>
+      <div class="relative w-full h-[280px] sm:h-[360px] md:h-[420px] lg:h-[480px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/MHibrUkSWiU?autoplay=1&mute=1&loop=1&playlist=MHibrUkSWiU&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-60"
+          ></iframe>
         </div>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">Drug Lords</h2>
-        <div class="flex items-center mb-2 sm:mb-4">
-          <div class="flex items-center mr-2 sm:mr-4">
-            <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
-            <span class="text-white text-xs sm:text-sm">7.8</span>
+        
+        <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-8 md:p-10 max-w-2xl">
+          <div class="flex items-center mb-2 space-x-2">
+            <span class="bg-red-600 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">NETFLIX</span>
+            <span class="text-amber-500 text-xs sm:text-sm font-medium">Seasons 1–2 Complete</span>
           </div>
-          <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
+          <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-2 gradient-text marvel-font tracking-wider uppercase">DRUG LORDS</h2>
+          <div class="flex items-center mb-3 text-xs sm:text-sm">
+            <div class="flex items-center mr-4 text-amber-400">
+              <i class="fas fa-star mr-1"></i>
+              <span class="font-bold text-white">7.8</span>
+            </div>
+            <span class="text-gray-400 mr-4">Docuseries</span>
+            <span class="text-gray-400">Crime / Biography</span>
+          </div>
+          <p class="text-gray-300 mb-4 sm:mb-5 max-w-lg text-xs sm:text-sm md:text-base leading-relaxed line-clamp-3">
+            An inside look into the world’s most notorious drug kingpins, the ruthless cartels they built, and the law enforcement agencies that risked everything to bring them down.
+          </p>
+          <div class="flex space-x-3">
+            <button id="play-all" class="btn-narco font-bold py-2 px-5 sm:px-6 rounded-full transition flex items-center shadow-lg text-xs sm:text-sm pulse-hover">
+              <i class="fas fa-play mr-2 text-xs"></i> Play S1 E1
+            </button>
+            <button id="hero-trailer-btn" class="bg-gray-900/80 hover:bg-gray-800 text-white border border-gray-700 font-semibold py-2 px-5 sm:px-6 rounded-full transition flex items-center backdrop-blur-sm text-xs sm:text-sm">
+              <i class="fas fa-film text-amber-500 mr-2"></i> Trailer
+            </button>
+          </div>
         </div>
-        <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">Documentary series examining drug cartels and kingpins from around the world.</p>
-        <div class="flex space-x-2 sm:space-x-3">
-          <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
-            <i class="fas fa-play mr-2"></i> Play All
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-info-circle mr-2"></i> Details
-          </button>
-        </div>
-      </div>
-      <div class="absolute bottom-4 right-4 z-20">
-        <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
-          <i class="fas fa-chevron-down arrow-bounce"></i>
-        </button>
-      </div>
-    </div>
-  </section>
-</main>
-
-    <!-- Season Navigation -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
-      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-tv loki-accent mr-2"></i>
-        <span class="marvel-font">EPISODES</span>
-      </h3>
-      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-        <div class="flex items-center space-x-2 min-w-max">
-          <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="2">Season 2</button>
-        </div>
-      </div>
-    </div>
-
-
-      
-
-
-    <!-- Episodes Grid -->
-    <section class="container mx-auto px-4">
-      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-        <!-- Movie cards inserted by JS -->
       </div>
     </section>
 
-    <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
-  </div>
+    <!-- Season Navigation -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-gray-800/80 pb-4">
+      <h3 class="text-lg sm:text-xl font-bold flex items-center mb-3 sm:mb-0">
+        <i class="fas fa-list-ul narco-accent mr-2.5"></i>
+        <span class="marvel-font tracking-wider text-xl sm:text-2xl">EPISODES</span>
+      </h3>
+      <div class="w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max">
+          <button class="season-btn active bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase shadow" data-season="all">All Seasons</button>
+          <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-4 py-1.5 rounded-full text-xs font-medium border border-gray-800" data-season="1">Season 1</button>
+          <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-4 py-1.5 rounded-full text-xs font-medium border border-gray-800" data-season="2">Season 2</button>
+        </div>
+      </div>
+    </div>
 
-  <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
+    <!-- Episodes Grid (Fixed Mobile View with grid-cols-2) -->
+    <section>
+      <div id="movies" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <!-- Movie cards inserted dynamically by JS -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-900 mt-12 py-8 text-center text-gray-600">
+    <div class="flex justify-center space-x-6 mb-3">
+      <a href="#" class="text-gray-500 hover:text-red-500 transition"><i class="fab fa-facebook-f text-lg"></i></a>
+      <a href="#" class="text-gray-500 hover:text-red-500 transition"><i class="fab fa-twitter text-lg"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-500 hover:text-red-500 transition"><i class="fab fa-instagram text-lg"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-500 hover:text-red-500 transition"><i class="fab fa-youtube text-lg"></i></a>
+    </div>
+    <p class="text-xs text-gray-500">© Drug Lords Docuseries Fan Portal.</p>
+  </footer>
+
+  <!-- Playback Modal -->
   <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true">
-      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2">
+      <button id="closeModalBtn" class="absolute top-3 right-3 sm:top-4 sm:right-4 z-50 text-white hover:text-red-500 text-xl sm:text-2xl bg-black/70 rounded-full w-9 h-9 flex items-center justify-center border border-gray-700">
         <i class="fas fa-times"></i>
       </button>
 
       <div class="player-wrapper" id="playerWrapper">
-        <!-- video or iframe injected here -->
         <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       </div>
 
       <div class="player-meta">
         <div class="meta-left">
           <h3 id="modalTitle">Episode Title</h3>
-          <p id="modalDesc" class="text-sm">Episode description will appear here.</p>
+          <p id="modalDesc" class="text-xs sm:text-sm">Episode description will appear here.</p>
         </div>
         <div class="controls-row">
-          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-1"></i>Prev</button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-1"></i>Play</button>
+          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-1"></i></button>
           <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Loading Spinner -->
-  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#9ad34d]"></div>
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-600"></div>
   </div>
 
   <script>
 // ========================
-// SEASON SELECTOR + DATA
+// EPISODE DATA (Video URLs set to "00" as requested)
 // ========================
-
-// Quantum Leap (2022) – Season 1 & 2
 const movies = [
+  /* -------------------------
+     SEASON 1 (4 Episodes)
+  ------------------------- */
+  { 
+    title: "Pablo Escobar", 
+    season: 1, 
+    episode: 1, 
+    duration: "50 min", 
+    image: "https://image.tmdb.org/t/p/w185/tSRHHoi2SrZSxoD3F2Xh0j2rYPS.jpg", 
+    video: "https://mega.nz/embed/r5YRyb6b#yzmA1CDlGNER4yZRXv_MUaqMnwwCf7f0JclziOUQB7M",
+    description: "The rise and violent reign of Pablo Escobar, boss of the Medellín Cartel." 
+  },
+  { 
+    title: "The Cali Cartel", 
+    season: 1, 
+    episode: 2, 
+    duration: "50 min", 
+    image: "https://image.tmdb.org/t/p/w185/yez8DYrUqpCuunREl9sBIc70rmD.jpg", 
+    video: "https://mega.nz/embed/b4Y10J4D#hOzJwrXYNL4F6ehMKKp4cDT3U7IfN5XdkSdzqzjpMFw",
+    description: "How the tactical Cali Cartel systematically dismantled rivals and took control." 
+  },
+  { 
+    title: "Frank Lucas & The Country Boys", 
+    season: 1, 
+    episode: 3, 
+    duration: "50 min", 
+    image: "https://image.tmdb.org/t/p/w185/5EG8p0K2F6IQEt2FsrLfAfna4vU.jpg", 
+    video: "https://mega.nz/embed/OkZXBJAS#_zgcvEm5aUSqSlIatpbjf65uL2k7GQG_xwfqC34-vR4",
+    description: "Frank Lucas rules Harlem's heroin trade with direct Southeast Asian supply lines." 
+  },
+  { 
+    title: "The Pettingill Clan", 
+    season: 1, 
+    episode: 4, 
+    duration: "50 min", 
+    image: "https://image.tmdb.org/t/p/w185/oNNomdGjWWOtkBdqVfjunD4YlIJ.jpg", 
+    video: "https://mega.nz/embed/7sZhmCqL#9n32p6R-t99QzWSKxh3fZtHZ5DQq1YGj1BaA-D24kkM",
+    description: "Australia’s brutal crime family dominated the underground Melbourne heroin network." 
+  },
 
-/* -------------------------
-   SEASON 1 (4 Episodes)
-------------------------- */
-{ title:"Pablo Escobar", season:1, episode:1, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/tSRHHoi2SrZSxoD3F2Xh0j2rYPS.jpg", video:"https://scvo.omniquestsolutions.shop/v4/np/hhiri/cf-master.txt?v=1740334037" },
-
-{ title:"The Cali Cartel", season:1, episode:2, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/yez8DYrUqpCuunREl9sBIc70rmD.jpg", video:"https://sxic.viatrix.space/v4/36/ggxor/index-f1-v1-a1.txt" },
-
-{ title:"Frank Lucas & The Country Boys: Heroin Kings of New York", season:1, episode:3, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/5EG8p0K2F6IQEt2FsrLfAfna4vU.jpg", video:"https://sipt.mirantiafabrics.cyou/v4/9a/uu9v8/index-f1-v1-a1.txt" },
-
-{ title:"The Pettingill Clan: Australia’s Heroin Dynasty", season:1, episode:4, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/oNNomdGjWWOtkBdqVfjunD4YlIJ.jpg", video:"https://skra.bluehavenhospitality.sbs/v4/ck/qqnba/index-f1-v1-a1.txt" },
-
-/* -------------------------
-   SEASON 2 (4 Episodes)
-------------------------- */
-{ title:"El Chapo", season:2, episode:1, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/z0j7ubFtxl1RPeEUoVhf76Bupq7.jpg", video:"https://s6sy.marvellium.shop/v4/61/lls5k/cf-master.txt?v=1740335859" },
-
-{ title:"Jemeker Thompson: Crack Queen of L.A", season:2, episode:2, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/zOiLoJZSGM70k0CG3omcTeix0lv.jpg", video:"https://sipt.novavisioninvestment.online/v4/ck/iigq5/cf-master.txt?v=1740336240" },
-
-{ title:"Christopher Coke: Jamaica’s Narco Prince", season:2, episode:3, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/cJ0bDhyVOuhleMcMJk4L783o3DF.jpg", video:"https://s9dz.stellarforgeinnovation.online/v4/ck/llsvu/index-f1-v1-a1.txt" },
-
-{ title:"Klaas Bruinsma: Europe’s Hash King", season:2, episode:4, duration:"50 min", image:"https://image.tmdb.org/t/p/w185/e323MghFlEZh344TLnk1xdvD7Pb.jpg", video:"https://sunl.bryndellcreativehub.cyou/v4/lf/kklwh/index-f1-v1-a1.txt" },
-
+  /* -------------------------
+     SEASON 2 (4 Episodes)
+  ------------------------- */
+  { 
+    title: "El Chapo", 
+    season: 2, 
+    episode: 1, 
+    duration: "50 min", 
+    image: "https://image.tmdb.org/t/p/w185/z0j7ubFtxl1RPeEUoVhf76Bupq7.jpg", 
+    video: "https://mega.nz/embed/z1wXgRKQ#AckhoyHCLWHYPimk9B6k0PNf9X63HsSpXMlFICc3FaQ",
+    description: "Joaquín 'El Chapo' Guzmán builds the global empire of the Sinaloa Cartel." 
+  },
+  { 
+    title: "Jemeker Thompson", 
+    season: 2, 
+    episode: 2, 
+    duration: "50 min", 
+    image: "https://image.tmdb.org/t/p/w185/zOiLoJZSGM70k0CG3omcTeix0lv.jpg", 
+    video: "https://mega.nz/embed/i0pVGTyD#IQ9e8X2tsMsAlPTgCQXggXfsIIfKqY_7Hjy-KZUfOi4",
+    description: "Rising to top-tier status in 1980s Los Angeles during the crack boom." 
+  },
+  { 
+    title: "Christopher Coke", 
+    season: 2, 
+    episode: 3, 
+    duration: "50 min", 
+    image: "https://image.tmdb.org/t/p/w185/cJ0bDhyVOuhleMcMJk4L783o3DF.jpg", 
+    video: "https://mega.nz/embed/q14UyDAA#7P6vcyW9ccRFPB-ZNLBlM2jgtQtuD8RN-Iniyhl3M6s",
+    description: "'Dudus' Coke commands Kingston's Shower Posse cartel with political influence." 
+  },
+  { 
+    title: "Klaas Bruinsma", 
+    season: 2, 
+    episode: 4, 
+    duration: "50 min", 
+    image: "https://image.tmdb.org/t/p/w185/e323MghFlEZh344TLnk1xdvD7Pb.jpg", 
+    video: "https://mega.nz/embed/mkxDGYJC#zDWT-XXZrE8u63LKOlR9c6dbPPKfX3jPuU_7jFIVGWE",
+    description: "The kingpin who constructed Europe's massive hashish syndicate." 
+  }
 ];
 
     /* ------------------------
-       Modal / playback implementation (Illumination-style)
+       Modal / Playback Logic
        ------------------------ */
     const playerWrapper = document.getElementById('playerWrapper');
     const playbackModal = document.getElementById('playbackModal');
@@ -408,29 +399,26 @@ const movies = [
       resetPlayerContainer();
       showModal();
 
-      // pick source
       let src = '';
       if (typeof item.video === 'object' && item.video !== null) {
         src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
       } else {
         src = item.video;
       }
-      if (!src) {
-        showError('No video url');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=`, 500);
+      
+      // Handle "00" placeholder cleanly
+      if (!src || src === "00") {
+        playerWrapper.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 text-center p-4">
+          <i class="fas fa-video-slash text-red-500 text-3xl mb-2"></i>
+          <p class="text-white font-semibold">Video URL placeholder set to "00"</p>
+          <p class="text-gray-400 text-xs mt-1">Please replace "00" with your valid video stream URL.</p>
+        </div>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
         return;
       }
 
       const lc = (src||'').toLowerCase();
 
-      // iframe hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // youtube
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -443,11 +431,10 @@ const movies = [
           }
         } catch(e){}
         playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
         return;
       }
 
-      // HLS
       if (isHls(src)) {
         const v = document.getElementById('modalVideo');
         if (!v) { showError('Video element missing'); return; }
@@ -459,40 +446,32 @@ const movies = [
           } catch (e) { console.warn('HLS attach error', e); }
           currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
             v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
           });
           currentHls.on(Hls.Events.ERROR, function(event, data) {
             console.warn('HLS error', data);
             if (data && data.fatal) {
               try { currentHls.destroy(); } catch(e){}
               currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+              showError('HLS fatal error');
             }
           });
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
           v.src = src;
           v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
         }
         return;
       }
 
-      // MP4
       if (isMP4(src)) {
         const v = document.getElementById('modalVideo');
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+        if (!v) return;
         v.src = src;
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
         return;
       }
-
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
     /* Controls */
@@ -501,29 +480,27 @@ const movies = [
       if (!v) return;
       if (v.paused) {
         v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-1"></i>Pause';
       } else {
         v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
       }
     }
     function playNext() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
+      if (currentIndex == null) return;
       if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
     }
     function playPrev() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
+      if (currentIndex == null) return;
       if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
     }
     function toggleFullscreen() {
       const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
       if (!el) return;
       if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
       } else {
         document.exitFullscreen();
       }
@@ -535,7 +512,6 @@ const movies = [
       muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
-    /* Close modal & cleanup */
     function closeModalHandler() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -543,147 +519,92 @@ const movies = [
       }
       const v = document.getElementById('modalVideo');
       if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
+        try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e){}
       }
       resetPlayerContainer();
       hideModal();
       currentIndex = null;
       currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Play';
     }
 
-    /* Events wiring */
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
     prevBtn.addEventListener('click', playPrev);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     muteBtn.addEventListener('click', toggleMute);
-
     closeModalBtn.addEventListener('click', closeModalHandler);
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
+    playbackModal.addEventListener('click', function(e){ if (e.target === playbackModal) closeModalHandler(); });
 
-    // Keyboard shortcuts when modal active
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
-      }
-    });
-
-    /* Attach video timeupdate/ended listeners */
-    function attachVideoListeners() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.removeEventListener('timeupdate', onTimeUpdate);
-      v.addEventListener('timeupdate', onTimeUpdate);
-      v.removeEventListener('ended', onEnded);
-      v.addEventListener('ended', onEnded);
-    }
-    function onTimeUpdate() {
-      // If the original progress bar exists, update it (preserved element)
-      const progressBarFill = document.getElementById('progress-bar-fill');
-      const videoEl = document.getElementById('modalVideo');
-      if (!progressBarFill || !videoEl || !videoEl.duration) return;
-      const p = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = p + '%';
-    }
-    function onEnded() {
-      const playBtn = document.getElementById('play-btn') || playPauseBtn;
-      if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
-    }
-
-    /* Render episodes grid (wired to openPlayer) */
+    /* Render Episodes Grid */
     const container = document.getElementById('movies');
     function renderMovies(list) {
       container.innerHTML = '';
       list.forEach((movie, index) => {
         const card = document.createElement('div');
-        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
+        card.className = 'movie-card fade-in glow-effect bg-gray-900/60 border border-gray-800 rounded-xl p-2 sm:p-2.5 overflow-hidden cursor-pointer transition hover:border-red-900/60';
         card.innerHTML = `
-          <div class="relative group overflow-hidden rounded-xl">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <div>
-                <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
-                <p class="text-gray-300 text-xs sm:text-sm">${movie.duration || ''}</p>
-              </div>
+          <div class="relative group overflow-hidden rounded-lg">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-44 md:h-52 object-cover rounded-lg transform group-hover:scale-105 transition duration-300">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2 sm:p-3">
+              <p class="text-gray-300 text-[11px] sm:text-xs line-clamp-2">${movie.description || ''}</p>
             </div>
-            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
-              <i class="fas fa-play"></i>
+            <div class="absolute top-2 right-2 bg-black/70 text-red-500 rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center shadow">
+              <i class="fas fa-play text-xs"></i>
             </div>
-            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
-              <i class="fas fa-star text-[#9ad34d] text-xs mr-1"></i>
-              <span class="text-white text-xs">${movie.rating || ''}</span>
+            <div class="absolute top-2 left-2 bg-black/80 px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold text-amber-500">
+              S${movie.season} E${movie.episode}
             </div>
           </div>
-          <div class="mt-3">
-            <h3 class="text-white font-medium">${movie.title}</h3>
-            <div class="flex items-center text-gray-400 text-sm mt-1">
-              <span>S${movie.season} • E${movie.episode}</span>
-              <span class="mx-2">•</span>
-              <span>${movie.duration || ''}</span>
+          <div class="mt-2 px-0.5">
+            <h3 class="text-white font-bold text-xs sm:text-base line-clamp-1">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-[11px] sm:text-xs mt-1">
+              <span><i class="far fa-clock mr-1 text-red-500"></i>${movie.duration || '50 min'}</span>
             </div>
           </div>
         `;
         card.addEventListener('click', () => {
-          // show loading spinner while resolving
           const loadingSpinner = document.getElementById('loading-spinner');
           if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-          // open with the full current list and index
           openPlayer(list, index);
-          // attach listeners for the video element (a bit delayed to allow element to exist)
-          setTimeout(()=> attachVideoListeners(), 200);
           if (loadingSpinner) loadingSpinner.classList.add('hidden');
         });
         container.appendChild(card);
       });
     }
 
-    /* Init page (season filtering wired up) */
+    /* Page Initialization */
     function initPage() {
       renderMovies(movies);
 
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-        });
-      });
-
-      // Season buttons: filter content
       const seasonBtns = document.querySelectorAll('.season-btn');
       seasonBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+          seasonBtns.forEach(b => {
+            b.classList.remove('active', 'bg-red-600', 'text-white');
+            b.classList.add('bg-gray-900', 'text-gray-300');
+          });
+          this.classList.add('active', 'bg-red-600', 'text-white');
+          this.classList.remove('bg-gray-900', 'text-gray-300');
           const season = this.dataset.season;
-          let filtered;
-          if (!season || season === 'all') filtered = movies;
-          else filtered = movies.filter(m => String(m.season) === String(season));
+          let filtered = (!season || season === 'all') ? movies : movies.filter(m => String(m.season) === String(season));
           renderMovies(filtered);
         });
       });
 
-      // Play All behavior (starts at first)
-      const playAllBtn = document.getElementById('play-all');
-      if (playAllBtn) {
-        playAllBtn.addEventListener('click', () => {
-          openPlayer(movies, 0);
-          setTimeout(()=> attachVideoListeners(), 200);
-        });
-      }
+      document.getElementById('play-all')?.addEventListener('click', () => {
+        openPlayer(movies, 0);
+      });
 
-      // Global search wiring
+      document.getElementById('hero-trailer-btn')?.addEventListener('click', () => {
+        const trailerItem = [{
+          title: "Drug Lords — Official Netflix Trailer",
+          description: "Official Netflix docuseries trailer examining drug kingpins and cartels worldwide.",
+          video: "https://www.youtube.com/embed/MHibrUkSWiU"
+        }];
+        openPlayer(trailerItem, 0);
+      });
+
       const globalSearch = document.getElementById('global-search');
       if (globalSearch) {
         globalSearch.addEventListener('input', (e) => {
@@ -696,36 +617,35 @@ const movies = [
         });
       }
 
-      // Watchlist UI wiring preserved
       updateWatchlist();
     }
 
-    /* Watchlist functions (preserved) */
     const watchlistItems = document.getElementById('watchlist-items');
     function updateWatchlist() {
       if (!watchlistItems) return;
       watchlistItems.innerHTML = '';
       const watchlistMovies = movies.filter(m => m.inWatchlist);
       if (watchlistMovies.length === 0) {
-        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
+        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-500 text-xs">Your watchlist is empty</div>';
         return;
       }
       watchlistMovies.forEach((movie, idx) => {
         const index = movies.indexOf(movie);
         const item = document.createElement('div');
-        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
+        item.className = 'px-4 py-2.5 hover:bg-gray-800/60 transition cursor-pointer flex items-center justify-between border-b border-gray-800/40';
         item.innerHTML = `
-          <div class="flex items-center">
-            <span class="text-[#9ad34d] text-sm mr-2">${idx + 1}.</span>
-            <span class="text-white text-sm truncate">${movie.title}</span>
+          <div class="flex items-center truncate">
+            <span class="text-red-500 font-bold text-xs mr-2">${idx + 1}.</span>
+            <span class="text-white text-xs truncate">${movie.title}</span>
           </div>
-          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
-            <i class="fas fa-times"></i>
+          <button class="remove-from-watchlist text-gray-500 hover:text-red-500 ml-2" data-index="${index}">
+            <i class="fas fa-times text-xs"></i>
           </button>
         `;
         item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
           e.stopPropagation();
-          removeFromWatchlist(index);
+          movies[index].inWatchlist = false;
+          updateWatchlist();
         });
         item.addEventListener('click', () => {
           openPlayer(movies, index);
@@ -734,17 +654,12 @@ const movies = [
         watchlistItems.appendChild(item);
       });
     }
-    function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
-    function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
 
-    /* preserved UI event wiring (search, theme, watchlist, modal controls) */
-    const containerEl = document.getElementById('movies');
     const searchBtn = document.getElementById('search-btn');
     const searchBar = document.getElementById('search-bar');
     const themeToggle = document.getElementById('theme-toggle');
     const watchlistBtn = document.getElementById('watchlist-btn');
     const watchlistDropdown = document.getElementById('watchlist-dropdown');
-    const closeModal = document.getElementById('close-modal');
 
     searchBtn.addEventListener('click', () => {
       searchBar.classList.toggle('hidden');
@@ -760,33 +675,378 @@ const movies = [
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('bg-gray-100');
       document.body.classList.toggle('text-gray-900');
-      document.body.classList.toggle('bg-black');
+      document.body.classList.toggle('bg-[#0a0a0c]');
       document.body.classList.toggle('text-gray-100');
       const icon = themeToggle.querySelector('i');
-      if (document.body.classList.contains('bg-black')) {
+      if (document.body.classList.contains('bg-[#0a0a0c]')) {
         icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
       } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
     });
 
-    // close modal by clicking background already wired above via playbackModal click
-
-    // watchlist close on outside click & search close
     document.addEventListener('click', (e) => {
       if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
       if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
     });
 
-    // attach video listeners placeholder (modal video element created on demand)
-    function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
-
-    // init on DOMContentLoaded
     window.addEventListener('DOMContentLoaded', () => {
       initPage();
-      // ensure modal close button works
-      document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
     });
   </script>
-   
+  <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+
+<!-- NATIVE BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
+  <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+</div>
+
+<!-- SMART LINK -->
+<!-- https://bendspecimen.com/xryvjm9rea?key=b4e26d6e3cb4df0655e816b8991eeae3 -->
+
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
 
 </body>
 </html>
