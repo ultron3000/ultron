@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Americans - All Seasons | FX / Hulu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- HLS.js for playback support -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+
+  <style>
+    :root {
+      --accent-red: #cc1100;
+      --accent-crimson: #990000;
+      --bg-dark: #080a0f;
+      --card-bg: #121620;
+    }
+
+    body { 
+      background: var(--bg-dark); 
+      color: #f3f4f6; 
+      font-family: 'Outfit', system-ui, -apple-system, sans-serif; 
+    }
+
+    .cinzel-font { font-family: 'Cinzel', serif; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #080a0f; }
+    ::-webkit-scrollbar-thumb { background: #990000; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-red); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(15px);} to { opacity: 1; transform: translateY(0);} }
+    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .gradient-text { 
+      background: linear-gradient(135deg, #ff4d4d 0%, #cc1100 50%, #ffffff 100%); 
+      -webkit-background-clip: text; 
+      background-clip: text; 
+      color: transparent; 
+    }
+
+    .glow-effect { position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .glow-effect:hover { transform: translateY(-4px); }
+    .glow-effect::after { 
+      content:''; position:absolute; inset:0; border-radius:12px; 
+      box-shadow:0 0 20px rgba(204, 17, 0, 0); transition:box-shadow 0.3s; pointer-events:none;
+    }
+    .glow-effect:hover::after { box-shadow:0 0 20px rgba(204, 17, 0, 0.25); }
+
+    .season-btn {
+      transition: all 0.25s ease;
+      border: 1px solid rgba(204, 17, 0, 0.25);
+    }
+    .season-btn:hover {
+      border-color: var(--accent-red);
+      background: rgba(204, 17, 0, 0.15);
+    }
+    .season-btn.active {
+      background: linear-gradient(135deg, #cc1100, #7a0000);
+      color: #fff;
+      font-weight: 600;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(204, 17, 0, 0.4);
+    }
+
+    /* Modal player styling */
+    .modal-backdrop { 
+      position:fixed; inset:0; background: rgba(4, 5, 8, 0.95); 
+      backdrop-filter: blur(8px); display:none; align-items:center; 
+      justify-content:center; z-index:9999; padding: 1rem;
+    }
+    .modal-backdrop.active { display:flex; }
+    
+    .modal-card { 
+      width:100%; max-width:1000px; border-radius:16px; overflow:hidden; 
+      background:#121620; border: 1px solid rgba(204, 17, 0, 0.3);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 30px rgba(204, 17, 0, 0.2);
+      position: relative;
+    }
+
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+    .player-meta { 
+      display:flex; justify-content:space-between; gap:16px; padding:18px 24px; 
+      color:#e5e7eb; align-items:center; background: #1a202c;
+    }
+
+    .btn-player {
+      background: transparent; border: 1px solid rgba(204, 17, 0, 0.4); 
+      color: #ff6666; padding: 8px 14px; border-radius: 8px; 
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
+      font-size: 0.875rem; transition: all 0.2s; font-weight: 500;
+    }
+    .btn-player:hover { background: rgba(204, 17, 0, 0.2); border-color: var(--accent-red); }
+
+    /* Mobile Responsive Polish */
+    @media (max-width: 768px) {
+      .player-meta { flex-direction: column; align-items: flex-start; padding: 14px; }
+      .controls-row { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+      .btn-player { padding: 8px 12px; font-size: 0.8rem; }
+    }
+
+    video:fullscreen, video:-webkit-full-screen, iframe:fullscreen, iframe:-webkit-full-screen {
+      width: 100vw !important; height: 100vh !important; object-fit: contain !important; background: #000;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-[#080a0f]/90 backdrop-blur-md border-b border-[#cc1100]/20 shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-[#cc1100] to-[#7a0000] rounded-lg flex items-center justify-center shadow-lg shadow-[#cc1100]/20">
+          <i class="fas fa-user-secret text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold gradient-text cinzel-font tracking-wider">THE AMERICANS</h1>
+          <p class="text-[10px] sm:text-xs text-red-200/60 uppercase tracking-widest hidden sm:block">An FX Original Drama Series</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <button id="watchlist-btn" class="p-2.5 rounded-full hover:bg-white/5 transition relative text-red-500">
+          <i class="fas fa-bookmark"></i>
+        </button>
+        <button id="search-btn" class="p-2.5 rounded-full hover:bg-white/5 transition text-red-500">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Search Bar -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-[#080a0f]/95">
+      <div class="relative container mx-auto">
+        <input id="global-search" type="text" placeholder="Search episodes across all 6 seasons..." 
+               class="w-full bg-[#121620] border border-[#cc1100]/30 rounded-xl py-2.5 px-4 pl-10 text-white focus:outline-none focus:border-[#cc1100] placeholder-gray-500">
+        <i class="fas fa-search absolute left-3.5 top-3.5 text-[#cc1100]"></i>
+      </div>
+    </div>
+    
+    <!-- Watchlist dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-72 bg-[#121620] border border-[#cc1100]/20 rounded-xl shadow-2xl z-50 py-2">
+      <div class="px-4 py-2 border-b border-white/10 flex justify-between items-center">
+        <h3 class="font-semibold text-red-400 text-sm">My Saved Episodes</h3>
+        <span id="watchlist-count" class="text-xs bg-red-600/30 text-red-300 px-2 py-0.5 rounded-full">0</span>
+      </div>
+      <div id="watchlist-items" class="max-h-60 overflow-y-auto divide-y divide-white/5">
+        <div class="px-4 py-4 text-center text-gray-500 text-sm">Your watchlist is empty</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container mx-auto px-4 py-6">
+
+    <!-- Hero Section / Video Banner -->
+    <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
+      
+      <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <!-- Hero Trailer (YouTube embed background) -->
+          <iframe
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=wt7NPuabEgQ&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          ></iframe>
+        </div>
+
+        <div class="relative z-20 h-full flex items-end p-6 sm:p-10 max-w-2xl">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#cc1100]/20 border border-[#cc1100]/40 text-[#ff4d4d] text-xs font-medium mb-4 backdrop-blur-md">
+              <i class="fas fa-tv text-xs"></i> FX Original Cold War Thriller
+            </div>
+            <p class="text-gray-300 text-sm sm:text-base leading-relaxed mb-6 font-light">
+              At the height of the Cold War in the early 1980s, two Soviet KGB officers pose as a suburban American couple in Washington, D.C., balancing covert intelligence operations with raising their unsuspecting children.
+            </p>
+            <div class="flex flex-wrap items-center gap-4">
+              <button id="play-first" class="bg-gradient-to-r from-[#cc1100] to-[#7a0000] text-white font-semibold px-6 py-3 rounded-xl hover:brightness-110 transition flex items-center shadow-lg shadow-[#cc1100]/25">
+                <i class="fas fa-play mr-2 text-sm"></i> Watch Episode 1
+              </button>
+              <button id="play-trailer" class="bg-white/10 hover:bg-white/20 text-white font-medium px-5 py-3 rounded-xl backdrop-blur-md border border-white/15 transition flex items-center">
+                <i class="fas fa-film mr-2 text-sm text-[#cc1100]"></i> Watch Trailer
+              </button>
+              <div class="flex items-center gap-4 text-xs text-gray-400 border-l border-white/10 pl-4 hidden sm:flex">
+                <div><span class="block text-white font-bold text-sm">75</span> Episodes</div>
+                <div><span class="block text-white font-bold text-sm">6</span> Seasons</div>
+                <div><span class="block text-red-500 font-bold text-sm">TV-MA</span> Rated</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Season Navigation Tabs -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 border-b border-white/10 pb-4 gap-4">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-layer-group text-[#cc1100]"></i>
+        <h3 class="text-lg font-bold text-white cinzel-font tracking-wider">SEASONS</h3>
+      </div>
+      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+        <div class="flex items-center space-x-2 min-w-max" id="season-tabs">
+          <button class="season-btn active px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="all">All Seasons</button>
+          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="1">Season 1</button>
+          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="2">Season 2</button>
+          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="3">Season 3</button>
+          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="4">Season 4</button>
+          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="5">Season 5</button>
+          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="6">Season 6</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Episodes Grid -->
+    <section>
+      <div id="episodes-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+        <!-- JS Dynamic rendering -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Player Modal -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card">
+      <button id="closeModalBtn" class="absolute top-3 right-3 z-50 text-gray-400 hover:text-white bg-black/60 hover:bg-black/90 rounded-full w-9 h-9 flex items-center justify-center transition">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      </div>
+
+      <div class="player-meta">
+        <div class="max-w-md">
+          <span id="modalSeasonBadge" class="text-[11px] font-semibold text-[#cc1100] uppercase tracking-wider">Season 1</span>
+          <h3 id="modalTitle" class="text-base sm:text-lg font-bold text-white mt-0.5">Episode Title</h3>
+          <p id="modalDesc" class="text-xs text-gray-400 mt-1 line-clamp-2">Episode description will appear here.</p>
+        </div>
+        <div class="controls-row flex items-center gap-2">
+          <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn-player text-xs" title="Open Stream Direct">
+            <i class="fas fa-external-link-alt mr-1.5"></i> Direct
+          </a>
+          <button id="prevBtn" class="btn-player"><i class="fas fa-step-backward"></i></button>
+          <button id="playPauseBtn" class="btn-player"><i class="fas fa-play"></i></button>
+          <button id="nextBtn" class="btn-player"><i class="fas fa-step-forward"></i></button>
+          <button id="fullscreenBtn" class="btn-player"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // THE AMERICANS - COMPLETE EPISODES DATA (SEASONS 1 - 6)
+    // ==========================================
+    const episodes = [
+      // Season 1
+      { id: 1, season: 1, epNum: 1, title: 'Pilot', video: '00', image: '00', airDate: '2013-01-30', duration: '68m', description: 'Philip and Elizabeth Jennings are deep-cover KGB spies posing as an American suburban couple. When an FBI agent moves across the street, their secret lives face instant jeopardy.' },
+      { id: 2, season: 1, epNum: 2, title: 'The Clock', video: '00', image: '00', airDate: '2013-02-06', duration: '44m', description: 'Philip and Elizabeth receive orders to bug Defense Secretary Caspar Weinberger\'s house, while Stan pressure-recruits Nina.' },
+      { id: 3, season: 1, epNum: 3, title: 'Gregory', video: '00', image: '00', airDate: '2013-02-13', duration: '44m', description: 'Philip and Elizabeth discover an undercover colleague had a secret family, bringing personal and political loyalties into conflict.' },
+      { id: 4, season: 1, epNum: 4, title: 'In Control', video: '00', image: '00', airDate: '2013-02-20', duration: '43m', description: 'An assassination attempt on President Reagan sends the KGB scramble into high gear to determine who was behind the attack.' },
+      { id: 5, season: 1, epNum: 5, title: 'COMINT', video: '00', image: '00', airDate: '2013-02-27', duration: '44m', description: 'An important agent crumbles under emotional distress. Philip and Elizabeth try to breach the FBI\'s new encrypted comms.' },
+      { id: 6, season: 1, epNum: 6, title: 'Trust Me', video: '00', image: '00', airDate: '2013-03-06', duration: '43m', description: 'A mole hunt inside the KGB causes paranoia, putting Philip and Elizabeth through an intense loyalty test.' },
+      { id: 7, season: 1, epNum: 7, title: 'Duty and Honor', video: '00', image: '00', airDate: '2013-03-13', duration: '43m', description: 'A mission targeting a Polish pro-democracy leader brings Philip face-to-face with a former lover from Russia.' },
+      { id: 8, season: 1, epNum: 8, title: 'Mutually Assured Destruction', video: '00', image: '00', airDate: '2013-03-20', duration: '43m', description: 'Philip and Elizabeth race against Stan and the FBI to stop a rogue assassin targeting top nuclear scientists.' },
+      { id: 9, season: 1, epNum: 9, title: 'Safe House', video: '00', image: '00', airDate: '2013-04-03', duration: '45m', description: 'When a routine operation goes sideways, Stan and the FBI launch a desperate hunt while Philip and Elizabeth take cover.' },
+      { id: 10, season: 1, epNum: 10, title: 'Only You', video: '00', image: '00', airDate: '2013-04-10', duration: '44m', description: 'Stan pursues a lead closing in on Gregory\'s network, causing tragic friction between Philip and Elizabeth.' },
+      { id: 11, season: 1, epNum: 11, title: 'Covert War', video: '00', image: '00', airDate: '2013-04-17', duration: '43m', description: 'Elizabeth is pushed to her limits following the assassination of senior KGB mentors by CIA operatives.' },
+      { id: 12, season: 1, epNum: 12, title: 'The Oath', video: '00', image: '00', airDate: '2013-04-24', duration: '45m', description: 'Philip marries Martha under the disguise of "Clark" to secure an FBI tap, while Moscow pushes a dangerous SDI lead.' },
+      { id: 13, season: 1, epNum: 13, title: 'The Colonel', video: '00', image: '00', airDate: '2013-05-01', duration: '50m', description: 'In the tense season finale, Philip and Elizabeth walk into a potential ambush as Stan draws ever closer to the truth.' },
+
+      // Season 2
+      { id: 14, season: 2, epNum: 1, title: 'Comrades', video: '00', image: '00', airDate: '2014-02-26', duration: '45m', description: 'Philip and Elizabeth return from recovery to face a shocking murder of fellow illegals that hits close to home.' },
+      { id: 15, season: 2, epNum: 2, title: 'Cardinal', video: '00', image: '00', airDate: '2014-03-05', duration: '43m', description: 'Philip investigates a mysterious walk-in while Elizabeth recovers and keeps an eye on their traumatized children.' },
+      { id: 16, season: 2, epNum: 3, title: 'The Walk In', video: '00', image: '00', airDate: '2014-03-12', duration: '44m', description: 'Philip and Elizabeth infiltrate a naval shipyard to steal submarine propeller designs, while Paige searches for answers.' },
+      { id: 17, season: 2, epNum: 4, title: 'A Little Night Music', video: '00', image: '00', airDate: '2014-03-19', duration: '44m', description: 'The KGB orders the extraction of Anton Baklanov, a Soviet defector working on stealth tech for the U.S.' },
+      { id: 18, season: 2, epNum: 5, title: 'The Deal', video: '00', image: '00', airDate: '2014-03-26', duration: '44m', description: 'Philip must protect a Mossad agent during delicate international negotiations to exchange defectors.' },
+      { id: 19, season: 2, epNum: 6, title: 'Behind the Red Door', video: '00', image: '00', airDate: '2014-04-02', duration: '43m', description: 'Lucia joins the team on a stealth mission while Stan subjects Nina to a tense polygraph test.' },
+      { id: 20, season: 2, epNum: 7, title: 'Arpanet', video: '00', image: '00', airDate: '2014-04-09', duration: '44m', description: 'Philip infiltrates DARPA to bug the newly born ARPANET computer network, witnessing early digital warfare.' },
+      { id: 21, season: 2, epNum: 8, title: 'New Car', video: '00', image: '00', airDate: '2014-04-16', duration: '44m', description: 'Philip buys a brand new Chevrolet Camaro, but bad news regarding faulty stolen submarine plans dampens the mood.' },
+      { id: 22, season: 2, epNum: 9, title: 'Martial Eagle', video: '00', image: '00', airDate: '2014-04-23', duration: '44m', description: 'Philip and Elizabeth infiltrate a Special Forces training base, resulting in unexpected bloodshed.' },
+      { id: 23, season: 2, epNum: 10, title: 'Yousaf', video: '00', image: '00', airDate: '2014-04-30', duration: '44m', description: 'Philip and Elizabeth target a Pakistani intelligence officer to infiltrate CIA operations in Afghanistan.' },
+      { id: 24, season: 2, epNum: 11, title: 'Stealth', video: '00', image: '00', airDate: '2014-05-07', duration: '43m', description: 'Philip gathers critical RAM radar absorption data while Elizabeth learns of a disturbing mandate regarding Paige.' },
+      { id: 25, season: 2, epNum: 12, title: 'Operation Chronicle', video: '00', image: '00', airDate: '2014-05-14', duration: '44m', description: 'The Centre demands that Paige be recruited into Directorate S, causing a rift between Philip and Elizabeth.' },
+      { id: 26, season: 2, epNum: 13, title: 'Echo', video: '00', image: '00', airDate: '2014-05-21', duration: '48m', description: 'In the shocking season two finale, the killer of Connection Leanne and Emmett is finally revealed.' },
+
+      // Season 3
+      { id: 27, season: 3, epNum: 1, title: 'EST Men', video: '00', image: '00', airDate: '2015-01-28', duration: '46m', description: 'Philip attends EST seminars while disagreement over Paige\'s future creates deep tension with Elizabeth.' },
+      { id: 28, season: 3, epNum: 2, title: 'Baggage', video: '00', image: '00', airDate: '2015-02-04', duration: '46m', description: 'A defecting Soviet official arrives under FBI protection, while Philip and Elizabeth dispose of an asset\'s body.' },
+      { id: 29, season: 3, epNum: 3, title: 'Open House', video: '00', image: '00', airDate: '2015-02-11', duration: '42m', description: 'Elizabeth is pursued during a intense vehicle surveillance chase, suffering serious injury.' },
+      { id: 30, season: 3, epNum: 4, title: 'Dimebag', video: '00', image: '00', airDate: '2015-02-18', duration: '45m', description: 'Philip faces an uncomfortable ethical dilemma when assigned to cultivate 15-year-old Kimmy Breland.' },
+      { id: 31, season: 3, epNum: 5, title: 'Salang Pass', video: '00', image: '00', airDate: '2015-02-25', duration: '43m', description: 'Philip juggles multiple covers while Elizabeth takes extreme measures to secure Afghan war intel.' },
+      { id: 32, season: 3, epNum: 6, title: 'Born Again', video: '00', image: '00', airDate: '2015-03-04', duration: '47m', description: 'Paige gets baptized in church, pushing Elizabeth and Philip closer to making the ultimate reveal.' },
+      { id: 33, season: 3, epNum: 7, title: 'Walter Taffet', video: '00', image: '00', airDate: '2015-03-11', duration: '44m', description: 'An internal investigation inside the FBI threatens to uncover Martha\'s office bug.' },
+      { id: 34, season: 3, epNum: 8, title: 'Divestment', video: '00', image: '00', airDate: '2015-03-18', duration: '44m', description: 'Tensions flare during an interrogation of South African operatives regarding anti-apartheid missions.' },
+      { id: 35, season: 3, epNum: 9, title: 'Do Mail Robots Dream of Electric Sheep?', video: '00', image: '00', airDate: '2015-03-25', duration: '50m', description: 'Philip and Elizabeth hold an elderly woman hostage inside a repair shop while servicing the FBI Mail Robot.' },
+      { id: 36, season: 3, epNum: 10, title: 'Stingers', video: '00', image: '00', airDate: '2015-04-01', duration: '44m', description: 'Philip and Elizabeth finally reveal their true identities as Soviet spies to their daughter Paige.' },
+      { id: 37, season: 3, epNum: 11, title: 'One Day in the Life of Anton Baklanov', video: '00', image: '00', airDate: '2015-04-08', duration: '44m', description: 'Anton works under guard in Russia, while Paige struggles to process her parents\' secret.' },
+      { id: 38, season: 3, epNum: 12, title: 'I Am Abassin Zadran', video: '00', image: '00', airDate: '2015-04-15', duration: '44m', description: 'Philip and Elizabeth manipulate a volatile Mujahideen commander to protect Soviet interests.' },
+      { id: 39, season: 3, epNum: 13, title: 'March 8, 1983', video: '00', image: '00', airDate: '2015-04-22', duration: '48m', description: 'Reagan delivers his famous "Evil Empire" speech as Paige makes a devastating phone call to Pastor Tim.' },
+
+      // Season 4
+      { id: 40, season: 4, epNum: 1, title: 'Glanders', video: '00', image: '00', airDate: '2016-03-16', duration: '54m', description: 'Philip and Elizabeth secure a deadly Glanders bioweapon sample from contact William Crandall.' },
+      { id: 41, season: 4, epNum: 2, title: 'Pastor Tim', video: '00', image: '00', airDate: '2016-03-23', duration: '44m', description: 'Philip discovers Pastor Tim knows their secret, leading to intense debates about eliminating him.' },
+      { id: 42, season: 4, epNum: 3, title: 'Experimental Prototype City of Tomorrow', video: '00', image: '00', airDate: '2016-03-30', duration: '45m', description: 'A bio-hazard contamination scare forces Philip and Elizabeth into mandatory quarantine.' },
+      { id: 43, season: 4, epNum: 4, title: 'Chloramphenicol', video: '00', image: '00', airDate: '2016-04-06', duration: '48m', description: 'Quarantined in Gabriel\'s safehouse, the couple awaits test results while fate catches up with Nina in Moscow.' },
+      { id: 44, season: 4, epNum: 5, title: 'Clark\'s Place', video: '00', image: '00', airDate: '2016-04-13', duration: '44m', description: 'The FBI suspects Martha, putting Philip under immense pressure as he tries to shield her.' },
+      { id: 45, season: 4, epNum: 6, title: 'The Rat', video: '00', image: '00', airDate: '2016-04-20', duration: '46m', description: 'Philip extracts Martha to a safehouse after her cover at the FBI is completely blown.' },
+      { id: 46, season: 4, epNum: 7, title: 'Travel Agents', video: '00', image: '00', airDate: '2016-04-27', duration: '45m', description: 'Panic ensues when Martha slips out of the safehouse, leading both the KGB and FBI on a manhunt.' },
+      { id: 47, season: 4, epNum: 8, title: 'The Magic of David Copperfield V', video: '00', image: '00', airDate: '2016-05-04', duration: '54m', description: 'Martha is exfiltrated to Moscow. Seven months later, Gabriel orders a pause in field operations.' },
+      { id: 48, season: 4, epNum: 9, title: 'The Day After', video: '00', image: '00', airDate: '2016-05-11', duration: '44m', description: 'The airing of the apocalyptic TV movie "The Day After" shakes the Jennings family and their neighbors.' },
+      { id: 49, season: 4, epNum: 10, title: 'Munchkins', video: '00', image: '00', airDate: '2016-05-18', duration: '43m', description: 'Tragedy strikes former FBI chief Frank Gaad in Thailand, raising suspicions.' },
+      { id: 50, season: 4, epNum: 11, title: 'Dinner for Seven', video: '00', image: '00', airDate: '2016-05-25', duration: '44m', description: 'Pastor Tim and Alice attend dinner with the Jennings, but a mugging incident shocks Paige.' },
+      { id: 51, season: 4, epNum: 12, title: 'A Roy Rogers in Hijackers', video: '00', image: '00', airDate: '2016-06-01', duration: '43m', description: 'William is cornered by the FBI and takes a fatal, bio-hazardous measure to protect his secrets.' },
+      { id: 52, season: 4, epNum: 13, title: 'Persona Non Grata', video: '00', image: '00', airDate: '2016-06-08', duration: '49m', description: 'With William in FBI custody, Gabriel strongly advises Philip and Elizabeth to return home to the USSR.' },
+
+      // Season 5
+      { id: 53, season: 5, epNum: 1, title: 'Amber Waves', video: '00', image: '00', airDate: '2017-03-07', duration: '54m', description: 'Philip and Elizabeth take on new disguises as the Eckert family to investigate a high-yield grain pest.' },
+      { id: 54, season: 5, epNum: 2, title: 'Peshawar', video: '00', image: '00', airDate: '2017-03-14', duration: '44m', description: 'Philip and Elizabeth dig into agricultural research while Paige trains in self-defense.' },
+      { id: 55, season: 5, epNum: 3, title: 'Midges', video: '00', image: '00', airDate: '2017-03-21', duration: '43m', description: 'Investigations lead Philip and Elizabeth to an agricultural lab in Oklahoma.' },
+      { id: 56, season: 5, epNum: 4, title: 'What\'s the Matter with Kansas?', video: '00', image: '00', airDate: '2017-03-28', duration: '44m', description: 'Philip and Elizabeth uncover a surprising truth about the U.S. modified grain program.' },
+      { id: 57, season: 5, epNum: 5, title: 'Lotus 1-2-3', video: '00', image: '00', airDate: '2017-04-04', duration: '43m', description: 'Gabriel announces his permanent retirement to Moscow, leaving Philip and Elizabeth without their long-time handler.' },
+      { id: 58, season: 5, epNum: 6, title: 'Crossbreed', video: '00', image: '00', airDate: '2017-04-11', duration: '44m', description: 'Gabriel gives final advice before departing, warning Philip about the mental toll of the job.' },
+      { id: 59, season: 5, epNum: 7, title: 'The Committee on Human Rights', video: '00', image: '00', airDate: '2017-04-18', duration: '44m', description: 'Elizabeth targets a Soviet dissident working for a human rights organization in Washington.' },
+      { id: 60, season: 5, epNum: 8, title: 'Immortalen', video: '00', image: '00', airDate: '2017-04-25', duration: '44m', description: 'Philip and Elizabeth travel to Moscow in spirit through news from home, as fatigue settles in.' },
+      { id: 61, season: 5, epNum: 9, title: 'IHOP', video: '00', image: '00', airDate: '2017-05-02', duration: '43m', description: 'A routine assignment takes a dark turn, prompting Philip to consider quitting field operations entirely.' },
+      { id: 62, season: 5, epNum: 10, title: 'Darkroom', video: '00', image: '00', airDate: '2017-05-09', duration: '44m', description: 'Paige and Elizabeth develop photographs in their home darkroom, uncovering troubling secrets.' },
+      { id: 63, season: 5, epNum: 11, title: 'Diatribe', video: '00', image: '00', airDate: '2017-05-16', duration: '43m', description: 'Elizabeth carries out a difficult mission solo as Philip focuses on running the travel agency.' },
+      { id: 64, season: 5, epNum: 12, title: 'The World Council of Churches', video: '00', image: '00', airDate: '2017-05-23', duration: '44m', description: 'Faced with mounting guilt, Philip makes plans to step away from active spy work.' },
+      { id: 65, season: 5, epNum: 13, title: 'The Soviet Division', video: '00', image: '00', airDate: '2017-05-30', duration: '49m', description: 'Philip officially retires from fieldwork, leaving Elizabeth as the sole active agent in the family.' },
+
+      // Season 6
+      { id: 66, season: 6, epNum: 1, title: 'DEAD HAND', video: '00', image: '00', airDate: '2018-03-28', duration: '54m', description: 'Three years later in 1987, Gorbachev\'s INF treaty summit nears. Elizabeth is exhausted, while Philip runs the expanded travel agency.' },
+      { id: 67, season: 6, epNum: 2, title: 'Tchaikovsky', video: '00', image: '00', airDate: '2018-04-04', duration: '44m', description: 'Elizabeth struggles under an overwhelming workload while training Paige in real-world spy craft.' },
+      { id: 68, season: 6, epNum: 3, title: 'Urban Transport Planning', video: '00', image: '00', airDate: '2018-04-11', duration: '43m', description: 'Glasknost reforms create factions within the KGB; Elizabeth is ordered to sabotage Soviet negotiators.' },
+      { id: 69, season: 6, epNum: 4, title: 'Mr. and Mrs. Teacup', video: '00', image: '00', airDate: '2018-04-18', duration: '44m', description: 'Philip is drawn back into covert activity when asked by Oleg Burov to monitor Elizabeth\'s dangerous mission.' },
+      { id: 70, season: 6, epNum: 5, title: 'The Great Alive', video: '00', image: '00', airDate: '2018-04-25', duration: '44m', description: 'Philip faces severe business debts at the travel agency while secretly keeping tabs on his wife.' },
+      { id: 71, season: 6, epNum: 6, title: 'Rififi', video: '00', image: '00', airDate: '2018-05-02', duration: '44m', description: 'Dennis Aderholt and Stan Beeman close in on a breakthrough code lead at the FBI counterintelligence unit.' },
+      { id: 72, season: 6, epNum: 7, title: 'Harvest', video: '00', image: '00', airDate: '2018-05-09', duration: '47m', description: 'Philip assists Elizabeth in a bloody exfiltration mission in Chicago, leaving FBI tails dead.' },
+      { id: 73, season: 6, epNum: 8, title: 'The Summit', video: '00', image: '00', airDate: '2018-05-16', duration: '44m', description: 'Elizabeth defies orders from military hardliners after a crisis of conscience, choosing to save Gorbachev\'s negotiator.' },
+      { id: 74, season: 6, epNum: 9, title: 'Jennings, Elizabeth', video: '00', image: '00', airDate: '2018-05-23', duration: '46m', description: 'The FBI uncovers Philip\'s disguise as "Clark," triggering an urgent escape sequence for the entire Jennings family.' },
+      { id: 75, season: 6, epNum: 10, title: 'START', video: '00', image: '00', airDate: '2018-05-30', duration: '56m', description: 'In the acclaimed series finale, Stan confronts Philip, Elizabeth, and Paige in a parking garage before their dramatic flight to Russia.' }
+    ];
+
+    // ==========================================
+    // UI & PLAYBACK CONTROLLER
+    // ==========================================
+    let filteredList = [...episodes];
+    let currentIndex = 0;
+    let watchlist = new Set();
+
+    const gridEl = document.getElementById('episodes-grid');
+    const modal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalSeasonBadge = document.getElementById('modalSeasonBadge');
+    const externalBtn = document.getElementById('externalBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+
+    function isReleasedEpisode(airDateStr) {
+      if (!airDateStr) return true;
+      const today = new Date();
+      const releaseDate = new Date(airDateStr);
+      return releaseDate <= today;
+    }
+
+    function getEpisodeImage(ep) {
+      if (ep.image !== '00' && ep.image) return ep.image;
+      
+      const released = isReleasedEpisode(ep.airDate);
+      const formattedDate = ep.airDate ? new Date(ep.airDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA';
+
+      if (!released) {
+        return `https://placehold.co/600x340/121620/cc1100?text=Coming+${encodeURIComponent(formattedDate)}&font=cinzel`;
+      }
+      return `https://placehold.co/600x340/121620/cc1100?text=The+Americans+S${ep.season}+E${ep.epNum}+-+${encodeURIComponent(ep.title)}`;
+    }
+
+    function renderCards(list) {
+      gridEl.innerHTML = '';
+      if(list.length === 0) {
+        gridEl.innerHTML = `<div class="col-span-full py-12 text-center text-gray-500">No episodes found matching your criteria.</div>`;
+        return;
+      }
+
+      list.forEach((ep, idx) => {
+        const isSaved = watchlist.has(ep.id);
+        const card = document.createElement('div');
+        card.className = 'fade-in glow-effect bg-[#121620] border border-white/5 hover:border-[#cc1100]/40 rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer group';
+        
+        const cardImageSrc = getEpisodeImage(ep);
+        const released = isReleasedEpisode(ep.airDate);
+        const formattedRelease = ep.airDate ? new Date(ep.airDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
+        card.innerHTML = `
+          <div>
+            <div class="relative overflow-hidden bg-[#1a202c] h-36 sm:h-40 flex items-center justify-center">
+              <img src="${cardImageSrc}" alt="${ep.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x340/121620/cc1100?text=The+Americans';">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#121620] via-transparent to-black/30"></div>
+              <span class="absolute bottom-2 left-2 text-[10px] font-extrabold tracking-widest text-[#ff4d4d] uppercase bg-black/70 px-2 py-0.5 rounded border border-[#cc1100]/30 backdrop-blur-sm">S${ep.season} E${ep.epNum}</span>
+              <button class="watchlist-toggle absolute top-2 right-2 text-gray-300 hover:text-red-400 p-1.5 z-20 bg-black/50 rounded-full backdrop-blur-sm" data-id="${ep.id}">
+                <i class="${isSaved ? 'fas text-red-500' : 'far'} fa-bookmark"></i>
+              </button>
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div class="w-10 h-10 rounded-full bg-[#cc1100] text-white flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition font-bold">
+                  <i class="fas fa-play text-sm ml-0.5"></i>
+                </div>
+              </div>
+            </div>
+            <div class="p-3.5 sm:p-4">
+              <h4 class="text-xs sm:text-sm font-semibold text-white group-hover:text-[#ff4d4d] transition line-clamp-1">${ep.title}</h4>
+              <p class="text-[11px] sm:text-xs text-gray-400 mt-1 line-clamp-2 font-light">${ep.description}</p>
+            </div>
+          </div>
+          <div class="px-3.5 sm:px-4 pb-3 flex items-center justify-between text-[10px] sm:text-[11px] text-gray-500 border-t border-white/5 pt-2">
+            <span><i class="far fa-clock mr-1"></i>${ep.duration}</span>
+            <span class="${released ? 'text-red-400/80' : 'text-amber-400 font-semibold'}">${released ? 'Available' : 'Coming ' + formattedRelease}</span>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          if(e.target.closest('.watchlist-toggle')) return;
+          openPlayer(list, idx);
+        });
+
+        card.querySelector('.watchlist-toggle').addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleWatchlist(ep.id);
+        });
+
+        gridEl.appendChild(card);
+      });
+    }
+
+    function toggleWatchlist(id) {
+      if(watchlist.has(id)) watchlist.delete(id);
+      else watchlist.add(id);
+      updateWatchlistUI();
+      renderCards(filteredList);
+    }
+
+    function updateWatchlistUI() {
+      const countEl = document.getElementById('watchlist-count');
+      const itemsEl = document.getElementById('watchlist-items');
+      countEl.textContent = watchlist.size;
+
+      if(watchlist.size === 0) {
+        itemsEl.innerHTML = `<div class="px-4 py-4 text-center text-gray-500 text-sm">Your watchlist is empty</div>`;
+        return;
+      }
+
+      itemsEl.innerHTML = '';
+      watchlist.forEach(id => {
+        const ep = episodes.find(e => e.id === id);
+        if(!ep) return;
+        const row = document.createElement('div');
+        row.className = 'px-4 py-2.5 hover:bg-white/5 transition flex items-center justify-between cursor-pointer';
+        row.innerHTML = `
+          <div class="truncate pr-2">
+            <p class="text-xs font-medium text-white truncate">${ep.title}</p>
+            <span class="text-[10px] text-red-400">S${ep.season} E${ep.epNum}</span>
+          </div>
+          <button class="text-gray-500 hover:text-red-400 p-1 text-xs"><i class="fas fa-times"></i></button>
+        `;
+        row.addEventListener('click', (e) => {
+          if(e.target.closest('button')) {
+            toggleWatchlist(ep.id);
+          } else {
+            const idx = filteredList.findIndex(item => item.id === ep.id);
+            openPlayer(idx !== -1 ? filteredList : episodes, idx !== -1 ? idx : episodes.indexOf(ep));
+          }
+        });
+        itemsEl.appendChild(row);
+      });
+    }
+
+    function openPlayer(list, index, customTrailerUrl = null) {
+      if(customTrailerUrl) {
+        modalTitle.textContent = 'The Americans Official Trailer';
+        modalDesc.textContent = 'Watch the official FX trailer for the critically acclaimed drama series The Americans.';
+        modalSeasonBadge.textContent = 'Trailer';
+        playerWrapper.innerHTML = `<iframe src="${customTrailerUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        externalBtn.href = customTrailerUrl;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        return;
+      }
+
+      filteredList = list;
+      currentIndex = index;
+      const item = list[index];
+      if(!item) return;
+
+      modalTitle.textContent = item.title;
+      modalDesc.textContent = item.description;
+      modalSeasonBadge.textContent = `Season ${item.season} • Episode ${item.epNum}`;
+
+      playerWrapper.innerHTML = '';
+      const src = item.video;
+      const released = isReleasedEpisode(item.airDate);
+
+      if(src === '00' || !src) {
+        const dateStr = item.airDate ? new Date(item.airDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'TBA';
+        playerWrapper.innerHTML = `
+          <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#080a0f]">
+            <i class="fas fa-user-secret text-4xl text-[#cc1100]/40 mb-3"></i>
+            <h4 class="text-base font-semibold text-gray-200">Video Source Placeholder ("00")</h4>
+            <p class="text-xs text-gray-400 mt-1 max-w-sm">
+              ${!released ? `This episode is scheduled for release on <strong>${dateStr}</strong>.` : 'Replace "00" with your preferred video stream link (.mp4, .m3u8, or embed iframe) in the JS episodes array.'}
+            </p>
+          </div>
+        `;
+      } else if(src.includes('youtube') || src.includes('embed') || src.includes('mega.nz')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" allowfullscreen allow="autoplay"></iframe>`;
+      } else {
+        playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%"><source src="${src}" type="video/mp4"></video>`;
+      }
+
+      externalBtn.href = (src !== '00' && src) ? src : '#';
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      playerWrapper.innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    // Event Listeners
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if(currentIndex > 0) openPlayer(filteredList, currentIndex - 1);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if(currentIndex < filteredList.length - 1) openPlayer(filteredList, currentIndex + 1);
+    });
+
+    document.getElementById('fullscreenBtn').addEventListener('click', () => {
+      const el = playerWrapper.querySelector('video') || playerWrapper.querySelector('iframe');
+      if(el && el.requestFullscreen) el.requestFullscreen();
+    });
+
+    playPauseBtn.addEventListener('click', () => {
+      const v = document.getElementById('modalVideo');
+      if(v) {
+        if(v.paused) { v.play(); playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; }
+        else { v.pause(); playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; }
+      }
+    });
+
+    document.getElementById('play-first').addEventListener('click', () => openPlayer(episodes, 0));
+    document.getElementById('play-trailer').addEventListener('click', () => {
+      openPlayer(null, null, 'https://www.youtube.com/embed/wt7NPuabEgQ?autoplay=1');
+    });
+
+    // Filter Season Tabs
+    document.querySelectorAll('.season-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        const s = this.dataset.season;
+        filteredList = s === 'all' ? [...episodes] : episodes.filter(e => e.season.toString() === s);
+        renderCards(filteredList);
+      });
+    });
+
+    // Search Handling
+    const searchBtn = document.getElementById('search-btn');
+    const searchBar = document.getElementById('search-bar');
+    const searchInput = document.getElementById('global-search');
+
+    searchBtn.addEventListener('click', () => {
+      searchBar.classList.toggle('hidden');
+      if(!searchBar.classList.contains('hidden')) searchInput.focus();
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const activeSeasonBtn = document.querySelector('.season-btn.active');
+      const s = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
+      
+      let base = s === 'all' ? episodes : episodes.filter(ep => ep.season.toString() === s);
+      filteredList = base.filter(ep => ep.title.toLowerCase().includes(q) || ep.description.toLowerCase().includes(q));
+      renderCards(filteredList);
+    });
+
+    // Watchlist Dropdown Toggle
+    const watchlistBtn = document.getElementById('watchlist-btn');
+    const watchlistDropdown = document.getElementById('watchlist-dropdown');
+
+    watchlistBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      watchlistDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if(!watchlistDropdown.contains(e.target) && !watchlistBtn.contains(e.target)) {
+        watchlistDropdown.classList.add('hidden');
+      }
+    });
+
+    // Initialize Page
+    renderCards(episodes);
+  </script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+
+<!-- NATIVE BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
+  <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+</div>
+
+<!-- SMART LINK -->
+<!-- https://bendspecimen.com/xryvjm9rea?key=b4e26d6e3cb4df0655e816b8991eeae3 -->
+
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+</body>
+</html>
