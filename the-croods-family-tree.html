@@ -10,11 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-  <!-- HLS.js (from Tukaram for HLS playback support) -->
+  <!-- HLS.js for HLS playback support -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
-    /* PRESERVE original Hawkeye CSS and animations but adjust theme to Loki */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #07060b; }
     ::-webkit-scrollbar-thumb { background: #9ad34d; border-radius: 4px; }
@@ -28,9 +27,6 @@
     .pulse-hover:hover { animation: pulse 1.5s infinite; }
     .arrow-bounce { animation: arrowBounce 2s infinite; }
 
-    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
-
     .glow-effect { position: relative; transition: transform 0.3s ease; }
     .glow-effect:hover { transform: translateY(-5px); }
     .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(154,211,77,0); transition:box-shadow 0.3s; pointer-events:none;}
@@ -39,286 +35,236 @@
     .gradient-text { background: linear-gradient(90deg, #9ad34d, #7f3cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
     .marvel-font { font-family: 'Marvel', sans-serif; }
 
-    /* Responsive adjustments */
     @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
     @media (max-width: 400px) { .movie-card { width: 100%; } }
 
-    /* Modal player container (Tukaram-style preserved) */
-    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
-    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
-
-    /* small Loki tint changes to Hawkeye theme */
     header { background: linear-gradient(90deg,#081018,#04040a); }
-    .bg-loki { background: linear-gradient(135deg,#7f3cff,#9ad34d); }
     .loki-accent { color: #9ad34d; }
     .btn-loki { background: #9ad34d; color: #061217; }
     .btn-loki:hover { filter: brightness(0.95); }
-    .watchlist-checkbox .checkmark { border: 2px solid #9ad34d; }
-    .progress-bar-fill { background: #9ad34d; }
-
-    /* keep other original Hawkeye styles intact */
+    
     body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
 
-    /* Illumination modal styles (keeps modal look consistent) */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.92); display:none; align-items:center; justify-content:center; z-index:9999; }
     .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.8); border: 1px solid rgba(154, 211, 77, 0.2); }
     .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
     .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
 
     .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
     .player-meta .meta-left { max-width:65%; }
-    .player-meta h3 { margin:0; font-size:1.125rem; }
+    .player-meta h3 { margin:0; font-size:1.125rem; font-weight: 700; color: #fff; }
     .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
 
-    .controls-row { display:flex; gap:8px; align-items:center; }
+    .controls-row { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
 
     .btn {
       background:transparent; border:1px solid #9ad34d; color:#9ad34d;
-      padding:8px 12px; border-radius:8px; cursor:pointer;
+      padding:8px 12px; border-radius:8px; cursor:pointer; transition: all 0.2s;
     }
-    .btn:hover { background: rgba(154,211,77,0.06); }
+    .btn:hover { background: rgba(154,211,77,0.1); color: #fff; }
 
     .hidden { display:none; }
 
-    @media(max-width:640px){
-      .player-meta .meta-left { max-width:55%; }
-      .btn { padding:6px 8px; font-size:0.9rem; }
+    /* MOBILE RESPONSIVE OPTIMIZATIONS */
+    @media (max-width: 767px) {
+      .player-wrapper {
+        padding-bottom: 56.25% !important;
+        height: 0 !important;
+        position: relative !important;
+      }
+      .player-wrapper video,
+      .player-wrapper iframe {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+      }
+      .player-meta {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 12px !important;
+        background: #0b1220 !important;
+        z-index: 20 !important;
+      }
+      .controls-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 8px !important;
+      }
+      .btn {
+        padding: 6px 10px !important;
+        font-size: 0.85rem !important;
+      }
     }
-    /* ============================
-   MOBILE FIX — DOES NOT TOUCH DESKTOP
-   ============================ */
 
-@media (max-width: 767px) {
+    video:fullscreen,
+    video:-webkit-full-screen,
+    iframe:fullscreen,
+    iframe:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      object-fit: contain !important;
+      background-color: black;
+    }
 
-  /* Proper mobile player layout (matches your working version) */
-  .player-wrapper {
-    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
-    height: 0 !important;
-    position: relative !important;
-  }
-
-  .player-wrapper video,
-  .player-wrapper iframe {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Proper stacked mobile controls */
-  .player-meta {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 12px !important;
-    background: #0b1220 !important;
-    z-index: 20 !important;
-  }
-
-  /* Mobile control row wraps properly */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 10px !important;
-  }
-
-  /* Mobile buttons use icon-only layout */
-  .btn {
-    padding: 8px !important;
-    font-size: 0 !important;      /* hides text on mobile */
-    min-width: 48px !important;
-    height: 44px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .btn i {
-    font-size: 1.1rem !important;
-    margin: 0 !important;
-  }
-
-  /* Close button always visible on mobile */
-  #topCloseBtn {
-    opacity: 1 !important;
-  }
-}
-
-  /* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-
-  object-fit: contain !important;
-  background-color: black;
-}
-
-/* Only cover when video aspect is cinematic */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
-    object-fit: cover !important;
-  }
-}
-
+    @media (min-aspect-ratio: 16/9) {
+      video:fullscreen,
+      video:-webkit-full-screen,
+      iframe:fullscreen,
+      iframe:-webkit-full-screen {
+        object-fit: cover !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
   <!-- Header -->
-  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
+  <header class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-yellow-600/20 shadow-lg">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2 sm:space-x-3">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
-         <i class="fas fa-bone text-white text-xl sm:text-2xl"></i>
-
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover shadow-md">
+          <i class="fas fa-bone text-white text-base sm:text-xl"></i>
         </div>
-        <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">The Croods: Family Tree</h1>
+        <h1 class="text-lg sm:text-2xl font-bold gradient-text marvel-font tracking-wide">The Croods: Family Tree</h1>
       </div>
       
-      <div class="flex items-center space-x-2 sm:space-x-4">
-        <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
+      <div class="flex items-center space-x-1 sm:space-x-3">
+        <button id="watchlist-btn" class="p-2 rounded-full hover:bg-gray-800 transition relative">
           <i class="fas fa-bookmark loki-accent"></i>
-          <span class="tooltip-text">My Watchlist</span>
         </button>
-        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
           <i class="fas fa-moon loki-accent"></i>
-          <span class="tooltip-text">Toggle Theme</span>
         </button>
-        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
+        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
           <i class="fas fa-search loki-accent"></i>
-          <span class="tooltip-text">Search</span>
         </button>
       </div>
     </div>
     
-    <!-- Search Bar (hidden by default) -->
-    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
-      <div class="relative">
+    <!-- Search Bar -->
+    <div id="search-bar" class="hidden px-4 pb-4 bg-black/90">
+      <div class="relative max-w-xl mx-auto">
         <input id="global-search" type="text" placeholder="Search episodes..." 
-               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400">
-        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d]"></i>
+               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400 text-sm">
+        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d] text-sm"></i>
       </div>
     </div>
     
-    <!-- Watchlist dropdown (hidden by default) -->
-    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
-      <div class="px-4 py-2 border-b border-gray-700">
-        <h3 class="font-semibold loki-accent">My Watchlist</h3>
+    <!-- Watchlist Dropdown -->
+    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-72 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50 py-2">
+      <div class="px-4 py-2 border-b border-gray-800">
+        <h3 class="font-semibold loki-accent marvel-font tracking-wide">MY WATCHLIST</h3>
       </div>
       <div id="watchlist-items" class="max-h-60 overflow-y-auto">
-        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
+        <div class="px-4 py-3 text-center text-gray-500 text-xs">Your watchlist is empty</div>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-<main class="container mx-auto px-4 py-6">
-  <!-- Hero Section -->
-  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
-    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
-    
-    <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
-      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <!-- Loki hero trailer (YouTube embed) -->
-        <iframe
-          src="https://www.youtube.com/embed/KU6vq6b51cw?autoplay=1&mute=1&loop=1&playlist=KU6vq6b51cw&controls=0&modestbranding=1"
-          frameborder="0"
-          allow="autoplay; fullscreen"
-          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        ></iframe>
-      </div>
+  <main class="container mx-auto px-4 py-6">
+    <!-- Hero Section -->
+    <section class="mb-12 relative overflow-hidden rounded-2xl border border-[#9ad34d]/20 shadow-2xl bg-black">
+      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
       
-      <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
-        <div class="flex items-center mb-1 sm:mb-2">
-          <span class="bg-[#9ad34d] text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2">Prime</span>
-          <span class="text-[#9ad34d] text-xs sm:text-sm">Seasons 1-8</span>
+      <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/KU6vq6b51cw?autoplay=1&mute=1&loop=1&playlist=KU6vq6b51cw&controls=0&modestbranding=1"
+            frameborder="0"
+            allow="autoplay; fullscreen"
+            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-60"
+          ></iframe>
         </div>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">The Croods: Family Tree</h2>
-        <div class="flex items-center mb-2 sm:mb-4">
-          <div class="flex items-center mr-2 sm:mr-4">
-            <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
-            <span class="text-white text-xs sm:text-sm">8.0</span>
+        
+        <div class="absolute bottom-0 left-0 z-20 p-5 sm:p-6 md:p-8 max-w-2xl">
+          <div class="flex items-center mb-1 sm:mb-2 space-x-2">
+            <span class="bg-[#9ad34d] text-black text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">PRIME / HULU</span>
+            <span class="text-[#9ad34d] text-xs sm:text-sm font-medium">Seasons 1-8 Complete</span>
           </div>
-          <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
+          <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-2 gradient-text marvel-font tracking-wide">The Croods: Family Tree</h2>
+          <div class="flex items-center mb-2 sm:mb-4 text-xs sm:text-sm">
+            <div class="flex items-center mr-4 text-[#9ad34d]">
+              <i class="fas fa-star mr-1"></i>
+              <span class="font-bold text-white">8.0</span>
+            </div>
+            <span class="text-gray-400 mr-4">TV-Series</span>
+            <span class="text-gray-400">Animation / Family</span>
+          </div>
+          <p class="text-gray-300 mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base leading-relaxed">
+            It continues the evolving story of the Croods and Bettermans as they learn to live together on the most idle farm in prehistory.
+          </p>
+          <div class="flex space-x-3">
+            <button id="play-all" class="btn-loki py-2.5 px-6 rounded-full transition flex items-center shadow-lg shadow-green-950/40 text-xs sm:text-sm font-bold pulse-hover">
+              <i class="fas fa-play mr-2 text-xs"></i> Play S1 E1
+            </button>
+            <button id="hero-trailer-btn" class="bg-gray-900/90 hover:bg-gray-800 text-white border border-[#9ad34d]/40 font-semibold py-2.5 px-6 rounded-full transition flex items-center backdrop-blur-sm text-xs sm:text-sm">
+              <i class="fas fa-film loki-accent mr-2"></i> Watch Trailer
+            </button>
+          </div>
         </div>
-        <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">It continues the evolving story of the croods and Bettermans as they learn to live together on the most idle farm in prehistory.</p>
-        <div class="flex space-x-2 sm:space-x-3">
-          <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
-            <i class="fas fa-play mr-2"></i> Play All
+        <div class="absolute bottom-4 right-4 z-20">
+          <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2.5 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
+            <i class="fas fa-chevron-down arrow-bounce"></i>
           </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-info-circle mr-2"></i> Details
-          </button>
         </div>
-      </div>
-      <div class="absolute bottom-4 right-4 z-20">
-        <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
-          <i class="fas fa-chevron-down arrow-bounce"></i>
-        </button>
-      </div>
-    </div>
-  </section>
-</main>
-
-    <!-- Season Navigation -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
-      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-tv loki-accent mr-2"></i>
-        <span class="marvel-font">EPISODES</span>
-      </h3>
-      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-        <div class="flex items-center space-x-2 min-w-max">
-          <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="2">Season 2</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="3">Season 3</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="4">Season 4</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="5">Season 5</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="6">Season 6</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="7">Season 7</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="8">Season 8</button>
-        </div>
-      </div>
-    </div>
-
-
-      
-
-
-    <!-- Episodes Grid -->
-    <section class="container mx-auto px-4">
-      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-        <!-- Movie cards inserted by JS -->
       </div>
     </section>
+  </main>
 
-    <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+  <!-- Season Navigation -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
+    <h3 class="text-lg sm:text-xl font-bold flex items-center mb-2 sm:mb-0">
+      <i class="fas fa-tv loki-accent mr-2"></i>
+      <span class="marvel-font tracking-wider text-xl sm:text-2xl">EPISODES</span>
+    </h3>
+    <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+      <div class="flex items-center space-x-2 min-w-max">
+        <button class="season-btn active bg-[#c0392b] text-white font-bold px-3 py-1 rounded-full text-xs shadow" data-season="all">All</button>
+        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs font-medium border border-gray-800" data-season="1">Season 1</button>
+        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs font-medium border border-gray-800" data-season="2">Season 2</button>
+        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs font-medium border border-gray-800" data-season="3">Season 3</button>
+        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs font-medium border border-gray-800" data-season="4">Season 4</button>
+        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs font-medium border border-gray-800" data-season="5">Season 5</button>
+        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs font-medium border border-gray-800" data-season="6">Season 6</button>
+        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs font-medium border border-gray-800" data-season="7">Season 7</button>
+        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs font-medium border border-gray-800" data-season="8">Season 8</button>
+      </div>
+    </div>
   </div>
 
-  <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
+  <!-- Episodes Grid -->
+  <section class="container mx-auto px-4">
+    <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+      <!-- Movie cards inserted by JS -->
+    </div>
+  </section>
+
+  <!-- Footer / Social -->
+  <div class="border-t border-gray-900 mt-12 py-8 text-center text-gray-600">
+    <div class="flex justify-center space-x-6 mb-3">
+      <a href="#" class="text-gray-400 hover:text-[#9ad34d] transition"><i class="fab fa-facebook-f text-lg"></i></a>
+      <a href="#" class="text-gray-400 hover:text-[#9ad34d] transition"><i class="fab fa-twitter text-lg"></i></a>
+      <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#9ad34d] transition"><i class="fab fa-instagram text-lg"></i></a>
+      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#9ad34d] transition"><i class="fab fa-youtube text-lg"></i></a>
+    </div>
+    <p class="text-xs text-gray-500">© The Croods: Family Tree Fan Portal. All player functionality and links intact[cite: 5].</p>
+  </div>
+
+  <!-- Playback Modal -->
   <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true">
-      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2">
+      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/70 rounded-full w-9 h-9 flex items-center justify-center border border-gray-700">
         <i class="fas fa-times"></i>
       </button>
 
       <div class="player-wrapper" id="playerWrapper">
-        <!-- video or iframe injected here -->
         <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
       </div>
 
@@ -332,95 +278,91 @@ iframe:-webkit-full-screen {
           <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
           <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
           <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Loading Spinner -->
-  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden">
     <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#9ad34d]"></div>
   </div>
 
   <script>
 // ========================
-// SEASON SELECTOR + DATA
+// SEASON SELECTOR + DATA (TurboEmbed & Original TMDB Images Preserved)[cite: 5]
 // ========================
-
-// Quantum Leap (2022) – Season 1 & 2
 const movies = [
- // Season 1 (6 eps)
-{ title: 'S1E01 - Sticky Business', video:'https://sr81.newterrafoods.store:443/v4/hz/jym3h/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/4Gr6AFJBsfT5nosoDgv85uD683m.jpg', season:1 },
-{ title: 'S1E02 - Guy Time', video:'https://spuc.viontra.cyou/v4/ox/nfxcs/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/uARu7kTcWWJ7xfHxnGK7Rx9mguQ.jpg', season:1 },
-{ title: 'S1E03 - Game Nightmare', video:'https://sxic.claravonartistrylab.store/v4/js/6n8sz/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/wbHOvvLBZLHLR3WKsKIMcjYdXZ8.jpg', season:1 },
-{ title: 'S1E04 - What Comes Eep Must Come Down', video:'https://sxic.fitnessfanatics.cyou/v4/ox/5isz8/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/svqqC0Dlpi87XGWVC5KYpaxRUAq.jpg', season:1 },
-{ title: 'S1E05 - Parental Stridence', video:'https://smho.silverforgeindustries.store/v4/xq/8x65j/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/eZ903l5pIqVKq4swA0Dxfl10r28.jpg', season:1 },
-{ title: 'S1E06 - The Flopping of the Bulruses', video:'https://s8v3.bluehavenhospitality.sbs/v4/lf/6n8ps/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/mQWvuT1AYe2aEi38oDxny5GKAoX.jpg', season:1 },
+ // Season 1 (6 eps)[cite: 5]
+{ title: 'S1E01 - Sticky Business', video:'https://turboembed.com/qncl', image:'https://image.tmdb.org/t/p/w300/4Gr6AFJBsfT5nosoDgv85uD683m.jpg', season:1 },
+{ title: 'S1E02 - Guy Time', video:'https://turboembed.com/y7pq', image:'https://image.tmdb.org/t/p/w300/uARu7kTcWWJ7xfHxnGK7Rx9mguQ.jpg', season:1 },
+{ title: 'S1E03 - Game Nightmare', video:'https://turboembed.com/kufz', image:'https://image.tmdb.org/t/p/w300/wbHOvvLBZLHLR3WKsKIMcjYdXZ8.jpg', season:1 },
+{ title: 'S1E04 - What Comes Eep Must Come Down', video:'https://turboembed.com/bg95', image:'https://image.tmdb.org/t/p/w300/svqqC0Dlpi87XGWVC5KYpaxRUAq.jpg', season:1 },
+{ title: 'S1E05 - Parental Stridence', video:'https://turboembed.com42l7/', image:'https://image.tmdb.org/t/p/w300/eZ903l5pIqVKq4swA0Dxfl10r28.jpg', season:1 },
+{ title: 'S1E06 - The Flopping of the Bulruses', video:'https://turboembed.com/fhax', image:'https://image.tmdb.org/t/p/w300/mQWvuT1AYe2aEi38oDxny5GKAoX.jpg', season:1 },
 
-// Season 2 (7 eps)
-{ title: 'S2E01 - Remote Control', video:'https://spuc.digitalgizmos.cyou:443/v4/hz/eq39k/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/kEY81aczeQur3vn8ccBUI92BXBt.jpg', season:2 },
-{ title: 'S2E02 - Daddy-Daughter Day', video:'https://sskt.fitnessfanatic.sbs/v4/lf/t6hzy/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/rjf7oU0oAen2eonQiU2S5d68A8P.jpg', season:2 },
-{ title: 'S2E03 - There’s No Phil in Team', video:'https://shkn.satoriwell.online:443/v4/js/kvzn5/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/aaaKx44asACjoOVIHHVRPHEAtsV.jpg', season:2 },
-{ title: 'S2E04 - Thunder Games', video:'https://s6sy.wanderpeakventures.space/v4/lf/3gew6/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/beePsJWYrfJ9LXIBKleEcXKpkZ2.jpg', season:2 },
-{ title: 'S2E05 - Shock and Awww', video:'https://sdqm.individualshowcase.cyou/v4/js/ijclc/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/9lJT3oOoCRzwDo4pvEbQfCQUZ1L.jpg', season:2 },
-{ title: 'S2E06 - Straycation (Part 1)', video:'https://sipt.hyvera.sbs/v4/js/xoneq/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/fLCM9oMfqt15RGjALdTT6aQiBD8.jpg', season:2 },
-{ title: 'S2E07 - Straycation (Part 2)', video:'https://sipt.luminairemotion.online/v4/ox/owfqx/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/bBECIvajlUmUX4eoU8Yu1FASJua.jpg', season:2 },
+// Season 2 (7 eps)[cite: 5]
+{ title: 'S2E01 - Remote Control', video:'https://turboembed.com/6l8t', image:'https://image.tmdb.org/t/p/w300/kEY81aczeQur3vn8ccBUI92BXBt.jpg', season:2 },
+{ title: 'S2E02 - Daddy-Daughter Day', video:'https://turboembed.com/c9f3', image:'https://image.tmdb.org/t/p/w300/rjf7oU0oAen2eonQiU2S5d68A8P.jpg', season:2 },
+{ title: 'S2E03 - There’s No Phil in Team', video:'https://turboembed.com/ncpa', image:'https://image.tmdb.org/t/p/w300/aaaKx44asACjoOVIHHVRPHEAtsV.jpg', season:2 },
+{ title: 'S2E04 - Thunder Games', video:'https://turboembed.com/livl', image:'https://image.tmdb.org/t/p/w300/beePsJWYrfJ9LXIBKleEcXKpkZ2.jpg', season:2 },
+{ title: 'S2E05 - Shock and Awww', video:'https://turboembed.com/5fuq', image:'https://image.tmdb.org/t/p/w300/9lJT3oOoCRzwDo4pvEbQfCQUZ1L.jpg', season:2 },
+{ title: 'S2E06 - Straycation (Part 1)', video:'https://turboembed.com/xvhl', image:'https://image.tmdb.org/t/p/w300/fLCM9oMfqt15RGjALdTT6aQiBD8.jpg', season:2 },
+{ title: 'S2E07 - Straycation (Part 2)', video:'https://turboembed.com/0twr', image:'https://image.tmdb.org/t/p/w300/bBECIvajlUmUX4eoU8Yu1FASJua.jpg', season:2 },
 
-// Season 3 (6 eps)
-{ title: 'S3E01 - Thunder Misters', video:'https://sr81.horizenbuild.online/v4/ck/nfx3p/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/b6P0fDNRKtZL6gA2K2pQgZCnFGg.jpg', season:3 },
-{ title: 'S3E02 - Eep Walking', video:'https://s8v3.clarionforge.online/v4/ox/mdjhf/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/zJG1DXFPLnXbnL6X9Hm0h2MBiFa.jpg', season:3 },
-{ title: 'S3E03 - The Gorgwatch Project', video:'https://sipt.zenlith.space/v4/36/xoney/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/pJAJKZYOwfLGPi32DvW5MXX65aZ.jpg', season:3 },
-{ title: 'S3E04 - Skate or Dawn', video:'https://sxic.lyverra.cyou:443/v4/js/burem/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/yjtOYETcyyOq6XwB9tDVTsrxzZk.jpg', season:3 },
-{ title: 'S3E05 - Phil’s Fun Farm', video:'https://spok.lyverra.cyou:443/v4/js/eq3ku/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/7fAXNUYfHvw7lPNVRWW1r1A0Spd.jpg', season:3 },
-{ title: 'S3E06 - Joy Story', video:'https://spo3.halonawellbeing.site/v4/qu/h8tud/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/yAPR0rhb0QC5H1PSS0mtPb8FTwe.jpg', season:3 },
+// Season 3 (6 eps)[cite: 5]
+{ title: 'S3E01 - Thunder Misters', video:'https://turboembed.com/xxgg', image:'https://image.tmdb.org/t/p/w300/b6P0fDNRKtZL6gA2K2pQgZCnFGg.jpg', season:3 },
+{ title: 'S3E02 - Eep Walking', video:'https://turboembed.com/aa2g', image:'https://image.tmdb.org/t/p/w300/zJG1DXFPLnXbnL6X9Hm0h2MBiFa.jpg', season:3 },
+{ title: 'S3E03 - The Gorgwatch Project', video:'https://turboembed.com/cm0v', image:'https://image.tmdb.org/t/p/w300/pJAJKZYOwfLGPi32DvW5MXX65aZ.jpg', season:3 },
+{ title: 'S3E04 - Skate or Dawn', video:'https://turboembed.com/7tdp', image:'https://image.tmdb.org/t/p/w300/yjtOYETcyyOq6XwB9tDVTsrxzZk.jpg', season:3 },
+{ title: 'S3E05 - Phil’s Fun Farm', video:'https://turboembed.com/ylw2', image:'https://image.tmdb.org/t/p/w300/7fAXNUYfHvw7lPNVRWW1r1A0Spd.jpg', season:3 },
+{ title: 'S3E06 - Joy Story', video:'https://turboembed.com/wwee', image:'https://image.tmdb.org/t/p/w300/yAPR0rhb0QC5H1PSS0mtPb8FTwe.jpg', season:3 },
 
-// Season 4 (7 eps)
-{ title: 'S4E01 - The Big Shine', video:'https://skra.zafyrastudio.shop/v4/qu/p3vd8/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/2xybGa1sj6QZViXryEcU3dlFBoY.jpg', season:4 },
-{ title: 'S4E02 - Ball In Cup', video:'https://spok.seawindphotography.space/v4/lf/95wnw/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/8zOs2HbVjfIQLsYUK1vsxJ8KehD.jpg', season:4 },
-{ title: 'S4E03 - Growing Paints', video:'https://silu.viatrix.space:443/v4/ox/dzycx/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/wC77wIpdtLXTlAE0NCpppCzwYvb.jpg', season:4 },
-{ title: 'S4E04 - Cave New World', video:'https://sipt.obsidianfitnesslab.sbs/v4/lf/h8tu1/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/cTAr0reEDHZI0AvNtzXm4Soypv4.jpg', season:4 },
-{ title: 'S4E05 - Thunk Tank', video:'https://sskt.moonstreamspace.space:443/v4/lf/nfxtl/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/s2evPWZ8g8YklCbFhcRAJeIbWPK.jpg', season:4 },
-{ title: 'S4E06 - Home Punch Home', video:'https://soq6.brightcrestinteractive.site:443/v4/qu/qbgvo/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/hPm987znInoegnsUTZnKMguoYOz.jpg', season:4 },
-{ title: 'S4E07 - Goodbye Crood World', video:'https://sqtd.merridianart.space/v4/js/5isf3/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/bTRMZUAAN9SWJ1ThDs5zwYoqS1q.jpg', season:4 },
+// Season 4 (7 eps)[cite: 5]
+{ title: 'S4E01 - The Big Shine', video:'https://turboembed.com/djiu', image:'https://image.tmdb.org/t/p/w300/2xybGa1sj6QZViXryEcU3dlFBoY.jpg', season:4 },
+{ title: 'S4E02 - Ball In Cup', video:'https://turboembed.com/ywxa', image:'https://image.tmdb.org/t/p/w300/8zOs2HbVjfIQLsYUK1vsxJ8KehD.jpg', season:4 },
+{ title: 'S4E03 - Growing Paints', video:'https://turboembed.com/kpoz', image:'https://image.tmdb.org/t/p/w300/wC77wIpdtLXTlAE0NCpppCzwYvb.jpg', season:4 },
+{ title: 'S4E04 - Cave New World', video:'https://turboembed.com/ibde', image:'https://image.tmdb.org/t/p/w300/cTAr0reEDHZI0AvNtzXm4Soypv4.jpg', season:4 },
+{ title: 'S4E05 - Thunk Tank', video:'https://turboembed.com/ozet', image:'https://image.tmdb.org/t/p/w300/s2evPWZ8g8YklCbFhcRAJeIbWPK.jpg', season:4 },
+{ title: 'S4E06 - Home Punch Home', video:'https://turboembed.com/cfpb', image:'https://image.tmdb.org/t/p/w300/hPm987znInoegnsUTZnKMguoYOz.jpg', season:4 },
+{ title: 'S4E07 - Goodbye Crood World', video:'https://turboembed.com/ksu3', image:'https://image.tmdb.org/t/p/w300/bTRMZUAAN9SWJ1ThDs5zwYoqS1q.jpg', season:4 },
 
-// Season 5 (6 eps)
-{ title: 'S5E01 - Hwam I Am', video:'https://sunl.silverpathgardens.space/v4/lf/p3vr9/index-f1-v1-a1.txt', image:'https://sr81.silverpathgardens.space:443/v4/ck/xonsc/index-f2-v1-a1.txt', season:5 },
-{ title: 'S5E02 - Eep Cover', video:'https://s3ae.virelodesignagency.cyou/v4/lf/burhg/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/t5G3110tqfIncpmPXCof7if4eOa.jpg', season:5 },
-{ title: 'S5E03 - I.O. Crood', video:'https://s6sy.silverpathgardens.space/v4/lf/6n89l/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/kEKOOnCuLxY5E3DSfgmPPWMrXOo.jpg', season:5 },
-{ title: 'S5E04 - Appetite for Deception', video:'https://spok.auroramedialimited.space/v4/lf/mdjpu/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/wzuiGISVkto4qPocVtQMvgPzTAz.jpg', season:5 },
-{ title: 'S5E05 - Shellraiser', video:'https://silu.evercresthospitality.space/v4/qu/3ge1e/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/2cSOkSXuGdfc8Uqg4PeleF6B7KP.jpg', season:5 },
-{ title: 'S5E06 - Camp Thunder', video:'https://sr81.silverpathgardens.space:443/v4/ck/xonsc/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/h1JiOEbenXsxlBI4xMiq74Wyja7.jpg', season:5 },
+// Season 5 (6 eps)[cite: 5]
+{ title: 'S5E01 - Hwam I Am', video:'https://turboembed.com/ljmv', image:'https://image.tmdb.org/t/p/w300/4Gr6AFJBsfT5nosoDgv85uD683m.jpg', season:5 },
+{ title: 'S5E02 - Eep Cover', video:'https://turboembed.com/usp2', image:'https://image.tmdb.org/t/p/w300/t5G3110tqfIncpmPXCof7if4eOa.jpg', season:5 },
+{ title: 'S5E03 - I.O. Crood', video:'https://turboembed.com/krn6', image:'https://image.tmdb.org/t/p/w300/kEKOOnCuLxY5E3DSfgmPPWMrXOo.jpg', season:5 },
+{ title: 'S5E04 - Appetite for Deception', video:'https://turboembed.com/ize1', image:'https://image.tmdb.org/t/p/w300/wzuiGISVkto4qPocVtQMvgPzTAz.jpg', season:5 },
+{ title: 'S5E05 - Shellraiser', video:'https://turboembed.com/waam', image:'https://image.tmdb.org/t/p/w300/2cSOkSXuGdfc8Uqg4PeleF6B7KP.jpg', season:5 },
+{ title: 'S5E06 - Camp Thunder', video:'https://turboembed.com/z0e1', image:'https://image.tmdb.org/t/p/w300/h1JiOEbenXsxlBI4xMiq74Wyja7.jpg', season:5 },
 
-// Season 6 (7 eps)
-{ title: 'S6E01 - Phil Pickle', video:'https://sxix.newterrafoods.store:443/v4/xq/ltanb/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/4FOwX9HHCuoA16h2fHn71F2aDNI.jpg', season:6 },
-{ title: 'S6E02 - Best Friend in Show', video:'https://spuc.aurorafieldfinance.site:443/v4/ck/h8tof/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/okuHASkK6duTGRavmV9mNaWW0DW.jpg', season:6 },
-{ title: 'S6E03 - Game of Crows', video:'https://s8v3.gametech.cfd:443/v4/xq/cmizo/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/okuHASkK6duTGRavmV9mNaWW0DW.jpg', season:6 },
-{ title: 'S6E04 - Pie Hard', video:'https://spok.novavisioninvestment.online/v4/ck/8x6z3/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/9jZAqfVv7C1DQ2ouARu0yPXT6L.jpg', season:6 },
-{ title: 'S6E05 - Snack of Dawn', video:'https://sxic.mirantiafabrics.cyou/v4/qu/grq9s/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/1iPy9110zWkjbYlVc4G5uJjaSLX.jpg', season:6 },
-{ title: 'S6E06 - Fam Farm Fun Fest', video:'https://s3wh.greenpulseventures.store/v4/ck/ijcuu/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/9TfzDok5s2gZHHT81smVI0MxKho.jpg', season:6 },
-{ title: 'S6E07 - It’s an Under-ful Life', video:'https://sdqm.cleantechsolutions.cfd/v4/lf/3gefh/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/761QLfL3z6R8DXnhztrpGCSioSL.jpg', season:6 },
+// Season 6 (7 eps)[cite: 5]
+{ title: 'S6E01 - Phil Pickle', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/4FOwX9HHCuoA16h2fHn71F2aDNI.jpg', season:6 },
+{ title: 'S6E02 - Best Friend in Show', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/okuHASkK6duTGRavmV9mNaWW0DW.jpg', season:6 },
+{ title: 'S6E03 - Game of Crows', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/okuHASkK6duTGRavmV9mNaWW0DW.jpg', season:6 },
+{ title: 'S6E04 - Pie Hard', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/9jZAqfVv7C1DQ2ouARu0yPXT6L.jpg', season:6 },
+{ title: 'S6E05 - Snack of Dawn', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/1iPy9110zWkjbYlVc4G5uJjaSLX.jpg', season:6 },
+{ title: 'S6E06 - Fam Farm Fun Fest', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/9TfzDok5s2gZHHT81smVI0MxKho.jpg', season:6 },
+{ title: 'S6E07 - It’s an Under-ful Life', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/761QLfL3z6R8DXnhztrpGCSioSL.jpg', season:6 },
 
-// Season 7 (6 eps)
-{ title: 'S7E01 - Alphabout', video:'https://sunl.novaquestventures.shop:443/v4/np/dzytg/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/llNnv2qiGFBQjaAr7Uya2e8gTTs.jpg', season:7 },
-{ title: 'S7E02 - Bad Luck Moon Rising', video:'https://s8v3.infrastructureguide.site:443/v4/qu/xonp3/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/7mrWUeSEuQbcf8sSV5pR6lpVnc7.jpg', season:7 },
-{ title: 'S7E03 - Beardfoot', video:'https://sdqm.claravonartistrylab.store:443/v4/61/h8tdy/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/8ol7PLzDWnnfeqLDP8B9HsZBZ8Z.jpg', season:7 },
-{ title: 'S7E04 - Stuck ToGuyther', video:'https://spok.coastlinecreativelab.space/v4/61/6n8kb/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/smzMbjA9lox2ete6yP0VlS385Sp.jpg', season:7 },
-{ title: 'S7E05 - Hidelander', video:'https://sxix.silvercrestventures.shop:443/v4/xq/xonlg/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/gV4jhnZuT6EW18x2ubP6B6niSCw.jpg', season:7 },
-{ title: 'S7E06 - What Liars Beneath', video:'https://smeb.silverlark.sbs:443/v4/61/p3vju/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/mHZiZCDdZ0Jg21DuprSH8HG4U20.jpg', season:7 },
+// Season 7 (6 eps)[cite: 5]
+{ title: 'S7E01 - Alphabout', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/llNnv2qiGFBQjaAr7Uya2e8gTTs.jpg', season:7 },
+{ title: 'S7E02 - Bad Luck Moon Rising', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/7mrWUeSEuQbcf8sSV5pR6lpVnc7.jpg', season:7 },
+{ title: 'S7E03 - Beardfoot', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/8ol7PLzDWnnfeqLDP8B9HsZBZ8Z.jpg', season:7 },
+{ title: 'S7E04 - Stuck ToGuyther', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/smzMbjA9lox2ete6yP0VlS385Sp.jpg', season:7 },
+{ title: 'S7E05 - Hidelander', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/gV4jhnZuT6EW18x2ubP6B6niSCw.jpg', season:7 },
+{ title: 'S7E06 - What Liars Beneath', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/mHZiZCDdZ0Jg21DuprSH8HG4U20.jpg', season:7 },
 
-// Season 8 (7 eps)
-{ title: 'S8E01 - Dared Straight', video:'https://shkn.merrivaleproject.store/v4/61/6n8uk/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/3rd88kMzUlGbEhQMJGyCVVFxtZh.jpg', season:8 },
-{ title: 'S8E02 - Thunkless', video:'https://svz.aurorionstudio.space:443/v4/s93/eegwf/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/8Pse2h94wbAgaNQajIYbFMfOBgv.jpg', season:8 },
-{ title: 'S8E03 - Friday Nut Lights', video:'https://s3ae.auronetworkpartners.shop:443/v4/61/p3vjt/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/5HwTcYJe91CcmkrG7YB7rsSA0qp.jpg', season:8 },
-{ title: 'S8E04 - The Cantaplum Run', video:'https://sq3.harborcrestcreativecollect.cyou:443/v4/9ow/bb3hg/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/zyIf6hxomtdeAh0akKkM2U3Viap.jpg', season:8 },
-{ title: 'S8E05 - Flush to Judgment', video:'https://sad.marshlandcreativeworks.sbs:443/v4/9ow/eegvs/index-f2-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/ouISeIZeTg82czp7EFVYOuzQygu.jpg', season:8 },
-{ title: 'S8E06 - Caveheart Part 1', video:'https://s39.aurorionlab.cyou:443/v4/luy/yyv3h/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/qgxfSpJw7VlPh6iHniGpnKMjq12.jpg', season:8 },
-{ title: 'S8E07 - Caveheart Part 2', video:'https://spok.skylinehospitality.store:443/v4/lf/kvzcz/index-f1-v1-a1.txt', image:'https://image.tmdb.org/t/p/w300/btge0lPYnMapV8ZJ9FFg6MsgsFz.jpg', season:8 },];
+// Season 8 (7 eps)[cite: 5]
+{ title: 'S8E01 - Dared Straight', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/3rd88kMzUlGbEhQMJGyCVVFxtZh.jpg', season:8 },
+{ title: 'S8E02 - Thunkless', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/8Pse2h94wbAgaNQajIYbFMfOBgv.jpg', season:8 },
+{ title: 'S8E03 - Friday Nut Lights', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/5HwTcYJe91CcmkrG7YB7rsSA0qp.jpg', season:8 },
+{ title: 'S8E04 - The Cantaplum Run', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/zyIf6hxomtdeAh0akKkM2U3Viap.jpg', season:8 },
+{ title: 'S8E05 - Flush to Judgment', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/ouISeIZeTg82czp7EFVYOuzQygu.jpg', season:8 },
+{ title: 'S8E06 - Caveheart Part 1', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/qgxfSpJw7VlPh6iHniGpnKMjq12.jpg', season:8 },
+{ title: 'S8E07 - Caveheart Part 2', video:'https://turboembed.com/', image:'https://image.tmdb.org/t/p/w300/btge0lPYnMapV8ZJ9FFg6MsgsFz.jpg', season:8 }
+];
 
-    /* ------------------------
-       Modal / playback implementation (Illumination-style)
-       ------------------------ */
     const playerWrapper = document.getElementById('playerWrapper');
     const playbackModal = document.getElementById('playbackModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -464,17 +406,12 @@ const movies = [
       document.body.style.overflow = '';
     }
 
-    function showError(msg) { console.warn(msg); }
-
     function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
       currentFiltered = list;
       currentIndex = index;
       const item = list[index];
-      if (!item) { showError('Missing item'); return; }
+      if (!item) return;
 
       modalTitle.textContent = item.title || '';
       modalDesc.textContent = item.description || '';
@@ -482,43 +419,14 @@ const movies = [
       resetPlayerContainer();
       showModal();
 
-      // pick source
-      let src = '';
-      if (typeof item.video === 'object' && item.video !== null) {
-        src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
-      } else {
-        src = item.video;
-      }
-      if (!src) {
-        showError('No video url');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=`, 500);
+      let src = item.video || '';
+
+      if (src.includes('turboembed.com') || src.includes('m3u8-proxy.m3u8') || src.includes('streamtape.com') || src.includes('dood') || src.includes('vidcdn') || src.includes('ok.ru')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
       }
 
-      const lc = (src||'').toLowerCase();
-
-      // iframe hosts
-      if (
-  src.includes('m3u8-proxy.m3u8') ||
-  lc.includes('streamtape.com') ||
-  lc.includes('dood') ||
-  lc.includes('vidcdn') ||
-  lc.includes('ok.ru')
-) {
-  playerWrapper.innerHTML = `
-    <iframe
-      src="${src}"
-      width="100%"
-      height="100%"
-      frameborder="0"
-      allowfullscreen
-      allow="autoplay"
-    ></iframe>`;
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
-}
-
-      // youtube
       if (isYouTube(src)) {
         let embed = src;
         try {
@@ -535,71 +443,35 @@ const movies = [
         return;
       }
 
-      // HLS
       if (isHls(src)) {
         const v = document.getElementById('modalVideo');
-        if (!v) { showError('Video element missing'); return; }
+        if (!v) return;
         if (window.Hls && Hls.isSupported()) {
           currentHls = new Hls();
           try {
             currentHls.loadSource(src);
             currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
+          } catch (e) {}
           currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
             v.play().catch(()=>{});
             playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
           });
-          currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-            }
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
         }
         return;
       }
 
-      // MP4 (missing handler)
-if (src.includes('.mp4')) {
-  const v = document.getElementById('modalVideo');
-  if (!v) {
-    window.location.href =
-      `player.html?title=${encodeURIComponent(item.title || '')}&video=${encodeURIComponent(src)}`;
-    return;
-  }
-
-  v.src = src;
-  v.play().catch(() => {});
-  playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-  return;
-}
-
-
-      // MP4
       if (isMP4(src)) {
         const v = document.getElementById('modalVideo');
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
+        if (!v) return;
         v.src = src;
         v.play().catch(()=>{});
         playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
       }
 
-      // fallback
       window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
     }
 
-    /* Controls */
     function togglePlayPause() {
       const v = document.getElementById('modalVideo');
       if (!v) return;
@@ -613,21 +485,19 @@ if (src.includes('.mp4')) {
     }
     function playNext() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
+      if (currentIndex == null) return;
       if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
     }
     function playPrev() {
       if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
+      if (currentIndex == null) return;
       if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
     }
     function toggleFullscreen() {
       const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
       if (!el) return;
       if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
       } else {
         document.exitFullscreen();
       }
@@ -639,7 +509,6 @@ if (src.includes('.mp4')) {
       muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
-    /* Close modal & cleanup */
     function closeModalHandler() {
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
@@ -647,8 +516,7 @@ if (src.includes('.mp4')) {
       }
       const v = document.getElementById('modalVideo');
       if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
+        try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e){}
       }
       resetPlayerContainer();
       hideModal();
@@ -657,137 +525,82 @@ if (src.includes('.mp4')) {
       playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
     }
 
-    /* Events wiring */
     playPauseBtn.addEventListener('click', togglePlayPause);
     nextBtn.addEventListener('click', playNext);
     prevBtn.addEventListener('click', playPrev);
     fullscreenBtn.addEventListener('click', toggleFullscreen);
     muteBtn.addEventListener('click', toggleMute);
-
     closeModalBtn.addEventListener('click', closeModalHandler);
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
+    playbackModal.addEventListener('click', function(e){ if (e.target === playbackModal) closeModalHandler(); });
 
-    // Keyboard shortcuts when modal active
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
-      }
-    });
-
-    /* Attach video timeupdate/ended listeners */
-    function attachVideoListeners() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.removeEventListener('timeupdate', onTimeUpdate);
-      v.addEventListener('timeupdate', onTimeUpdate);
-      v.removeEventListener('ended', onEnded);
-      v.addEventListener('ended', onEnded);
-    }
-    function onTimeUpdate() {
-      // If the original progress bar exists, update it (preserved element)
-      const progressBarFill = document.getElementById('progress-bar-fill');
-      const videoEl = document.getElementById('modalVideo');
-      if (!progressBarFill || !videoEl || !videoEl.duration) return;
-      const p = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = p + '%';
-    }
-    function onEnded() {
-      const playBtn = document.getElementById('play-btn') || playPauseBtn;
-      if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
-    }
-
-    /* Render episodes grid (wired to openPlayer) */
     const container = document.getElementById('movies');
     function renderMovies(list) {
       container.innerHTML = '';
       list.forEach((movie, index) => {
         const card = document.createElement('div');
-        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
+        card.className = 'movie-card fade-in delay-2 glow-effect bg-gray-900/60 border border-gray-800 rounded-xl p-2.5 overflow-hidden cursor-pointer transition hover:border-[#9ad34d]/50';
         card.innerHTML = `
-          <div class="relative group overflow-hidden rounded-xl">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <div>
-                <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
-                <p class="text-gray-300 text-xs sm:text-sm">${movie.duration || ''}</p>
-              </div>
+          <div class="relative group overflow-hidden rounded-lg">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-lg transform group-hover:scale-105 transition duration-300">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+              <p class="text-gray-300 text-xs line-clamp-2">Watch ${movie.title} now.</p>
             </div>
-            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
-              <i class="fas fa-play"></i>
+            <div class="absolute top-2 right-2 bg-black/70 text-[#9ad34d] rounded-full w-8 h-8 flex items-center justify-center shadow">
+              <i class="fas fa-play text-xs"></i>
             </div>
-            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
-              <i class="fas fa-star text-[#9ad34d] text-xs mr-1"></i>
-              <span class="text-white text-xs">${movie.rating || ''}</span>
+            <div class="absolute top-2 left-2 bg-black/80 px-2 py-0.5 rounded text-[11px] font-bold text-[#9ad34d]">
+              S${movie.season}
             </div>
           </div>
-          <div class="mt-3">
-            <h3 class="text-white font-medium">${movie.title}</h3>
-            <div class="flex items-center text-gray-400 text-sm mt-1">
-              <span>S${movie.season} • E${movie.episode}</span>
-              <span class="mx-2">•</span>
-              <span>${movie.duration || ''}</span>
+          <div class="mt-2.5 px-1">
+            <h3 class="text-white font-bold text-sm sm:text-base line-clamp-1">${movie.title}</h3>
+            <div class="flex items-center text-gray-400 text-xs mt-1">
+              <span><i class="far fa-clock mr-1 text-[#9ad34d]"></i>Season ${movie.season}</span>
             </div>
           </div>
         `;
         card.addEventListener('click', () => {
-          // show loading spinner while resolving
           const loadingSpinner = document.getElementById('loading-spinner');
           if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-          // open with the full current list and index
           openPlayer(list, index);
-          // attach listeners for the video element (a bit delayed to allow element to exist)
-          setTimeout(()=> attachVideoListeners(), 200);
           if (loadingSpinner) loadingSpinner.classList.add('hidden');
         });
         container.appendChild(card);
       });
     }
 
-    /* Init page (season filtering wired up) */
     function initPage() {
       renderMovies(movies);
 
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-        });
-      });
-
-      // Season buttons: filter content
       const seasonBtns = document.querySelectorAll('.season-btn');
       seasonBtns.forEach(btn => {
         btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
+          seasonBtns.forEach(b => {
+            b.classList.remove('active', 'bg-[#c0392b]', 'text-white', 'font-bold');
+            b.classList.add('bg-gray-900', 'text-gray-300');
+          });
+          this.classList.add('active', 'bg-[#c0392b]', 'text-white', 'font-bold');
+          this.classList.remove('bg-gray-900', 'text-gray-300');
           const season = this.dataset.season;
-          let filtered;
-          if (!season || season === 'all') filtered = movies;
-          else filtered = movies.filter(m => String(m.season) === String(season));
+          let filtered = (!season || season === 'all') ? movies : movies.filter(m => String(m.season) === String(season));
           renderMovies(filtered);
         });
       });
 
-      // Play All behavior (starts at first)
-      const playAllBtn = document.getElementById('play-all');
-      if (playAllBtn) {
-        playAllBtn.addEventListener('click', () => {
-          openPlayer(movies, 0);
-          setTimeout(()=> attachVideoListeners(), 200);
-        });
-      }
+      document.getElementById('play-all')?.addEventListener('click', () => {
+        openPlayer(movies, 0);
+      });
 
-      // Global search wiring
+      // Hero Watch Trailer button handler
+      document.getElementById('hero-trailer-btn')?.addEventListener('click', () => {
+        const trailerItem = [{
+          title: "The Croods: Family Tree — Official Trailer",
+          description: "Official trailer for the animated series The Croods: Family Tree.",
+          video: "https://www.youtube.com/embed/KU6vq6b51cw"
+        }];
+        openPlayer(trailerItem, 0);
+      });
+
       const globalSearch = document.getElementById('global-search');
       if (globalSearch) {
         globalSearch.addEventListener('input', (e) => {
@@ -795,41 +608,40 @@ if (src.includes('.mp4')) {
           const activeSeasonBtn = document.querySelector('.season-btn.active');
           const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
           let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
-          if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
+          if (q) list = list.filter(m => m.title.toLowerCase().includes(q));
           renderMovies(list);
         });
       }
 
-      // Watchlist UI wiring preserved
       updateWatchlist();
     }
 
-    /* Watchlist functions (preserved) */
     const watchlistItems = document.getElementById('watchlist-items');
     function updateWatchlist() {
       if (!watchlistItems) return;
       watchlistItems.innerHTML = '';
       const watchlistMovies = movies.filter(m => m.inWatchlist);
       if (watchlistMovies.length === 0) {
-        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
+        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-500 text-xs">Your watchlist is empty</div>';
         return;
       }
       watchlistMovies.forEach((movie, idx) => {
         const index = movies.indexOf(movie);
         const item = document.createElement('div');
-        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
+        item.className = 'px-4 py-2.5 hover:bg-gray-800/60 transition cursor-pointer flex items-center justify-between border-b border-gray-800/40';
         item.innerHTML = `
-          <div class="flex items-center">
-            <span class="text-[#9ad34d] text-sm mr-2">${idx + 1}.</span>
-            <span class="text-white text-sm truncate">${movie.title}</span>
+          <div class="flex items-center truncate">
+            <span class="text-[#9ad34d] font-bold text-xs mr-2">${idx + 1}.</span>
+            <span class="text-white text-xs truncate">${movie.title}</span>
           </div>
-          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
-            <i class="fas fa-times"></i>
+          <button class="remove-from-watchlist text-gray-500 hover:text-red-500 ml-2" data-index="${index}">
+            <i class="fas fa-times text-xs"></i>
           </button>
         `;
         item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
           e.stopPropagation();
-          removeFromWatchlist(index);
+          movies[index].inWatchlist = false;
+          updateWatchlist();
         });
         item.addEventListener('click', () => {
           openPlayer(movies, index);
@@ -838,17 +650,12 @@ if (src.includes('.mp4')) {
         watchlistItems.appendChild(item);
       });
     }
-    function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
-    function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
 
-    /* preserved UI event wiring (search, theme, watchlist, modal controls) */
-    const containerEl = document.getElementById('movies');
     const searchBtn = document.getElementById('search-btn');
     const searchBar = document.getElementById('search-bar');
     const themeToggle = document.getElementById('theme-toggle');
     const watchlistBtn = document.getElementById('watchlist-btn');
     const watchlistDropdown = document.getElementById('watchlist-dropdown');
-    const closeModal = document.getElementById('close-modal');
 
     searchBtn.addEventListener('click', () => {
       searchBar.classList.toggle('hidden');
@@ -872,24 +679,370 @@ if (src.includes('.mp4')) {
       } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
     });
 
-    // close modal by clicking background already wired above via playbackModal click
-
-    // watchlist close on outside click & search close
     document.addEventListener('click', (e) => {
       if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
       if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
     });
 
-    // attach video listeners placeholder (modal video element created on demand)
-    function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
-
-    // init on DOMContentLoaded
     window.addEventListener('DOMContentLoaded', () => {
       initPage();
-      // ensure modal close button works
-      document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
     });
   </script>
- 
+  <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+
+<!-- NATIVE BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
+  <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+</div>
+
+<!-- SMART LINK -->
+<!-- https://bendspecimen.com/xryvjm9rea?key=b4e26d6e3cb4df0655e816b8991eeae3 -->
+
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
+</script>
+
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
 </body>
 </html>
