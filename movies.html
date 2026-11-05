@@ -471,7 +471,10 @@
     height: 40px;
   }
 }
-    
+
+    body.modal-open .toolbar {
+    display: none !important;
+}
 </style>
 </head>
 <body class="mode-standard relative">
@@ -8213,6 +8216,19 @@
     // Initial Load
     initCategories();
     renderMovies();
+
+    const toolbarObserver = new MutationObserver(() => {
+    document.body.classList.toggle(
+        'modal-open',
+        document.getElementById('playbackModal')?.classList.contains('active')
+    );
+});
+
+toolbarObserver.observe(document.getElementById('playbackModal'), {
+    attributes: true,
+    attributeFilter: ['class']
+});
+    
 </script>
 <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
