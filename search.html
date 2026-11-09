@@ -344,7 +344,7 @@ footer {
       <button class="clear-btn" id="clearBtn" aria-label="Clear search">×</button>
     </div>
     <div class="search-hint">
-      <span>Search by title, code or category</span>
+      <span>Search entire repository catalogue</span>
       <span id="searchStatus">Loading catalogue...</span>
     </div>
   </div>
@@ -372,24 +372,7 @@ footer {
 </footer>
 
 <script>
-// Core repository catalogue fallback ensuring instant search results
-const defaultCatalogue = [
-  { title: "Movies Directory", type: "movie", category: "Movies", url: "movies.html" },
-  { title: "Series Directory", type: "series", category: "Series", url: "english-series.html" },
-  { title: "Hindi Movies", type: "movie", category: "Hindi Movies", url: "hindi-movies.html" },
-  { title: "Marathi Movies", type: "movie", category: "Marathi Movies", url: "marathi-movies.html" },
-  { title: "Marvel Franchise", type: "movie", category: "Franchises", url: "marvel.html" },
-  { title: "James Bond 007", type: "movie", category: "Franchises", url: "007.html" },
-  { title: "Fast & Furious", type: "movie", category: "Franchises", url: "f-f.html" },
-  { title: "Pixar Animation", type: "animation", category: "Animation", url: "pixar-animation.html" },
-  { title: "Disney Animation", type: "animation", category: "Animation", url: "disney-animation.html" },
-  { title: "DreamWorks Animation", type: "animation", category: "Animation", url: "dreamworks-animation.html" },
-  { title: "Live TV Channels", type: "tv", category: "Television", url: "tv.html" },
-  { title: "Sports Channels", type: "tv", category: "Sports", url: "sports.html" },
-  { title: "FIFA Stream Hub", type: "tv", category: "Live", url: "fifa.html" }
-];
-
-let catalogue = defaultCatalogue;
+let catalogue = [];
 let activeFilter = "all";
 let searchTimer = null;
 
@@ -473,7 +456,7 @@ function render(query="") {
       <div class="empty">
         <div class="empty-icon">⌕</div>
         <h3>No matching content found</h3>
-        <p>Try another title or category.</p>
+        <p>Try another title, franchise or category.</p>
       </div>`;
     return;
   }
@@ -545,16 +528,70 @@ async function initialise() {
     if (response.ok) {
       const data = await response.json();
       if (Array.isArray(data) && data.length > 0) {
-        catalogue = [...defaultCatalogue, ...data];
-        searchStatus.textContent = `Loaded ${catalogue.length} items (Live Index)`;
+        catalogue = data;
+        searchStatus.textContent = `Loaded ${catalogue.length} items from repository`;
         render();
         return;
       }
     }
   } catch(e) {
-    console.info("Using default catalogue links.");
+    console.info("Index fetch failed, scanning pages.");
   }
-  searchStatus.textContent = `Ready (${catalogue.length} items)`;
+
+  // Fallback: fetch key pages directly and extract all movie/series titles on the fly
+  const pages = ["movies.html", "marvel.html", "hindi-movies.html", "english-series.html", "animation-sequels.html", "tv.html"];
+  let extracted = [];
+
+  for (const page of pages) {
+    try {
+      const res = await fetch(page);
+      if (res.ok) {
+        const htmlText = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, "text/html");
+        const links = doc.querySelectorAll("a");
+        
+        links.forEach(a => {
+          const title = a.textContent.trim();
+          const href = a.getAttribute("href");
+          if (title.length > 2 && href && !href.startsWith("#") && !title.toLowerCase().includes("home")) {
+            let type = "movie";
+            if (page.includes("series")) type = "series";
+            if (page.includes("tv")) type = "tv";
+            if (page.includes("animation")) type = "animation";
+            
+            extracted.push({
+              title: title,
+              url: href,
+              type: type,
+              category: page.replace(".html", "").replace("-", " ").toUpperCase(),
+              sourcePage: page
+            });
+          }
+        });
+      }
+    } catch(err) {
+      // ignore individual page load failures
+    }
+  }
+
+  if (extracted.length > 0) {
+    // Deduplicate
+    const seen = new Set();
+    catalogue = extracted.filter(item => {
+      const key = item.title.toLowerCase() + item.url;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    searchStatus.textContent = `Scanned ${catalogue.length} repository items`;
+  } else {
+    catalogue = [
+      { title: "Movies Catalogue", type: "movie", category: "MOVIES", url: "movies.html" },
+      { title: "Series Directory", type: "series", category: "SERIES", url: "english-series.html" }
+    ];
+    searchStatus.textContent = "Ready";
+  }
   render();
 }
 
