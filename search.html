@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud TV - Search Catalog</title>
+    <title>Cloud TV - Master Catalog Search</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -39,13 +40,13 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                     <i class="fa-solid fa-search"></i>
                 </span>
-                <input type="text" id="searchInput" placeholder="Search channels, movies, web series..." 
+                <input type="text" id="searchInput" placeholder="Search channels, movies, series..." 
                     class="w-full pl-10 pr-4 py-2 bg-dark-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500 transition-colors">
             </div>
 
             <!-- Filters -->
             <div class="flex items-center space-x-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-                <button onclick="filterType('all')" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white transition-colors active">All</button>
+                <button onclick="filterType('all')" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white transition-colors">All</button>
                 <button onclick="filterType('channel')" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-dark-700 text-slate-300 hover:bg-slate-700 transition-colors">Channels</button>
                 <button onclick="filterType('movie')" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-dark-700 text-slate-300 hover:bg-slate-700 transition-colors">Movies</button>
                 <button onclick="filterType('series')" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-dark-700 text-slate-300 hover:bg-slate-700 transition-colors">Series</button>
@@ -74,9 +75,9 @@
         </div>
     </main>
 
-    <!-- Video Modal / Player -->
-    <div id="playerModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="relative w-full max-w-4xl bg-dark-800 rounded-xl overflow-hidden shadow-2xl border border-slate-700">
+    <!-- Video Modal / Player (incorporating tv.html playback logic with Hls.js) -->
+    <div id="playerModal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="relative w-full max-w-4xl bg-dark-800 rounded-xl overflow-hidden shadow-2xl border border-slate-700 flex flex-col">
             <div class="flex items-center justify-between px-4 py-3 bg-dark-900 border-b border-slate-700">
                 <h3 id="modalTitle" class="font-semibold text-slate-200 truncate"></h3>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-white p-1">
@@ -84,8 +85,8 @@
                 </button>
             </div>
             <div class="relative aspect-video bg-black flex items-center justify-center">
-                <iframe id="modalIframe" src="" class="w-full h-full border-0" allowfullscreen></iframe>
-                <video id="modalVideo" controls class="w-full h-full hidden"></video>
+                <video id="nativeVideo" controls autoplay class="w-full h-full object-contain hidden"></video>
+                <iframe id="modalIframe" src="" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
             </div>
         </div>
     </div>
@@ -93,10 +94,11 @@
     <script>
         let masterCatalog = [];
         let currentFilter = 'all';
+        let hlsInstance = null;
 
         async function loadCatalog() {
             try {
-                // Fetching channels.json, movies.html, series.html concurrently
+                // Fetch channels.json, movies.html, series.html concurrently
                 const [channelsRes, moviesRes, seriesRes] = await Promise.allSettled([
                     fetch('channels.json').then(r => r.json()),
                     fetch('movies.html').then(r => r.text()),
@@ -105,12 +107,11 @@
 
                 let items = [];
 
-                // 1. Process Channels
+                // 1. Parse Channels
                 if (channelsRes.status === 'fulfilled') {
-                    let channelsData = channelsRes.value;
-                    // If channelsData is wrapped or array
-                    let chList = Array.isArray(channelsData) ? channelsData : (channelsData.channels || []);
-                    chList.forEach(ch => {
+                    let data = channelsRes.value;
+                    let list = Array.isArray(data) ? data : (data.channels || []);
+                    list.forEach(ch => {
                         items.push({
                             title: ch.title || ch.name || 'Untitled Channel',
                             image: ch.image || ch.poster || 'https://via.placeholder.com/300x450?text=No+Image',
@@ -122,30 +123,30 @@
                     });
                 }
 
-                // 2. Helper to parse HTML files for embedded JSON / items
-                function parseHtmlCatalog(htmlText, typeDefault) {
-                    let parsedItems = [];
+                // 2. Parse HTML files (movies.html, series.html) robustly
+                function parseHtmlItems(htmlText, typeDefault) {
+                    let parsed = [];
                     try {
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(htmlText, 'text/html');
-                        // Try finding script tags with arrays or cards
-                        const scripts = doc.querySelectorAll('script');
-                        scripts.forEach(script => {
-                            let content = script.textContent;
-                            if (content.includes('title:') || content.includes('"title"')) {
-                                // Attempt extracting JSON objects or array definitions
+                        
+                        // Search through all script tags for JSON arrays or objects
+                        doc.querySelectorAll('script').forEach(script => {
+                            let text = script.textContent;
+                            // Look for variable assignments containing arrays of objects
+                            let match = text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
+                            if (match) {
                                 try {
-                                    // Match array brackets or object assignments
-                                    let match = content.match(/\[\s*\{[\s\S]*?\}\s*\]/);
-                                    if (match) {
-                                        let jsonStr = match[0]
-                                            .replace(/(\w+):/g, '"$1":')
-                                            .replace(/'/g, '"')
-                                            .replace(/,\s*([\]}])/g, '$1');
-                                        let arr = JSON.parse(jsonStr);
-                                        arr.forEach(obj => {
-                                            parsedItems.push({
-                                                title: obj.title || 'Untitled',
+                                    // Clean up JavaScript object notation into valid JSON
+                                    let cleanJson = match[0]
+                                        .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
+                                        .replace(/'/g, '"')
+                                        .replace(/,\s*([\]}])/g, '$1');
+                                    let arr = JSON.parse(cleanJson);
+                                    arr.forEach(obj => {
+                                        if (obj.title || obj.name) {
+                                            parsed.push({
+                                                title: obj.title || obj.name,
                                                 image: obj.image || obj.poster || 'https://via.placeholder.com/300x450?text=No+Image',
                                                 video: obj.video || obj.url || '',
                                                 category: obj.category || typeDefault,
@@ -153,18 +154,17 @@
                                                 year: obj.year || '',
                                                 description: obj.description || ''
                                             });
-                                        });
-                                    }
-                                } catch(e) {}
+                                        }
+                                    });
+                                } catch(err) {}
                             }
                         });
 
-                        // Fallback: extract card elements if present
-                        if (parsedItems.length === 0) {
-                            const cards = doc.querySelectorAll('.movie-card, .card, [data-title]');
-                            cards.forEach(card => {
-                                parsedItems.push({
-                                    title: card.getAttribute('data-title') || card.querySelector('h3, .title')?.textContent || 'Untitled',
+                        // Fallback: parse explicit DOM card elements if any
+                        if (parsed.length === 0) {
+                            doc.querySelectorAll('.movie-card, .card, article, [data-title]').forEach(card => {
+                                parsed.push({
+                                    title: card.getAttribute('data-title') || card.querySelector('h3, h4, .title')?.textContent?.trim() || 'Untitled',
                                     image: card.querySelector('img')?.src || 'https://via.placeholder.com/300x450?text=No+Image',
                                     video: card.getAttribute('data-video') || card.querySelector('a')?.href || '',
                                     type: typeDefault
@@ -172,26 +172,15 @@
                             });
                         }
                     } catch(e) {}
-                    return parsedItems;
+                    return parsed;
                 }
 
                 if (moviesRes.status === 'fulfilled') {
-                    let mItems = parseHtmlCatalog(moviesRes.value, 'movie');
-                    items.push(...mItems);
+                    items.push(...parseHtmlItems(moviesRes.value, 'movie'));
                 }
 
                 if (seriesRes.status === 'fulfilled') {
-                    let sItems = parseHtmlCatalog(seriesRes.value, 'series');
-                    items.push(...sItems);
-                }
-
-                // Fallback demo data if fetch fails (e.g. running locally without live server)
-                if (items.length === 0) {
-                    items = [
-                        {title: "Star Sports 1 Hindi", image: "https://5.imimg.com/data5/SELLER/Default/2024/7/432813201/YT/VH/RF/184162459/star-sports-1-hindi-250x250.webp", video: "https://sonucdn-v3.pages.dev/star?id=H1HD", type: "channel", category: "cricket"},
-                        {title: "Whalefall", image: "https://image.tmdb.org/t/p/w500/vjTYUTgh9nO88i6HZ4YPRhiFL05.jpg", video: "https://mega.nz/embed/0AQkQAiK#Y7k8LF8nR9vaDp7QIwkIoBVmktBGBO0H-PE_lKDumcg", type: "movie", category: "English"},
-                        {title: "Ted Lasso", image: "https://image.tmdb.org/t/p/w500/8cKgDJggjKAotruZ1gBv4R0R2gE.jpg", video: "", type: "series", category: "Comedy"}
-                    ];
+                    items.push(...parseHtmlItems(seriesRes.value, 'series'));
                 }
 
                 masterCatalog = items;
@@ -200,7 +189,7 @@
 
             } catch (err) {
                 console.error("Error loading catalog:", err);
-                document.getElementById('loading').innerHTML = '<p class="text-red-400">Failed to load catalog files. Ensure channels.json, movies.html, and series.html are present in the repository.</p>';
+                document.getElementById('loading').innerHTML = '<p class="text-red-400">Failed to load catalog files. Ensure channels.json, movies.html, and series.html exist.</p>';
             }
         }
 
@@ -267,43 +256,76 @@
         function openPlayer(item) {
             const modal = document.getElementById('playerModal');
             const title = document.getElementById('modalTitle');
+            const nativeVideo = document.getElementById('nativeVideo');
             const iframe = document.getElementById('modalIframe');
-            const video = document.getElementById('modalVideo');
 
             title.textContent = item.title;
             modal.classList.remove('hidden');
 
-            if (item.video) {
-                if (item.video.includes('mega.nz') || item.video.includes('trend48') || item.video.includes('workers.dev')) {
-                    iframe.src = item.video;
-                    iframe.classList.remove('hidden');
-                    video.classList.add('hidden');
-                } else {
-                    video.src = item.video;
-                    video.classList.remove('hidden');
-                    iframe.classList.add('hidden');
-                    video.play().catch(e => console.log("Autoplay prevented:", e));
-                }
+            // Cleanup previous HLS instance
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+
+            nativeVideo.pause();
+            nativeVideo.src = '';
+            iframe.src = '';
+
+            let streamUrl = item.video;
+            if (!streamUrl) {
+                nativeVideo.classList.add('hidden');
+                iframe.classList.remove('hidden');
+                iframe.srcdoc = `<div style="background:#000;color:#fff;display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;">No stream link available for ${item.title}</div>`;
+                return;
+            }
+
+            // Check if stream requires iframe embedding (like mega.nz or external web player links) or native HLS (.m3u8) playback
+            if (streamUrl.includes('mega.nz') || streamUrl.includes('trend48.st') || lc.includes('sonucdn-v3.pages.dev') || streamUrl.includes('trend8.st') || streamUrl.includes('workers.dev')) {
+                nativeVideo.classList.add('hidden');
+                iframe.classList.remove('hidden');
+                iframe.src = streamUrl;
             } else {
-                iframe.src = '';
+                // Native/HLS playback logic matching tv.html
                 iframe.classList.add('hidden');
-                video.classList.remove('hidden');
-                video.poster = item.image;
+                nativeVideo.classList.remove('hidden');
+
+                if (streamUrl.endsWith('.m3u8') || streamUrl.includes('m3u8')) {
+                    if (Hls.isSupported()) {
+                        hlsInstance = new Hls();
+                        hlsInstance.loadSource(streamUrl);
+                        hlsInstance.attachMedia(nativeVideo);
+                        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                            nativeVideo.play().catch(e => console.log("Autoplay blocked:", e));
+                        });
+                    } else if (nativeVideo.canPlayType('application/vnd.apple.mpegurl')) {
+                        nativeVideo.src = streamUrl;
+                        nativeVideo.addEventListener('loadedmetadata', () => {
+                            nativeVideo.play().catch(e => console.log("Autoplay blocked:", e));
+                        });
+                    }
+                } else {
+                    nativeVideo.src = streamUrl;
+                    nativeVideo.play().catch(e => console.log("Autoplay blocked:", e));
+                }
             }
         }
 
         function closeModal() {
             const modal = document.getElementById('playerModal');
+            const nativeVideo = document.getElementById('nativeVideo');
             const iframe = document.getElementById('modalIframe');
-            const video = document.getElementById('modalVideo');
 
             modal.classList.add('hidden');
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+            nativeVideo.pause();
+            nativeVideo.src = '';
             iframe.src = '';
-            video.pause();
-            video.src = '';
         }
 
-        // Initialize on load
         window.addEventListener('DOMContentLoaded', loadCatalog);
     </script>
 </body>
