@@ -1,3 +1,4 @@
+
 name: Deploy Ultron to InfinityFree
 
 on:
@@ -25,7 +26,6 @@ jobs:
           protocol: ftp
           port: 21
 
-
   deploy-infinityfree:
     name: Deploy to ultron3000.infinityfree.me
     runs-on: ubuntu-latest
@@ -40,6 +40,24 @@ jobs:
           server: ftpupload.net
           username: ${{ secrets.FTP_USERNAME_INFINITY }}
           password: ${{ secrets.FTP_PASSWORD_INFINITY }}
+          server-dir: /htdocs/
+          protocol: ftp
+          port: 21
+
+  deploy-cloudtv-free:
+    name: Deploy to cloudtv.free.je
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to cloudtv.free.je
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftpupload.net
+          username: ${{ secrets.FTP_USERNAME_FREE }}
+          password: ${{ secrets.FTP_PASSWORD_FREE }}
           server-dir: /htdocs/
           protocol: ftp
           port: 21
