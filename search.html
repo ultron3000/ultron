@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud TV - Master Catalog Search</title>
+    <title>Cloud TV - Search Catalog</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script>
@@ -12,11 +12,7 @@
             theme: {
                 extend: {
                     colors: {
-                        dark: {
-                            900: '#0f172a',
-                            800: '#1e293b',
-                            700: '#334155',
-                        }
+                        dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' }
                     }
                 }
             }
@@ -25,26 +21,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-dark-900 text-slate-100 min-h-screen font-sans antialiased">
-    <!-- Header -->
     <header class="sticky top-0 z-50 bg-dark-800/90 backdrop-blur-md border-b border-slate-700/50 px-4 lg:px-8 py-4">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <a href="index.html" class="flex items-center space-x-2 text-xl font-bold text-red-500">
-                    <i class="fa-solid fa-cloud"></i>
-                    <span>Cloud TV Search</span>
-                </a>
-            </div>
-            
-            <!-- Search Bar -->
+            <a href="index.html" class="flex items-center space-x-2 text-xl font-bold text-red-500">
+                <i class="fa-solid fa-cloud"></i>
+                <span>Cloud TV Search</span>
+            </a>
             <div class="relative w-full md:w-96">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                     <i class="fa-solid fa-search"></i>
                 </span>
                 <input type="text" id="searchInput" placeholder="Search channels, movies, series..." 
-                    class="w-full pl-10 pr-4 py-2 bg-dark-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500 transition-colors">
+                    class="w-full pl-10 pr-4 py-2 bg-dark-900 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500">
             </div>
-
-            <!-- Filters -->
             <div class="flex items-center space-x-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
                 <button onclick="filterType('all')" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white transition-colors">All</button>
                 <button onclick="filterType('channel')" class="filter-btn px-4 py-2 text-sm font-medium rounded-lg bg-dark-700 text-slate-300 hover:bg-slate-700 transition-colors">Channels</button>
@@ -54,28 +43,19 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 lg:px-8 py-8">
         <div id="loading" class="text-center py-20 text-slate-400">
             <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
-            <p>Loading master catalog from repositories...</p>
+            <p>Loading master catalog...</p>
         </div>
-
         <div id="resultsCount" class="text-sm text-slate-400 mb-6 hidden"></div>
-
-        <!-- Catalog Grid -->
-        <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6">
-        </div>
-
-        <!-- Empty State -->
+        <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-6"></div>
         <div id="emptyState" class="hidden text-center py-20">
             <i class="fa-solid fa-film text-5xl text-slate-600 mb-4"></i>
             <h3 class="text-lg font-semibold text-slate-300">No results found</h3>
-            <p class="text-slate-500 text-sm mt-1">Try checking your spelling or search terms.</p>
         </div>
     </main>
 
-    <!-- Video Modal / Player (incorporating tv.html playback logic with Hls.js) -->
     <div id="playerModal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="relative w-full max-w-4xl bg-dark-800 rounded-xl overflow-hidden shadow-2xl border border-slate-700 flex flex-col">
             <div class="flex items-center justify-between px-4 py-3 bg-dark-900 border-b border-slate-700">
@@ -97,100 +77,112 @@
         let hlsInstance = null;
 
         async function loadCatalog() {
+            let items = [];
+
+            // 1. Load channels.json
             try {
-                // Fetch channels.json, movies.html, series.html concurrently
-                const [channelsRes, moviesRes, seriesRes] = await Promise.allSettled([
-                    fetch('channels.json').then(r => r.json()),
-                    fetch('movies.html').then(r => r.text()),
-                    fetch('series.html').then(r => r.text())
-                ]);
-
-                let items = [];
-
-                // 1. Parse Channels
-                if (channelsRes.status === 'fulfilled') {
-                    let data = channelsRes.value;
+                let res = await fetch('channels.json');
+                if (res.ok) {
+                    let data = await res.json();
                     let list = Array.isArray(data) ? data : (data.channels || []);
                     list.forEach(ch => {
                         items.push({
-                            title: ch.title || ch.name || 'Untitled Channel',
-                            image: ch.image || ch.poster || 'https://via.placeholder.com/300x450?text=No+Image',
+                            title: ch.title || ch.name || 'Channel',
+                            image: ch.image || 'https://via.placeholder.com/300x450?text=Channel',
                             video: ch.video || ch.url || '',
                             category: ch.category || 'Live TV',
-                            type: 'channel',
-                            language: ch.language || ''
+                            type: 'channel'
                         });
                     });
                 }
+            } catch(e) { console.log("Channels load note:", e); }
 
-                // 2. Parse HTML files (movies.html, series.html) robustly
-                function parseHtmlItems(htmlText, typeDefault) {
-                    let parsed = [];
-                    try {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(htmlText, 'text/html');
-                        
-                        // Search through all script tags for JSON arrays or objects
-                        doc.querySelectorAll('script').forEach(script => {
-                            let text = script.textContent;
-                            // Look for variable assignments containing arrays of objects
-                            let match = text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
-                            if (match) {
-                                try {
-                                    // Clean up JavaScript object notation into valid JSON
-                                    let cleanJson = match[0]
-                                        .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
-                                        .replace(/'/g, '"')
-                                        .replace(/,\s*([\]}])/g, '$1');
-                                    let arr = JSON.parse(cleanJson);
+            // 2. Load movies.html
+            try {
+                let res = await fetch('movies.html');
+                if (res.ok) {
+                    let html = await res.text();
+                    items.push(...extractItemsFromHtml(html, 'movie'));
+                }
+            } catch(e) { console.log("Movies load note:", e); }
+
+            // 3. Load series.html
+            try {
+                let res = await fetch('series.html');
+                if (res.ok) {
+                    let html = await res.text();
+                    items.push(...extractItemsFromHtml(html, 'series'));
+                }
+            } catch(e) { console.log("Series load note:", e); }
+
+            // Fallback / default embedded sample items if empty
+            if (items.length === 0) {
+                items = [
+                    {title: "Star Sports 1 Hindi", image: "https://5.imimg.com/data5/SELLER/Default/2024/7/432813201/YT/VH/RF/184162459/star-sports-1-hindi-250x250.webp", video: "https://sonucdn-v3.pages.dev/star?id=H1HD", type: "channel", category: "cricket"},
+                    {title: "Whalefall", image: "https://image.tmdb.org/t/p/w500/vjTYUTgh9nO88i6HZ4YPRhiFL05.jpg", video: "https://mega.nz/embed/0AQkQAiK#Y7k8LF8nR9vaDp7QIwkIoBVmktBGBO0H-PE_lKDumcg", type: "movie", category: "English"},
+                    {title: "Ted Lasso", image: "https://image.tmdb.org/t/p/w500/8cKgDJggjKAotruZ1gBv4R0R2gE.jpg", video: "", type: "series", category: "Comedy"}
+                ];
+            }
+
+            masterCatalog = items;
+            document.getElementById('loading').classList.add('hidden');
+            renderCatalog(masterCatalog);
+        }
+
+        function extractItemsFromHtml(htmlText, typeDefault) {
+            let results = [];
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+
+                // Extract any JavaScript variable arrays defined in script tags
+                doc.querySelectorAll('script').forEach(script => {
+                    let text = script.textContent;
+                    let matches = text.match(/\[\s*\{[\s\S]*?\}\s*\]/g);
+                    if (matches) {
+                        matches.forEach(match => {
+                            try {
+                                let jsonStr = match
+                                    .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
+                                    .replace(/'/g, '"')
+                                    .replace(/,\s*([\]}])/g, '$1');
+                                let arr = JSON.parse(jsonStr);
+                                if (Array.isArray(arr)) {
                                     arr.forEach(obj => {
                                         if (obj.title || obj.name) {
-                                            parsed.push({
+                                            results.push({
                                                 title: obj.title || obj.name,
                                                 image: obj.image || obj.poster || 'https://via.placeholder.com/300x450?text=No+Image',
                                                 video: obj.video || obj.url || '',
                                                 category: obj.category || typeDefault,
                                                 type: typeDefault,
-                                                year: obj.year || '',
-                                                description: obj.description || ''
+                                                year: obj.year || ''
                                             });
                                         }
                                     });
-                                } catch(err) {}
-                            }
+                                }
+                            } catch(err) {}
                         });
+                    }
+                });
 
-                        // Fallback: parse explicit DOM card elements if any
-                        if (parsed.length === 0) {
-                            doc.querySelectorAll('.movie-card, .card, article, [data-title]').forEach(card => {
-                                parsed.push({
-                                    title: card.getAttribute('data-title') || card.querySelector('h3, h4, .title')?.textContent?.trim() || 'Untitled',
-                                    image: card.querySelector('img')?.src || 'https://via.placeholder.com/300x450?text=No+Image',
-                                    video: card.getAttribute('data-video') || card.querySelector('a')?.href || '',
-                                    type: typeDefault
-                                });
-                            });
-                        }
-                    } catch(e) {}
-                    return parsed;
-                }
-
-                if (moviesRes.status === 'fulfilled') {
-                    items.push(...parseHtmlItems(moviesRes.value, 'movie'));
-                }
-
-                if (seriesRes.status === 'fulfilled') {
-                    items.push(...parseHtmlItems(seriesRes.value, 'series'));
-                }
-
-                masterCatalog = items;
-                document.getElementById('loading').classList.add('hidden');
-                renderCatalog(masterCatalog);
-
-            } catch (err) {
-                console.error("Error loading catalog:", err);
-                document.getElementById('loading').innerHTML = '<p class="text-red-400">Failed to load catalog files. Ensure channels.json, movies.html, and series.html exist.</p>';
-            }
+                // Also parse DOM cards if present
+                doc.querySelectorAll('.movie-card, .card, article, [data-title]').forEach(card => {
+                    let title = card.getAttribute('data-title') || card.querySelector('h3, h4, .title')?.textContent?.trim();
+                    let image = card.querySelector('img')?.src;
+                    let video = card.getAttribute('data-video') || card.querySelector('a')?.href;
+                    if (title) {
+                        results.push({
+                            title: title,
+                            image: image || 'https://via.placeholder.com/300x450?text=No+Image',
+                            video: video || '',
+                            category: typeDefault,
+                            type: typeDefault
+                        });
+                    }
+                });
+            } catch(e) {}
+            return results;
         }
 
         function renderCatalog(items) {
@@ -237,7 +229,6 @@
             });
             event.target.classList.remove('bg-dark-700', 'text-slate-300');
             event.target.classList.add('bg-red-600', 'text-white');
-
             applySearchAndFilter();
         }
 
@@ -262,7 +253,6 @@
             title.textContent = item.title;
             modal.classList.remove('hidden');
 
-            // Cleanup previous HLS instance
             if (hlsInstance) {
                 hlsInstance.destroy();
                 hlsInstance = null;
@@ -280,13 +270,11 @@
                 return;
             }
 
-            // Check if stream requires iframe embedding (like mega.nz or external web player links) or native HLS (.m3u8) playback
-            if (streamUrl.includes('mega.nz') || streamUrl.includes('trend48.st') || lc.includes('sonucdn-v3.pages.dev') || streamUrl.includes('trend8.st') || streamUrl.includes('workers.dev')) {
+            if (streamUrl.includes('mega.nz') || streamUrl.includes('trend48') || streamUrl.includes('workers.dev')) {
                 nativeVideo.classList.add('hidden');
                 iframe.classList.remove('hidden');
                 iframe.src = streamUrl;
             } else {
-                // Native/HLS playback logic matching tv.html
                 iframe.classList.add('hidden');
                 nativeVideo.classList.remove('hidden');
 
@@ -296,17 +284,15 @@
                         hlsInstance.loadSource(streamUrl);
                         hlsInstance.attachMedia(nativeVideo);
                         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                            nativeVideo.play().catch(e => console.log("Autoplay blocked:", e));
+                            nativeVideo.play().catch(e => console.log(e));
                         });
                     } else if (nativeVideo.canPlayType('application/vnd.apple.mpegurl')) {
                         nativeVideo.src = streamUrl;
-                        nativeVideo.addEventListener('loadedmetadata', () => {
-                            nativeVideo.play().catch(e => console.log("Autoplay blocked:", e));
-                        });
+                        nativeVideo.play().catch(e => console.log(e));
                     }
                 } else {
                     nativeVideo.src = streamUrl;
-                    nativeVideo.play().catch(e => console.log("Autoplay blocked:", e));
+                    nativeVideo.play().catch(e => console.log(e));
                 }
             }
         }
