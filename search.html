@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080c16">
+<title>CloudTV — Smart Search</title>
+
+<style>
+:root {
+  --bg:#080c16;
+  --panel:#101a2a;
+  --panel2:#152238;
+  --cyan:#45d9ff;
+  --purple:#a78bfa;
+  --text:#f4f7ff;
+  --muted:#8fa3bd;
+  --border:rgba(130,170,220,.16);
+}
+
+* {box-sizing:border-box}
+
+body {
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse at 15% 0%,#132c49 0,transparent 40%),
+    radial-gradient(ellipse at 90% 15%,#261b48 0,transparent 35%),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,sans-serif;
+}
+
+button,input {font:inherit}
+
+header {
+  height:76px;
+  padding:0 6%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  background:rgba(8,12,22,.75);
+  backdrop-filter:blur(18px);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.logo {
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.logo span {color:var(--cyan)}
+
+.status {
+  color:#70e8bd;
+  font-size:11px;
+  letter-spacing:1px;
+}
+
+main {
+  max-width:1250px;
+  margin:auto;
+  padding:65px 22px;
+}
+
+.hero {
+  text-align:center;
+  margin-bottom:36px;
+}
+
+.eyebrow {
+  color:var(--cyan);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:4px;
+}
+
+h1 {
+  font-size:clamp(34px,6vw,66px);
+  line-height:1.08;
+  margin:18px 0 12px;
+  letter-spacing:-2px;
+}
+
+h1 span {
+  background:linear-gradient(90deg,var(--cyan),var(--purple));
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+.subtitle {
+  color:var(--muted);
+  font-size:14px;
+}
+
+.search-wrap {
+  max-width:780px;
+  margin:35px auto 20px;
+  position:relative;
+}
+
+.search-box {
+  display:flex;
+  align-items:center;
+  padding:7px 9px 7px 20px;
+  background:rgba(18,31,50,.92);
+  border:1px solid rgba(69,217,255,.4);
+  border-radius:17px;
+  box-shadow:0 0 35px rgba(69,217,255,.08);
+  transition:.2s;
+}
+
+.search-box:focus-within {
+  border-color:var(--cyan);
+  box-shadow:0 0 35px rgba(69,217,255,.17);
+}
+
+.search-icon {
+  font-size:22px;
+  color:var(--cyan);
+}
+
+#searchInput {
+  flex:1;
+  min-width:0;
+  padding:15px;
+  color:white;
+  background:transparent;
+  border:0;
+  outline:none;
+  font-size:15px;
+}
+
+#searchInput::placeholder {color:#7288a4}
+
+.clear-btn {
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  font-size:21px;
+  padding:8px;
+}
+
+.search-hint {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:12px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.filters {
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:9px;
+  margin:30px 0 45px;
+}
+
+.filter {
+  padding:10px 18px;
+  border:1px solid var(--border);
+  border-radius:30px;
+  color:#afc0d7;
+  background:rgba(17,29,46,.7);
+  cursor:pointer;
+  font-size:12px;
+  transition:.2s;
+}
+
+.filter:hover,.filter.active {
+  color:#07111c;
+  background:var(--cyan);
+  border-color:var(--cyan);
+}
+
+.section-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.section-head h2 {
+  font-size:18px;
+  margin:0;
+}
+
+#resultCount {
+  color:var(--muted);
+  font-size:12px;
+}
+
+.results {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
+  gap:20px;
+}
+
+.card {
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:linear-gradient(145deg,#14243a,#0e1727);
+  transition:transform .22s,border-color .22s;
+  cursor:pointer;
+}
+
+.card:hover {
+  transform:translateY(-5px);
+  border-color:rgba(69,217,255,.55);
+}
+
+.poster {
+  height:220px;
+  position:relative;
+  background:linear-gradient(135deg,#183b59,#29234b);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.poster img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.poster-placeholder {
+  font-size:45px;
+  opacity:.7;
+}
+
+.type {
+  position:absolute;
+  top:10px;
+  left:10px;
+  padding:5px 9px;
+  border-radius:6px;
+  background:rgba(5,12,22,.86);
+  color:var(--cyan);
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:1px;
+}
+
+.card-info {padding:13px}
+
+.card-title {
+  font-size:13px;
+  font-weight:750;
+  line-height:1.4;
+  margin-bottom:7px;
+}
+
+.card-meta {
+  font-size:10px;
+  color:var(--muted);
+}
+
+.card-action {
+  margin-top:12px;
+  padding:9px;
+  width:100%;
+  border:1px solid rgba(69,217,255,.3);
+  border-radius:8px;
+  color:var(--cyan);
+  background:rgba(69,217,255,.07);
+  cursor:pointer;
+  font-size:11px;
+  font-weight:750;
+}
+
+.empty {
+  grid-column:1/-1;
+  text-align:center;
+  padding:65px 15px;
+  color:var(--muted);
+}
+
+.empty-icon {
+  font-size:45px;
+  margin-bottom:15px;
+}
+
+footer {
+  border-top:1px solid var(--border);
+  padding:25px;
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  margin-top:75px;
+}
+
+@media(max-width:600px) {
+  header {height:65px;padding:0 18px}
+  main {padding:45px 15px}
+  h1 {letter-spacing:-1px}
+  .results {grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .poster {height:190px}
+  .filters {justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px}
+  .filter {white-space:nowrap}
+  .search-hint {font-size:10px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">CLOUD<span>TV</span></div>
+  <div class="status">● SMART SEARCH</div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="eyebrow">YOUR ENTERTAINMENT UNIVERSE</div>
+    <h1>Discover <span>Everything.</span></h1>
+    <div class="subtitle">
+      Movies, series, animation, television and more.
+    </div>
+  </section>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Search titles, codes, channels..."
+        autocomplete="off"
+        aria-label="Search CloudTV catalogue"
+      >
+      <button class="clear-btn" id="clearBtn" aria-label="Clear search">×</button>
+    </div>
+    <div class="search-hint">
+      <span>Search by title or unique content code</span>
+      <span id="searchStatus">Loading index...</span>
+    </div>
+  </div>
+
+  <nav class="filters" id="filters">
+    <button class="filter active" data-type="all">All</button>
+    <button class="filter" data-type="movie">Movies</button>
+    <button class="filter" data-type="series">Series</button>
+    <button class="filter" data-type="animation">Animation</button>
+    <button class="filter" data-type="tv">TV</button>
+    <button class="filter" data-type="live">Live TV</button>
+  </nav>
+
+  <section>
+    <div class="section-head">
+      <h2 id="sectionTitle">Explore Catalogue</h2>
+      <span id="resultCount"></span>
+    </div>
+    <div class="results" id="results"></div>
+  </section>
+
+</main>
+
+<footer>
+  CLOUDTV · SMART SEARCH · DISCOVER MORE
+</footer>
+
+<script>
+let catalogue = [];
+let activeFilter = "all";
+let searchTimer = null;
+
+const searchInput = document.getElementById("searchInput");
+const results = document.getElementById("results");
+const resultCount = document.getElementById("resultCount");
+const searchStatus = document.getElementById("searchStatus");
+
+function normalize(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g," ")
+    .trim();
+}
+
+function distance(a,b) {
+  const row = Array.from({length:b.length+1},(_,i)=>i);
+
+  for(let i=1;i<=a.length;i++) {
+    let previous = row[0];
+    row[0] = i;
+
+    for(let j=1;j<=b.length;j++) {
+      const current = row[j];
+
+      row[j] = Math.min(
+        row[j]+1,
+        row[j-1]+1,
+        previous+(a[i-1]===b[j-1]?0:1)
+      );
+
+      previous=current;
+    }
+  }
+
+  return row[b.length];
+}
+
+function scoreItem(item,query) {
+  const q = normalize(query);
+  const title = normalize(item.title);
+  const code = normalize(item.code);
+  const category = normalize(item.category);
+  const description = normalize(item.description);
+  const aliases = (item.aliases || []).map(normalize);
+
+  if(!q) return 1;
+
+  if(code && code===q) return 120;
+  if(title===q) return 110;
+  if(title.startsWith(q)) return 95;
+  if(title.includes(q)) return 85;
+  if(aliases.some(x=>x===q)) return 100;
+  if(aliases.some(x=>x.includes(q))) return 75;
+  if(category.includes(q)) return 55;
+  if(description.includes(q)) return 40;
+
+  const words = title.split(" ");
+
+  if(words.some(w=>w.startsWith(q))) return 70;
+
+  if(q.length>=4 && words.some(w=>distance(w,q)<=1))
+    return 45;
+
+  return 0;
+}
+
+function getSearchResults(query) {
+  return catalogue
+    .filter(item => {
+      if (activeFilter === "all") return true;
+      if (activeFilter === "animation") {
+        return item.type === "animation" || (item.category && item.category.toLowerCase().includes("animation"));
+      }
+      return item.type === activeFilter;
+    })
+    .map(item=>({
+      item,
+      score:scoreItem(item,query)
+    }))
+    .filter(x=>x.score>0)
+    .sort((a,b)=>b.score-a.score)
+    .map(x=>x.item);
+}
+
+function safeText(value) {
+  return String(value || "").replace(/[&<>"']/g,char=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[char]);
+}
+
+function render(query="") {
+  const matches = getSearchResults(query);
+
+  resultCount.textContent =
+    matches.length+" result"+(matches.length===1?"":"s");
+
+  document.getElementById("sectionTitle").textContent =
+    query ? "Search Results" : "Explore Catalogue";
+
+  if(!matches.length) {
+    results.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">⌕</div>
+        <h3>No matching content found</h3>
+        <p>Try another title, code or category.</p>
+      </div>`;
+    return;
+  }
+
+  results.innerHTML = matches.map((item,index)=>`
+    <article class="card" data-index="${index}">
+      <div class="poster">
+        ${item.poster
+          ? `<img src="${safeText(item.poster)}" loading="lazy" alt="">`
+          : `<div class="poster-placeholder">▶</div>`
+        }
+        <span class="type">${safeText((item.type || "content").toUpperCase())}</span>
+      </div>
+      <div class="card-info">
+        <div class="card-title">${safeText(item.title)}</div>
+        <div class="card-meta">
+          ${safeText(item.category || item.sourcePage || "")}
+          ${item.year?" · "+safeText(item.year):""}
+        </div>
+        <button class="card-action" data-index="${index}">
+          ${item.type==="movie" || item.type==="animation"
+            ?"▶ PLAY MOVIE"
+            :item.type==="series"
+            ?"OPEN SERIES ↗"
+            :"OPEN CHANNEL ↗"}
+        </button>
+      </div>
+    </article>
+  `).join("");
+
+  results.querySelectorAll(".card-action").forEach(button=>{
+    button.addEventListener("click",()=>{
+      openItem(matches[Number(button.dataset.index)]);
+    });
+  });
+}
+
+function openItem(item) {
+  if (item.url) {
+    window.location.href = item.url;
+    return;
+  }
+  if (item.page) {
+    window.location.href = item.page;
+    return;
+  }
+  alert("Content destination is not available.");
+}
+
+searchInput.addEventListener("input",()=>{
+  clearTimeout(searchTimer);
+
+  const query=searchInput.value.trim();
+
+  searchStatus.textContent="Searching...";
+
+  searchTimer=setTimeout(()=>{
+    render(query);
+    searchStatus.textContent="Ready";
+  },120);
+});
+
+document.getElementById("clearBtn").addEventListener("click",()=>{
+  searchInput.value="";
+  searchInput.focus();
+  render("");
+});
+
+document.getElementById("filters").addEventListener("click",event=>{
+  const button=event.target.closest("button[data-type]");
+  if(!button) return;
+
+  activeFilter=button.dataset.type;
+
+  document.querySelectorAll(".filter").forEach(b=>{
+    b.classList.toggle("active",b===button);
+  });
+
+  render(searchInput.value.trim());
+});
+
+async function initialise() {
+  try {
+    const response = await fetch("./search-index.json", {
+      cache: "no-cache"
+    });
+
+    if (!response.ok) throw new Error("Index unavailable");
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) throw new Error("Invalid search index format");
+
+    catalogue = data.filter(item =>
+      item &&
+      typeof item.title === "string" &&
+      typeof item.url === "string"
+    );
+
+    searchStatus.textContent = `Loaded ${catalogue.length} items`;
+  } catch(error) {
+    catalogue = [];
+    searchStatus.textContent = "Index error / empty";
+    console.info("Catalogue load error:", error.message);
+  }
+
+  render();
+}
+
+initialise();
+</script>
+
+</body>
+</html>
