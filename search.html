@@ -1,602 +1,250 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#080c16">
-<title>CloudTV — Smart Search</title>
-
-<style>
-:root {
-  --bg:#080c16;
-  --panel:#101a2a;
-  --panel2:#152238;
-  --cyan:#45d9ff;
-  --purple:#a78bfa;
-  --text:#f4f7ff;
-  --muted:#8fa3bd;
-  --border:rgba(130,170,220,.16);
-}
-
-* {box-sizing:border-box}
-
-body {
-  margin:0;
-  min-height:100vh;
-  background:
-    radial-gradient(ellipse at 15% 0%,#132c49 0,transparent 40%),
-    radial-gradient(ellipse at 90% 15%,#261b48 0,transparent 35%),
-    var(--bg);
-  color:var(--text);
-  font-family:Inter,system-ui,-apple-system,sans-serif;
-}
-
-button,input {font:inherit}
-
-header {
-  height:76px;
-  padding:0 6%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid var(--border);
-  background:rgba(8,12,22,.75);
-  backdrop-filter:blur(18px);
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-
-.logo {
-  font-size:25px;
-  font-weight:900;
-  letter-spacing:2px;
-  text-decoration:none;
-  color:var(--text);
-}
-
-.logo span {color:var(--cyan)}
-
-.status {
-  color:#70e8bd;
-  font-size:11px;
-  letter-spacing:1px;
-}
-
-main {
-  max-width:1250px;
-  margin:auto;
-  padding:65px 22px;
-}
-
-.hero {
-  text-align:center;
-  margin-bottom:36px;
-}
-
-.eyebrow {
-  color:var(--cyan);
-  font-size:11px;
-  font-weight:800;
-  letter-spacing:4px;
-}
-
-h1 {
-  font-size:clamp(34px,6vw,66px);
-  line-height:1.08;
-  margin:18px 0 12px;
-  letter-spacing:-2px;
-}
-
-h1 span {
-  background:linear-gradient(90deg,var(--cyan),var(--purple));
-  -webkit-background-clip:text;
-  color:transparent;
-}
-
-.subtitle {
-  color:var(--muted);
-  font-size:14px;
-}
-
-.search-wrap {
-  max-width:780px;
-  margin:35px auto 20px;
-  position:relative;
-}
-
-.search-box {
-  display:flex;
-  align-items:center;
-  padding:7px 9px 7px 20px;
-  background:rgba(18,31,50,.92);
-  border:1px solid rgba(69,217,255,.4);
-  border-radius:17px;
-  box-shadow:0 0 35px rgba(69,217,255,.08);
-  transition:.2s;
-}
-
-.search-box:focus-within {
-  border-color:var(--cyan);
-  box-shadow:0 0 35px rgba(69,217,255,.17);
-}
-
-.search-icon {
-  font-size:22px;
-  color:var(--cyan);
-}
-
-#searchInput {
-  flex:1;
-  min-width:0;
-  padding:15px;
-  color:white;
-  background:transparent;
-  border:0;
-  outline:none;
-  font-size:15px;
-}
-
-#searchInput::placeholder {color:#7288a4}
-
-.clear-btn {
-  border:0;
-  background:transparent;
-  color:var(--muted);
-  cursor:pointer;
-  font-size:21px;
-  padding:8px;
-}
-
-.search-hint {
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  margin-top:12px;
-  color:var(--muted);
-  font-size:11px;
-}
-
-.filters {
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:9px;
-  margin:30px 0 45px;
-}
-
-.filter {
-  padding:10px 18px;
-  border:1px solid var(--border);
-  border-radius:30px;
-  color:#afc0d7;
-  background:rgba(17,29,46,.7);
-  cursor:pointer;
-  font-size:12px;
-  transition:.2s;
-}
-
-.filter:hover,.filter.active {
-  color:#07111c;
-  background:var(--cyan);
-  border-color:var(--cyan);
-}
-
-.section-head {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-}
-
-.section-head h2 {
-  font-size:18px;
-  margin:0;
-}
-
-#resultCount {
-  color:var(--muted);
-  font-size:12px;
-}
-
-.results {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
-  gap:20px;
-}
-
-.card {
-  overflow:hidden;
-  border:1px solid var(--border);
-  border-radius:15px;
-  background:linear-gradient(145deg,#14243a,#0e1727);
-  transition:transform .22s,border-color .22s;
-  cursor:pointer;
-}
-
-.card:hover {
-  transform:translateY(-5px);
-  border-color:rgba(69,217,255,.55);
-}
-
-.poster {
-  height:220px;
-  position:relative;
-  background:linear-gradient(135deg,#183b59,#29234b);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-
-.poster img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.poster-placeholder {
-  font-size:45px;
-  opacity:.7;
-}
-
-.type {
-  position:absolute;
-  top:10px;
-  left:10px;
-  padding:5px 9px;
-  border-radius:6px;
-  background:rgba(5,12,22,.86);
-  color:var(--cyan);
-  font-size:9px;
-  font-weight:800;
-  letter-spacing:1px;
-}
-
-.card-info {padding:13px}
-
-.card-title {
-  font-size:13px;
-  font-weight:750;
-  line-height:1.4;
-  margin-bottom:7px;
-}
-
-.card-meta {
-  font-size:10px;
-  color:var(--muted);
-}
-
-.card-action {
-  margin-top:12px;
-  padding:9px;
-  width:100%;
-  border:1px solid rgba(69,217,255,.3);
-  border-radius:8px;
-  color:var(--cyan);
-  background:rgba(69,217,255,.07);
-  cursor:pointer;
-  font-size:11px;
-  font-weight:750;
-}
-
-.empty {
-  grid-column:1/-1;
-  text-align:center;
-  padding:65px 15px;
-  color:var(--muted);
-}
-
-.empty-icon {
-  font-size:45px;
-  margin-bottom:15px;
-}
-
-footer {
-  border-top:1px solid var(--border);
-  padding:25px;
-  text-align:center;
-  color:var(--muted);
-  font-size:11px;
-  margin-top:75px;
-}
-
-@media(max-width:600px) {
-  header {height:65px;padding:0 18px}
-  main {padding:45px 15px}
-  h1 {letter-spacing:-1px}
-  .results {grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .poster {height:190px}
-  .filters {justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px}
-  .filter {white-space:nowrap}
-  .search-hint {font-size:10px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Search - Cloud TV</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkbg: '#0f172a',
+            cardbg: '#1e293b',
+            accent: '#3b82f6'
+          }
+        }
+      }
+    }
+  </script>
 </head>
+<body class="bg-darkbg text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-accent selection:text-white">
 
-<body>
-
-<header>
-  <a href="https://cloudtv.store" class="logo">CLOUD<span>TV</span></a>
-  <div class="status">● SMART SEARCH</div>
-</header>
-
-<main>
-
-  <section class="hero">
-    <div class="eyebrow">YOUR ENTERTAINMENT UNIVERSE</div>
-    <h1>Discover <span>Everything.</span></h1>
-    <div class="subtitle">
-      Movies, series, animation, television and more.
+  <!-- Header / Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-darkbg/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <a href="index.html" class="flex items-center space-x-2 text-xl font-bold tracking-wider text-accent">
+          <i class="fa-solid fa-cloud"></i>
+          <span>CLOUD TV</span>
+        </a>
+      </div>
+      <nav class="flex items-center space-x-4">
+        <a href="index.html" class="text-sm font-medium text-slate-300 hover:text-white transition">Home</a>
+        <a href="movies.html" class="text-sm font-medium text-slate-300 hover:text-white transition">Catalog</a>
+      </nav>
     </div>
-  </section>
+  </header>
 
-  <div class="search-wrap">
-    <div class="search-box">
-      <span class="search-icon">⌕</span>
-      <input
-        id="searchInput"
-        type="search"
-        placeholder="Search movies, series, franchises, TV..."
+  <!-- Main Search Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">Repository Master Search</h1>
+      <p class="text-slate-400 text-sm sm:text-base">Instantly filter across all movies, web series, live channels, and site content.</p>
+    </div>
+
+    <!-- Search Bar Input Wrapper -->
+    <div class="relative max-w-3xl mx-auto mb-6">
+      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+      </div>
+      <input 
+        type="text" 
+        id="searchInput" 
         autocomplete="off"
-        aria-label="Search CloudTV catalogue"
+        placeholder="Type to search titles, actors, tags, or descriptions..." 
+        class="w-full pl-12 pr-12 py-4 bg-cardbg border border-slate-700 rounded-2xl text-slate-100 placeholder-slate-500 shadow-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-base transition"
       >
-      <button class="clear-btn" id="clearBtn" aria-label="Clear search">×</button>
+      <button id="clearSearchBtn" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white hidden">
+        <i class="fa-solid fa-circle-xmark text-lg"></i>
+      </button>
     </div>
-    <div class="search-hint">
-      <span>Search entire repository catalogue</span>
-      <span id="searchStatus">Loading catalogue...</span>
+
+    <!-- Filter Pills / Categories -->
+    <div id="filterChips" class="flex flex-wrap justify-center gap-2 mb-8">
+      <button data-type="all" class="filter-chip px-4 py-2 rounded-full text-xs font-semibold bg-accent text-white transition shadow-sm">All Content</button>
+      <button data-type="movie" class="filter-chip px-4 py-2 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Movies</button>
+      <button data-type="series" class="filter-chip px-4 py-2 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Web Series</button>
+      <button data-type="live" class="filter-chip px-4 py-2 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Live TV</button>
     </div>
-  </div>
 
-  <nav class="filters" id="filters">
-    <button class="filter active" data-type="all">All</button>
-    <button class="filter" data-type="movie">Movies</button>
-    <button class="filter" data-type="series">Series</button>
-    <button class="filter" data-type="animation">Animation</button>
-    <button class="filter" data-type="tv">TV</button>
-  </nav>
-
-  <section>
-    <div class="section-head">
-      <h2 id="sectionTitle">Explore Catalogue</h2>
-      <span id="resultCount"></span>
+    <!-- Results Status Info -->
+    <div class="flex justify-between items-center mb-4 px-2 text-xs text-slate-400">
+      <span id="resultsCount">Loading index database...</span>
+      <span id="searchTime"></span>
     </div>
-    <div class="results" id="results"></div>
-  </section>
 
-</main>
+    <!-- Results Grid -->
+    <div id="resultsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+      <!-- Dynamic cards will be injected here -->
+    </div>
 
-<footer>
-  CLOUDTV · SMART SEARCH · DISCOVER MORE
-</footer>
-
-<script>
-let catalogue = [];
-let activeFilter = "all";
-let searchTimer = null;
-
-const searchInput = document.getElementById("searchInput");
-const results = document.getElementById("results");
-const resultCount = document.getElementById("resultCount");
-const searchStatus = document.getElementById("searchStatus");
-
-function normalize(value) {
-  return String(value || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .replace(/[^a-z0-9]+/g," ")
-    .trim();
-}
-
-function distance(a,b) {
-  const row = Array.from({length:b.length+1},(_,i)=>i);
-  for(let i=1;i<=a.length;i++) {
-    let previous = row[0];
-    row[0] = i;
-    for(let j=1;j<=b.length;j++) {
-      const current = row[j];
-      row[j] = Math.min(row[j]+1, row[j-1]+1, previous+(a[i-1]===b[j-1]?0:1));
-      previous=current;
-    }
-  }
-  return row[b.length];
-}
-
-function scoreItem(item,query) {
-  const q = normalize(query);
-  const title = normalize(item.title);
-  const code = normalize(item.code);
-  const category = normalize(item.category);
-
-  if(!q) return 1;
-  if(code && code===q) return 120;
-  if(title===q) return 110;
-  if(title.startsWith(q)) return 95;
-  if(title.includes(q)) return 85;
-  if(category.includes(q)) return 55;
-
-  const words = title.split(" ");
-  if(words.some(w=>w.startsWith(q))) return 70;
-  if(q.length>=4 && words.some(w=>distance(w,q)<=1)) return 45;
-
-  return 0;
-}
-
-function getSearchResults(query) {
-  return catalogue
-    .filter(item => {
-      if (activeFilter === "all") return true;
-      if (activeFilter === "animation") {
-        return item.type === "animation" || (item.category && item.category.toLowerCase().includes("animation"));
-      }
-      return item.type === activeFilter;
-    })
-    .map(item=>({ item, score: scoreItem(item, query) }))
-    .filter(x => x.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .map(x => x.item);
-}
-
-function safeText(value) {
-  return String(value || "").replace(/[&<>"']/g,char=>({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-  })[char]);
-}
-
-function render(query="") {
-  const matches = getSearchResults(query);
-
-  resultCount.textContent = matches.length + " result" + (matches.length === 1 ? "" : "s");
-  document.getElementById("sectionTitle").textContent = query ? "Search Results" : "Explore Catalogue";
-
-  if(!matches.length) {
-    results.innerHTML = `
-      <div class="empty">
-        <div class="empty-icon">⌕</div>
-        <h3>No matching content found</h3>
-        <p>Try another title, franchise or category.</p>
-      </div>`;
-    return;
-  }
-
-  results.innerHTML = matches.map((item,index)=>`
-    <article class="card" data-index="${index}">
-      <div class="poster">
-        ${item.poster ? `<img src="${safeText(item.poster)}" loading="lazy" alt="">` : `<div class="poster-placeholder">▶</div>`}
-        <span class="type">${safeText((item.type || "content").toUpperCase())}</span>
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-20">
+      <div class="text-slate-600 text-5xl mb-4">
+        <i class="fa-solid fa-face-sad-tear"></i>
       </div>
-      <div class="card-info">
-        <div class="card-title">${safeText(item.title)}</div>
-        <div class="card-meta">
-          ${safeText(item.category || item.sourcePage || "")}
-          ${item.year ? " · "+safeText(item.year) : ""}
-        </div>
-        <button class="card-action" data-index="${index}">
-          ${item.type==="movie" || item.type==="animation" ? "▶ PLAY MOVIE" : item.type==="series" ? "OPEN SERIES ↗" : "OPEN CHANNEL ↗"}
-        </button>
-      </div>
-    </article>
-  `).join("");
+      <h3 class="text-lg font-medium text-slate-300">No matching entries found</h3>
+      <p class="text-slate-500 text-sm mt-1">Try checking your spelling or using different keywords.</p>
+    </div>
+  </main>
 
-  results.querySelectorAll(".card-action").forEach(button=>{
-    button.addEventListener("click",()=>{
-      openItem(matches[Number(button.dataset.index)]);
-    });
-  });
-}
+  <!-- Footer -->
+  <footer class="bg-darkbg border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+    <p>Cloud TV Repository Index &bull; Managed via Automated Actions</p>
+  </footer>
 
-function openItem(item) {
-  if (item.url) {
-    window.location.href = item.url;
-    return;
-  }
-  alert("Destination not available.");
-}
+  <!-- Search Logic Script -->
+  <script>
+    let searchIndex = [];
+    let activeTypeFilter = 'all';
 
-searchInput.addEventListener("input",()=>{
-  clearTimeout(searchTimer);
-  const query = searchInput.value.trim();
-  searchStatus.textContent = "Searching...";
-  searchTimer = setTimeout(()=>{
-    render(query);
-    searchStatus.textContent = `Ready (${catalogue.length} items)`;
-  }, 120);
-});
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const resultsGrid = document.getElementById('resultsGrid');
+    const resultsCount = document.getElementById('resultsCount');
+    const searchTime = document.getElementById('searchTime');
+    const emptyState = document.getElementById('emptyState');
+    const filterChips = document.querySelectorAll('.filter-chip');
 
-document.getElementById("clearBtn").addEventListener("click",()=>{
-  searchInput.value = "";
-  searchInput.focus();
-  render("");
-});
-
-document.getElementById("filters").addEventListener("click",event=>{
-  const button = event.target.closest("button[data-type]");
-  if(!button) return;
-
-  activeFilter = button.dataset.type;
-  document.querySelectorAll(".filter").forEach(b=>{
-    b.classList.toggle("active", b === button);
-  });
-  render(searchInput.value.trim());
-});
-
-async function initialise() {
-  try {
-    const response = await fetch("./search-index.json", { cache: "no-cache" });
-    if (response.ok) {
-      const data = await response.json();
-      if (Array.isArray(data) && data.length > 0) {
-        catalogue = data;
-        searchStatus.textContent = `Loaded ${catalogue.length} items from repository`;
-        render();
-        return;
-      }
-    }
-  } catch(e) {
-    console.info("Index fetch failed, scanning pages.");
-  }
-
-  // Fallback: fetch key pages directly and extract all movie/series titles on the fly
-  const pages = ["movies.html", "marvel.html", "hindi-movies.html", "english-series.html", "animation-sequels.html", "tv.html"];
-  let extracted = [];
-
-  for (const page of pages) {
-    try {
-      const res = await fetch(page);
-      if (res.ok) {
-        const htmlText = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, "text/html");
-        const links = doc.querySelectorAll("a");
+    // 1. Fetch JSON Search Index generated by Python workflow
+    async function loadSearchIndex() {
+      const startTime = performance.now();
+      try {
+        const response = await fetch('search-index.json');
+        if (!response.ok) throw new Error('Failed to load search index');
+        searchIndex = await response.json();
         
-        links.forEach(a => {
-          const title = a.textContent.trim();
-          const href = a.getAttribute("href");
-          if (title.length > 2 && href && !href.startsWith("#") && !title.toLowerCase().includes("home")) {
-            let type = "movie";
-            if (page.includes("series")) type = "series";
-            if (page.includes("tv")) type = "tv";
-            if (page.includes("animation")) type = "animation";
-            
-            extracted.push({
-              title: title,
-              url: href,
-              type: type,
-              category: page.replace(".html", "").replace("-", " ").toUpperCase(),
-              sourcePage: page
-            });
+        const endTime = performance.now();
+        searchTime.textContent = `Indexed loaded in ${(endTime - startTime).toFixed(0)}ms`;
+        
+        // Render initial full set
+        filterAndRender();
+      } catch (error) {
+        console.error('Error fetching search index:', error);
+        resultsCount.textContent = 'Error loading repository items. Make sure search-index.json exists.';
+      }
+    }
+
+    // 2. Core Search & Filter Logic
+    function filterAndRender() {
+      const query = searchInput.value.toLowerCase().trim();
+      const startTime = performance.now();
+
+      // Toggle clear button visibility
+      if (query.length > 0) {
+        clearSearchBtn.classList.remove('hidden');
+      } else {
+        clearSearchBtn.classList.add('hidden');
+      }
+
+      // Filter items based on type and keyword query
+      const filtered = searchIndex.filter(item => {
+        const matchesType = activeTypeFilter === 'all' || item.type === activeTypeFilter;
+        if (!matchesType) return false;
+
+        if (!query) return true;
+
+        const titleMatch = item.title && item.title.toLowerCase().includes(query);
+        const descMatch = item.description && item.description.toLowerCase().includes(query);
+        const categoryMatch = item.category && item.category.toLowerCase().includes(query);
+        
+        return titleMatch || descMatch || categoryMatch;
+      });
+
+      const endTime = performance.now();
+      
+      resultsCount.textContent = `Showing ${filtered.length} of ${searchIndex.length} items`;
+      
+      renderResults(filtered);
+    }
+
+    // 3. Render Cards to Grid
+    function renderResults(items) {
+      resultsGrid.innerHTML = '';
+
+      if (items.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      const fragment = document.createDocumentFragment();
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-cardbg rounded-xl overflow-hidden border border-slate-800 hover:border-slate-600 transition flex flex-col group cursor-pointer shadow-lg';
+        
+        card.innerHTML = `
+          <div class="relative aspect-[2/3] bg-slate-900 overflow-hidden">
+            <img src="${item.poster || 'assets/placeholder.jpg'}" alt="${item.title}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+            <div class="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-slate-300">
+              ${item.type || 'media'}
+            </div>
+          </div>
+          <div class="p-3 flex flex-col flex-grow justify-between">
+            <div>
+              <h4 class="text-sm font-bold text-slate-200 line-clamp-1 group-hover:text-accent transition">${item.title}</h4>
+              <p class="text-xs text-slate-400 line-clamp-1 mt-0.5">${item.category || ''}</p>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-800/60 flex items-center justify-between">
+              <span class="text-[10px] text-slate-500 uppercase">${item.source || 'Cloud TV'}</span>
+              <span class="text-xs text-accent font-semibold flex items-center space-x-1 group-hover:translate-x-1 transition">
+                <span>Play</span>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+              </span>
+            </div>
+          </div>
+        `;
+
+        // Click handler to launch media item (links to movies.html or triggers player)
+        card.addEventListener('click', () => {
+          if (item.url) {
+            window.location.href = item.url;
+          } else {
+            // Fallback action if direct URL is present
+            window.location.href = `movies.html?play=${encodeURIComponent(item.title)}`
           }
         });
-      }
-    } catch(err) {
-      // ignore individual page load failures
+
+        fragment.appendChild(card);
+      });
+
+      resultsGrid.appendChild(fragment);
     }
-  }
 
-  if (extracted.length > 0) {
-    // Deduplicate
-    const seen = new Set();
-    catalogue = extracted.filter(item => {
-      const key = item.title.toLowerCase() + item.url;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
+    // Event Listeners
+    searchInput.addEventListener('input', filterAndRender);
+    
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      filterAndRender();
+      searchInput.focus();
     });
-    searchStatus.textContent = `Scanned ${catalogue.length} repository items`;
-  } else {
-    catalogue = [
-      { title: "Movies Catalogue", type: "movie", category: "MOVIES", url: "movies.html" },
-      { title: "Series Directory", type: "series", category: "SERIES", url: "english-series.html" }
-    ];
-    searchStatus.textContent = "Ready";
-  }
-  render();
-}
 
-initialise();
-</script>
+    // Chip click handler
+    filterChips.forEach(button => {
+      button.addEventListener('click', (e) => {
+        filterChips.forEach(btn => {
+          btn.classList.remove('bg-accent', 'text-white');
+          btn.classList.add('bg-slate-800', 'text-slate-300');
+        });
+        e.target.classList.remove('bg-slate-800', 'text-slate-300');
+        e.target.classList.add('bg-accent', 'text-white');
 
+        activeTypeFilter = e.target.getAttribute('data-type');
+        filterAndRender();
+      });
+    });
+
+    // Initialize on load
+    loadSearchIndex();
+  </script>
 </body>
 </html>
