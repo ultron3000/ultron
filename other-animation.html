@@ -1,616 +1,2280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Animation Universe</title>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<!-- hls.js for HLS playback -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <meta charset="utf-8"/>
+  <title>Animation Studios Showcase</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    
+    :root {
+      --primary: #8b5cf6;
+      --primary-hover: #a855f7;
+      --accent: #06b6d4;
+      --bg-dark: #0b0f19;
+      --card-bg: rgba(23, 31, 50, 0.7);
+    }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0b0f19 70%, #05070e 100%);
+      background-attachment: fixed;
+      color: #f3f4f6;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
 
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-  :root {
-    --sony-blue: #0066cc;
-    --sony-yellow: #ffcc00;
-    --sony-red: #cc0000;
-    --sony-green: #00cc66;
-  }
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
-    color: white;
-    min-height: 100vh;
-  }
-  /* (kept your existing styles) */
-  .movie-card { transition: all 0.3s ease; transform-style: preserve-3d; perspective: 1000px; cursor:pointer; }
-  .movie-card:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 25px 50px -12px rgba(255,204,0,0.25); }
-  .movie-poster { transition: all 0.5s ease; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
-  .movie-card:hover .movie-poster { transform: rotateY(10deg); }
-  .search-glow { box-shadow: 0 0 15px rgba(255,204,0,0.5); }
-  .sony-logo { text-shadow: 0 0 10px rgba(255,204,0,0.7); }
-  .category-btn { transition: all 0.2s ease; }
-  .category-btn:hover { transform: scale(1.1); }
-  .category-btn.active { background-color: var(--sony-yellow); color: #111827; }
-  .fade-in { animation: fadeIn 0.5s ease-in; }
-  @keyframes fadeIn { from { opacity:0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
-  ::-webkit-scrollbar { width:8px; height:8px; } ::-webkit-scrollbar-track { background:#1e293b; } ::-webkit-scrollbar-thumb { background:var(--sony-yellow); border-radius:4px; }
+    /* Ambient Glow Header */
+    .glow-header {
+      background: linear-gradient(180deg, rgba(139, 92, 246, 0.15) 0%, rgba(11, 15, 25, 0) 100%);
+    }
 
-  /* --- Modal / Tukaram-style player styles (from Hawkeye) --- */
-  /* flexible modal overlay */
-  .modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.9); z-index:1000; display:flex; justify-content:center; align-items:center; opacity:0; visibility:hidden; transition: all 0.3s ease; }
-  .modal-overlay.active { opacity:1; visibility:visible; }
-  .modal-container { width:90%; max-width:1000px; background:#1e293b; border-radius:12px; overflow:hidden; transform: scale(0.9); transition: transform 0.3s ease; }
-  .modal-overlay.active .modal-container { transform: scale(1); }
+    /* Modern Glass Card */
+    .movie-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(168, 85, 247, 0.5);
+      box-shadow: 0 20px 35px -10px rgba(139, 92, 246, 0.3), 0 0 15px rgba(6, 182, 212, 0.2);
+    }
+    
+    .search-input {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(16px);
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .search-input:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+    
+    .movie-poster {
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .movie-card:hover .movie-poster {
+      transform: scale(1.08);
+    }
+    
+    .category-tab {
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .category-tab:hover {
+      background-color: rgba(139, 92, 246, 0.2);
+      border-color: rgba(139, 92, 246, 0.4);
+      transform: translateY(-2px);
+    }
+    
+    .category-tab.active {
+      background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+      color: #ffffff;
+      font-weight: 600;
+      border: none;
+      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    }
+    
+    /* Custom Glow Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8b5cf6;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    .delay-100 { animation-delay: 0.05s; }
+    .delay-200 { animation-delay: 0.1s; }
+    .delay-300 { animation-delay: 0.15s; }
+    .delay-400 { animation-delay: 0.2s; }
+    
+    /* Modal Theme Styles */
+    .modal-backdrop { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(5, 7, 14, 0.9); 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 9999; 
+      backdrop-filter: blur(16px);
+    }
+    .modal-backdrop.active { display: flex; }
+    
+    .modal-card { 
+      width: 100%;
+      height: 100%;
+      max-width: 1000px;
+      max-height: 100vh;
+      background: #0f172a;
+      box-shadow: 0 0 50px rgba(139, 92, 246, 0.25);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-  /* Tukaram modal player area */
-  #modal-player { position: relative; padding-bottom:56.25%; height:0; background:black; }
-  #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
-
-  /* progress bar */
-  .progress-bar { height: 4px; background: rgba(255,255,255,0.12); position: relative; }
-  .progress-bar-fill { position:absolute; top:0; left:0; height:100%; background: var(--sony-yellow); transition: width 0.3s ease; width:0%; }
-
-  /* playback modal content */
-  .watchlist-checkbox { position:relative; display:inline-block; width:20px; height:20px; }
-  .watchlist-checkbox input { opacity:0; width:0; height:0; }
-  .watchlist-checkbox .checkmark { position:absolute; top:0; left:0; height:20px; width:20px; background-color:transparent; border:2px solid #ffcc00; border-radius:4px; transition:all 0.3s; }
-  .watchlist-checkbox input:checked ~ .checkmark { background-color:#ffcc00; }
-  .watchlist-checkbox .checkmark:after { content:""; position:absolute; display:none; }
-  .watchlist-checkbox input:checked ~ .checkmark:after { display:block; left:6px; top:2px; width:5px; height:10px; border:solid black; border-width:0 2px 2px 0; transform:rotate(45deg); }
-
-  @media (max-width: 640px) {
-    .movie-card { width: 100%; }
-    .modal-container { width: 95%; max-width: 100%; }
-    .movie-poster { height: 60vw; }
-    h1 { font-size: 1.8rem; }
-    .search-glow { box-shadow: none; }
-    .container { padding-left: 1rem; padding-right: 1rem; }
-  }
-
-  @media (min-width: 641px) and (max-width: 1024px) {
-    .modal-container { width: 90%; }
-    .movie-poster { height: 35vw; }
-  }
-
-  @media (min-width: 1025px) {
-    .modal-container { width: 80%; max-width: 1200px; }
-  }
-
-  .btn {
-  background: rgba(255,255,255,0.1);
-  padding: 10px 14px;
-  border-radius: 9999px;
-  transition: all 0.2s ease;
-}
-.btn:hover {
-  background: var(--sony-yellow);
-  color: black;
-}
-
-/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-
-  object-fit: contain !important;
-  background-color: black;
-}
-
-/* Only cover when video aspect is cinematic */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
-    object-fit: cover !important;
-  }
-}
-
-</style>
+    @media (max-width: 768px) {
+      .modal-card {
+        max-height: 100vh;
+      }
+      .player-wrapper {
+        padding-bottom: 56.25% !important;
+      }
+      .player-meta {
+        padding: 14px !important;
+      }
+    }
+    
+    .player-wrapper { 
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: #000;
+    }
+    
+    #topCloseBtn { 
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+    
+    #topCloseBtn:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+      transform: scale(1.1);
+    }
+    
+    .player-wrapper video, 
+    .player-wrapper iframe { 
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .player-meta { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 18px 24px;
+      color: #cbd5e1;
+      background: #0b0f19;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+    
+    .player-meta h3 { 
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    
+    .controls-row { 
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .btn:hover { 
+      background: var(--primary); 
+      color: #ffffff;
+      border-color: var(--primary-hover);
+      box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+    }
+    
+    @media (min-width: 768px) {
+      .modal-card {
+        width: 90%;
+        height: auto;
+        border-radius: 20px;
+        max-height: 90vh;
+        overflow: hidden;
+      }
+      .player-wrapper {
+        padding-bottom: 56.25% !important;
+        height: 0;
+        flex: none;
+      }
+      .player-meta {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .controls-row {
+        flex-wrap: nowrap;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .btn span { display: none; }
+      .btn { padding: 10px 12px; }
+    }
+    
+    video:fullscreen, video:-webkit-full-screen {
+      object-fit: contain !important;
+      background-color: black;
+    }
+  </style>
 </head>
-<body class="pb-16">
-  <!-- header (kept) -->
-  <header class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-yellow-600 to-red-900 opacity-20"></div>
-    <div class="container mx-auto px-4 py-4 sm:py-8 relative z-10 text-center">
-      <div class="flex items-center justify-center mb-2 sm:mb-4">
-        <i class="fas fa-film text-2xl sm:text-4xl text-yellow-400 mr-2 sm:mr-3"></i>
-      </div>
-      <p class="text-sm sm:text-lg text-gray-300 max-w-2xl mx-auto">Explore the vibrant world of Animation films</p>
-    </div>
-  </header>
 
-  <!-- main -->
-  <main class="container mx-auto px-4">
-    <div class="mb-10">
-      <div class="relative max-w-2xl mx-auto mb-6">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fas fa-search text-yellow-400 text-sm sm:text-base"></i></div>
-        <input id="searchBar" class="w-full pl-10 pr-4 py-2 sm:py-3 rounded-full bg-gray-800 border border-gray-700 text-white search-glow text-sm sm:text-base" placeholder="Search  Animation movies..." type="text"/>
-        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-          <button id="clearSearch" class="text-gray-400 hover:text-yellow-400"><i class="fas fa-times"></i></button>
+<body>
+  <!-- Ambient Glow Header -->
+  <div class="glow-header w-full pb-4">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+      <header class="relative flex items-center justify-between mb-8">
+        <a href="https://ultron3000.github.io/ultron" class="flex items-center gap-3 group">
+          <img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Logo" class="h-9 sm:h-11 drop-shadow-[0_0_10px_rgba(139,92,246,0.5)] group-hover:scale-105 transition-transform"/>
+        </a>
+        <div class="text-center flex-1">
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-cyan-400 to-indigo-300 inline-flex items-center gap-3">
+            <span>🎬</span> Animation Studios
+          </h1>
+        </div>
+        <div class="w-10 sm:w-12"></div><!-- Spacer for centering symmetry -->
+      </header>
+
+      <!-- Search Bar -->
+      <div class="mb-8 flex justify-center">
+        <div class="relative w-full max-w-lg">
+          <input type="text" id="searchBar" placeholder="Search animated movies..." class="search-input w-full px-6 py-3.5 pl-12 rounded-2xl text-white placeholder-gray-400 focus:outline-none text-sm sm:text-base"/>
+          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-purple-400"></i>
         </div>
       </div>
 
-      <div class="flex flex-wrap justify-center gap-3 mb-8">
 
+
+  <div class="container mx-auto px-4 py-4 max-w-7xl">
+    <!-- Main Grid -->
+    <div id="movies" class="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5 mb-16"></div>
+
+    <!-- Footer -->
+    <div class="border-t border-gray-800/80 mt-16 pt-8 pb-8 text-center text-gray-500">
+      <div class="flex justify-center space-x-6 mb-4">
+        <a href="#" class="text-gray-400 hover:text-purple-400 transition-colors text-lg"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="text-gray-400 hover:text-purple-400 transition-colors text-lg"><i class="fab fa-twitter"></i></a>
+        <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-purple-400 transition-colors text-lg"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-purple-400 transition-colors text-lg"><i class="fab fa-youtube"></i></a>
       </div>
+      <p class="text-xs text-gray-500">© Other Animation Studios Showcase • All Rights Reserved</p>
     </div>
+  </div>
 
-    <div class="flex justify-center items-center py-20" id="loading">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
-    </div>
-
-    <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"></div>
-
-    <div class="hidden text-center py-16" id="noResults">
-      <i class="fas fa-film text-6xl text-gray-600 mb-4"></i>
-      <h3 class="text-2xl font-semibold text-gray-300">No movies found</h3>
-      <p class="text-gray-500 mt-2">Try adjusting your search or filter</p>
-    </div>
-  </main>
-
- <!-- Footer -->
-<footer class="mt-20 py-6 bg-gray-900 bg-opacity-50">
-<div class="container mx-auto px-4 text-center text-gray-400">
-<div class="flex justify-center space-x-6 mb-4">
-<a class="hover:text-yellow-400 transition-colors" href="#">
-<i class="fab fa-facebook-f"></i>
-</a>
-<a class="hover:text-yellow-400 transition-colors" href="#">
-<i class="fab fa-twitter"></i>
-</a>
-<a class="hover:text-yellow-400 transition-colors" href="https://www.instagram.com/stark_4152">
-<i class="fab fa-instagram"></i>
-</a>
-<a class="hover:text-yellow-400 transition-colors" href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw">
-<i class="fab fa-youtube"></i>
-</a>
-</div>
-<p class="text-sm mt-2">This is a fan-made project.</p>
-</div>
-</footer>
-
-  <!-- =======================
-       Playback Modal (Hawkeye/Tukaram-style)
-       ======================= -->
-  <div id="playback-modal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-container">
-      <div class="relative">
-        <button id="close-playback" class="absolute top-4 right-4 z-50 text-white hover:text-yellow-500 text-2xl bg-black/50 rounded-full p-2">
+  <!-- Playback Modal -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+        <button id="topCloseBtn">
           <i class="fas fa-times"></i>
         </button>
+      </div>
 
-        <!-- Flexible player container: video or iframe will be injected here -->
-        <div id="modal-player">
-          <video id="modal-video" class="w-full" controls playsinline>
-            Your browser does not support the video tag.
-          </video>
+      <div class="player-meta">
+        <div class="meta-left max-w-[100%] md:max-w-[45%]">
+          <h3 id="modalTitle" class="truncate">Title</h3>
+          <p id="modalDesc" class="text-xs sm:text-sm text-gray-400 line-clamp-2 mt-1 leading-relaxed"></p>
         </div>
-
-        <!-- Custom Modal Controls -->
-<div id="custom-controls" class="flex justify-center items-center gap-4 p-4 bg-black/80">
-  <button id="prevBtn" class="btn text-white"><i class="fas fa-step-backward"></i></button>
-  <button id="playPauseBtn" class="btn text-white"><i class="fas fa-play"></i></button>
-  <button id="nextBtn" class="btn text-white"><i class="fas fa-step-forward"></i></button>
-  <button id="muteBtn" class="btn text-white"><i class="fas fa-volume-up"></i></button>
-  <button id="fullscreenBtn" class="btn text-white"><i class="fas fa-expand"></i></button>
-  <button id="closeBtn" class="btn text-white"><i class="fas fa-times"></i></button>
-</div>
-
-
-        <div id="video-progress" class="progress-bar w-full">
-          <div id="progress-bar-fill" class="progress-bar-fill" style="width:0%"></div>
+        <div class="controls-row">
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i><span>Prev</span></button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i><span>Play</span></button>
+          <button id="nextBtn" class="btn"><span>Next</span><i class="fas fa-step-forward"></i></button>
+          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+          <button id="closeBtn" class="btn !bg-red-500/20 !border-red-500/30 hover:!bg-red-600 hover:!border-red-600 text-white"><i class="fas fa-times"></i></button>
         </div>
-
-        <div class="p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h3 id="modal-title" class="text-2xl font-bold mb-1"></h3>
-              <div class="flex items-center text-gray-400 text-sm">
-                <span id="modal-meta">•</span>
-              </div>
-            </div>
-            <label class="watchlist-checkbox" title="Add to watchlist">
-              <input type="checkbox" id="watchlist-checkbox">
-              <span class="checkmark"></span>
-            </label>
-          </div>
-
-          <p id="modal-description" class="text-gray-300 mb-6">Loading...</p>
-
-          <div class="flex space-x-3">
-            <button id="play-btn" class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
-              <i class="fas fa-play mr-2"></i> Play
-            </button>
-            <button id="details-btn" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-              <i class="fas fa-info-circle mr-2"></i> Details
-            </button>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
 
-  <!-- Loading spinner overlay used by playback logic -->
-  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-500"></div>
-  </div>
-
-<script>
-  /***** Data: (skipped movie list array as requested) *****/
-  // You asked to skip the movies list array — keep this empty placeholder:
- const movies = [
-      { title: "Spies in Disguise", video: "https://spuc.auronetworkpartners.shop/v4/np/owvev/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/e7rWcrnuNej3JeVjqmRu0jVeRa4.jpg", category: "feature", year: 2019, franchise: "", award: false },
-
-{ title: "Ferdinand", video: "https://skra.stellarforgeinnovation.online/v4/36/3sadp/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/rMm94JsRfcOPiPVsTRcBiiVBOhz.jpg", category: "feature", year: 2017, franchise: "", award: false },
-
-{ title: "Rio", video: "https://sr81.satoriwellbeinglab.shop:443/v4/9a/6jdca/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/4nJxhUknKV8Gqdhov8pU1YWDYfb.jpg", category: "sequel", year: 2011, franchise: "", award: false },
-
-{ title: "Rio 2", video: "https://sskt.claravonorganics.store:443/v4/ck/uvi1l/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/gVNTBrjxh2YRmQFjlaqrNbHVvrd.jpg", category: "sequel", year: 2014, franchise: "", award: false },
-
-{ title: "Epic", video: "https://s5zt.greenlineinnovations.store:443/v4/us/p3z83/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/81cSsWzjTfR3cJSqnTiHwy1eyPK.jpg", category: "feature", year: 2013, franchise: "", award: false },
-
-{ title: "Robots", video: "https://smho.lucernaarchitecture.space:443/v4/9a/hvlko/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/fnKCh67l2DDG9NxxIlk9IpsXQ99.jpg", category: "feature", year: 2005, franchise: "", award: false },
-
-{ title: "The Son of Bigfoot", video: "https://sbi6.aetherflowbranding.online/v4/db/h5bkp/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/5yCQvhFuFPY0pACxoUpLUlYCxop.jpg", category: "sequel", year: 2017, franchise: "", award: false },
-
-{ title: "Bigfoot Family", video: "https://sskt.velonaacademy.online/v4/sc/mo9cj/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/vn7sNO6CD8FBHBEVcOiNv08mjy1.jpg", category: "sequel", year: 2020, franchise: "", award: false },
-
-{ title: "Ron's Gone Wrong", video: "https://s8v3.silverlark.sbs/v4/ty/otne1/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/plzgQAXIEHm4Y92ktxU6fedUc0x.jpg", category: "feature", year: 2021, franchise: "", award: false },
-
-{ title: "Next Gen", video: "https://smeb.brightcrestinteractive.site:443/v4/js/9vmfm/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/hUDDo5MPWM6rc6COQYhaoRNqvhE.jpg", category: "feature", year: 2018, franchise: "", award: false },
-
-{ title: "DC League of Super-Pets", video: "https://shkn.novaquestventures.shop:443/v4/ho/pnntc/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/qpPMewlugFaejXjz4YNDnpTniFX.jpg", category: "feature", year: 2022, franchise: "", award: false },
-
-{ title: "Sahara", video: "https://s3ae.valentrixcreations.space/v4/hz/xr9q8/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/9p8SQYNazWavpMzhN0OIuZm0HgI.jpg", category: "feature", year: 2017, franchise: "", award: false },
-
-{ title: "Robinson Crusoe: The Wild Life", video: "https://s3ae.greenlineinnovations.store:443/v4/js/5lk3d/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/oW2CeCoFJKD57iyml0vWGRKKPaI.jpg", category: "feature", year: 2016, franchise: "", award: false },
-
-{ title: "Tad, the Lost Explorer", video: "https://sipt.omniquestsolutions.shop:443/v4/61/nf9sn/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/vmysxjUJkYmp6CmjNOKOeHMOzFA.jpg", category: "feature", year: 2012, franchise: "", award: false },
-
-{ title: "Mummies", video: "https://sipt.stellarpathlab.sbs/v4/m9/tfevt/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/r6Ghtw9ENhTXfeUsd1Al20ZAvX.jpg", category: "feature", year: 2023, franchise: "", award: false },
-
-{ title: "The Wild", video: "https://sr81.luminarygroupdigital.online:443/v4/61/itcw9/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/sxqzaOto1qyUseSg6YpIP9Su5lp.jpg", category: "feature", year: 2006, franchise: "", award: false },
-
-{ title: "Ice Age", video: "https://sy6.oravix.cyou:443/v4/hld/5teb9/index-f2-v1-a1.txt", image: "https://f.woowoowoowoo.net/resize/250x400/c6/59/c6591491f53c848d868589f3844bd965/c6591491f53c848d868589f3844bd965.jpg", category: "sequel", year: 2002 },
-      { title: "Ice Age: The Meltdown", video: "https://sad.fortimax.shop:443/v4/is3/jar9d/index-f2-v1-a1.txt", image: "https://f.woowoowoowoo.net/resize/250x400/2b/24/2b242f24f3ac4fe0cc3b3c293d077fcc/2b242f24f3ac4fe0cc3b3c293d077fcc.jpg", category: "sequel", year: 2006 },
-      { title: "Ice Age: Dawn of the Dinosaurs", video: "https://s5r.ridgegateinnovationhub.shop:443/v4/rqz/39zes/index-f2-v1-a1.txt", image: "https://f.woowoowoowoo.net/resize/250x400/4f/da/4fda35201fa5a6c247a5813fa66a7c27/4fda35201fa5a6c247a5813fa66a7c27.jpg", category: "sequel", year: 2009 },
-      { title: "Ice Age: Continental Drift", video: "https://vdkzfuwkpzz7q.meadowpathlearningcenter.space/m2q5ea5w42hk/hls3/01/02841/uwotpqqngdke_n/master.txt", image: "https://f.woowoowoowoo.net/resize/250x400/71/96/719613f39bd4da24aee94ce64e77013a/719613f39bd4da24aee94ce64e77013a.jpg", category: "sequel", year: 2012 },
-      { title: "Ice Age: Collision Course", video: "https://s6mb.celestiorstudio.cyou:443/v4/tab/ayuks/index-f2-v1-a1.txt", image: "https://f.woowoowoowoo.net/resize/250x400/5b/6a/5b6a7ee08efe0d91bcd7a9d4b7f6c61b/5b6a7ee08efe0d91bcd7a9d4b7f6c61b.jpg", category: "short", year: 2016 },
-      { title: "Ice Age: A Mammoth Christmas", video: "https://snq.ambercrestdigital.online:443/v4/luy/oa3r3/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/ue5417HaDcvgMDusryenwwwZARq.jpg", category: "short", year: 2011 },
-      { title: "The Ice Age Adventures of Buck Wild", video: "https://sy6.nordivisnetwork.store:443/v4/pk8/txzos/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/zzXFM4FKDG7l1ufrAkwQYv2xvnh.jpg", category: "short", year: 2022 },
-      { title: "G-Force", video: "https://spuc.aurorafieldventures.shop:443/v4/36/jx9id/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/9Tly3ZXTTsQKM26fis8v9LR4GxG.jpg", category: "feature", year: 2009, franchise: "", award: false },
-      { title: "Astro kid", video: "https://smeb.marketplaceengine.shop:443/v4/pq/8rqba/index-f2-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/vwqEIL5SrsZFVvileNe9LuHbJy7.jpg", category: "feature", year: 2019, franchise: "", award: false },
-      { title: "Astro Boy", video: "https://se9d.tavero.cyou:443/v4/61/latvo/index-f1-v1-a1.txt", image: "https://image.tmdb.org/t/p/w500/6AK3uOHaIbl6EDaytHYe4FinZMu.jpg", category: "feature", year: 2009, franchise: "", award: false },
-      { title: "Swapped", video: "https://mega.nz/embed/W9JCRTCL#cji7hveq3Cxj3eoemED43dI7c6yskFqHPkdI32QczEE", image: "https://image.tmdb.org/t/p/w500/tHhxWxge06goXU6ZQH1hj7vK8Hd.jpg", category: "feature", year: 2026, franchise: "", award: false },
-      { title: "Pets on a Train", video: "https://missourimonster-vyla.hf.space/api?url=https%3A%2F%2Forion.hydrostorm.workers.dev%2Ffile1%2F5aebd99726deefe9c41231f32f3b7c671a3b4b94b3737ba2b236f6d6c3e28894%2Fmaster.m3u8&vr=1&proxyHeaders=%7B%22User-Agent%22%3A%22Mozilla%2F5.0%20(Windows%20NT%2010.0%3B%20Win64%3B%20x64)%20AppleWebKit%2F537.36%20(KHTML%2C%20like%20Gecko)%20Chrome%2F134.0.6884.98%20Safari%2F537.36%22%2C%22Accept%22%3A%22*%2F*%22%2C%22Accept-Language%22%3A%22en-US%2Cen%3Bq%3D0.9%22%2C%22Referer%22%3A%22https%3A%2F%2Fvidrock.ru%2F%22%2C%22Origin%22%3A%22https%3A%2F%2Fvidrock.ru%22%7D", image: "https://image.tmdb.org/t/p/w342/b10qy1KwrfmH0MGS2rBUJ0BxgYB.jpg", category: "feature", year: 2025, franchise: "", award: false },
-      
-
+  <script>
+    // Embedded JSON Movies List
+    let movies = [
+      {
+  title: "Astro Boy",
+  category: "Animation",
+  year: 2009,
+  duration: "1h 34m",
+  description: "When a young robot with incredible superpowers is created by a brilliant scientist in the futuristic city of Metro City, he embarks on an adventure to find his place in the world and save his friends.",
+  image: "https://image.tmdb.org/t/p/w500/6AK3uOHaIbl6EDaytHYe4FinZMu.jpg",
+  video: "https://mega.nz/embed/SrRiAZTI#BHQw0on4tQzVF0lwySQVL_OUel97HqoC-tVyQOOmJ7w"
+},
+{
+  title: "Astro Kid",
+  category: "Animation",
+  year: 2019,
+  duration: "1h 30m",
+  description: "Following the destruction of his ship, young Willy gets separated from his parents and lands on an unexplored, wild planet where he must survive with the help of a survival robot named Buck.",
+  image: "https://image.tmdb.org/t/p/w500/vwqEIL5SrsZFVvileNe9LuHbJy7.jpg",
+  video: "https://mega.nz/embed/3jBmXbDL#Qb0GDcH-2k6Wol6D-8w_Pe8xQSJztwVsGcM-s44R9U4"
+},
+{
+  title: "Son of Bigfoot",
+  category: "Animation",
+  year: 2017,
+  duration: "1h 32m",
+  description: "A teenage outsider sets out on an epic quest to uncover the mystery behind his long-lost father, only to discover that his dad is none other than the legendary Bigfoot.",
+  image: "https://image.tmdb.org/t/p/w500/5yCQvhFuFPY0pACxoUpLUlYCxop.jpg",
+  video: "https://mega.nz/embed/b6glhQCL#6T18_LdIjJUG0-aS67WjecLBWTTCP83ABTfEZjm6dDg"
+},
+{
+  title: "Bigfoot Family",
+  category: "Animation",
+  year: 2020,
+  duration: "1h 29m",
+  description: "Bigfoot uses his newfound fame to protect an Alaskan wildlife reserve, but when he mysteriously disappears, his son, wife, and animal companions set off to rescue him.",
+  image: "https://image.tmdb.org/t/p/w500/vn7sNO6CD8FBHBEVcOiNv08mjy1.jpg",
+  video: "https://mega.nz/embed/z74nFC7D#eitrokihuGpnBKH-9g5OKIsFRItIX1uYvW7MSCsUcOM"
+},
+{
+  title: "Next Gen",
+  category: "Animation",
+  year: 2018,
+  duration: "1h 46m",
+  description: "A lonely girl's life is turned upside down when an unlikely friendship with a top-secret robot draws her into a high-stakes fight to stop a megalomaniacal tech CEO's plan for world domination.",
+  image: "https://image.tmdb.org/t/p/w500/hUDDo5MPWM6rc6COQYhaoRNqvhE.jpg",
+  video: "https://mega.nz/embed/6rBiTSTb#VUrkjPbtHWopaRUpt_lR6MHFuNHVxnDpgJ2IprSv2zI"
+},
+{
+  title: "Robots",
+  category: "Animation",
+  year: 2005,
+  duration: "1h 31m",
+  description: "An idealistic young inventor robot travels to the big city to join his idol's company, only to uncover a corporate scheme to phase out older robots in favor of expensive upgrades.",
+  image: "https://image.tmdb.org/t/p/w500/fnKCh67l2DDG9NxxIlk9IpsXQ99.jpg",
+  video: "https://mega.nz/embed/irJmHaQZ#5UnBRbbIljWioiLhYEAQVwaWGiJ-Rxze3X8NjAn_UxQ"
+},
+{
+  title: "Rio",
+  category: "Animation",
+  year: 2011,
+  duration: "1h 36m",
+  description: "When a domesticated Macaw named Blu who never learned to fly journeys to Rio de Janeiro to meet a fiercely independent female, they are captured by smugglers and must go on a wild adventure to escape.",
+  image: "https://image.tmdb.org/t/p/w500/4nJxhUknKV8Gqdhov8pU1YWDYfb.jpg",
+  video: "https://mega.nz/embed/SmQggYSC#puGxUSBbo5XzI692WEyXNtVFWp8_YuyWaE6AxeYShxA"
+},
+{
+  title: "Rio 2",
+  category: "Animation",
+  year: 2014,
+  duration: "1h 41m",
+  description: "Blu, Jewel, and their three kids leave their domesticated life in Rio for a journey to the Amazon rainforest, where Blu struggles to fit in with his wild in-laws while dodging a vengeful cockatoo.",
+  image: "https://image.tmdb.org/t/p/w500/gVNTBrjxh2YRmQFjlaqrNbHVvrd.jpg",
+  video: "https://mega.nz/embed/bmwEjQrJ#KvrFvNbsBZ9Gpcjqznf2i36ERB9ux0kZ10oF_pAhMcg"
+},
+{
+  title: "Ron's Gone Wrong",
+  category: "Animation",
+  year: 2021,
+  duration: "1h 46m",
+  description: "In a world where digitally connected walking, talking bots are kids' best friends, a socially awkward middle-schooler receives a malfunctioning B-bot and embarks on a journey to learn what true friendship is.",
+  image: "https://image.tmdb.org/t/p/w500/plzgQAXIEHm4Y92ktxU6fedUc0x.jpg",
+  video: "https://mega.nz/embed/D3RxUSZZ#7MqIqMqovMT99VJxnsSTtj-4XO8hODEyVT5mkWa0Nwg"
+},
+{
+  title: "DC League of Super-Pets",
+  category: "Animation",
+  year: 2022,
+  duration: "1h 45m",
+  description: "Krypto the Super-Dog and Superman are inseparable best friends, but when Superman and the rest of the Justice League are kidnapped, Krypto must convince a ragtag shelter pack to master their new powers.",
+  image: "https://image.tmdb.org/t/p/w500/qpPMewlugFaejXjz4YNDnpTniFX.jpg",
+  video: "https://mega.nz/embed/7752SSyB#7RoqRNvKQS6SzC1y2O_QKL99blWaTMKFwNsn8sh9zIg"
+},
+{
+  title: "Ferdinand",
+  category: "Animation",
+  year: 2017,
+  duration: "1h 48m",
+  description: "After Ferdinand, a giant bull with a big heart, is mistaken for a dangerous beast and captured, he rallies a misfit team on an epic adventure to return to his loving family.",
+  image: "https://image.tmdb.org/t/p/w500/rMm94JsRfcOPiPVsTRcBiiVBOhz.jpg",
+  video: "https://mega.nz/embed/fnBzmIJD#oCM3O-_Hx0VUZKJl9wuw8MviTo4TyTGmwrE7Qk2QsLw"
+},
+{
+  title: "Spies in Disguise",
+  category: "Animation",
+  year: 2019,
+  duration: "1h 42m",
+  description: "When the world's best spy is accidentally transformed into a pigeon by a quirky young tech genius, the unlikely duo must work together to stop a dangerous cybernetic terrorist.",
+  image: "https://image.tmdb.org/t/p/w500/z52xI0MnoX1rqySFJYnmBqHbXRn.jpg",
+  video: "https://mega.nz/embed/vyIijbRZ#_g1q9noYnLdWe8N0FW6aYF6Q1o3EXDOkIIxZ0Pi14j4"
+},
+{
+  title: "Hoppers",
+  category: "Animation",
+  year: 2026,
+  duration: "1h 42m",
+  description: "Using advanced technology, a young scientist's mind is transferred into a robotic animal body, allowing her to communicate with and understand the secrets of the animal kingdom from the inside.",
+  image: "https://image.tmdb.org/t/p/w500/xjtWQ2CL1mpmMNwuU5HeS4Iuwuu.jpg",
+  video: "https://mega.nz/embed/nnIBQBCK#m3jU0qhxDKgbWDM5EzAlOY6jSrpeiDDI0kdv2t8WAxc"
+},
+{
+  title: "WALL·E",
+  category: "Animation",
+  year: 2008,
+  duration: "1h 38m",
+  description: "In the distant future, a small waste-collecting robot inadvertently embarks on a space journey that will ultimately decide the fate of mankind.",
+  image: "https://mir-s3-cdn-cf.behance.net/project_modules/hd/05c77b66174149.5b0d6304d6a65.jpg",
+  video: "https://mega.nz/embed/q2Q0HbbL#u_a5WicBsXyrQt9e_IG85DaZ1djpmUrUQjm_T1qIauk"
+},
+{
+  title: "BURN·E",
+  category: "Animation",
+  year: 2008,
+  duration: "7m",
+  description: "A diligent welding robot aboard the Axiom struggles to complete a simple repair task while getting caught up in the chaotic events of WALL·E and EVE.",
+  image: "https://image.tmdb.org/t/p/w500/1wOReJq1vArLBSejND2Jbw0KeKh.jpg",
+  video: "https://www.youtube.com/embed/sR8dsggB8yg"
+},
+{
+  title: "Elemental",
+  category: "Animation",
+  year: 2023,
+  duration: "1h 41m",
+  description: "In a city where fire, water, land, and air residents live together, a fiery young woman and a go-with-the-flow guy discover something elemental: how much they actually have in common.",
+  image: "https://preview.redd.it/elemental-2023-is-among-pixars-most-successful-recent-v0-lukx1jjb0ybb1.jpg?width=640&crop=smart&auto=webp&s=3d11d7a266ecc1ab4fbacb90ef2f458ef98fd0cb",
+  video: "https://mega.nz/embed/Vq4QxY4a#WWDUhDNn09htNIKscdSPBSR-UwU9DG2qDBHa0qNEYnk"
+},
+{
+  title: "Inside Out",
+  category: "Animation",
+  year: 2015,
+  duration: "1h 35m",
+  description: "After young Riley is uprooted from her Midwest life and moved to San Francisco, her emotions—Joy, Fear, Anger, Disgust, and Sadness—conflict on how best to navigate a new city, house, and school.",
+  image: "https://i.ebayimg.com/images/g/wtUAAOSwtqtk4Ytr/s-l1200.jpg",
+  video: "https://mega.nz/embed/aChkEKaK#cZyY9NC_BNBpStbKHZg6Ayx6Y4SXj4jxbFSgClaic88"
+},
+{
+  title: "Inside Out 2",
+  category: "Animation",
+  year: 2024,
+  duration: "1h 36m",
+  description: "Teenager Riley's mind headquarters is undergoing a sudden demolition to make room for something entirely unexpected: new Emotions, including Anxiety, Envy, Ennui, and Embarrassment.",
+  image: "https://lumiere-a.akamaihd.net/v1/images/z_95ab3f83.jpeg?region=0,0,1350,2000",
+  video: "https://mega.nz/embed/PWAiUBjT#TOC_gtASyMXKvjOH7Dqd0k4EQWX53eyFz5GEqg0uCNc"
+},
+{
+  title: "Riley's First Date?",
+  category: "Animation",
+  year: 2015,
+  duration: "5m",
+  description: "Riley is hanging out at home when a boy comes to the door, sending her parents into a tailspin of protective panic.",
+  image: "https://image.tmdb.org/t/p/w780/cGLwfmLqg39822RFQMUDat0UJev.jpg",
+  video: "https://mega.nz/embed/e3IUDL5J#V_3O2Ac20qHX-CVFCxM2307HqOIN0biwfK37FEawqNw"
+},
+{
+  title: "Lightyear",
+  category: "Animation",
+  year: 2022,
+  duration: "1h 45m",
+  description: "While spending years trying to return home through space-time, legendary Space Ranger Buzz Lightyear encounters an army of ruthless robots led by Zurg.",
+  image: "https://myhotposters.com/cdn/shop/products/mL6180.jpg?v=1745708654",
+  video: "https://mega.nz/embed/XmxnGYwQ#R4fYrf6wLRNwljQd18P6qM5RNMCLEaCcerUWyEQi-fA"
+},
+{
+  title: "Turning Red",
+  category: "Animation",
+  year: 2022,
+  duration: "1h 40m",
+  description: "A confident, quirky 13-year-old girl is torn between staying her mother's dutiful daughter and the chaos of adolescence, and whenever she gets too excited, she transforms into a giant red panda.",
+  image: "https://i.pinimg.com/564x/f7/2c/bd/f72cbd2d0218e221c05e2b251795abb8.jpg",
+  video: "https://mega.nz/embed/CnpAVZoB#dyhqRM6CIfwlimaU9q9mwu_ZnT9tjLGtAhZ2d7Qd1l4"
+},
+{
+  title: "Luca",
+  category: "Animation",
+  year: 2021,
+  duration: "1h 35m",
+  description: "Set in a beautiful seaside town on the Italian Riviera, a young boy experiences an unforgettable summer filled with gelato, pasta, and endless scooter rides while hiding a deeply-held secret: he is a sea monster from another world just below the water's surface.",
+  image: "https://image.tmdb.org/t/p/original/8tABCBpzu3mZbzMB3sRzMEHEvJi.jpg",
+  video: "https://mega.nz/embed/rzhkFSZK#EcTngpnJTcqj_QWkrDnGXnnFp_dkX6KrFF2qh8cGjSE"
+},
+{
+  title: "Ciao Alberto",
+  category: "Animation",
+  year: 2021,
+  duration: "7m",
+  description: "Living in Portorosso with Massimo, Alberto is loving his new life and trying to prove himself to his gruff adoptive father figure.",
+  image: "https://image.tmdb.org/t/p/w500/1SyTnaY0wte69oKdqxQLvxPT3hs.jpg",
+  video: "https://mega.nz/embed/A7wCzATZ#XcQNUrmqBgZsHo-78Vy0LhPC4KMzKsPdqdSYcgcseMk"
+},
+{
+  title: "Soul",
+  category: "Animation",
+  year: 2020,
+  duration: "1h 40m",
+  description: "A jazz musician who has lost his passion for music is transported out of his body and must find his way back with the help of an infant soul learning about herself.",
+  image: "https://lh5.googleusercontent.com/proxy/dBL2PpqEROU996gypuL3GsYRYYfInP0fdQ47OyPOX_OJeEWbe5RCXQgEN_SbKChOOu5wzsenPprwmR95R4QJqWYfREurqQ-LLoo",
+  video: "https://mega.nz/embed/HgZDEJ4a#EjnzqHxA0Xd7oNAlr-Z6QUreXfW0DI3qc_ZHnX4kXec"
+},
+{
+  title: "Onward",
+  category: "Animation",
+  year: 2020,
+  duration: "1h 42m",
+  description: "In a suburban fantasy world, two teenage elf brothers embark on an extraordinary quest to discover if there is still a little magic left out there.",
+  image: "https://i0.wp.com/raisingwhasians.com/wp-content/uploads/2020/02/Onward-movie-review-safe-for-kids-691x1024.jpg",
+  video: "https://mega.nz/embed/PiYCxDZS#idQmG6teaFbUnyQz-7kMNrbJdM_mNHD_toAt0wh-EC8"
+},
+{
+  title: "Finding Nemo",
+  category: "Animation",
+  year: 2003,
+  duration: "1h 40m",
+  description: "After his son is captured in the Great Barrier Reef and taken to Sydney, a timid clownfish sets out on a journey to bring him home.",
+  image: "https://m.media-amazon.com/images/I/71+H7cpoK9L._AC_UF1000,1000_QL80_.jpg",
+  video: "https://mega.nz/embed/f25j0BAa#oicKHpLS-tB5Ksy_frxG2CKnxb6JliJAn2E6RV7RKxI"
+},
+{
+  title: "Finding Dory",
+  category: "Animation",
+  year: 2016,
+  duration: "1h 37m",
+  description: "Friendly but forgetful blue tang Dory begins a search for her long-lost parents, and everyone learns a few things about the true meaning of family along the way.",
+  image: "https://www.aceprensa.com/wp-content/uploads/2016/06/127380-0.jpg",
+  video: "https://mega.nz/embed/LqRHTKoK#9Va9xxIug_SMmxx6ozgj7WTPqwalyaw8dTnVTcqH3G8"
+},
+{
+  title: "Dory's Reef Cam",
+  category: "Animation",
+  year: 2016,
+  duration: "3m",
+  description: "An ambient underwater view of the reef, featuring various sea creatures and marine life from Dory's neighborhood.",
+  image: "https://www.dvdplanetstore.pk/wp-content/uploads/2024/01/mMWLGu9pFymqipN8yvISHsAaj72-600x900.jpg",
+  video: "https://mega.nz/embed/s24FxDQB#8Wi1VDGkhP5oRsx23AU5tViGqDHKS6B403BVYN9I0Ac"
+},
+{
+  title: "The Incredibles",
+  category: "Animation",
+  year: 2004,
+  duration: "1h 55m",
+  description: "A family of undercover superheroes, while trying to live the quiet suburban life, are forced into action to save the world.",
+  image: "https://i.ebayimg.com/images/g/VIQAAMXQhuVRKnzc/s-l1200.jpg",
+  video: "https://mega.nz/embed/fjhX3SgL#ybu9UwHWT5CGz8yQq1_mfmKY3O1yQaSpfd3McFKWe4s"
+},
+{
+  title: "Incredibles 2",
+  category: "Animation",
+  year: 2018,
+  duration: "1h 58m",
+  description: "The Parr family heads out on a new mission, which involves a change in family roles: Bob Parr must manage the house while Helen goes out to save the world.",
+  image: "https://live.staticflickr.com/862/43093706984_b56a7a8915_z.jpg",
+  video: "https://mega.nz/embed/rnQn2aRD#cPjGuMJ168Gi-0n7rzD-TdY99l96QH-ZCgYJcgNe8Xk"
+},
+{
+  title: "Auntie Edna",
+  category: "Animation",
+  year: 2018,
+  duration: "5m",
+  description: "Edna Mode takes on babysitting duties for baby Jack-Jack and discovers his chaotic hidden superpowers first-hand.",
+  image: "https://m.media-amazon.com/images/M/MV5BNDJiOWYxZTYtOTFjNS00MjY4LThjZmUtNjI5ZDQwODdmNTNiXkEyXkFqcGc@._V1_.jpg",
+  video: "https://mega.nz/embed/R6JySSJT#i9dJAV4p_iD1LSF6gbnAa9M6wLNx25IvLGakHORWMlk"
+},
+{
+  title: "Coco",
+  category: "Animation",
+  year: 2017,
+  duration: "1h 45m",
+  description: "Despite his family's baffling generations-old ban on music, Miguel dreams of becoming an accomplished musician like his idol Ernesto de la Cruz, leading him into the stunning Land of the Dead.",
+  image: "https://i5.walmartimages.com/asr/591da8ad-5d7d-4839-924e-156c147701b4.5d243bebf10c969b420a3303a6c989ed.jpeg",
+  video: "https://mega.nz/embed/2OBGSLCK#CXUBctI-Ogilg8VMlpFDKtmGy3Vo3lQ4LN9h7ZXWagU"
+},
+{
+  title: "Cars",
+  category: "Animation",
+  year: 2006,
+  duration: "1h 57m",
+  description: "On the way to the biggest race of his life, an ambitious rookie race car gets stranded in a rundown town and learns what it means to be a true friend and competitor.",
+  image: "https://filmartgallery.com/cdn/shop/files/Cars-Vintage-Movie-Poster-Original.jpg?v=1738907489",
+  video: "https://mega.nz/embed/NroHUCjK#XpaVTPlUpseo4sW8WOy7B806DP4cXNBlaEjDL4B1PJ0"
+},
+{
+  title: "Cars 2",
+  category: "Animation",
+  year: 2011,
+  duration: "1h 46m",
+  description: "Star race car Lightning McQueen and his loyal tow truck Mater head overseas to compete in the World Grand Prix, but Mater gets caught up in an international espionage adventure.",
+  image: "https://i.ebayimg.com/images/g/3rgAAOSwk7hfJHpl/s-l1200.jpg",
+  video: "https://mega.nz/embed/t2pV3DhT#gFwe4VfBm5uAK5JroXnYgCpBjCWwBkOHx1tliovHgTw"
+},
+{
+  title: "Cars 3",
+  category: "Animation",
+  year: 2017,
+  duration: "1h 42m",
+  description: "Blindsided by a new generation of blazing-fast racers, the legendary Lightning McQueen is suddenly pushed out of the sport he loves, prompting him to seek help from a young tech-savvy trainer.",
+  image: "https://image.tmdb.org/t/p/original/ucGU1HyLfxoQwuq22VWwq55m0cH.jpg",
+  video: "https://mega.nz/embed/VuhFABwI#m-dfMK2C2N_4eg3ptM8lcRYdeI7kgWzj5UV9kTJioeA"
+},
+{
+  title: "Cars Toon: Mater's Tall Tales",
+  category: "Animation",
+  year: 2010,
+  duration: "35m",
+  description: "A collection of short stories starring Mater as he recounts wild and unbelievable adventures he's supposedly experienced in the past.",
+  image: "https://m.media-amazon.com/images/M/MV5BNDMxYjQ3ZDAtMjg4OC00ZTQ0LTk1NGEtNjdlMmU1MWYxNGI3XkEyXkFqcGc@._V1_.jpg",
+  video: "https://mega.nz/embed/tyBzXSZS#ilCWtwu4s-EH72f3kwCallpi4L_1odD_KQ_Vd00Oy0A"
+},
+{
+  title: "The Good Dinosaur",
+  category: "Animation",
+  year: 2015,
+  duration: "1h 33m",
+  description: "In an alternate timeline where dinosaurs never went extinct, an Apatosaurus named Arlo makes an unlikely human friend while trying to find his way home.",
+  image: "https://lh3.googleusercontent.com/proxy/5mYbZ9t6WEqFmyul8Hc4kNZQ2IfSS83rp0ZKQP7H2N8a1sv1JGBSgZ6JraHtQfjXRKYiRWGD7COfp5Z5SipWlPt9BmFM3bialGL5qaz_qxyZlis",
+  video: "https://mega.nz/embed/jzhHQBQA#PwgMHQnZZ7Vrbwic95o1zgeHrz-gjRPFMgRNRkhXfqw"
+},
+{
+  title: "Up",
+  category: "Animation",
+  year: 2009,
+  duration: "1h 36m",
+  description: "78-year-old Carl Fredricksen travels to Paradise Falls in his house equipped with balloons, inadvertently taking a young stowaway along for the ride.",
+  image: "https://i.etsystatic.com/17257718/r/il/1557b9/2441195192/il_570xN.2441195192_8kka.jpg",
+  video: "https://mega.nz/embed/i2YHiJKa#JmqgdaEBKJM6MVyp3BnNgMdNv3bR5mhlcpJU-IsbEkY"
+},
+{
+  title: "Carl's Date",
+  category: "Animation",
+  year: 2023,
+  duration: "9m",
+  description: "Carl Fredricksen agrees to go on a date with a lady friend, but admits he has no idea how dating works nowadays.",
+  image: "https://cdn.kinocheck.com/i/2qkknsed3e.jpg",
+  video: "https://mega.nz/embed/EzJjVTiK#i0gFnuBYpYYZY_YIj49rLIUGingsEFA8f3eGc2Cx_kU"
+},
+{
+  title: "Monsters University",
+  category: "Animation",
+  year: 2013,
+  duration: "1h 44m",
+  description: "A look at the college days of Mike Wazowski and James P. Sullivan when they weren't necessarily the best of friends.",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKSA2w_5s325s9qQ39DEasX9Hx7Gdxyg8hfaZzpV9G87pkvgFsvk-8I-y3QrjOA1Gb3Lo&usqp=CAU",
+  video: "https://mega.nz/embed/XnoVyZYb#TGTseSoHncRp1VsvyIU9EbutD9nX5DiFVnbnN3Yvo_c"
+},
+{
+  title: "Monsters, Inc.",
+  category: "Animation",
+  year: 2001,
+  duration: "1h 32m",
+  description: "In order to power the city, monsters have to scare children so that they scream. However, the children are toxic to the monsters, and after a little girl gets through, 2 monsters realize things may not be what they think.",
+  image: "https://i.ebayimg.com/images/g/AzQAAOSwDwNjN2eE/s-l1200.jpg",
+  video: "https://mega.nz/embed/Lgo1QYID#jleQqjqB79QxgbP3kK7bsKCdyD-uaEk4vo6MgHLQAbs"
+},
+{
+  title: "Party Central",
+  category: "Animation",
+  year: 2013,
+  duration: "6m",
+  description: "Mike and Sulley return to Monsters University for an epic weekend party hosted by the Oozma Kappa fraternity brothers.",
+  image: "https://i.pinimg.com/736x/17/ee/3e/17ee3ed085bccd9b03fd4adfa9a5ccf9.jpg",
+  video: "https://mega.nz/embed/EmoWWZTC#2TAWmQjBfd112aHuqHhlaXHeaeGTXS6jhyKT8jQKGAo"
+},
+{
+  title: "Mike's New Car",
+  category: "Animation",
+  year: 2013,
+  duration: "4m",
+  description: "Mike Wazowski proudly shows off his brand new six-wheel car to Sulley, only for things to quickly go hilariously wrong.",
+  image: "https://upload.wikimedia.org/wikipedia/en/9/91/Mike%27s_New_Car_poster.jpg",
+  video: "https://mega.nz/embed/UmQwSSDa#cZ3PXzQRmn1RmgGe-Y1n5UIeCmboVYkZ2RX5WD71Uxg"
+},
+{
+  title: "Ratatouille",
+  category: "Animation",
+  year: 2007,
+  duration: "1h 51m",
+  description: "A rat who can cook makes an unusual alliance with a young kitchen worker at a famous Parisian restaurant.",
+  image: "https://images-cdn.ubuy.co.in/64389b0afd266f2c036cf595-poster-usa-disney-classics-ratatouille.jpg",
+  video: "https://mega.nz/embed/niYRFSAJ#tZ-ZSiBpwknqKU1hVbhhehDNaH_yh746V0Gvd4C0hPk"
+},
+{
+  title: "Your Friend the Rat",
+  category: "Animation",
+  year: 2007,
+  duration: "11m",
+  description: "Remy and Emile present a historical and educational look at the relationship between humans and rats throughout history.",
+  image: "https://m.media-amazon.com/images/M/MV5BMTcyOTU4MTM0OF5BMl5BanBnXkFtZTgwODQzMDgwMjE@._V1_FMjpg_UX1000_.jpg",
+  video: "https://mega.nz/embed/grRhXRia#lfLxGiSGkPHSa-kEmbmcw3HUdBb25qjn52EvStdwQ9g"
+},
+{
+  title: "Toy Story",
+  category: "Animation",
+  year: 1995,
+  duration: "1h 21m",
+  description: "A cowboy doll is profoundly threatened and jealous when a new spaceman action figure supplants him as top toy in a boy's bedroom.",
+  image: "https://images-cdn.ubuy.co.in/6742c6d683a44b4221024ef9-entertainment-room-decor-toy-story-1.jpg",
+  video: "https://mega.nz/embed/JMVCQBqT#srZjnEwc4Hvh2sIXDUDNUXUsIuk7UVF-uef3dKMk2Mw"
+},
+{
+  title: "Toy Story 2",
+  category: "Animation",
+  year: 1999,
+  duration: "1h 32m",
+  description: "When Woody is stolen by a toy collector, Buzz Lightyear and his friends set out on a rescue mission to save Woody before he becomes a museum piece.",
+  image: "https://image.tmdb.org/t/p/original/xVhEI1WCgNCCa5I86AqiwuZoog3.jpg",
+  video: "https://mega.nz/embed/BJdyjZgT#ruJMIq14nQZ295CA2ldeuqIfQ8LVqL7yfVkCTvhBx9k"
+},
+{
+  title: "Toy Story 3",
+  category: "Animation",
+  year: 2010,
+  duration: "1h 43m",
+  description: "The toys are mistakenly delivered to a day-care center instead of the attic right before Andy leaves for college, and it's up to Woody to convince the other toys that they weren't abandoned.",
+  image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkG34xN0wr4pZgiLpLnfDt65WtXjZP_YOA4SZevisCxmqOyevuU1SojHsFEyBriX7barM&usqp=CAU",
+  video: "https://mega.nz/embed/gVlymIRD#Ea2j2DAG3gElNburrn7yzu6Y2F-L8kP4vn4LAMfL1s0"
+},
+{
+  title: "Toy Story 4",
+  category: "Animation",
+  year: 2019,
+  duration: "1h 40m",
+  description: "When a new toy called 'Forky' joins Woody and the gang, a road trip alongside old and new friends reveals how big the world can be for a toy.",
+  image: "https://i.pinimg.com/736x/32/f0/c2/32f0c2388f8745c2fa2aab3609355116.jpg",
+  video: "https://mega.nz/embed/EVUykKZJ#2ZLF0x-h7gWPTA6XvbNxDjEZCQayFYlWZMRSvT83bnk"
+},
+{
+  title: "Toy Story 5",
+  category: "Animation",
+  year: 2026,
+  duration: "1h 40m",
+  description: "Woody, Buzz, Jessie, and the rest of the gang return for a brand new adventure where toys face off against modern electronic gadgets for children's attention.",
+  image: "https://image.tmdb.org/t/p/w500/wLvUuBF2Yj0JmMGLUdRRVu7LvNB.jpg",
+  video: "https://mega.nz/embed/az4BCSpS#eIThAfwgAug0lAUmMl2ovH63MXzXaVTfmEY_tx9ncxA"
+},
+{
+  title: "Toy Story That Time Forgot",
+  category: "Animation",
+  year: 2014,
+  duration: "22m",
+  description: "During a post-Christmas play date, the gang finds themselves in uncharted territory when the coolest set of action figures ever turn out to be dangerously delusional.",
+  image: "https://i.pinimg.com/736x/ac/c7/b9/acc7b968fea622f39032d123b5a04497.jpg",
+  video: "https://mega.nz/embed/MEEWRYCb#wJ9u0WBwIQ7TBPmJbj0abKVk-yXlnSr5gitkEGeVAVA"
+},
+{
+  title: "Toy Story of Terror!",
+  category: "Animation",
+  year: 2013,
+  duration: "22m",
+  description: "What starts out as a fun road trip for the Toy Story gang takes an unexpected turn for the worse when the trip detours to a roadside motel.",
+  image: "https://image.tmdb.org/t/p/original/oPBEnNP4Fg4gv9c0KBhchmtoG4H.jpg",
+  video: "https://mega.nz/embed/tR9lgLpA#hwuT7uNECyp_e8FA1SddIYOH9AjfRhzkVJDpxsmBDfw"
+},
+{
+  title: "Lamp Life",
+  category: "Animation",
+  year: 2020,
+  duration: "7m",
+  description: "Bo Peep's missing years between Toy Story 2 and Toy Story 4 are finally revealed.",
+  image: "https://m.media-amazon.com/images/M/MV5BYmQxNzA5YTYtNWZkZi00ZDM1LWFiYjgtMzdmMmJiNjNiMmMyXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+  video: "https://mega.nz/embed/4ZFjUB5B#zt6anRl__YlmocRdXUR_QSoE0GH1bea7CwkezTEEqFE"
+},
+{
+  title: "Brave",
+  category: "Animation",
+  year: 2012,
+  duration: "1h 33m",
+  description: "Determined to make her own path in life, Princess Merida defies a custom that brings chaos to her kingdom. Granted one wish, Merida must rely on her bravery and her archery skills to undo a beastly curse.",
+  image: "https://image.tmdb.org/t/p/original/L6qqU6Q3k4MmPojncNbT43FSTL.jpg",
+  video: "https://mega.nz/embed/XqJVjTBJ#DineIs2lSrl2rPXH6CjAnAwkQoxu0wOQJ6BEWtgQRc4"
+},
+{
+  title: "22 vs. Earth",
+  category: "Animation",
+  year: 2021,
+  duration: "9m",
+  description: "Set before the events of Soul, 22 refuses to go to Earth, enlisting a gang of five other new souls in her attempt at rebellion.",
+  image: "https://m.media-amazon.com/images/M/MV5BODc5MGM0YzQtNDlmOS00NTMyLTg5YzYtNGU0YTc5NjU1NGE1XkEyXkFqcGc@._V1_.jpg",
+  video: "https://mega.nz/embed/EipiXDqY#aa_n_wscU0koGDJsVkzvRuXKB2Mnj18fEX5aVWWj7qI"
+},
+{
+  title: "Loop",
+  category: "Animation",
+  year: 2020,
+  duration: "8m",
+  description: "A chatty district canoeist and a non-verbal autistic girl are partnered together to lake a canoe across an urban water body.",
+  image: "https://speakingofautismcom.wordpress.com/wp-content/uploads/2019/12/img_1643.jpg",
+  video: "https://mega.nz/embed/dvhkxCCB#vrQPTW3l1cQZqFr6H-hxfYABsBDoYwV-ogchJyPZpNc"
+},
+{
+  title: "Purl",
+  category: "Animation",
+  year: 2019,
+  duration: "8m",
+  description: "An earnest ball of yarn named Purl gets a job at a high-energy, male-dominated start-up and tries to make things work.",
+  image: "https://image.tmdb.org/t/p/w500/A8to7TlVMBwMuDgi2DJ9rVJsobE.jpg",
+  video: "https://mega.nz/embed/YqZhWLJC#qzA65ctHz2ZRpRnkS4oRBpF043X-c-irxan7bGU1ZBc"
+},
+{
+  title: "Lou",
+  category: "Animation",
+  year: 2017,
+  duration: "7m",
+  description: "When a bully toys with the kids on a crowded playground, one lost-and-found box creature comes to the rescue.",
+  image: "https://image.tmdb.org/t/p/w500/4l9wSwvabTefMJ3TkXnh9evzmVV.jpg",
+  video: "https://mega.nz/embed/VvByCIjL#Nds6j5JRnqlvYnowU6j4MGXq36fmJCEpF4FvoQbt1OU"
+},
+{
+  title: "Piper",
+  category: "Animation",
+  year: 2016,
+  duration: "6m",
+  description: "A hungry sandpiper hatchling ventures from her nest for the first time to dig for food by the shoreline, despite crashing waves.",
+  image: "https://i.pinimg.com/736x/71/43/d0/7143d0e2d47e170a230a56f7a8ec0275.jpg",
+  video: "https://mega.nz/embed/xu410BaB#K4owj9waMGUijSU5BTJDXoWlmqm-rU3cO3SCzQ_ScfI"
+},
+{
+  title: "Lava",
+  category: "Animation",
+  year: 2014,
+  duration: "7m",
+  description: "A musical short set against the backdrop of the tropical islands, telling the story of an isolated volcano who longs for true love.",
+  image: "https://m.media-amazon.com/images/M/MV5BNmQ2NTAwMDktYWE5Mi00OTBkLWJiZmUtNGQ4MGM5NzMxOTRhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+  video: "https://mega.nz/embed/hjQ2CbSJ#tJtAyetY2SltWDyxr_ScNdbM7xIFvJA6T78ajWboCnE"
+},
+{
+  title: "Partly Cloudy",
+  category: "Animation",
+  year: 2009,
+  duration: "6m",
+  description: "Everyone knows that storks deliver babies, but where do the storks get the babies from? Clouds sculpt babies out of clay and bring them to life.",
+  image: "https://i.pinimg.com/originals/de/00/22/de0022a3e8b016ffb9458a13fd43885f.jpg",
+  video: "https://mega.nz/embed/Q2wB0RwI#UdaiuwHU01fOC2kYDP7-iZGpW85LyEJurathE83d-T4"
+},
+{
+  title: "Partysaurus Rex",
+  category: "Animation",
+  year: 2012,
+  duration: "7m",
+  description: "Rex finds himself left behind in the bathroom during bath time, but quickly transforms into the life of the party for the tub toys.",
+  image: "https://img.rgstatic.com/content/movie/ea692fc3-3bd1-4300-a945-86576dc225d0/poster-342.jpg",
+  video: "https://mega.nz/embed/ZiIGHAYK#HOMC202w4guShI3G20EXS1KDd02ARNIRdzdYagYiSRU"
+},
+{
+  title: "A Bug's Life",
+  category: "Animation",
+  year: 1998,
+  duration: "1h 35m",
+  description: "A misfit ant who is always messing things up recruits a group of warrior bugs to fight a gang of bullying grasshoppers who threaten his colony.",
+  image: "https://i.pinimg.com/474x/74/9e/67/749e67191044fb4ace982fa646a385a7.jpg",
+  video: "https://mega.nz/embed/ivADQDBD#nfynoS1zoJQAp5KBCx5UzBpgSvqV1YLC-C-Mg06nNCc"
+},
+{
+  title: "How to Train Your Dragon",
+  category: "Animation",
+  year: 2010,
+  duration: "1h 38m",
+  description: "A hapless young Viking who aspires to hunt dragons becomes the unlikely friend of a young Night Fury dragon himself, and learns there may be more to the creatures than he assumed.",
+  image: "https://myhotposters.com/cdn/shop/products/HP2978_07892a03-edd9-408e-9e3c-47dc0fc6d3b5_1024x1024.jpg?v=1745713654",
+  video: "https://mega.nz/embed/FzIQgCxQ#ObYp0UUHsBeFYi2PZKAHo8Aqp9HMVS38A23jGVADOLI"
+},
+{
+  title: "How to Train Your Dragon 2",
+  category: "Animation",
+  year: 2014,
+  duration: "1h 42m",
+  description: "When Hiccup and Toothless discover an ice cave that is home to hundreds of new wild dragons and a mysterious Dragon Rider, the two friends find themselves at the center of a battle to protect the peace.",
+  image: "https://lumiere-a.akamaihd.net/v1/images/httyd2_kagraphic_584x800_940b4931.jpeg?region=0%2C0%2C584%2C800",
+  video: "https://mega.nz/embed/03JmXCZD#_7jFMkKVHV9gCUfgaSLswhRku8LFpffRojzoAwR5xVk"
+},
+{
+  title: "How to Train Your Dragon: The Hidden World",
+  category: "Animation",
+  year: 2019,
+  duration: "1h 44m",
+  description: "When the sudden appearance of a female Light Fury coincides with the darkest threat their village has ever faced, Hiccup and Toothless must journey to a hidden world thought only to exist in myth.",
+  image: "https://resizing.flixster.com/QOJfm87DpFPvMWBjy767w9Zeyrk=/fit-in/705x460/v2/https://resizing.flixster.com/vs4NrXMCUz5F1XVLsisv9N5u1Hc=/ems.cHJkLWVtcy1hc3NldHMvbW92aWVzL2U3YmIxNWJiLTc0YjEtNGU5ZS04YzQ0LWFiZmY3MDk1OTU3My53ZWJw",
+  video: "https://mega.nz/embed/wzBWHIjY#EsyTGhB286USV5mCb7VCRq_IPm-rLR4ioUt9t0v-m-c"
+},
+{
+  title: "Dragons: Dawn Of The Dragon Racers",
+  category: "Animation",
+  year: 2014,
+  duration: "26m",
+  description: "Dawn of the Dragon Racers describes how Dragon Racing was invented on the island of Berk as Hiccup and his friends compete to see who became the true creator of the island's favorite new sport.",
+  image: "https://m.media-amazon.com/images/M/MV5BZTAzNzhlZDktNGZmZi00ODkwLTgwZTYtYmIzZDI2OWI5M2Q2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+  video: "https://mega.nz/embed/syQDwaaK#9Mv1egfD9ihv4dLBZ61R6anhxXRcA8-vioPCsvBKI8o"
+},
+{
+  title: "Book of Dragons",
+  category: "Animation",
+  year: 2011,
+  duration: "18m",
+  description: "Hiccup, Toothless, and his friends explore the legendary Book of Dragons, revealing insider secrets about new, never-before-seen dragon classes and training techniques.",
+  image: "https://images.jdmagicbox.com/comp/jd_social/news/2018jul30/image-173662-fnxuneeboj.jpg",
+  video: "https://mega.nz/embed/UmpkzTgK#5nFT9Qfi4By6tV8Eqkklf2qSQ7vfPyim4ETLxUtw8ZY"
+},
+{
+  title: "Dragons: Gift of the Night Fury",
+  category: "Animation",
+  year: 2011,
+  duration: "22m",
+  description: "As Berk prepares for its annual winter holiday, all the dragons inexplicably fly away, leaving Hiccup to discover the touching reason behind their sudden departure.",
+  image: "https://m.media-amazon.com/images/M/MV5BYmRjYWU2MjAtOTFjNC00MTA0LWE2NzEtZmM1ODM0ZDMyYzMxXkEyXkFqcGc@._V1_.jpg",
+  video: "https://mega.nz/embed/dyQn1RbD#FB9_k0HaxQrjzSAL1HtSEn9hbrmbkqa03zi89kTV45k"
+},
+{
+  title: "How to Train Your Dragon: Homecoming",
+  category: "Animation",
+  year: 2019,
+  duration: "22m",
+  description: "Set just before the emotional epilogue of the third film, Hiccup and Toothless plan a spectacular holiday pageant on Berk to remind the younger generation of the deep bond between humans and dragons.",
+  image: "https://upload.wikimedia.org/wikipedia/en/5/5d/How_to_Train_Your_Dragon_Homecoming_poster.jpg",
+  video: "https://mega.nz/embed/Qq50kBpA#K103yW-MFtrTB-k4fqGEMh9hjbeLlBXBNqJpzaSvSeM"
+},
+{
+  title: "How to Train Your Dragon (Live Action)",
+  category: "Animation",
+  year: 2025,
+  duration: "1h 50m",
+  description: "The live-action adaptation of the beloved animated masterpiece, capturing Hiccup and Toothless' iconic journey with breath-taking realism.",
+  image: "https://media-cache.cinematerial.com/p/500x/mqhqiscc/how-to-train-your-dragon-brazilian-movie-poster.jpg?v=1746976229",
+  video: "https://mega.nz/embed/NuQTzZKY#H5WBXfGSNbrlzP-6Y_Ez8rb02CC0sWC_QsJTYbPTDNI"
+},
+{
+  title: "Kung Fu Panda",
+  category: "Animation",
+  year: 2008,
+  duration: "1h 32m",
+  description: "To everyone's surprise, including his own, Po, an ancient panda, is chosen as the Dragon Warrior to defend the Valley of Peace from the villainous Tai Lung.",
+  image: "https://i.pinimg.com/474x/f3/e3/63/f3e3635567b41a18a413936cc6900860.jpg",
+  video: "https://mega.nz/embed/AZ10DbaQ#eyhKLypQCsLWV1tRD9gpx0VAtzqaSPBk_1HI5npp5eg"
+},
+{
+  title: "Kung Fu Panda 2",
+  category: "Animation",
+  year: 2011,
+  duration: "1h 30m",
+  description: "Po and his friends fight to stop a menacing villain named Lord Shen from conquering China with a deadly new weapon, all while Po uncovers secrets about his past.",
+  image: "https://musicart.xboxlive.com/7/c56f2100-0000-0000-0000-000000000002/504/image.jpg",
+  video: "https://mega.nz/embed/oAlE1JSS#mcWBW9rF4e90SldwFBtnPpMLTTiYZ6ZQZE3qai7Uj58"
+},
+{
+  title: "Kung Fu Panda 3",
+  category: "Animation",
+  year: 2016,
+  duration: "1h 35m",
+  description: "Reunited with his biological father, Po travels to a secret panda sanctuary and must train a village of clumsy pandas to defeat a supernatural threat named Kai.",
+  image: "https://image.tmdb.org/t/p/original/jRlwKj4D7AiJ3l07PTfsTjPuhYA.jpg",
+  video: "https://mega.nz/embed/0cE1GYiD#TYaLsr853UAJ1nM_wbfx_mkBKNOYRMOkVLFgSjXvTvk"
+},
+{
+  title: "Kung Fu Panda 4",
+  category: "Animation",
+  year: 2024,
+  duration: "1h 34m",
+  description: "Po is tapped to become the Spiritual Leader of the Valley of Peace, needing to find and train a new Dragon Warrior while facing a wicked, shape-shifting sorceress.",
+  image: "https://image.tmdb.org/t/p/original/AgxyewLl8EHBMEmBzzJqcI3YkMe.jpg",
+  video: "https://mega.nz/embed/oJswjDDS#HNoHjj5HYKlztWmdMQtv3wcIxA2meNkbagJXWUUrr58"
+},
+{
+  title: "Kung Fu Panda: Secrets of the Furious Five",
+  category: "Animation",
+  year: 2008,
+  duration: "24m",
+  description: "Tasked with teaching a martial arts class of rambunctious bunny children, Po tells the backstories of the Furious Five and the lessons they learned.",
+  image: "https://m.media-amazon.com/images/S/pv-target-images/0cb93138144e0f7c16e799bbac247fe1557632ab27529de9bc65353c9656ded9.jpg",
+  video: "https://mega.nz/embed/Fd9nnLBC#8Ed_qj28nEpnB7A6v7Mhz7OzVveQNZX6xacEpGz_9uY"
+},
+{
+  title: "Kung Fu Panda Holiday",
+  category: "Animation",
+  year: 2010,
+  duration: "22m",
+  description: "Po is caught between his duties as the Dragon Warrior hosting a formal Winter Feast for the Kung Fu Masters and his family tradition of spending the holiday with his dad.",
+  image: "https://m.media-amazon.com/images/S/pv-target-images/adf6a687fee2ec6909f80a273c2a55116732c00b5081df0c5605db001e8566ca.jpg",
+  video: "https://mega.nz/embed/ERFEQSIJ#Ia-4DS8_nkLN6L9BpdmtYuTU2V313CVf5rhVLkhxZXw"
+},
+{
+  title: "Kung Fu Panda: Secrets of the Masters",
+  category: "Animation",
+  year: 2011,
+  duration: "23m",
+  description: "Po and the Furious Five break into a museum to uncover the origins of Masters Thundering Rhino, Storming Ox, and Croc.",
+  image: "https://m.media-amazon.com/images/M/MV5BNWYyNTdmNmUtY2Q5Yy00ZmUwLWJkZTYtNDIzZjE4OTA2Y2MyXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+  video: "https://mega.nz/embed/hNUSnCgQ#qgp2WYszbkXOxsVOGZ0M8eFBFl-6sHRTwiq-k_ac9qs"
+},
+{
+  title: "Kung Fu Panda: Secrets of the Scroll",
+  category: "Animation",
+  year: 2016,
+  duration: "23m",
+  description: "A look back at how an accidental twist of fate brought five completely different animals together to form China's ultimate martial arts defense team.",
+  image: "https://m.media-amazon.com/images/M/MV5BOTNjOWUxOTMtMjdjZi00NDYwLWJmZGQtZmI0MDA5ODk2MDY1XkEyXkFqcGc@._V1_.jpg",
+  video: "https://mega.nz/embed/xM03mQ4b#hXyqO20D4XgMXKyhC_UM7jXqY20K8nApViN_9bu_RPQ"
+},
+{
+  title: "Ice Age",
+  category: "Animation",
+  year: 2002,
+  duration: "1h 21m",
+  description: "Set during the Ice Age, a sabertooth tiger, a sloth, and a woolly mammoth find a human baby and try to return him to his tribe.",
+  image: "https://image.tmdb.org/t/p/w500/gLhHHZUzeseRXShoDyC4VqLgsNv.jpg",
+  video: "https://mega.nz/embed/dy4WAYrS#EE_JvzR3aa07YPe-Q0ZrsWp0QPtxPN9vH1C92bt-PVk"
+},
+{
+  title: "Ice Age: The Meltdown",
+  category: "Animation",
+  year: 2006,
+  duration: "1h 31m",
+  description: "Manny, Sid, and Diego discover that the ice dam holding their valley together is about to break, forcing them to evacuate alongside a new friend named Ellie.",
+  image: "https://image.tmdb.org/t/p/w500/8vNkkk4erLGDg3UfbmSHsTdSNcY.jpg",
+  video: "https://mega.nz/embed/02wlzZJb#zT7XrrT3_PV8NNWbkVKQDRMN30NI5KRPEHwPuTCtI1k"
+},
+{
+  title: "Ice Age: Dawn of the Dinosaurs",
+  category: "Animation",
+  year: 2009,
+  duration: "1h 34m",
+  description: "When Sid accidentally steals some dinosaur eggs, his friends must venture into a mysterious underground world to rescue him from a protective mother T-Rex.",
+  image: "https://image.tmdb.org/t/p/w500/cXOLaxcNjNAYmEx1trZxOTKhK3Q.jpg",
+  video: "https://mega.nz/embed/M6RVDBxJ#D8GFFs9LO2ivptml04rZTOeRXFpInm1OTO9ZUrfQIjI"
+},
+{
+  title: "Ice Age: Continental Drift",
+  category: "Animation",
+  year: 2012,
+  duration: "1h 28m",
+  description: "Manny, Diego, and Sid are separated from the rest of the herd using an iceberg as a makeshift ship, clashing with seafaring pirates as they try to return home.",
+  image: "https://image.tmdb.org/t/p/w500/dfp1BZF7FxbBUyzHvMOI9t8NWDD.jpg",
+  video: "https://mega.nz/embed/onQVnZDR#GyN3L_9zSoR9AMxfUPBrD1Ct2w-fNJkWw7Nleh-Btgs"
+},
+{
+  title: "Ice Age: Collision Course",
+  category: "Animation",
+  year: 2016,
+  duration: "1h 34m",
+  description: "Scrat's epic pursuit of his elusive acorn accidentally triggers a cosmic chain reaction that threatens the world, forcing the herd to seek shelter elsewhere.",
+  image: "https://image.tmdb.org/t/p/w500/okF78W1AcXAenlYFE3vna9Uuqjp.jpg",
+  video: "https://mega.nz/embed/d2gQVZTC#wrKU26Wf_Rh76KI0AeowVbiwWVjUDpcg3JFq89PyDiI"
+},
+{
+  title: "The Ice Age Adventures of Buck Wild",
+  category: "Animation",
+  year: 2022,
+  duration: "1h 22m",
+  description: "The thrill-seeking possum brothers Crash and Eddie tumble down into the Lost World, where they team up with the one-eyed weasel Buck Wild to take on rebellious dinosaurs.",
+  image: "https://image.tmdb.org/t/p/w500/zzXFM4FKDG7l1ufrAkwQYv2xvnh.jpg",
+  video: "https://mega.nz/embed/JvJ1RTJQ#gW3IiT7ZpZ-MrslS5ssbSzSbZ2uqzJd_lvZ_hiZ8pBs"
+},
+{
+  title: "Ice Age: The Great Egg-Scapade",
+  category: "Animation",
+  year: 2016,
+  duration: "25m",
+  description: "When a malicious pirate bunny steals the eggs from Sid's new egg-sitting service, Manny, Diego, and the herd set off on the world's very first Easter egg hunt.",
+  image: "https://image.tmdb.org/t/p/w500/ysQqYp9G37Q114Nc6uvCHbDmaj6.jpg",
+  video: "https://mega.nz/embed/J6ZRiKzZ#flzju2Zk1txHAs0bsGYEa_dnZmrrjVyYzGChww51Isw"
+},
+{
+  title: "Ice Age: A Mammoth Christmas",
+  category: "Animation",
+  year: 2011,
+  duration: "26m",
+  description: "When Sid accidentally ruins Manny's heirloom Christmas rock, he journeys to the North Pole with Crash, Eddie, and Peaches to clear his name on Santa's naughty list.",
+  image: "https://image.tmdb.org/t/p/w500/ue5417HaDcvgMDusryenwwwZARq.jpg",
+  video: "https://mega.nz/embed/puJzVRjC#f8RO1w3fU-GadU44-YCakXEw6YDn34Ou6iSEElHfQJU"
+},
+{
+  title: "The Bad Guys",
+  category: "Animation",
+  year: 2022,
+  duration: "1h 40m",
+  description: "After a lifetime of legendary heists, notorious animal outlaws attempt their most challenging con yet: becoming model citizens.",
+  image: "https://olathelibrary.librarycalendar.com/sites/default/files/2023-01/gdc101730_1_8452.jpg",
+  video: "https://mega.nz/embed/SlBTzRID#mlHjPmb7E5rWsIZsZrXopMH3OKcPnE9a1AUZOcVuL3k"
+},
+{
+  title: "The Bad Guys 2",
+  category: "Animation",
+  year: 2025,
+  duration: "1h 35m",
+  description: "The reformed Bad Guys struggle to find trust and acceptance in their new lives as good guys until a new criminal assignment drags them back into the underworld.",
+  image: "https://image.tmdb.org/t/p/original/c1msaKf1wyuKcmLjjJd6rIBPFcd.jpg",
+  video: "https://mega.nz/embed/v9RxGahI#pfRl2Jp6dz8KOpHoCgvex5MH5hp9SP-8eMbrNpSzhKI"
+},
+{
+  title: "The Bad Guys: A Very Bad Holiday",
+  category: "Animation",
+  year: 2023,
+  duration: "25m",
+  description: "To keep their beloved holiday-heist tradition alive, the Bad Guys must pull off a city-wide operation to restore Christmas cheer.",
+  image: "https://media.themoviedb.org/t/p/w500/er0Gth3Tr279hFq1xeKdYxhcleO.jpg",
+  video: "https://mega.nz/embed/Wk5nWZzK#LVSn9RHTdN4fofVahfG4dAtiKN5wVy-hVxIVIbSOyk0"
+},
+{
+  title: "The Bad Guys: Haunted Heist",
+  category: "Animation",
+  year: 2024,
+  duration: "25m",
+  description: "The crew tackles a spooky heist involving a legendary haunted mansion and supernatural security systems.",
+  image: "https://m.media-amazon.com/images/M/MV5BZDQ0NTRkNGMtMDM2NS00ZTkxLWE3NWYtNzE3MTQ4YTg4Njg2XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+  video: "https://mega.nz/embed/r85VgLrR#KT9vpjr96T9Fxuc5F6eE7sIMDYnaYVWdKb9PJhjOLlE"
+},
+{
+  title: "The Bad Guys: Little Lies and Alibis",
+  category: "Animation",
+  year: 2024,
+  duration: "30m",
+  description: "A web of tangled stories and clever alibis tests the team's cooperative skills during a high-stakes local caper.",
+  image: "https://image.tmdb.org/t/p/w780/9mLRpo992kIpnYQJKqfLFsrXr3m.jpg",
+  video: "https://mega.nz/embed/X4IWVYRQ#xOUXa4dNMjYijrO594qzAvw4VWqwXSUVKv8zs5olr-s"
+},
+{
+  title: "Minions & Monsters",
+  category: "Animation",
+  year: 2026,
+  duration: "5m",
+  description: "Follows the Minions in 1920s Hollywood as they search for frightening creatures for their monster movie, partner with a green creature, and must save the planet after unleashing monsters.",
+  image: "https://image.tmdb.org/t/p/w500/vrTlRYPhnf107vbTiDf6DRrdV3r.jpg",
+  video: "https://mega.nz/embed/s6oVyIqA#ntoJyof-NLFTQCdSpXebR-o6xuq8ES0PCgD4NV_ATno"
+},
+{
+  title: "Minions",
+  category: "Animation",
+  year: 2015,
+  duration: "1h 31m",
+  description: "Minions Stuart, Kevin, and Bob are recruited by Scarlet Overkill, a super-villain who, alongside her inventor husband Herb, hatches a plot to take over the world.",
+  image: "https://i.ebayimg.com/images/g/2-4AAOSwP2FZjWe0/s-l1200.jpg",
+  video: "https://mega.nz/embed/O3AW0D4I#GCZlpy2GHl1_f_rvCiseikDo92KzQR-Opah4B4ozIK0"
+},
+{
+  title: "Minions: The Rise of Gru",
+  category: "Animation",
+  year: 2022,
+  duration: "1h 28m",
+  description: "The untold story of one twelve-year-old's dream to become the world's greatest supervillain in 1970s suburbia, aided by his Minions.",
+  image: "https://image.tmdb.org/t/p/original/1WiUlJH7MMxWn2MIxW1hwMcYam6.jpg",
+  video: "https://mega.nz/embed/f0JHWa4B#AxjHBt2cMpJ9p55RNbB87InVb35EqNgrdSE-Z8bsIHw"
+},
+{
+  title: "Despicable Me",
+  category: "Animation",
+  year: 2010,
+  duration: "1h 35m",
+  description: "When a criminal mastermind uses a trio of orphan girls as pawns for a grand scheme to steal the moon, he finds their love is profoundly changing him for the better.",
+  image: "https://image.tmdb.org/t/p/w500/b1BT309QWjtFUlJPLmXmrcHOWEL.jpg",
+  video: "https://mega.nz/embed/VuMX0LTR#yFlXBYESC2MbMmXYJcpML306lBwrymZSNb5Dg2k3am4"
+},
+{
+  title: "Despicable Me 2",
+  category: "Animation",
+  year: 2013,
+  duration: "1h 38m",
+  description: "When Gru, the world's most super-bad-turned-super-dad, is recruited by a secret organization to track down an elusive new super-villain, he must balance saving the world with parenting.",
+  image: "https://image.tmdb.org/t/p/w500/5Fh4NdoEnCjCK9wLjdJ9DJNFl2b.jpg",
+  video: "https://mega.nz/embed/ku0xmIpI#aXtefpgbdxWdUfkbHdluMezXoYcJDBQwOC5iDhtkzjY"
+},
+{
+  title: "Despicable Me 3",
+  category: "Animation",
+  year: 2017,
+  duration: "1h 30m",
+  description: "Gru meets his long-lost, charming, cheerful, and more successful twin brother Dru, who wants to team up with him for one last criminal heist.",
+  image: "https://image.tmdb.org/t/p/w500/6t3YWl7hrr88lCEFlGVqW5yV99R.jpg",
+  video: "https://mega.nz/embed/8v822IgS#4smCyfqMntTT6kKlJ7X2ftI8l3_QBWFI4rBnSTcLPKY"
+},
+{
+  title: "Despicable Me 4",
+  category: "Animation",
+  year: 2024,
+  duration: "1h 34m",
+  description: "Gru, Lucy, Margo, Edith, and Agnes welcome a new member to the family, Gru Jr., who is intent on tormenting his dad. However, their peaceful life is upentered when mastermind Maxime Le Mal escapes prison.",
+  image: "https://image.tmdb.org/t/p/w500/wWba3TaojhK7NdycRhoQpsG0FaH.jpg",
+  video: "https://mega.nz/embed/B28FgA5B#3RIC15Ma0mssTRjhxVjVEFQWdKg_nuKoIGGgw2vf4ks"
+},
+{
+  title: "Mower Minions",
+  category: "Animation",
+  year: 2016,
+  duration: "5m",
+  description: "The Minions try to earn money by mowing lawns, but their efforts lead to unexpected chaos.",
+  image: "https://image.tmdb.org/t/p/original/fPg5pkhRff7IAVG1lx2vB17ssYR.jpg",
+  video: "https://mega.nz/embed/WjhgmIhR#79bM2hTd43g2qgusqG8gMf5mUUSSLVbUa0RbESR5GNk"
+},
+{
+  title: "Minions & More 1",
+  category: "Animation",
+  year: 2022,
+  duration: "50m",
+  description: "This collection of Minions shorts from the Despicable Me franchise includes mini-movies like Training Wheels, Puppy and Yellow Is the New Black.",
+  image: "https://image.tmdb.org/t/p/w500/hjVIpMS8gOEaLB87kpgEOqdDCrk.jpg",
+  video: "https://mega.nz/embed/S6pxSKRI#LS5IXUCpccavKPXTJFbbW3b8Zd-r5heVAcqoBC6XHwo"
+},
+{
+  title: "Minions Holiday Special",
+  category: "Animation",
+  year: 2020,
+  duration: "5m",
+  description: "Illumination presents four new mini-movie escapades along with special guest appearances from some of Illumination's beloved characters from their The Secret Life of Pets and Sing franchises.",
+  image: "https://pbcdnw.aoneroom.com/image/2026/01/26/845ca70b6b6a24ff9861901e617fd5bc.jpg?x-oss-process=image/resize%2Cw_200",
+  video: "https://mega.nz/embed/nwplVBrI#DQP7l0jMKe5qBdqpLi0FnTnvoI-yAKadK6HsCRPyqKI"
+},
+{
+  title: "Competition",
+  category: "Animation",
+  year: 2011,
+  duration: "5m",
+  description: "The Minions compete against each other in various challenges.",
+  image: "https://m.media-amazon.com/images/M/MV5BMzY3MzliYjEtNjE0NC00MWJiLThjMzItZTNkMmE3MGJmZWRiXkEyXkFqcGc@._V1_.jpg",
+  video: "https://mega.nz/embed/R3ph2A7C#E6tQzPF9fQtN5XPyF7RuHOsYDKqSt9T0UTcUTL6uUlk"
+},
+{
+  title: "Orientation Day",
+  category: "Animation",
+  year: 2010,
+  duration: "5m",
+  description: "The Minions go through orientation at their new workplace.",
+  image: "https://image.tmdb.org/t/p/original/yp6F4JqWeKMzd3N2fW10Ja3cBJK.jpg",
+  video: "https://mega.nz/embed/kuwhSa6A#lpaEA__iZbDR5tiHUeAEEFnyxzvd50jR0jQJwfXPJnc"
+},
+{
+  title: "Puppy",
+  category: "Animation",
+  year: 2013,
+  duration: "5m",
+  description: "The Minions encounter a cute but troublesome puppy.",
+  image: "https://image.tmdb.org/t/p/original/f62rLpyiebBc6QfSTA4xGwwQkPY.jpg",
+  video: "https://mega.nz/embed/AjgXXTSS#f3qtlcB1zLjUHYQTpWnjU9OY0Zr8bNwWLWnZFIaUjV8"
+},
+{
+  title: "Panic in the Mailroom",
+  category: "Animation",
+  year: 2013,
+  duration: "5m",
+  description: "Chaos ensues when the Minions work in the mailroom.",
+  image: "https://image.tmdb.org/t/p/original/ylB6KNFNAkWH06j32EoUXGKOsGe.jpg",
+  video: "https://mega.nz/embed/wmRRgDLL#x8DCWZzBLg03bvc8OLweWMcW9XxVRL65NisID_qUZ-o"
+},
+{
+  title: "Training Wheels",
+  category: "Animation",
+  year: 2013,
+  duration: "5m",
+  description: "The Minions learn to ride bikes with hilarious results.",
+  image: "https://image.tmdb.org/t/p/original/rT1L9N1LD2S1OO8qwzSFrphw0Oe.jpg",
+  video: "https://mega.nz/embed/E3p2GQzD#_oBLdEXAOg9IennWWuEWP4u09rNxs-K6-EKpwO1s9MU"
+},
+{
+  title: "Hotel Transylvania",
+  category: "Animation",
+  year: 2012,
+  duration: "1h 31m",
+  description: "Dracula, who operates a high-end resort away from the human world, goes into overprotective mode when a boy discovers the resort and falls for the count's teenage daughter.",
+  image: "https://ih1.redbubble.net/image.3223251000.0401/flat,750x,075,f-pad,750x1000,f8f8f8.jpg",
+  video: "https://mega.nz/embed/CtJTnD6a#1ZEnE7CNBLs8QkWdw9OJhNwG2h6lVxIcfmepdJZeTx4"
+},
+{
+  title: "Hotel Transylvania 2",
+  category: "Animation",
+  year: 2015,
+  duration: "1h 29m",
+  description: "Dracula and his friends try to bring out the monster in his half-human, half-vampire grandson in order to keep Mavis from leaving the hotel.",
+  image: "https://wallpapersok.com/images/thumbnail/hotel-transylvania-2-movie-poster-1y20yiyca8eqleek.jpg",
+  video: "https://mega.nz/embed/26Y3DapC#OVy-LR_Skw62bdzlAGXwCiz2JWDC8ut_G6wBeVgqG2g"
+},
+{
+  title: "Hotel Transylvania 3: Summer Vacation",
+  category: "Animation",
+  year: 2018,
+  duration: "1h 37m",
+  description: "Count Dracula and company partake in a cruise for sea-loving monsters, unaware that their ship is being commandeered by the monster-hating Van Helsing family.",
+  image: "https://m.media-amazon.com/images/I/815ZZwPNoDL._AC_UF1000,1000_QL80_.jpg",
+  video: "https://mega.nz/embed/K6YV3A7Y#9ARelPp0OGOqAxUJWSFMjVW9lWKwE-E6Dg2TKQXV_8A"
+},
+{
+  title: "Hotel Transylvania: Transformania",
+  category: "Animation",
+  year: 2022,
+  duration: "1h 27m",
+  description: "When Van Helsing's mysterious invention goes haywire, Drac and his monster pals are all transformed into humans, and Johnny becomes a monster.",
+  image: "https://image.tmdb.org/t/p/original/cxUohYPyCU6NFEFSPCSkj5YAWGr.jpg",
+  video: "https://mega.nz/embed/nooyWZLY#hpDLVMAlPaQVaHqI-To3dUwjqyfeZAza6n5T3QAmjMI"
+},
+{
+  title: "Hotel Transylvania: Puppy!",
+  category: "Animation",
+  year: 2017,
+  duration: "5m",
+  description: "Dennis gets a monster-sized puppy named Tinkles, causing utter chaos at Hotel Transylvania as Dracula tries to keep the giant pet hidden.",
+  image: "https://m.media-amazon.com/images/M/MV5BMTY3MTE1MjE4Ml5BMl5BanBnXkFtZTgwMjEyMjI0MjI@._V1_.jpg",
+  video: "https://mega.nz/embed/SmJ3ED5Q#TeySiQey4sn-4tME9HxK_ENHoK-VEXrz4tK2zceKxpg"
+},
+{
+  title: "Monster Pets: A Hotel Transylvania Short",
+  category: "Animation",
+  year: 2021,
+  duration: "6m",
+  description: "Dracula tries to find a monster-sized playmate for his energetic puppy Tinkles, with chaotic and hilarious results.",
+  image: "https://m.media-amazon.com/images/S/pv-target-images/19babaaa676f43f396922c248bc6a810f2f04f2c1b806a369414e4db5dec8599.jpg",
+  video: "https://mega.nz/embed/TiwFwJhB#DY_jtQ9wNaWPjGJ6wRpeC2JjGSPXpBf4HhRDWio-8Wg"
+},
+{
+  title: "Forgotten Island",
+  category: "Animation",
+  year: 2025,
+  duration: "1h 35m",
+  description: "A group of adventurers uncovers a uncharted island hidden from human eyes, only to face mythical creatures and ancient peril.",
+  image: "https://image.tmdb.org/t/p/w500/myd1K3gefdNAWFsGNRDdMeiK9Qg.jpg",
+  video: "https://mega.nz/embed/WiAFwBJB#85WL4WdUevUziSnwH3fiipTV7hZ0UmMyIZ3QxhB63bU"
+},
+{
+  title: "Moana",
+  category: "Animation",
+  year: 2016,
+  duration: "1h 47m",
+  description: "In Ancient Polynesia, when a terrible curse incurred by the Demigod Maui reaches Moana's island, she answers the Ocean's call to seek out the Demigod to set things right.",
+  image: "https://image.tmdb.org/t/p/w500/9tzN8sPbyod2dsa0lwuvrwBDWra.jpg",
+  video: "https://mega.nz/embed/rKxWzJ7R#aAKP1meSxsJhYSzaomrItsXw5ZgVQAwSGbrRjWVFpqg"
+},
+{
+  title: "Moana 2",
+  category: "Animation",
+  year: 2024,
+  duration: "1h 40m",
+  description: "After receiving an unexpected call from her wayfinding ancestors, Moana journeys to the far seas of Oceania and into dangerous, long-lost waters for an adventure unlike anything she's ever faced.",
+  image: "https://image.tmdb.org/t/p/w500/aLVkiINlIeCkcZIzb7XHzPYgO6L.jpg",
+  video: "https://mega.nz/embed/TOx1WbyB#65ggvqwwyoj4EmMj23H1eckGtMQO8lTh34TwkUBynFg"
+},
+{
+  title: "Moana (Live Action)",
+  category: "English",
+  year: 2026,
+  duration: "2h 05m",
+  description: "A live-action reimagining of Disney's epic journey of self-discovery and oceanic adventure, featuring Moana and the legendary demigod Maui.",
+  image: "https://image.tmdb.org/t/p/w500/zKVgiv5qHCvCLT4A2ymJi5QeXDH.jpg",
+  video: "https://mega.nz/embed/LjAhFJ6R#tJqGyrF28uqWyJqajawVUyPQ_oWHy5PYxfjYVekmTqo"
+},
+{
+  title: "Arthur Christmas",
+  category: "Animation",
+  year: 2011,
+  duration: "1h 37m",
+  description: "Santa's clumsy youngest son Arthur sets out on an urgent, high-tech mission with his grandfather to deliver one last remaining present before Christmas morning.",
+  image: "https://image.tmdb.org/t/p/w500/brELZkSbkLrcCXJ0xt5hQUMXhut.jpg",
+  video: "https://mega.nz/embed/DsAWxbgK#TEGlSOMXCwQmyqYhz80Pr4QiT3WROEwAwYtNwytA5Ko"
+},
+{
+  title: "Mr. Peabody & Sherman",
+  category: "Animation",
+  year: 2014,
+  duration: "1h 32m",
+  description: "A genius dog and his adopted human son inadvertently rupture the space-time continuum after using his time machine without permission, forcing them to repair history.",
+  image: "https://image.tmdb.org/t/p/w500/hPcImYndWESKHzT2GHVCDsUxzYg.jpg",
+  video: "https://mega.nz/embed/7kYH1JSQ#lF3WhXmfgRPDx5DlO16bFvDIDfnjoliVkpRKD0xlwGE"
+},
+{
+  title: "The Croods",
+  category: "Animation",
+  year: 2013,
+  duration: "1h 38m",
+  description: "After their cave is destroyed, a prehistoric family must trek through an uncharted, fantastical world with the help of an inventive, forward-thinking boy.",
+  image: "https://image.tmdb.org/t/p/w500/27zvjVOtOi5ped1HSlJKNsKXkFH.jpg",
+  video: "https://mega.nz/embed/HwpkXKyI#9aJBITWG49PgulMyXCE4cWPI4cRVcUQIdNj46iWqO1E"
+},
+{
+  title: "The Croods: A New Age",
+  category: "Animation",
+  year: 2020,
+  duration: "1h 35m",
+  description: "Searching for a safer home, the prehistoric Croods family discovers a paradise walled off by the more evolved Bettermans, sparking a battle of lifestyles.",
+  image: "https://image.tmdb.org/t/p/w500/tbVZ3Sq88dZaCANlUcewQuHQOaE.jpg",
+  video: "https://mega.nz/embed/m1YCVQiZ#BXQq_51qF9pjV9v94zfB7_KasYEAVmr2hLbh_eVjDp0"
+},
+{
+  title: "Turbo",
+  category: "Animation",
+  year: 2013,
+  duration: "1h 36m",
+  description: "A freak accident grants a garden snail super-speed, empowering him to pursue his ultimate dream of competing against professional drivers in the Indianapolis 500.",
+  image: "https://image.tmdb.org/t/p/w500/inTKQni4YW8syrfgnXHwzmNeSo4.jpg",
+  video: "https://mega.nz/embed/OgYRlLgA#7-C-rTAK8H6-705gQRsn6X96ssL-fikhDoiHk5A3MKw"
+},
+{
+  title: "The Lorax",
+  category: "Animation",
+  year: 2012,
+  duration: "1h 26m",
+  description: "A 12-year-old boy searches for the one thing that will enable him to win the affection of the girl of his dreams: a real, living Truffula Tree.",
+  image: "https://image.tmdb.org/t/p/w500/tePFnZFw5JvjwjQjaKkqDPNMLPU.jpg",
+  video: "https://mega.nz/embed/axoBHaRD#KOu9cE5a6atZUdkUPvQHPJrSA2ySDHBeafn1N_XXzIQ"
+},
+{
+  title: "The Grinch",
+  category: "Animation",
+  year: 2018,
+  duration: "1h 25m",
+  description: "A cynical grump plots to ruin Christmas for the cheerful town of Whoville, only to have his heart tested by a young girl's generous holiday spirit.",
+  image: "https://image.tmdb.org/t/p/w500/Al7DMUp8bqUN4JwXVNxfJYyv5cH.jpg",
+  video: "https://mega.nz/embed/nxp3EKbI#gG2865Kd_1ZCKqlgV0-4YOqzld2f6YHWv5x7eWH-3uE"
+},
+{
+  title: "The Wild Robot",
+  category: "Animation",
+  year: 2024,
+  duration: "1h 42m",
+  description: "After being shipwrecked on a deserted island, an intelligent robot must adapt to the harsh surroundings, gradually building relationships with the native animals.",
+  image: "https://image.tmdb.org/t/p/w500/wTnV3PCVW5O92JMrFvvrRcV39RU.jpg",
+  video: "https://mega.nz/embed/flgixQjJ#iY_zWS2VrpkpdsDsNi7ip4kxjdjNkAqL66xCSp6J6Xo"
+},
+{
+  title: "The Secret Life of Pets",
+  category: "Animation",
+  year: 2016,
+  duration: "1h 27m",
+  description: "The quiet lives of a terrier and his new housemate are upended when they get lost in Manhattan and must unite against an army of abandoned pets.",
+  image: "https://image.tmdb.org/t/p/w500/g3Hms6AE174doeGR1gz5zX5sVsv.jpg",
+  video: "https://mega.nz/embed/CshDxIxA#jQZmS3WPedR7-p9DKRkt-lKcX-fqZ_Og40oNKc7clpE"
+},
+{
+  title: "The Secret Life of Pets 2",
+  category: "Animation",
+  year: 2019,
+  duration: "1h 26m",
+  description: "Max, Duke, and their furry friends confront new anxieties, farm life, and covert rescue missions while their owners are away from home.",
+  image: "https://image.tmdb.org/t/p/w500/s9xg4V5EDKiphgIksVJ9gewBM11.jpg",
+  video: "https://mega.nz/embed/S5oQXKqY#wLWpASeNbujz3MQjS3mTdXXX0to-EHKyUZE4bPhCGdo"
+},
+{
+  title: "Over the Hedge",
+  category: "Animation",
+  year: 2006,
+  duration: "1h 23m",
+  description: "A scheming raccoon tricks a group of woodland creatures into foraging human food beyond a suburban hedge to pay back a debt to an angry bear.",
+  image: "https://image.tmdb.org/t/p/w500/lAtBFoSusJLlcViY57M2J2rpKpl.jpg",
+  video: "https://mega.nz/embed/OkRmhT5a#RvjyfjPdi5yQLCUzTvG2Z2wloTMwz0as5Ei8ZAmUDT0"
+},
+{
+  title: "Secret Magic Control Agency",
+  category: "Animation",
+  year: 2021,
+  duration: "1h 45m",
+  description: "Fairy-tale agents Hansel and Gretel must combine magic, clever thinking, and teamwork to find and rescue a missing king from a wicked witch.",
+  image: "https://image.tmdb.org/t/p/w500/4ZSzEDVdxWVMVO4oZDvoodQOEfr.jpg",
+  video: "https://mega.nz/embed/q4RjgYoS#Sxe_KRoqUV7klczIoiF0z-LdpHeXF24T5e0bfOOE9C4"
+},
+{
+  title: "Planes",
+  category: "Animation",
+  year: 2013,
+  duration: "1h 31m",
+  description: "A cropdusting plane with a fear of heights dreams of competing in a famous aerial race around the world, relying on courage and a veteran mentor to fly high.",
+  image: "https://image.tmdb.org/t/p/w500/i2xgU0y0p77WTrB0oIkbpdaWq8R.jpg",
+  video: "https://mega.nz/embed/uwwjCDCL#QN8JVjTlgzR3eAijnQXI4XBLsQSEJtb9eL0UOBMJ6g0"
+},
+{
+  title: "Planes: Fire & Rescue",
+  category: "Animation",
+  year: 2014,
+  duration: "1h 24m",
+  description: "When world-famous air racer Dusty learns his engine is damaged, he joins forces with a veteran rescue helicopter to train as an elite wildfire firefighter.",
+  image: "https://image.tmdb.org/t/p/w500/pOmteFeBDI9FJOPTDvYJYFeAtdp.jpg",
+  video: "https://mega.nz/embed/Ckh11AwR#seA7oYg_vt6LTKvut9zqvBHt7OUQRB_FBXathAe-rQM"
+},
+{
+  title: "Tangled",
+  category: "Animation",
+  year: 2010,
+  duration: "1h 40m",
+  description: "The magically long-haired Rapunzel has spent her entire life locked in a tower, but when a runaway thief stumbles upon her, she embarks on an adventure into the outside world.",
+  image: "https://image.tmdb.org/t/p/w500/ym7Kst6a4uodryxqbGOxmewF235.jpg",
+  video: "https://mega.nz/embed/ahwTxTrS#vbi5EYbtipK7q940K6-3hS4kfYOTbfa0JaAax2cD1sI"
+},
+{
+  title: "Tangled Ever After",
+  category: "Animation",
+  year: 2012,
+  duration: "6m",
+  description: "Rapunzel and Flynn Rider's royal wedding quickly turns chaotic when Pascal and Maximus accidentally lose the wedding rings, triggering a desperate chase to recover them.",
+  image: "https://image.tmdb.org/t/p/w500/5IeMW79OxftIUoR5duxyQ4LW5Iy.jpg",
+  video: "https://mega.nz/embed/akxXHT7A#K9ZQqZQ9qZB1f36qDOEQcFqZewsU3d17xzXsK0964VE"
+},
+{
+  title: "Zootopia",
+  category: "Animation",
+  year: 2016,
+  duration: "1h 48m",
+  description: "In a city of anthropomorphic animals, a rookie bunny cop and a cynical con artist fox must team up to uncover a conspiracy threatening the peace of their metropolis.",
+  image: "https://image.tmdb.org/t/p/w500/hlK0e0wAQ3VLuJcsfIYPvb4JVud.jpg",
+  video: "https://mega.nz/embed/egQEQQAC#aqhu1KrNMTKToMNEYv-_sXXswbo323yitH3mKGZ3Taw"
+},
+{
+  title: "Zootopia 2",
+  category: "Animation",
+  year: 2025,
+  duration: "1h 47m",
+  description: "Detectives Judy Hopps and Nick Wilde go undercover into the mysterious Marsh Market to track down a sinister reptile disrupting the balance of Zootopia.",
+  image: "https://image.tmdb.org/t/p/w500/oJ7g2CifqpStmoYQyaLQgEU32qO.jpg",
+  video: "https://mega.nz/embed/GwAA0arD#T4zalLEOOhlT4VIjukoLTDf_UQ4eRBpKbIE3xu6Ai8g"
+},
+{
+  title: "Encanto",
+  category: "Animation",
+  year: 2021,
+  duration: "1h 42m",
+  description: "In a extraordinary house hidden in the mountains of Colombia, Mirabel—the only ordinary child in her gifted family—discovers she may be their last hope when magic is endangered.",
+  image: "https://image.tmdb.org/t/p/w500/4j0PNHkMr5ax3IA8tjtxcmPU3QT.jpg",
+  video: "https://mega.nz/embed/v0YU2TRT#CnUqQy45fma7kw8Ek0NZ2lKJ_KbRCzAWc0Wz3KAiUWQ"
+},
+{
+  title: "Big Hero 6",
+  category: "Animation",
+  year: 2014,
+  duration: "1h 42m",
+  description: "A young robotics prodigy forms a bond with his late brother's inflatable healthcare companion and transforms his quirky friends into a team of high-tech heroes.",
+  image: "https://image.tmdb.org/t/p/w500/2mxS4wUimwlLmI1xp6QW6NSU361.jpg",
+  video: "https://mega.nz/embed/3tolXISS#P06UmvJMvUxGokFkAPzVfmGb-DtAzLK8tvGjBD0Jl8A"
+},
+{
+  title: "Strange World",
+  category: "Animation",
+  year: 2022,
+  duration: "1h 42m",
+  description: "A legendary family of explorers navigates an uncharted, treacherous land alongside a motley crew to save a vital energy source powering their home.",
+  image: "https://image.tmdb.org/t/p/w500/a9x70QUXs6uEwtin1SGNKoFXoia.jpg",
+  video: "https://mega.nz/embed/zkpHWBQS#Ilt7r1a_UWAwW6XX15HN6KVM1hY06J67RJGjTtQ3BA8"
+},
+{
+  title: "Wreck-It Ralph",
+  category: "Animation",
+  year: 2012,
+  duration: "1h 41m",
+  description: "A video game villain longs to be a hero and sets out to fulfill his dream, but his quest wreaks havoc on the entire arcade where he lives.",
+  image: "https://image.tmdb.org/t/p/w500/zWoIgZ7mgmPkaZjG0102BSKFIqQ.jpg",
+  video: "https://mega.nz/embed/G4QSUJLb#Cjfx7mV4RLSUwrXWNB6-u6sBtEavYUSPwFXPSGlL37c"
+},
+{
+  title: "Ralph Breaks the Internet",
+  category: "Animation",
+  year: 2018,
+  duration: "1h 52m",
+  description: "Ralph and Vanellope venture into the vast World Wide Web via a newly installed Wi-Fi router to find a replacement part for Sugar Rush.",
+  image: "https://image.tmdb.org/t/p/w500/iVCrhBcpDaHGvv7CLYbK6PuXZo1.jpg",
+  video: "https://mega.nz/embed/nlhXCZZS#tCWOFWvSSzvGIBA1ile6ReryVQmOyHXYUI0u62kH-BI"
+},
 
     ];
 
-  // DOM references
-  const container = document.getElementById('movies');
-  const searchBar = document.getElementById('searchBar');
-  const clearSearch = document.getElementById('clearSearch');
-  const loadingEl = document.getElementById('loading');
-  const noResults = document.getElementById('noResults');
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const modalVideoId = 'modalVideo';
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
 
-  // Modal & playback elements (Hawkeye-style)
-  const playbackModal = document.getElementById('playback-modal');
-  const closePlaybackBtn = document.getElementById('close-playback');
-  const modalPlayer = document.getElementById('modal-player');
-  const progressBarFill = document.getElementById('progress-bar-fill');
-  const loadingSpinner = document.getElementById('loading-spinner');
-  const modalTitle = document.getElementById('modal-title');
-  const modalDescription = document.getElementById('modal-description');
-  const playBtn = document.getElementById('play-btn');
-  const watchlistCheckbox = document.getElementById('watchlist-checkbox');
-  const modalMeta = document.getElementById('modal-meta');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
 
-  // Playback state
-  let currentHls = null;
-  let currentIndex = null;
-  const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const playPauseBtn = document.getElementById('playPauseBtn');
-const muteBtn = document.getElementById('muteBtn');
-const fullscreenBtn = document.getElementById('fullscreenBtn');
-const closeBtn = document.getElementById('closeBtn');
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
 
-
-  // Helper: always return the current <video> element
-  function getModalVideo() {
-    return document.getElementById('modal-video');
-  }
-
-  // Type detection helpers (taken from Hawkeye logic). :contentReference[oaicite:4]{index=4}
-  function isHls(u) {
-    if (!u) return false;
-    return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master.m3u8');
-  }
-  function isMP4(u) {
-    return /\.mp4($|\?)/i.test(u || '');
-  }
-  function isYouTube(u) {
-    return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/')));
-  }
-
-  // Reset player container to a fresh <video> (destroy Hls if present). :contentReference[oaicite:5]{index=5}
-  function resetPlayerContainer() {
-    if (currentHls) {
-      try { currentHls.destroy(); } catch(e) {}
-      currentHls = null;
+    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
+    function isHls(url) {
+      if (!url) return false;
+      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
     }
-    modalPlayer.innerHTML = `
-      <video id="modal-video" class="w-full" controls playsinline>
-        Your browser does not support the video tag.
-      </video>
-    `;
-  }
-
-  // Attach listeners to the video element for progress updates and ended state.
-  function attachVideoListeners() {
-    const videoEl = getModalVideo();
-    if (!videoEl) return;
-    // timeupdate for progress bar
-    videoEl.addEventListener('timeupdate', () => {
-      if (!videoEl.duration) return;
-      const progress = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = progress + '%';
-    });
-    videoEl.addEventListener('ended', () => {
-      playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
-    });
-  }
-
-  // Play / Pause
-playPauseBtn.addEventListener('click', () => {
-  const video = getModalVideo();
-  if (!video) return;
-  if (video.paused) {
-    video.play();
-    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-  } else {
-    video.pause();
-    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-  }
-});
-
-// Previous
-prevBtn.addEventListener('click', () => {
-  if (currentIndex === null || currentIndex === 0) return;
-  const prevMovie = movies[currentIndex - 1];
-  loadingSpinner.classList.remove('hidden');
-  playInModal(prevMovie.title, prevMovie.video, prevMovie, currentIndex - 1);
-});
-
-// Next
-nextBtn.addEventListener('click', () => {
-  if (currentIndex === null || currentIndex >= movies.length - 1) return;
-  const nextMovie = movies[currentIndex + 1];
-  loadingSpinner.classList.remove('hidden');
-  playInModal(nextMovie.title, nextMovie.video, nextMovie, currentIndex + 1);
-});
-
-// Mute / Unmute
-muteBtn.addEventListener('click', () => {
-  const video = getModalVideo();
-  if (!video) return;
-  video.muted = !video.muted;
-  muteBtn.innerHTML = video.muted
-    ? '<i class="fas fa-volume-mute"></i>'
-    : '<i class="fas fa-volume-up"></i>';
-});
-
-// Fullscreen
-fullscreenBtn.addEventListener('click', () => {
-  const player = document.getElementById('modal-player');
-  if (player.requestFullscreen) player.requestFullscreen();
-});
-
-// Close
-closeBtn.addEventListener('click', closeModalHandler);
-
-
-  // Close modal and cleanup (destroy HLS, pause & unload). :contentReference[oaicite:6]{index=6}
-  function closeModalHandler() {
-    const videoEl = getModalVideo();
-    if (currentHls) { try { currentHls.destroy(); } catch(e){} currentHls = null; }
-    if (videoEl) {
-      try { videoEl.pause(); } catch(e){}
-      try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e){}
-    }
-    resetPlayerContainer();
-    playbackModal.classList.remove('active');
-    document.body.style.overflow = '';
-    currentIndex = null;
-    playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
-    progressBarFill.style.width = '0%';
-  }
-
-  // Core playInModal function (supports iframe hosts, YouTube, HLS, MP4; fallback to player.html redirect). :contentReference[oaicite:7]{index=7}
-  function playInModal(title, url, movie = {}, index = null) {
-    currentIndex = index;
-    modalTitle.textContent = movie.title || title || 'Playback';
-    modalDescription.textContent = movie.description || '';
-    modalMeta.textContent = (movie.year ? movie.year + ' • ' : '') + (movie.duration ? movie.duration : '');
-    watchlistCheckbox.checked = !!movie.inWatchlist;
-    progressBarFill.style.width = '0%';
-    resetPlayerContainer();
-
-    if (!url) {
-      modalTitle.textContent = (title || 'Unknown') + ' — No playable URL provided';
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      return;
+    function isYouTube(url) {
+      if (!url) return false;
+      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
     }
 
-    // Hosts that are best embedded as iframe (streamtape, dood, etc.)
-    const iframeHosts = ['streamtape.com','openload.co','vidcdn','dood.', 'sbembed', 'drive.google.com'];
-    if (iframeHosts.some(h => url.includes(h))) {
-      modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      loadingSpinner.classList.add('hidden');
-      return;
-    }
-
-    // YouTube handling
-    if (isYouTube(url)) {
-      let embedUrl = url;
-      try {
-        if (url.includes('watch') && url.includes('v=')) {
-          const vid = new URLSearchParams(url.split('?')[1]).get('v');
-          if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
-        } else if (url.includes('youtu.be/')) {
-          const parts = url.split('youtu.be/');
-          if (parts[1]) {
-            const vid = parts[1].split(/[?&]/)[0];
-            embedUrl = `https://www.youtube.com/embed/${vid}`;
-          }
-        }
-      } catch(e){}
-      modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      loadingSpinner.classList.add('hidden');
-      return;
-    }
-
-    // Use the <video> element for HLS or MP4
-    const videoEl = getModalVideo();
-
-    // HLS
-    if (isHls(url)) {
-      if (Hls.isSupported()) {
-        currentHls = new Hls();
-        currentHls.loadSource(url);
-        currentHls.attachMedia(videoEl);
-        currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-          playbackModal.classList.add('active');
-          document.body.style.overflow = 'hidden';
-          loadingSpinner.classList.add('hidden');
-          videoEl.play().catch(()=>{});
-        });
-      } else {
-        // native support (Safari)
-        videoEl.src = url;
-        playbackModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        loadingSpinner.classList.add('hidden');
-        videoEl.play().catch(()=>{});
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
       }
-      attachVideoListeners();
-      return;
+      if (window.shakaPlayer) {
+        try { window.shakaPlayer.destroy(); } catch(e) {}
+        window.shakaPlayer = null;
+      }
+      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
     }
 
-    // MP4
-    if (isMP4(url)) {
-      videoEl.src = url;
+    function triggerExternalFallback(movie, src) {
+      console.log("Playback failed. Staying in modal player.");
+    }
+
+    function showModal() {
       playbackModal.classList.add('active');
       document.body.style.overflow = 'hidden';
-      loadingSpinner.classList.add('hidden');
-      videoEl.play().catch(()=>{});
-      attachVideoListeners();
-      return;
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
     }
 
-    // Unknown type — redirect to player.html (fallback)
-    loadingSpinner.classList.add('hidden');
-    window.location.href = `player.html?title=${encodeURIComponent(title)}&video=${encodeURIComponent(url)}`;
-  }
+    async function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
+      
+      currentFiltered = list;
+      currentIndex = index;
+      const movie = list[index];
+      if (!movie) return;
 
-  // Play/pause button
-  playBtn.addEventListener('click', () => {
-    const videoEl = getModalVideo();
-    if (!videoEl) return;
-    if (videoEl.paused) {
-      videoEl.play();
-      playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause';
-    } else {
-      videoEl.pause();
-      playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
+      modalTitle.textContent = movie.title || '';
+      modalDesc.textContent = movie.description || (movie.language ? `${movie.language} • Animated Movie` : 'Animated Movie');
+
+      resetPlayerContainer();
+      showModal();
+
+      let src = (typeof movie.video === 'object' && movie.video !== null) ? (movie.video.high || Object.values(movie.video)[0]) : movie.video;
+      if (!src) return;
+
+      const lc = src.toLowerCase();
+
+      // Native Element Error Hook for global fallback handling
+      setTimeout(() => {
+        const vEl = document.getElementById(modalVideoId);
+        if (vEl) {
+          vEl.addEventListener('error', () => triggerExternalFallback(movie, src));
+        }
+      }, 100);
+
+      // Mega.nz or embedded frame links handler logic block
+      if (lc.includes('mega.nz') || lc.includes('waptv.wapka.xyz') || lc.includes('tv4wab.pages.dev') || lc.includes('trend48.st') || lc.includes('24spn-webhost8.blogspot.com') ||
+          lc.includes('livesportz.cfd') || lc.includes('tvwap.pages.dev') || lc.includes('sonucdn-v3.pages.dev') || lc.includes('live4wab.pages.dev') ||
+          lc.includes('joplay.lrl45.workers.dev') || lc.includes('jiogo.pages.dev') || lc.includes('tvgotk.wapka.site') || 
+          lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('livecricketsl.cc.nf')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media" style="background:#000"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      // DASH / MPD Key setup
+      if (typeof movie.video === 'object' && movie.video.mpd) {
+        const v = document.getElementById(modalVideoId);
+        try {
+          window.shakaPlayer = new shaka.Player(v);
+          window.shakaPlayer.addEventListener('error', () => triggerExternalFallback(movie, src));
+          if (movie.video.key) {
+            const [kid, key] = movie.video.key.split(':');
+            window.shakaPlayer.configure({ drm: { clearKeys: { [kid]: key } } });
+          }
+          await window.shakaPlayer.load(movie.video.mpd);
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+          return;
+        } catch (e) { 
+          triggerExternalFallback(movie, src);
+          return;
+        }
+      }
+
+      // YouTube player
+      if (isYouTube(src)) {
+        let embed = src;
+        if (src.includes('watch') && src.includes('v=')) {
+          const v = new URLSearchParams(src.split('?')[1]).get('v');
+          if (v) embed = `https://www.youtube.com/embed/${v}`;
+        }
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
+
+      // HLS Stream Engine Implementation
+      if (isHls(src)) {
+        const v = document.getElementById(modalVideoId);
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls({
+            maxBufferLength: 30,
+            maxMaxBufferLength: 60,
+            liveSyncDurationCount: 3,
+            liveMaxLatencyDurationCount: 6,
+            enableWorker: true,
+            lowLatencyMode: true,
+            abrEwmaDefaultEstimate: 5000000,
+            backBufferLength: 30
+          });
+          currentHls.loadSource(src);
+          currentHls.attachMedia(v);
+          
+          currentHls.on(Hls.Events.ERROR, function (event, data) {
+            if (data.fatal) {
+              switch (data.type) {
+                case Hls.ErrorTypes.NETWORK_ERROR:
+                  currentHls.startLoad();
+                  break;
+                case Hls.ErrorTypes.MEDIA_ERROR:
+                  currentHls.recoverMediaError();
+                  break;
+                default:
+                  triggerExternalFallback(movie, src);
+                  break;
+              }
+            }
+          });
+
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
+            currentHls.startLoad(-1);
+            v.play().catch(() => {});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+          });
+
+          currentHls.on(Hls.Events.FRAG_BUFFERED, () => {
+            if (v.paused) {
+              v.play().catch(() => {});
+            }
+          });
+        } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        } else {
+          triggerExternalFallback(movie, src);
+        }
+        return;
+      }
+
+      // MP4 streams fallback loop 
+      if (isMP4(src)) {
+        const v = document.getElementById(modalVideoId);
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+        return;
+      }
     }
-  });
 
-  // watchlist toggle (simple client-side example)
-  watchlistCheckbox.addEventListener('change', function(){
-    if (currentIndex == null) return;
-    // implement your watchlist logic (e.g., update movies[currentIndex].inWatchlist)
-  });
-
-  // Close modal handlers
-  closePlaybackBtn.addEventListener('click', closeModalHandler);
-  playbackModal.addEventListener('click', (e) => {
-    if (e.target === playbackModal) closeModalHandler();
-  });
-
-  // Utility: create cards when movies list is present (kept from Sony code)
-  function displayMovies(list) {
-    container.innerHTML = '';
-    if (!list || list.length === 0) {
-      noResults.classList.remove('hidden');
-      return;
+    function togglePlayPause() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+      }
     }
-    noResults.classList.add('hidden');
-    list.forEach((movie, idx) => {
-      const div = document.createElement('div');
-      div.className = 'movie-card fade-in';
-      div.innerHTML = `
-        <div class="relative overflow-hidden rounded-xl h-full cursor-pointer">
-          <img src="${movie.image || ''}" alt="${movie.title || 'Untitled'}" class="movie-poster w-full h-80 object-cover rounded-xl" loading="lazy">
-          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2 sm:p-4 pt-6 sm:pt-10">
-            <h3 class="text-sm sm:text-lg font-bold text-white">${movie.title || 'Untitled'}</h3>
-            <div class="flex items-center text-xs sm:text-sm text-gray-300 mt-1">
-              <span class="bg-gray-800 px-2 py-1 rounded mr-2">${movie.year || ''}</span>
-              <span class="bg-gray-800 px-2 py-1 rounded">${movie.category || 'Feature'}</span>
+
+    function playNext() {
+      if (!currentFiltered.length) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+    }
+
+    function playPrev() {
+      if (!currentFiltered.length) currentFiltered = movies.slice();
+      if (currentIndex != null && currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+    }
+
+    function toggleFullscreen() {
+      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
+      else document.exitFullscreen();
+    }
+
+    function toggleMute() {
+      const v = document.getElementById(modalVideoId);
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    function closeModalHandler() {
+      if (currentHls) { currentHls.destroy(); currentHls = null; }
+      const v = document.getElementById(modalVideoId);
+      if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
+      resetPlayerContainer();
+      hideModal();
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+    }
+
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
+    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', (e) => { if (e.target === playbackModal) closeModalHandler(); });
+
+    const container = document.getElementById('movies');
+    
+    // Redesigned Showcase Rendering (keeping player triggering intact)
+    function renderMovies(moviesToRender) {
+      container.innerHTML = '';
+      moviesToRender.forEach((movie, index) => {
+        const delayClass = `delay-${(index % 5) * 100}`;
+        const div = document.createElement('div');
+        div.className = `movie-card animate-fade-in ${delayClass} rounded-2xl overflow-hidden cursor-pointer relative group flex flex-col justify-between`;
+        div.innerHTML = `
+          <div class="relative overflow-hidden w-full">
+            <img src="${movie.image}" alt="${movie.title}" class="w-full movie-poster" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0b0f19] via-transparent to-black/30 opacity-60 group-hover:opacity-90 transition-opacity duration-300"></div>
+            
+            <!-- Badges -->
+            <div class="absolute top-2.5 left-2.5 flex flex-col gap-1">
+              ${movie.year ? `<span class="bg-black/60 backdrop-blur-md text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-md border border-purple-500/30">${movie.year}</span>` : ''}
+            </div>
+            ${movie.duration ? `<span class="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md text-cyan-300 text-[10px] font-medium px-2 py-0.5 rounded-md border border-cyan-500/30">${movie.duration}</span>` : ''}
+
+            <!-- Play Overlay Button -->
+            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100">
+              <span class="bg-gradient-to-tr from-purple-600 to-cyan-500 text-white rounded-full p-4 shadow-xl shadow-purple-900/50 flex items-center justify-center">
+                <i class="fas fa-play text-base translate-x-0.5"></i>
+              </span>
             </div>
           </div>
-          <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-40">
-            <i class="fas fa-play text-4xl text-yellow-400"></i>
+          
+          <div class="p-3.5 bg-slate-900/40 border-t border-white/5 flex flex-col justify-between flex-1">
+            <h3 class="font-bold text-sm sm:text-base truncate text-gray-100 group-hover:text-purple-300 transition-colors">${movie.title}</h3>
+            <p class="text-xs text-gray-400 mt-1 line-clamp-1 font-light">${movie.description || movie.category}</p>
           </div>
-        </div>`;
-      div.addEventListener('click', () => {
-        loadingSpinner.classList.remove('hidden');
-        playInModal(movie.title, movie.video, movie, idx);
+        `;
+        div.addEventListener('click', () => openPlayer(moviesToRender, index));
+        container.appendChild(div);
       });
-      container.appendChild(div);
+    }
+
+    // Load initial movies array
+    renderMovies(movies);
+
+    document.getElementById('searchBar').addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      renderMovies(movies.filter(movie => 
+        movie.title.toLowerCase().includes(searchTerm) || 
+        (movie.description && movie.description.toLowerCase().includes(searchTerm))
+      ));
     });
-  }
 
-  // Simple search and filter placeholders (keep behavior similar)
-  searchBar.addEventListener('input', () => {
-    // simple client filter; because movies array is empty now, this will show no results
-    const q = searchBar.value.trim().toLowerCase();
-    const filtered = movies.filter(m => (m.title||'').toLowerCase().includes(q));
-    displayMovies(filtered);
-  });
-  clearSearch.addEventListener('click', () => { searchBar.value=''; displayMovies(movies); });
+    document.querySelectorAll('.category-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const category = this.dataset.category;
+        renderMovies(category === 'all' ? movies : movies.filter(movie => movie.category === category));
+      });
+    });
+  </script>
 
-  // Initialize page (simulate load)
-  window.addEventListener('DOMContentLoaded', () => {
-    // Hide initial loader and render (with empty movies array you'll see "no results")
-    setTimeout(() => {
-      loadingEl.classList.add('hidden');
-      displayMovies(movies);
-    }, 400);
-  });
+      <!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
 
-  // Expose a small helper for debugging: open playback with a URL
-  // Example usage from console:
-  // playInModal('Test', 'https://path/to/your/playlist.m3u8', {title:'Test',description:'desc',year:'2024',duration:'1:20'});
-  window.playInModal = playInModal;
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+
+<!-- NATIVE BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
+  <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+</div>
+
+<!-- 728x90 BANNER -->
+<div style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+</div>
+
+<!-- SMART LINK -->
+<!-- https://bendspecimen.com/xryvjm9rea?key=b4e26d6e3cb4df0655e816b8991eeae3 -->
+
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+
+
+
+<!-- Disable DevTools + View Source Protection -->
+<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+
+<script>
+/* =========================
+   Mobile Detection
+========================= */
+const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+/* =========================
+   Disable DevTools
+========================= */
+DisableDevtool({
+    disable: true,
+    disableMenu: true,
+    clearLog: true,
+    disableSelect: true,
+    disableCopy: true,
+    disableCut: true,
+    disablePaste: true,
+
+    /* FIXED */
+    disableMobile: false,
+
+    interval: 100,
+
+    ondevtoolopen: function () {
+
+        /* ONLY DESKTOP */
+        if (!isMobile) {
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+    }
+});
+
+/* =========================
+   Block View Source Shortcuts
+========================= */
+document.addEventListener("keydown", function (e) {
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key.toLowerCase() === "u") {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+S
+    if (e.ctrlKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+P
+    if (e.ctrlKey && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+A
+    if (e.ctrlKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+X
+    if (e.ctrlKey && e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        return false;
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* =========================
+   Disable Right Click
+========================= */
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Dragging
+========================= */
+document.addEventListener("dragstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Selection
+========================= */
+document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+});
+
+/* =========================
+   Disable Copy Actions
+========================= */
+["copy", "cut", "paste"].forEach(function(evt) {
+
+    document.addEventListener(evt, function(e) {
+        e.preventDefault();
+    });
+
+});
+
+/* =========================
+   Detect DevTools Window
+   (Desktop ONLY - FIXED)
+========================= */
+if (!isMobile) {
+
+    setInterval(function () {
+
+        const widthThreshold =
+            window.outerWidth - window.innerWidth > 220;
+
+        const heightThreshold =
+            window.outerHeight - window.innerHeight > 220;
+
+        if (widthThreshold || heightThreshold) {
+
+            document.body.innerHTML = "";
+            window.location.replace("about:blank");
+        }
+
+    }, 1500);
+
+}
+
+/* =========================
+   Disable Console
+========================= */
+(function () {
+
+    console.clear();
+
+    function block() {
+        return false;
+    }
+
+    console.log = block;
+    console.warn = block;
+    console.error = block;
+    console.info = block;
+    console.debug = block;
+    console.table = block;
+
+})();
+
+/* =========================
+   Block "view-source:"
+========================= */
+if (window.location.href.startsWith("view-source:")) {
+
+    document.body.innerHTML = "";
+    window.location.replace("about:blank");
+
+}
+
+/* =========================
+   Prevent iframe inspection
+========================= */
+if (window.top !== window.self) {
+
+    try {
+        window.top.location = window.self.location;
+    } catch (e) {}
+
+}
 </script>
- 
 
+<style>
+html, body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+/* Disable image dragging */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+/* Hide selection */
+::selection {
+    background: transparent;
+}
+</style>
+
+      
 </body>
 </html>
