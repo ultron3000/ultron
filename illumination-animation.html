@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <!-- HLS.js (used by the modal player) -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>\n  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
@@ -187,12 +187,26 @@
     </div>
   </header>
 
-  <!-- HERO -->
-  <section class="px-6 mb-8">
-    <div class="container mx-auto">
-      <div class="rounded-lg p-8" style="background:linear-gradient(180deg, rgba(255,209,65,0.04), rgba(255,209,65,0.02));">
-        <h2 class="text-3xl font-bold mb-2">Illumination Collection</h2>
-        <p class="text-gray-400">All your favorite Illumination movies in one place.</p>
+  <!-- ILLUMINATION CINEMATIC SHOWCASE -->
+  <section class="illum-hero" aria-label="Illumination movie showcase">
+    <div class="illum-hero-glow" id="illumHeroGlow"></div>
+    <div class="illum-hero-inner">
+      <button class="illum-hero-art" id="illumHeroPosterButton" aria-label="Play featured movie"><img id="illumHeroPoster" alt="Featured movie poster" fetchpriority="high"></button>
+      <div class="illum-hero-copy">
+        <div class="illum-kicker"><span></span> ILLUMINATION SPOTLIGHT</div>
+        <div class="illum-hero-meta" id="illumHeroMeta">ANIMATION • FAMILY</div>
+        <h2 id="illumHeroTitle">Illumination Collection</h2>
+        <p id="illumHeroDescription">Big laughs, bold adventures and unforgettable characters.</p>
+        <div class="illum-hero-actions">
+          <button class="illum-primary" id="illumHeroPlay"><i class="fas fa-play"></i> Watch movie</button>
+          <button class="illum-secondary" id="illumHeroShuffle"><i class="fas fa-random"></i> Surprise me</button>
+        </div>
+        <div class="illum-hero-nav">
+          <button id="illumHeroPrev" aria-label="Previous movie"><i class="fas fa-chevron-left"></i></button>
+          <span id="illumHeroCount">01 / 29</span>
+          <button id="illumHeroNext" aria-label="Next movie"><i class="fas fa-chevron-right"></i></button>
+          <div class="illum-hero-track"><span id="illumHeroProgress"></span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -288,7 +302,7 @@
   const movies = [
     { 
         title: "Migration", 
-        video: "https://smho.claravonorganics.store:443/v4/ek/ekij1/index-f2-v1-a1.txt", 
+        video: "https://mega.nz/embed/Ev5TwA7D#WaFuHxYj3PDvGN7UvoNPJrbOOXTLtZtLpdpt8AK4kkM", 
         image: "https://image.tmdb.org/t/p/original/dpXxBDi0ut5svjh5fbAqLoaJSq8.jpg",
         year: 2023,
         duration: "92 min",
@@ -299,7 +313,7 @@
       },
       { 
         title: "The Super Mario Bros. Movie", 
-        video: "https://spc.solvonaacademy.sbs:443/v4/onm/u3rrs/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/E2wmlAZT#RwzR6xrGBQ9zJHuTCFLbNA9pBtCQaCYuEg2jzcHL57s", 
         image: "https://m.media-amazon.com/images/I/91zqGNzwk5L._AC_UF894,1000_QL80_.jpg",
         year: 2023,
         duration: "92 min",
@@ -310,7 +324,7 @@
       },
       { 
         title: "The Super Mario Galaxy Movie", 
-        video: "https://mega.nz/embed/LwpAELgS#receiQNb-bAxcX1i7aQi7oDQmYFybRKtAqbNYFh7O00", 
+        video: "https://mega.nz/embed/QnRBnDAQ#iwB3Dpy4ZXo-SFe6TV6S8UtND6ErTqSEKWnQNwCsJnE", 
         image: "https://f.woowoowoowoo.net/resize/250x400/e4/f2/e4f2c2fa0f71108e6ce55e372fec83ac/e4f2c2fa0f71108e6ce55e372fec83ac.jpg",
         year: 2023,
         duration: "98 min",
@@ -387,7 +401,7 @@
       },
       { 
         title: "Minions & Monsters", 
-        video: "https://mega.nz/embed/7gJk0AgY#aqrPP7ykGxpinsdvJEW5xfOR4PtZdz4uDx0_wwc-Syo", 
+        video: "https://mega.nz/embed/s6oVyIqA#ntoJyof-NLFTQCdSpXebR-o6xuq8ES0PCgD4NV_ATno", 
         image: "https://image.tmdb.org/t/p/w500/nz7i42yhLIJ4ve9JKgM6NthoLHO.jpg",
         year: 2026,
         duration: "5 min",
@@ -398,7 +412,7 @@
       },
       { 
         title: "The Secret Life of Pets", 
-        video: "https://sui.xylonatech.sbs:443/v4/s93/kvf6r/index-f2-v1-a1.txt", 
+        video: "https://mega.nz/embed/CshDxIxA#jQZmS3WPedR7-p9DKRkt-lKcX-fqZ_Og40oNKc7clpE", 
         image: "https://m.media-amazon.com/images/I/71rT2uid+NS._AC_UF894,1000_QL80_.jpg",
         year: 2016,
         duration: "87 min",
@@ -409,7 +423,7 @@
       },
       { 
         title: "The Secret Life of Pets 2", 
-        video: "https://sad.eleviora.space:443/v4/3vi/vsneu/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/S5oQXKqY#wLWpASeNbujz3MQjS3mTdXXX0to-EHKyUZE4bPhCGdo", 
         image: "https://image.tmdb.org/t/p/original/q3mKnSkzp1doIsCye6ap4KIUAbu.jpg",
         year: 2019,
         duration: "86 min",
@@ -442,7 +456,7 @@
       },
       { 
         title: "The Lorax", 
-        video: "https://sy6.zenithraevents.store:443/v4/is3/wfa9a/index-f2-v1-a1.txt", 
+        video: "https://mega.nz/embed/axoBHaRD#KOu9cE5a6atZUdkUPvQHPJrSA2ySDHBeafn1N_XXzIQ", 
         image: "https://m.media-amazon.com/images/I/714mtHTit7L.jpg",
         year: 2012,
         duration: "86 min",
@@ -453,7 +467,7 @@
       },
       { 
         title: "The Grinch", 
-        video: "https://svz.meadowtrailinnovation.store:443/v4/x68/1wna9/index-f2-v1-a1.txt", 
+        video: "https://mega.nz/embed/nxp3EKbI#gG2865Kd_1ZCKqlgV0-4YOqzld2f6YHWv5x7eWH-3uE", 
         image: "https://assets-in.bmscdn.com/iedb/movies/images/mobile/thumbnail/xlarge/the-grinch-et00070881-12-02-2018-07-15-24.jpg",
         year: 2018,
         duration: "86 min",
@@ -475,7 +489,7 @@
       },
       { 
         title: "Mower Minions", 
-        video: "https://s6mb.glowfield.space:443/v4/mik/ppuq8/index-f1-v1-a1.txt", 
+        video: "https://mega.nz/embed/WjhgmIhR#79bM2hTd43g2qgusqG8gMf5mUUSSLVbUa0RbESR5GNk", 
         image: "https://image.tmdb.org/t/p/original/fPg5pkhRff7IAVG1lx2vB17ssYR.jpg",
         year: 2016,
         duration: "5 min",
@@ -519,7 +533,7 @@
       },
       { 
         title: "Competition", 
-        video: "https://www.youtube.com/watch?v=PMFHQXxqYOg", 
+        video: "https://mega.nz/embed/R3ph2A7C#E6tQzPF9fQtN5XPyF7RuHOsYDKqSt9T0UTcUTL6uUlk", 
         image: "https://m.media-amazon.com/images/M/MV5BMzY3MzliYjEtNjE0NC00MWJiLThjMzItZTNkMmE3MGJmZWRiXkEyXkFqcGc@._V1_.jpg",
         year: 2011,
         duration: "5 min",
@@ -530,7 +544,7 @@
       },
       { 
         title: "Minions & Monsters", 
-        video: "https://mega.nz/embed/fiZhjZwY#p_cJINzzib875oKXVB4VeMmD1LlL3w2BUemAVBW9KdQ", 
+        video: "https://mega.nz/embed/s6oVyIqA#ntoJyof-NLFTQCdSpXebR-o6xuq8ES0PCgD4NV_ATno", 
         image: "https://m.media-amazon.com/images/M/MV5BZjZkNzgyYTUtNjA1Yy00OTNmLTg5YWEtNmU4ZGM0ZjkwMmZhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
         year: 2021,
         duration: "5 min",
@@ -552,7 +566,7 @@
       },
       { 
         title: "Orientation Day", 
-        video: "https://www.youtube.com/watch?v=UpvAqUiXz5s", 
+        video: "https://mega.nz/embed/kuwhSa6A#lpaEA__iZbDR5tiHUeAEEFnyxzvd50jR0jQJwfXPJnc", 
         image: "https://image.tmdb.org/t/p/original/yp6F4JqWeKMzd3N2fW10Ja3cBJK.jpg",
         year: 2010,
         duration: "5 min",
@@ -563,7 +577,7 @@
       },
       { 
         title: "Puppy", 
-        video: "https://www.youtube.com/watch?v=fjvs7pABLys", 
+        video: "https://mega.nz/embed/AjgXXTSS#f3qtlcB1zLjUHYQTpWnjU9OY0Zr8bNwWLWnZFIaUjV8", 
         image: "https://image.tmdb.org/t/p/original/f62rLpyiebBc6QfSTA4xGwwQkPY.jpg",
         year: 2013,
         duration: "5 min",
@@ -574,7 +588,7 @@
       },
       { 
         title: "Panic in the Mailroom", 
-        video: "https://www.youtube.com/watch?v=qlxk6oLzCTw", 
+        video: "https://mega.nz/embed/wmRRgDLL#x8DCWZzBLg03bvc8OLweWMcW9XxVRL65NisID_qUZ-o", 
         image: "https://image.tmdb.org/t/p/original/ylB6KNFNAkWH06j32EoUXGKOsGe.jpg",
         year: 2013,
         duration: "5 min",
@@ -585,7 +599,7 @@
       },
       { 
         title: "Training Wheels", 
-        video: "https://www.youtube.com/watch?v=D4q9J9tskqw", 
+        video: "https://mega.nz/embed/E3p2GQzD#_oBLdEXAOg9IennWWuEWP4u09rNxs-K6-EKpwO1s9MU", 
         image: "https://image.tmdb.org/t/p/original/rT1L9N1LD2S1OO8qwzSFrphw0Oe.jpg",
         year: 2013,
         duration: "5 min",
@@ -596,7 +610,7 @@
       },
       { 
         title: "Sing: Thriller", 
-        video: "https://svz.cosmavision.shop:443/v4/x68/5u5or/index-f2-v1-a1.txt", 
+        video: "https://mega.nz/embed/4qx2gKyS#uI5v0Qab55qvryc9g3vnfyc9Z62NcE4RX7RbKSimGcE", 
         image: "https://m.media-amazon.com/images/M/MV5BMTRlZTcxMTMtZDBhYS00NjRjLWJmN2YtZjhhYjEzNDA5YTUwXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
         year: 2016,
         duration: "3 min",
@@ -746,200 +760,56 @@
   }
 
   /******************************
-   * Player: reset & cleanup
+   * TV-style player engine, adapted for Illumination
    ******************************/
-  function resetPlayerContainer() {
-    if (currentHls) {
-      try { currentHls.destroy(); } catch(e) {}
-      currentHls = null;
+  let currentShaka = null;
+  function resetPlayerContainer(){
+    if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+    if(currentShaka){try{currentShaka.destroy();}catch(e){}currentShaka=null;}
+    playerWrapper.innerHTML='<video id="modalVideo" controls playsinline webkit-playsinline preload="metadata" style="width:100%;height:100%;background:#000;object-fit:contain"></video>';
+  }
+  function showModal(){playbackModal.classList.add('active');playbackModal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+  function hideModal(){playbackModal.classList.remove('active');playbackModal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  function showError(msg){modalDesc.textContent=msg;console.warn(msg);}
+  function isHls(url){return /\.m3u8?(?:$|[?#])/i.test(url||'')||/index[^/]*\.txt(?:$|[?#])/i.test(url||'')||/manifest/i.test(url||'');}
+  function isMp4(url){return /\.(mp4|m4v|webm|ogv)(?:$|[?#])/i.test(url||'');}
+  function isYouTube(url){return /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(url||'');}
+  function asEmbed(url,title){
+    let target=url;
+    try{const u=new URL(url);let id=u.searchParams.get('v');if(!id&&u.hostname.includes('youtu.be'))id=u.pathname.split('/').filter(Boolean)[0];if(!id&&u.pathname.includes('/embed/'))id=u.pathname.split('/embed/')[1].split('/')[0];if(id)target='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&rel=0&playsinline=1';}catch(e){}
+    const frame=document.createElement('iframe');frame.src=target;frame.title=(title||'Illumination movie')+' player';frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';playerWrapper.replaceChildren(frame);
+  }
+  function openPlayer(list,index){
+    if(!Array.isArray(list)||!list.length||index==null||index<0||index>=list.length)return;
+    currentFiltered=list;currentIndex=index;const movie=list[index];modalTitle.textContent=movie.title||'';modalDesc.textContent=movie.description||movie.title||'';
+    resetPlayerContainer();showModal();
+    let src=movie.video;if(src&&typeof src==='object')src=src.high||src.medium||src.low||src.url||src.mpd||Object.values(src).find(v=>typeof v==='string');
+    if(!src){showError('No video source is listed for this title.');return;}
+    src=String(src).trim();
+    if(isYouTube(src)||/mega\.nz|streamtape|dood|vidcdn|ok\.ru|openload|drive\.google|filemoon|mixdrop|streamwish|voe\.sx|uqload|sbembed/i.test(src)||(!isHls(src)&&!isMp4(src))){
+      asEmbed(src,movie.title);playPauseBtn.innerHTML='<i class="fas fa-play mr-2"></i>Player';return;
     }
-    playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-  }
-
-  function showModal() {
-    playbackModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-  function hideModal() {
-    playbackModal.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  function showError(msg) {
-    console.warn(msg);
-    // Could show a toast UI — omitted to keep layout minimal
-  }
-
-  /******************************
-   * Core: open player (Hawkeye-style behavior)
-   ******************************/
-  function openPlayer(list, index) {
-    if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-      showError('Invalid playback request');
+    const v=document.getElementById(modalVideoId);
+    if(isHls(src)){
+      if(window.Hls&&Hls.isSupported()){
+        currentHls=new Hls({enableWorker:true,maxBufferLength:30,backBufferLength:30});
+        currentHls.on(Hls.Events.ERROR,(ev,data)=>{if(data.fatal){if(data.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(data.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else showError('This HLS stream could not be played.');}});
+        currentHls.loadSource(src);currentHls.attachMedia(v);currentHls.on(Hls.Events.MANIFEST_PARSED,()=>v.play().catch(()=>{}));
+      }else if(v.canPlayType('application/vnd.apple.mpegurl')){v.src=src;v.play().catch(()=>{});}
+      else showError('HLS is not supported in this browser.');
       return;
     }
-    currentFiltered = list;
-    currentIndex = index;
-    const movie = list[index];
-    if (!movie) { showError('Movie missing'); return; }
-
-    // metadata
-    modalTitle.textContent = movie.title || '';
-    modalDesc.textContent = movie.description || (movie.title || '');
-
-    // reset & show
-    resetPlayerContainer();
-    showModal();
-
-    // pick src
-    let src = '';
-    if (typeof movie.video === 'object' && movie.video !== null) {
-      src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
-    } else {
-      src = movie.video;
+    if(movie.video&&typeof movie.video==='object'&&movie.video.mpd&&window.shaka){
+      currentShaka=new shaka.Player(v);currentShaka.load(movie.video.mpd).then(()=>v.play().catch(()=>{})).catch(()=>showError('DASH playback failed.'));return;
     }
-    if (!src) {
-      showError('No video source');
-      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
-      return;
-    }
-
-    const lc = (src || '').toLowerCase();
-
-    // iframe-hosted
-    if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-      playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      return;
-    }
-
-    // youtube
-    if (isYouTube(src)) {
-      let embed = src;
-      try {
-        if (src.includes('watch') && src.includes('v=')) {
-          const v = new URLSearchParams(src.split('?')[1]).get('v');
-          if (v) embed = `https://www.youtube.com/embed/${v}`;
-        } else if (src.includes('youtu.be/')) {
-          const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-          if (p) embed = `https://www.youtube.com/embed/${p}`;
-        }
-      } catch (e) {}
-      playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      return;
-    }
-
-    // HLS
-    if (isHls(src)) {
-      const v = document.getElementById(modalVideoId);
-      if (!v) { showError('Video element missing'); return; }
-      if (window.Hls && Hls.isSupported()) {
-        currentHls = new Hls();
-        try {
-          currentHls.loadSource(src);
-          currentHls.attachMedia(v);
-        } catch (e) { console.warn('HLS attach error', e); }
-        currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        });
-        currentHls.on(Hls.Events.ERROR, function(event, data) {
-          console.warn('HLS error', data);
-          if (data && data.fatal) {
-            try { currentHls.destroy(); } catch(e){}
-            currentHls = null;
-            showError('HLS fatal error — redirecting to player.html');
-            setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-          }
-        });
-      } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-        v.src = src;
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      } else {
-        showError('HLS not supported — redirecting to player.html');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-      }
-      return;
-    }
-
-    // MP4
-    if (isMP4(src)) {
-      const v = document.getElementById(modalVideoId);
-      if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
-      v.src = src;
-      v.play().catch(()=>{});
-      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      return;
-    }
-
-    // fallback
-    window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+    v.src=src;v.play().catch(()=>{});
   }
-
-  /******************************
-   * Controls
-   ******************************/
-  function togglePlayPause() {
-    const v = document.getElementById(modalVideoId);
-    if (!v) return;
-    if (v.paused) {
-      v.play().catch(()=>{});
-      playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-    } else {
-      v.pause();
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-    }
-  }
-  function playNext() {
-    if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-    if (currentIndex == null) return showError('No current video');
-    if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-    else showError('No next video');
-  }
-  function playPrev() {
-    if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-    if (currentIndex == null) return showError('No current video');
-    if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-    else showError('No previous video');
-  }
-  function toggleFullscreen() {
-    const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
-    if (!el) return;
-    if (!document.fullscreenElement) {
-      (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
-    } else {
-      document.exitFullscreen();
-    }
-  }
-  function toggleMute() {
-    const v = document.getElementById(modalVideoId);
-    if (!v) return;
-    v.muted = !v.muted;
-    muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-  }
-
-  /******************************
-   * Close modal & cleanup
-   ******************************/
-  function closeModalHandler() {
-    if (currentHls) {
-      try { currentHls.destroy(); } catch(e) {}
-      currentHls = null;
-    }
-    const v = document.getElementById(modalVideoId);
-    if (v) {
-      try { v.pause(); } catch(e){}
-      try { v.removeAttribute('src'); v.load(); } catch(e){}
-    }
-    resetPlayerContainer();
-    hideModal();
-    currentIndex = null;
-    currentFiltered = [];
-    playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-  }
-
+  function togglePlayPause(){const v=playerWrapper.querySelector('video');if(v){if(v.paused)v.play().catch(()=>{});else v.pause();}}
+  function playNext(){if(currentFiltered.length)openPlayer(currentFiltered,(currentIndex+1)%currentFiltered.length);}
+  function playPrev(){if(currentFiltered.length)openPlayer(currentFiltered,(currentIndex-1+currentFiltered.length)%currentFiltered.length);}
+  function toggleFullscreen(){const el=playerWrapper.querySelector('video,iframe')||playerWrapper;if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});}
+  function toggleMute(){const v=playerWrapper.querySelector('video');if(!v)return;v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fas fa-volume-mute"></i>':'<i class="fas fa-volume-up"></i>';}
+  function closeModalHandler(){if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}if(currentShaka){try{currentShaka.destroy();}catch(e){}currentShaka=null;}const v=playerWrapper.querySelector('video');if(v){v.pause();v.removeAttribute('src');v.load();}playerWrapper.querySelectorAll('iframe').forEach(f=>f.src='about:blank');resetPlayerContainer();hideModal();currentIndex=null;currentFiltered=[];playPauseBtn.innerHTML='<i class="fas fa-play mr-2"></i>Play';}
   /******************************
    * Events wiring
    ******************************/
@@ -1000,6 +870,27 @@
   document.addEventListener('pause', (e) => {
     if (e.target && e.target.id === modalVideoId) playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
   }, true);
+
+  // Hero starts with a shuffled poster and rotates every five seconds.
+  let illumHeroList=[],illumHeroIndex=0,illumHeroTimer=null;
+  const ih={poster:document.getElementById('illumHeroPoster'),glow:document.getElementById('illumHeroGlow'),title:document.getElementById('illumHeroTitle'),desc:document.getElementById('illumHeroDescription'),meta:document.getElementById('illumHeroMeta'),count:document.getElementById('illumHeroCount'),progress:document.getElementById('illumHeroProgress')};
+  function illumShuffle(items){const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function illumShow(index){if(!illumHeroList.length)return;illumHeroIndex=(index+illumHeroList.length)%illumHeroList.length;const m=illumHeroList[illumHeroIndex];ih.poster.src=m.image||'';ih.poster.alt=(m.title||'Movie')+' poster';ih.glow.style.backgroundImage=m.image?'url("'+m.image.replace(/"/g,'%22')+'")':'none';ih.title.textContent=m.title||'Illumination';ih.desc.textContent=m.description||'A big-hearted adventure from Illumination.';ih.meta.textContent=[m.year,m.genre||m.category,m.duration].filter(Boolean).join(' • ');ih.count.textContent=String(illumHeroIndex+1).padStart(2,'0')+' / '+String(illumHeroList.length).padStart(2,'0');ih.progress.style.transition='none';ih.progress.style.width='0';requestAnimationFrame(()=>{ih.progress.style.transition='width 5s linear';ih.progress.style.width='100%';});}
+  function illumResetTimer(){clearInterval(illumHeroTimer);if(!document.hidden)illumHeroTimer=setInterval(()=>illumShow(illumHeroIndex+1),5000);}
+  function illumShuffleHero(){illumHeroList=illumShuffle(movies.filter(m=>m&&m.image));if(!illumHeroList.length)illumHeroList=illumShuffle(movies);illumShow(0);illumResetTimer();}
+  document.getElementById('illumHeroPrev').addEventListener('click',()=>{illumShow(illumHeroIndex-1);illumResetTimer();});
+  document.getElementById('illumHeroNext').addEventListener('click',()=>{illumShow(illumHeroIndex+1);illumResetTimer();});
+  document.getElementById('illumHeroShuffle').addEventListener('click',illumShuffleHero);
+  const playHero=()=>{const m=illumHeroList[illumHeroIndex];if(m)openPlayer(movies,movies.indexOf(m));};
+  document.getElementById('illumHeroPlay').addEventListener('click',playHero);
+  document.getElementById('illumHeroPosterButton').addEventListener('click',playHero);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(illumHeroTimer);illumHeroTimer=null;}else illumResetTimer();});
+
+  // Theme and grid controls.
+  const themeToggle=document.getElementById('themeToggle'),gridResize=document.getElementById('gridResize');
+  let gridMode=0;const gridModes=['grid-standard','grid-compact','grid-large'];
+  themeToggle.addEventListener('click',()=>{document.body.classList.toggle('light-mode');themeToggle.innerHTML=document.body.classList.contains('light-mode')?'<i class="fas fa-moon"></i>':'<i class="fas fa-sun"></i>';});
+  gridResize.addEventListener('click',()=>{moviesGrid.classList.remove(...gridModes);gridMode=(gridMode+1)%gridModes.length;moviesGrid.classList.add(gridModes[gridMode]);gridResize.title=['Standard grid','Compact grid','Large grid'][gridMode];});
 
   /******************************
    * Initial render
@@ -1331,6 +1222,67 @@ img {
 ::selection {
     background: transparent;
 }
+
+/* Illumination: playful midnight navy, minion yellow and electric blue */
+:root{--bg-1:#070b16;--bg-2:#111a2b;--yellow:#ffd43b;--muted:#aab5c8;--illum-accent:#79d7ff}
+body{background:radial-gradient(ellipse at 12% 0%,#263451 0%,transparent 42%),linear-gradient(160deg,var(--bg-1),var(--bg-2));transition:background .25s,color .25s}
+header{position:relative;z-index:5;background:#080e1dcc;backdrop-filter:blur(16px);border-bottom:1px solid #ffffff12}
+.tool-btn{width:40px;height:40px;border-radius:12px;border:1px solid #ffffff26;background:#ffffff0b;color:var(--yellow);display:grid;place-items:center;cursor:pointer}
+.tool-btn:hover{background:#ffd43b1a;transform:translateY(-1px)}
+.illum-hero{position:relative;isolation:isolate;overflow:hidden;margin:0 0 24px;background:#081225;border-bottom:1px solid #ffffff14}
+.illum-hero-glow{position:absolute;inset:-35%;z-index:-2;background-position:center;background-size:cover;filter:blur(48px) saturate(1.35);opacity:.25;transform:scale(1.15);transition:background-image .5s}
+.illum-hero:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#07101cf5 0%,#0a1628ed 53%,#0b1424d9 100%)}
+.illum-hero-inner{max-width:1380px;min-height:clamp(330px,37vw,470px);margin:auto;padding:clamp(22px,3vw,42px) clamp(18px,4vw,54px);display:grid;grid-template-columns:minmax(190px,.68fr) minmax(0,1.32fr);align-items:center;gap:clamp(22px,4vw,58px)}
+.illum-hero-art{width:clamp(180px,21vw,275px);aspect-ratio:2/2.85;justify-self:center;overflow:hidden;border:1px solid #ffffff3a;border-radius:18px;background:#111a2b;padding:0;box-shadow:0 24px 70px #000a,0 0 0 7px #ffffff08;transform:perspective(1000px) rotateY(5deg);transition:transform .35s,box-shadow .35s;cursor:pointer}
+.illum-hero-art:hover{transform:perspective(1000px) rotateY(0) translateY(-5px);box-shadow:0 30px 80px #000c,0 0 35px #ffd43b35}
+.illum-hero-art img{display:block;width:100%;height:100%;object-fit:cover}
+.illum-hero-copy{max-width:760px;min-width:0}
+.illum-kicker{display:flex;align-items:center;gap:9px;color:var(--yellow);font-size:10px;font-weight:800;letter-spacing:.2em}
+.illum-kicker span{width:22px;height:3px;border-radius:4px;background:var(--yellow)}
+.illum-hero-meta{margin-top:16px;color:#a9c8dd;font-size:11px;letter-spacing:.14em;font-weight:700}
+#illumHeroTitle{font-size:clamp(32px,4.7vw,64px);line-height:1.02;font-weight:800;letter-spacing:-.035em;margin:10px 0 13px;color:#fff}
+#illumHeroDescription{max-width:650px;color:#c4d0df;font-size:clamp(13px,1.2vw,16px);line-height:1.7;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.illum-hero-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:21px}
+.illum-primary,.illum-secondary{border-radius:11px;padding:12px 17px;font-weight:700;display:inline-flex;align-items:center;gap:9px;cursor:pointer;min-height:44px}
+.illum-primary{background:var(--yellow);color:#101522;box-shadow:0 8px 25px #ffd43b25}.illum-secondary{background:#ffffff10;color:#fff;border:1px solid #ffffff2b}
+.illum-hero-nav{display:flex;align-items:center;gap:12px;margin-top:20px;color:#b9c7d7;font-size:11px}
+.illum-hero-nav button{width:32px;height:32px;border-radius:50%;border:1px solid #ffffff35;color:#fff;background:#ffffff0d}
+.illum-hero-track{width:110px;height:3px;background:#ffffff26;border-radius:5px;overflow:hidden}.illum-hero-track span{display:block;width:0;height:100%;background:var(--yellow)}
+#moviesGrid.grid-compact{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:14px!important}
+#moviesGrid.grid-standard{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#moviesGrid.grid-large{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:22px!important}
+.modal-card{width:min(1160px,95vw);max-height:94dvh;overflow:auto;border:1px solid #ffffff1a;border-radius:18px;background:#0b1424}
+.player-wrapper{aspect-ratio:16/9;height:auto;padding:0;max-height:calc(94dvh - 150px);overflow:hidden}
+.player-wrapper video,.player-wrapper iframe{object-fit:contain;background:#000}
+.player-meta{align-items:center;flex-wrap:wrap;background:#0b1424}
+.controls-row{flex-wrap:wrap;justify-content:flex-end}
+.controls-row .btn{min-height:42px;touch-action:manipulation}
+body.light-mode{--bg-1:#f3f6fb;--bg-2:#e8eef7;color:#172033;background:linear-gradient(160deg,#f5f7fb,#e5edf7)}
+body.light-mode header{background:#f8fbffe8;border-color:#17203318}
+body.light-mode .movie-card{background:#fff;box-shadow:0 8px 24px #17203312}
+body.light-mode .movie-card strong,body.light-mode h3{color:#172033}
+body.light-mode .illum-hero{background:#e5edf7}
+@media(max-width:760px){
+ .illum-hero-inner{min-height:0;grid-template-columns:1fr;gap:16px;padding:20px 17px 24px}
+ .illum-hero-art{width:clamp(132px,40vw,180px);justify-self:start;transform:none;border-radius:13px}
+ .illum-hero-art:hover{transform:none}
+ #illumHeroTitle{font-size:clamp(29px,8vw,42px)}
+ #illumHeroDescription{-webkit-line-clamp:3;font-size:13px}
+ .illum-hero-meta{margin-top:10px}
+ .illum-hero-actions{margin-top:14px}
+ #moviesGrid.grid-compact{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #moviesGrid.grid-standard{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #moviesGrid.grid-large{grid-template-columns:repeat(1,minmax(0,1fr))!important}
+ .modal-backdrop{padding:8px}
+ .modal-card{width:100%;max-height:calc(100dvh - 16px);border-radius:13px}
+ .player-wrapper{aspect-ratio:16/9;max-height:none}
+ .player-meta{flex-direction:column;align-items:stretch;padding:12px}
+ .player-meta .meta-left{max-width:100%}
+ .controls-row{justify-content:center;gap:7px}
+ .controls-row .btn{min-width:42px;min-height:42px;padding:8px}
+}
+@media(prefers-reduced-motion:reduce){.movie-card,.illum-hero-art{transition:none!important}}
+
 </style>
 
 
