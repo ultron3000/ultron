@@ -236,7 +236,7 @@
   <div class="stage-content">
     <div class="pixar-brand-lockup">
       <div class="desk-lamp" aria-hidden="true"><span class="lamp-shade"></span><span class="lamp-arm"></span><span class="lamp-joint"></span><span class="lamp-base"></span><span class="lamp-light"></span></div>
-      <div class="pixar-logo-lockup"><img class="pixar-official-logo" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Pixar_logo.svg" alt="Pixar Animation Studios" decoding="async"><span class="pixar-universe-tag">UNIVERSE</span><div class="pixar-brand-caption">A little wonder goes a long way</div></div>
+      <div class="pixar-logo-lockup"><span class="pixar-wordmark" aria-label="Pixar">PIXAR</span><span class="pixar-universe-tag">UNIVERSE</span><div class="pixar-brand-caption">A little wonder goes a long way</div></div>
     </div>
   </div>
   <div class="pixar-feature-showcase" aria-live="polite">
@@ -333,6 +333,7 @@
       </div>
     </div>
 
+    <div class="modal-footer"><button id="close-video-modal-bottom" type="button" class="modal-close-bottom"><i class="fas fa-times"></i><span>Close player</span></button></div>
     <div id="playerError" class="hidden">Playback error</div>
   </div>
 </div>
@@ -404,6 +405,7 @@ const noResults = document.getElementById('noResults');
 const videoModal = document.getElementById('video-modal');
 const modalPlayer = document.getElementById('modal-player');
 const closeModalBtn = document.getElementById('close-video-modal');
+const closeModalBottomBtn = document.getElementById('close-video-modal-bottom');
 const modalTitle = document.getElementById('modal-title');
 const modalMeta = document.getElementById('modal-meta');
 const playPauseBtn = document.getElementById('playPauseBtn');
@@ -555,6 +557,7 @@ function handleMovieClick(movie){
 
 /* Event listeners */
 closeModalBtn.addEventListener('click', closeVideoModal);
+closeModalBottomBtn.addEventListener('click', closeVideoModal);
 videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoModal(); });
 
 playPauseBtn.addEventListener('click', () => {
@@ -681,7 +684,7 @@ function initPixarStage(){
       const name=document.createElement('strong');name.textContent=item.title;
       const metaLine=document.createElement('small');metaLine.textContent=(item.year||'')+' · '+(item.category==='short'?'Short':item.category==='sequel'?'Sequel':'Feature');
       button.append(img,name,metaLine);
-      button.addEventListener('click',()=>{if(dragged)return;setFeatured(item);clearInterval(timer);timer=startRotation();});
+      button.addEventListener('click',()=>{if(dragged)return;setFeatured(item);clearInterval(timer);timer=startRotation();handleMovieClick(item);});
       track.appendChild(button);
     });
     count.textContent=shuffled.length+' movies · shuffled';
@@ -696,19 +699,34 @@ function initPixarStage(){
   document.getElementById('heroCarouselPrev').addEventListener('click',()=>track.scrollBy({left:-track.clientWidth*.8,behavior:'smooth'}));
   document.getElementById('heroCarouselNext').addEventListener('click',()=>track.scrollBy({left:track.clientWidth*.8,behavior:'smooth'}));
   document.getElementById('heroShuffle').addEventListener('click',()=>{shuffled=shufflePixar(movies);renderCarousel();});
-  // Native horizontal touch scroll + pointer-captured mouse dragging on desktop.
-  let pointerDown=false,startX=0,startScroll=0,moved=0;
+  // Desktop drag begins only after a real movement; clicks on movie cards remain clickable.
+  let pointerDown=false,startX=0,startScroll=0,moved=0,suppressClick=false;
   track.addEventListener('pointerdown',e=>{
-    if(e.pointerType==='touch')return;
+    if(e.pointerType!=='mouse' || e.button!==0)return;
     pointerDown=true;dragged=false;moved=0;startX=e.clientX;startScroll=track.scrollLeft;
-    track.classList.add('is-dragging');track.setPointerCapture(e.pointerId);
+    track.classList.add('is-dragging');
   });
   track.addEventListener('pointermove',e=>{
-    if(!pointerDown)return;const dx=e.clientX-startX;moved=Math.max(moved,Math.abs(dx));
-    if(moved>5){dragged=true;track.scrollLeft=startScroll-dx;}
+    if(!pointerDown)return;
+    const dx=e.clientX-startX;
+    moved=Math.max(moved,Math.abs(dx));
+    if(moved>6){dragged=true;track.scrollLeft=startScroll-dx;}
   });
-  const stopDrag=e=>{if(!pointerDown)return;pointerDown=false;track.classList.remove('is-dragging');try{track.releasePointerCapture(e.pointerId);}catch(_){}if(dragged)setTimeout(()=>{dragged=false;},80);};
-  track.addEventListener('pointerup',stopDrag);track.addEventListener('pointercancel',stopDrag);track.addEventListener('lostpointercapture',()=>{pointerDown=false;track.classList.remove('is-dragging');});
+  const stopDrag=()=>{
+    if(!pointerDown)return;
+    pointerDown=false;track.classList.remove('is-dragging');
+    if(dragged){
+      suppressClick=true;
+      setTimeout(()=>{suppressClick=false;dragged=false;},180);
+    }
+  };
+  track.addEventListener('pointerup',stopDrag);
+  track.addEventListener('pointercancel',stopDrag);
+  window.addEventListener('pointerup',stopDrag);
+  track.addEventListener('click',e=>{
+    if(!suppressClick)return;
+    e.preventDefault();e.stopPropagation();suppressClick=false;
+  },true);
   track.addEventListener('dragstart',e=>e.preventDefault());
   const stage=document.querySelector('.pixar-stage');
   stage.addEventListener('mouseenter',()=>clearInterval(timer));
@@ -1231,6 +1249,16 @@ body.pixar-light .pixar-carousel-wrap{background:rgba(24,33,62,.78)}
  .feature-meta{font-size:9px;gap:5px;margin-bottom:6px;flex-wrap:wrap}
  .feature-meta span{padding:3px 6px}
  .pixar-feature-copy p{font-size:10px;line-height:1.45;min-height:0;margin-bottom:9px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* Clean Pixar-inspired typography; avoid a remote logo asset that may render incorrectly. */
+.pixar-wordmark{display:inline-block;color:#fff;font-size:clamp(28px,4vw,43px);font-weight:900;letter-spacing:.11em;line-height:1;text-shadow:0 3px 0 rgba(0,0,0,.25),0 0 22px rgba(255,227,156,.16)}
+.pixar-brand-caption{color:rgba(255,255,255,.62)}
+.modal-footer{display:flex;justify-content:flex-end;padding:0 20px 18px;background:rgba(29,43,82,.95)}
+.modal-close-bottom{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:0 18px;border:1px solid rgba(255,227,156,.36);border-radius:999px;background:linear-gradient(120deg,#ffe39c,#ffb86d);color:#1a2343;font-size:12px;font-weight:800;cursor:pointer;touch-action:manipulation}
+.modal-close-bottom:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.pixar-carousel-track.is-dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}
+.pixar-carousel-track.is-dragging *{pointer-events:auto}
+@media(max-width:768px){.modal-footer{padding:0 14px 14px}.modal-close-bottom{width:100%}}
+
  .feature-watch{min-height:36px;padding:0 13px;font-size:10px}
  .feature-progress{margin-top:10px;font-size:8px}
  .feature-progress>div{max-width:65px}
