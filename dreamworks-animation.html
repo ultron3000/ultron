@@ -250,6 +250,16 @@ body[data-grid="large"] .dw-movie-grid{grid-template-columns:repeat(auto-fill,mi
 }
 @media(prefers-reduced-motion:reduce){.dw-feature-art img,.dw-hero-backdrop,.dw-hero-item img{transition:none!important}}
 </style>
+
+<style id="dw-performance-polish">
+/* Keep the full catalogue responsive while scrolling */
+.dw-movie-card{box-shadow:0 4px 12px rgba(0,0,0,.14)!important;transition:transform .12s ease,border-color .12s ease!important;}
+.dw-movie-card:hover{transform:translateY(-2px)!important;box-shadow:0 6px 14px rgba(0,0,0,.18)!important;}
+.dw-poster,.dw-movie-card:hover .dw-poster{transition:none!important;transform:none!important;}
+.dw-carousel-track{overscroll-behavior-x:contain;scrollbar-width:thin;}
+@media(max-width:640px){.dw-page-header .flex{gap:8px;flex-wrap:wrap}.dw-page-header .dw-header-logo{width:118px!important;height:87px!important;margin:0 6px 0 0}.dw-page-header h1{font-size:clamp(22px,6vw,30px)!important}}
+@media(prefers-reduced-motion:reduce){.dw-movie-card,.dw-poster,.dw-hero-backdrop{transition:none!important}}
+</style>
 </head>
 <body>
 
@@ -545,7 +555,7 @@ function renderMovies(list){
  const generation=++renderGeneration;container.replaceChildren();
  const count=document.getElementById('dw-result-count');if(count)count.textContent=list.length+(list.length===1?' title':' titles');
  if(!list.length){const empty=document.createElement('div');empty.className='dw-empty-state';empty.innerHTML='<i class="fas fa-magnifying-glass"></i><strong>No adventures found</strong><span>Try another title or collection.</span>';container.appendChild(empty);return;}
- currentFiltered=list;let cursor=0;const batchSize=18;
+ currentFiltered=list;let cursor=0;const batchSize=12;
  function appendBatch(){
   if(generation!==renderGeneration)return;const fragment=document.createDocumentFragment(),stop=Math.min(cursor+batchSize,list.length);
   for(;cursor<stop;cursor++){
@@ -637,7 +647,7 @@ function dwSetFeatured(movie,reset=true){
 }
 function dwRenderCarousel(){
  dwCarouselTrack.replaceChildren();
- dwFeaturedList.forEach(movie=>{
+ dwFeaturedList.slice(0,20).forEach(movie=>{
   const btn=document.createElement('button');btn.type='button';btn.className='dw-hero-item';btn.dataset.title=movie.title;btn.draggable=false;
   const img=document.createElement('img');img.src=movie.image||'';img.alt='';img.loading='lazy';img.decoding='async';img.draggable=false;
   const name=document.createElement('strong');name.textContent=movie.title;
@@ -646,7 +656,7 @@ function dwRenderCarousel(){
   btn.addEventListener('click',()=>{dwSetFeatured(movie);dwResetTimer();playInModal(movies,movies.indexOf(movie));});
   dwCarouselTrack.appendChild(btn);
  });
- const count=document.getElementById('dwCarouselCount');if(count)count.textContent=dwFeaturedList.length+' stories · shuffled';
+ const count=document.getElementById('dwCarouselCount');if(count)count.textContent=Math.min(20,dwFeaturedList.length)+' of '+dwFeaturedList.length+' stories · shuffled';
 }
 function dwNextFeatured(direction=1){
  if(!dwFeaturedList.length)return;
