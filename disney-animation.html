@@ -214,6 +214,35 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
 .disney-landing-showcase .disney-spotlight-card strong,.disney-landing-showcase .disney-spotlight-card span{display:block;margin:9px 11px 0}
 @media(max-width:760px){.disney-hero-inner{grid-template-columns:1fr;gap:24px;padding:38px 20px}.disney-hero-copy{order:1}.disney-hero-poster-wrap{order:0;width:min(48vw,210px);justify-self:start}.disney-hero{min-height:0}.disney-hero-eyebrow{margin-top:12px}#disney-hero-title{font-size:clamp(36px,10vw,54px)}.disney-landing-showcase{padding:24px 14px!important}}
 @media(prefers-reduced-motion:reduce){.disney-hero-poster-wrap{transition:none}}
+</style><style id="disney-desktop-player-fit">
+/* Keep the TV-style player comfortably inside desktop viewports. */
+#playback-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:clamp(12px,2.4vh,28px);overflow-y:auto;box-sizing:border-box}
+#playback-modal.active{display:flex}
+#playback-modal>.disney-player-card{position:relative;width:min(1120px,96vw);max-width:1120px;max-height:94dvh;height:auto;margin:auto;overflow:hidden;display:flex;flex-direction:column;border-radius:18px}
+#playback-modal .player-wrapper{position:relative;flex:0 1 auto;width:100%;height:auto;aspect-ratio:16/9;min-height:0;max-height:calc(94dvh - 150px);background:#000;overflow:hidden}
+#playback-modal .player-wrapper video,#playback-modal .player-wrapper iframe{position:absolute;inset:0;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;background:#000;border:0}
+#playback-modal .player-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;flex:0 0 auto;min-width:0;padding:14px 18px;background:#09152d;color:#fff}
+#playback-modal .meta-left{flex:1 1 220px;min-width:0;max-width:42%}
+#playback-modal .controls-row{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 1 auto;flex-wrap:wrap}
+#playback-modal .controls-row .btn{min-height:40px;padding:9px 12px;white-space:nowrap}
+#playback-modal .disney-player-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto;padding:0 18px 13px;background:#09152d}
+#playback-modal #topCloseBtn{position:absolute;z-index:5;top:12px;right:12px;width:40px;height:40px;border:1px solid #ffffff55;border-radius:50%;background:#050914c9;color:#fff}
+@media(min-width:761px) and (max-height:720px){
+ #playback-modal>.disney-player-card{width:min(1000px,94vw);max-height:96dvh}
+ #playback-modal .player-wrapper{max-height:calc(96dvh - 125px)}
+ #playback-modal .player-meta{padding:9px 14px}
+ #playback-modal .disney-player-actions{padding-bottom:8px}
+}
+@media(max-width:760px){
+ #playback-modal{padding:8px;align-items:center}
+ #playback-modal>.disney-player-card{width:100%;max-width:100%;max-height:calc(100dvh - 16px);border-radius:13px;overflow-y:auto}
+ #playback-modal .player-wrapper{flex:0 0 auto;aspect-ratio:16/9;max-height:none}
+ #playback-modal .player-meta{align-items:stretch;flex-direction:column;gap:10px;padding:12px}
+ #playback-modal .meta-left{max-width:100%;flex-basis:auto}
+ #playback-modal .controls-row{justify-content:space-between;gap:6px}
+ #playback-modal .controls-row .btn{flex:1 1 auto;min-width:40px;padding:9px 8px}
+ #playback-modal .disney-player-actions{padding:0 12px 12px}
+}
 </style></head>
 <body>
 
@@ -248,10 +277,7 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
         <button id="disney-hero-poster-wrap" class="disney-hero-poster-wrap" type="button" aria-label="Play featured Disney movie"><img id="disney-hero-poster" alt="" loading="eager" fetchpriority="high"><span class="disney-hero-poster-play"><i class="fas fa-play"></i></span></button>
       </div>
     </section>
-    <section id="disney-spotlight" class="disney-shelf-section disney-landing-showcase">
-      <div class="disney-section-heading"><div><span class="disney-section-kicker">A LITTLE MORE MAGIC</span><h2>Spotlight collection <span>✦</span></h2><p class="disney-section-note">A changing selection of animated favourites.</p></div><span class="disney-section-note">Swipe or drag to explore</span></div>
-      <div class="relative"><div class="scroll-container disney-spotlight-row overflow-x-auto pb-4 flex space-x-6" id="featured-row" aria-label="Disney movie showcase"></div></div>
-    </section>
+
   </div>
 
   <main class="container mx-auto px-4 pb-16 disney-main">
@@ -1052,40 +1078,26 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
     if(!movie)return;
     if(disneyHeroTitle)disneyHeroTitle.textContent=movie.title||"Disney Animation";
     if(disneyHeroDescription)disneyHeroDescription.textContent=movie.description||movie.genre||"A timeless animated adventure from Disney.";
-    if(disneyHeroPoster){disneyHeroPoster.src=movie.image||"";disneyHeroPoster.alt=(movie.title||"Disney movie")+" poster";}
+    if(disneyHeroPoster){if(movie.image){disneyHeroPoster.src=movie.image;disneyHeroPoster.style.visibility="visible";}else{disneyHeroPoster.removeAttribute("src");disneyHeroPoster.style.visibility="hidden";}disneyHeroPoster.alt=(movie.title||"Disney movie")+" poster";}
     if(disneyHeroWash)disneyHeroWash.style.backgroundImage=movie.image?'url("'+String(movie.image).replace(/"/g,'%22')+'")':"none";
     if(disneyHeroMeta)disneyHeroMeta.textContent=[movie.year,movie.genre,movie.duration].filter(Boolean).join("  ·  ");
     if(disneyHeroCount)disneyHeroCount.textContent=String(disneyHeroIndex+1).padStart(2,"0")+" / "+String(disneyHeroOrder.length).padStart(2,"0");
   }
   function disneyShuffleHero() {
-    disneyHeroOrder=disneyShuffle(movies.filter(m=>m&&m.image));
-    if(!disneyHeroOrder.length) disneyHeroOrder=disneyShuffle(movies);
-    disneyHeroIndex=0;disneySetHero(disneyHeroOrder[0]);disneyRenderSpotlight();disneyResetHeroTimer();
+    disneyHeroOrder=disneyShuffle(movies.filter(Boolean));
+    disneyHeroIndex=0;disneySetHero(disneyHeroOrder[0]);disneyResetHeroTimer();
   }
   function disneyMoveHero(step) {
     if(!disneyHeroOrder.length) return;
     const move=((step%disneyHeroOrder.length)+disneyHeroOrder.length)%disneyHeroOrder.length;
     disneyHeroOrder=disneyHeroOrder.slice(move).concat(disneyHeroOrder.slice(0,move));
     disneyHeroIndex=(disneyHeroIndex+move)%disneyHeroOrder.length;
-    disneySetHero(disneyHeroOrder[disneyHeroIndex]);disneyRenderSpotlight();disneyResetHeroTimer();
+    disneySetHero(disneyHeroOrder[disneyHeroIndex]);disneyResetHeroTimer();
   }
   function disneyResetHeroTimer() {
     clearInterval(disneyHeroTimer);
     if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches && !document.hidden)
       disneyHeroTimer=setInterval(()=>disneyMoveHero(1),5000);
-  }
-  function disneyRenderSpotlight() {
-    const row=document.getElementById("featured-row");if(!row)return;
-    const picks=disneyHeroOrder.length?disneyHeroOrder.slice(0,10):disneyShuffle(movies).slice(0,10);
-    row.innerHTML="";
-    picks.forEach(movie=>{
-      const card=document.createElement("button");card.type="button";card.className="disney-spotlight-card text-left";
-      card.innerHTML='<img loading="lazy" decoding="async" src="'+(movie.image||"")+'" alt=""><strong></strong><span></span>';
-      card.querySelector("strong").textContent=movie.title||"Untitled";
-      card.querySelector("span").textContent=(movie.year||"")+(movie.duration?" · "+movie.duration:"");
-      card.addEventListener("click",()=>handleCardClick(movie));
-      row.appendChild(card);
-    });
   }
   function disneyApplyFilters() {
     const q=disneyQuery.trim().toLowerCase();
@@ -1132,13 +1144,9 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
     let startX=0;
     const hero=document.getElementById("disney-hero");
     if(hero){hero.addEventListener("touchstart",e=>{startX=e.changedTouches[0].clientX;},{passive:true});hero.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-startX;if(Math.abs(dx)>55)disneyMoveHero(dx<0?1:-1);},{passive:true});}
-    // Native horizontal scrolling is smoother than a custom pointer-drag loop.
-    const shelf=document.getElementById("featured-row");
-    if(shelf)shelf.style.touchAction="pan-x pan-y";
   }
 
   // --- DOM refs (matching your markup)
-  const featuredRow = document.getElementById('featured-row');
   const mainGrid = document.getElementById('main-grid');
   // TV.html player architecture adapted to Disney's catalogue.
   const playbackModal=document.getElementById('playback-modal');
