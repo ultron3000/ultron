@@ -364,13 +364,7 @@ body{overflow-x:hidden;background-color:#0c0908;background-image:radial-gradient
           </div>
         `;
 
-        card.onclick = () => {
-          if (isYT) {
-            window.open(item.video, '_blank', 'noopener,noreferrer');
-          } else {
-            openPlayer(list, index);
-          }
-        };
+        card.onclick = () => openPlayer(list, index);
 
         targetElement.appendChild(card);
       });
@@ -438,7 +432,7 @@ body{overflow-x:hidden;background-color:#0c0908;background-image:radial-gradient
     function playEpisode(index) {
       if(!ytPlayer||!activePlaylist[index])return;
       activeEpisodeIndex=index;
-      ytPlayer.loadVideoById({videoId:activePlaylist[index],suggestedQuality:'large'});
+      ytPlayer.playVideoAt(index);
       renderEpisodes();
     }
     function onYouTubeIframeAPIReady() {}
