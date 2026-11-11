@@ -174,9 +174,7 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <button id="themeToggle" class="tool-btn" aria-label="Toggle light and dark mode"><i class="fas fa-sun"></i></button>
-        <button id="gridResize" class="tool-btn" aria-label="Change movie grid size"><i class="fas fa-grip"></i></button>
+      <div class="flex items-center gap-4">
         <nav class="hidden md:flex gap-6 items-center" id="mainNav">
           <a href="#" class="text-sm text-gray-300 nav-link">Home</a>
           <a href="#" class="text-sm text-gray-300 nav-link">Movies</a>
@@ -189,55 +187,40 @@
     </div>
   </header>
 
-  <!-- ILLUMINATION CINEMATIC SHOWCASE -->
-  <section class="illum-hero" aria-label="Illumination movie showcase">
-    <div class="illum-hero-glow" id="illumHeroGlow"></div>
-    <div class="illum-hero-inner">
-      <button class="illum-hero-art" id="illumHeroPosterButton" aria-label="Play featured movie"><img id="illumHeroPoster" alt="Featured movie poster" fetchpriority="high"></button>
-      <div class="illum-hero-copy">
-        <div class="illum-kicker"><span></span> ILLUMINATION SPOTLIGHT</div>
+  <!-- ILLUMINATION STORY STAGE -->
+  <section class="illum-stage" id="illumStage" aria-label="Illumination movie showcase">
+    <div class="illum-stage-orb illum-orb-one"></div><div class="illum-stage-orb illum-orb-two"></div>
+    <div class="illum-stage-stars" aria-hidden="true"></div>
+    <div class="illum-stage-brand">
+      <div class="illum-brand-mark"><span class="illum-brand-sun">✦</span><span class="illum-brand-name">ILLUMINATION</span></div>
+      <span class="illum-brand-caption">BIG STORIES. BIGGER SMILES.</span>
+    </div>
+    <div class="illum-feature" aria-live="polite">
+      <button class="illum-feature-art" id="illumHeroPosterButton" type="button" aria-label="Play selected Illumination movie">
+        <img id="illumHeroPoster" alt="Selected movie poster" fetchpriority="high">
+        <span class="illum-art-play"><i class="fas fa-play"></i></span>
+      </button>
+      <div class="illum-feature-copy">
+        <div class="illum-feature-kicker"><span></span> THE ILLUMINATION COLLECTION</div>
         <div class="illum-hero-meta" id="illumHeroMeta">ANIMATION • FAMILY</div>
-        <h2 id="illumHeroTitle">Illumination Collection</h2>
+        <h2 id="illumHeroTitle">Discover a story</h2>
         <p id="illumHeroDescription">Big laughs, bold adventures and unforgettable characters.</p>
-        <div class="illum-hero-actions">
-          <button class="illum-primary" id="illumHeroPlay"><i class="fas fa-play"></i> Watch movie</button>
-          <button class="illum-secondary" id="illumHeroShuffle"><i class="fas fa-random"></i> Surprise me</button>
+        <div class="illum-feature-actions">
+          <button class="illum-watch-btn" id="illumHeroPlay" type="button"><i class="fas fa-play"></i> Watch now</button>
+          <button class="illum-shuffle-btn" id="illumHeroShuffle" type="button"><i class="fas fa-shuffle"></i> Shuffle movies</button>
         </div>
-        <div class="illum-hero-nav">
-          <button id="illumHeroPrev" aria-label="Previous movie"><i class="fas fa-chevron-left"></i></button>
-          <span id="illumHeroCount">01 / 29</span>
-          <button id="illumHeroNext" aria-label="Next movie"><i class="fas fa-chevron-right"></i></button>
-          <div class="illum-hero-track"><span id="illumHeroProgress"></span></div>
+        <div class="illum-feature-progress">
+          <span id="illumHeroCount">01 / 29 movies</span>
+          <div><span id="illumHeroProgress"></span></div>
+          <button id="illumHeroPrev" type="button" aria-label="Previous movie"><i class="fas fa-chevron-left"></i></button>
+          <button id="illumHeroNext" type="button" aria-label="Next movie"><i class="fas fa-chevron-right"></i></button>
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- SEARCH -->
-  <section class="px-6 mb-6">
-    <div class="container mx-auto flex gap-3 items-center">
-      <input id="searchBar" class="w-full p-3 bg-[#0e1220] rounded-md outline-none text-white" placeholder="Search Illumination movies..." />
-      <button id="clearSearch" class="btn">Clear</button>
-    </div>
-  </section>
-
-  <!-- FEATURED -->
-  <section class="px-6 mb-8">
-    <div class="container mx-auto">
-      <h3 class="text-xl font-semibold mb-4">Featured</h3>
-      <div id="featuredScroll" class="flex gap-4 overflow-x-auto pb-2">
-        <!-- featured cards -->
-      </div>
-    </div>
-  </section>
-
-  <!-- SHORTS SECTION (NEW) -->
-  <section class="px-6 mb-8">
-    <div class="container mx-auto">
-      <h3 class="text-xl font-semibold mb-4">Short Films</h3>
-      <div id="shortsRow" class="shorts-row">
-        <!-- shorts cards inserted here by JS -->
-      </div>
+    <div class="illum-filmstrip">
+      <div class="illum-filmstrip-heading"><span><i class="fas fa-film"></i> EXPLORE THE UNIVERSE</span><small id="illumCarouselCount">29 movies · shuffled</small></div>
+      <div class="illum-filmstrip-arrows"><button id="illumCarouselPrev" type="button" aria-label="Scroll movies left"><i class="fas fa-chevron-left"></i></button><button id="illumCarouselNext" type="button" aria-label="Scroll movies right"><i class="fas fa-chevron-right"></i></button></div>
+      <div class="illum-filmstrip-track" id="illumCarouselTrack" aria-label="All Illumination movies"></div>
     </div>
   </section>
 
@@ -881,26 +864,109 @@
     if (e.target && e.target.id === modalVideoId) playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
   }, true);
 
-  // Hero starts with a shuffled poster and rotates every five seconds.
+  // Illumination stage: shuffle the complete poster catalogue, rotate every five seconds,
+  // and keep poster, filmstrip, playback and view controls in sync.
   let illumHeroList=[],illumHeroIndex=0,illumHeroTimer=null;
-  const ih={poster:document.getElementById('illumHeroPoster'),glow:document.getElementById('illumHeroGlow'),title:document.getElementById('illumHeroTitle'),desc:document.getElementById('illumHeroDescription'),meta:document.getElementById('illumHeroMeta'),count:document.getElementById('illumHeroCount'),progress:document.getElementById('illumHeroProgress')};
-  function illumShuffle(items){const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-  function illumShow(index){if(!illumHeroList.length)return;illumHeroIndex=(index+illumHeroList.length)%illumHeroList.length;const m=illumHeroList[illumHeroIndex];ih.poster.src=m.image||'';ih.poster.alt=(m.title||'Movie')+' poster';ih.glow.style.backgroundImage=m.image?'url("'+m.image.replace(/"/g,'%22')+'")':'none';ih.title.textContent=m.title||'Illumination';ih.desc.textContent=m.description||'A big-hearted adventure from Illumination.';ih.meta.textContent=[m.year,m.genre||m.category,m.duration].filter(Boolean).join(' • ');ih.count.textContent=String(illumHeroIndex+1).padStart(2,'0')+' / '+String(illumHeroList.length).padStart(2,'0');ih.progress.style.transition='none';ih.progress.style.width='0';requestAnimationFrame(()=>{ih.progress.style.transition='width 5s linear';ih.progress.style.width='100%';});}
-  function illumResetTimer(){clearInterval(illumHeroTimer);if(!document.hidden)illumHeroTimer=setInterval(()=>illumShow(illumHeroIndex+1),5000);}
-  function illumShuffleHero(){illumHeroList=illumShuffle(movies.filter(m=>m&&m.image));if(!illumHeroList.length)illumHeroList=illumShuffle(movies);illumShow(0);illumResetTimer();}
-  document.getElementById('illumHeroPrev').addEventListener('click',()=>{illumShow(illumHeroIndex-1);illumResetTimer();});
-  document.getElementById('illumHeroNext').addEventListener('click',()=>{illumShow(illumHeroIndex+1);illumResetTimer();});
-  document.getElementById('illumHeroShuffle').addEventListener('click',illumShuffleHero);
-  const playHero=()=>{const m=illumHeroList[illumHeroIndex];if(m)openPlayer(movies,movies.indexOf(m));};
-  document.getElementById('illumHeroPlay').addEventListener('click',playHero);
-  document.getElementById('illumHeroPosterButton').addEventListener('click',playHero);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(illumHeroTimer);illumHeroTimer=null;}else illumResetTimer();});
+  const illumEls={
+    poster:document.getElementById('illumHeroPoster'),
+    glow:document.getElementById('illumHeroGlow'),
+    title:document.getElementById('illumHeroTitle'),
+    desc:document.getElementById('illumHeroDescription'),
+    meta:document.getElementById('illumHeroMeta'),
+    count:document.getElementById('illumHeroCount'),
+    progress:document.getElementById('illumHeroProgress'),
+    track:document.getElementById('illumCarouselTrack'),
+    carouselCount:document.getElementById('illumCarouselCount')
+  };
+  function illumShuffle(items){
+    const copy=items.slice();
+    for(let n=copy.length-1;n>0;n--){const j=Math.floor(Math.random()*(n+1));[copy[n],copy[j]]=[copy[j],copy[n]];}
+    return copy;
+  }
+  function illumPlaySelected(movie){
+    if(!movie)return;
+    const index=movies.findIndex(item=>item===movie || (item.title===movie.title && item.year===movie.year));
+    openPlayer(movies,index>=0?index:0);
+  }
+  function illumShow(index,resetTimer=true){
+    if(!illumHeroList.length)return;
+    illumHeroIndex=(index+illumHeroList.length)%illumHeroList.length;
+    const movie=illumHeroList[illumHeroIndex];
+    const poster=illumEls.poster;
+    poster.classList.add('changing');
+    poster.onload=()=>poster.classList.remove('changing');
+    poster.onerror=()=>poster.classList.remove('changing');
+    poster.src=movie.image||'';
+    poster.alt=(movie.title||'Illumination movie')+' poster';
+    illumEls.title.textContent=movie.title||'Illumination adventure';
+    illumEls.desc.textContent=movie.description||'A joyful animated adventure from the Illumination collection.';
+    illumEls.meta.textContent=[movie.year,movie.genre||movie.category,movie.duration].filter(Boolean).join('  •  ');
+    illumEls.count.textContent=String(illumHeroIndex+1).padStart(2,'0')+' / '+String(illumHeroList.length).padStart(2,'0')+' movies';
+    illumEls.glow.style.backgroundImage=movie.image?'url("'+movie.image.replace(/"/g,'%22')+'")':'none';
+    illumEls.track.querySelectorAll('.illum-film-item').forEach((button,i)=>button.classList.toggle('active',i===illumHeroIndex));
+    const active=illumEls.track.children[illumHeroIndex];
+    if(active&&resetTimer)active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});
+    illumEls.progress.style.transition='none';illumEls.progress.style.width='0%';
+    requestAnimationFrame(()=>{illumEls.progress.style.transition='width 5s linear';illumEls.progress.style.width='100%';});
+  }
+  function illumRenderFilmstrip(){
+    illumEls.track.replaceChildren();
+    illumHeroList.forEach((movie,index)=>{
+      const button=document.createElement('button');button.type='button';button.className='illum-film-item';button.draggable=false;
+      const image=document.createElement('img');image.src=movie.image||'';image.alt='';image.loading='lazy';image.draggable=false;
+      const name=document.createElement('strong');name.textContent=movie.title||'Untitled';
+      const meta=document.createElement('small');meta.textContent=[movie.year,movie.duration].filter(Boolean).join(' · ');
+      button.append(image,name,meta);
+      button.addEventListener('click',()=>{illumShow(index);illumRestartTimer();illumPlaySelected(movie);});
+      illumEls.track.appendChild(button);
+    });
+    illumEls.carouselCount.textContent=illumHeroList.length+' movies · shuffled';
+  }
+  function illumRestartTimer(){
+    clearInterval(illumHeroTimer);
+    if(!document.hidden)illumHeroTimer=setInterval(()=>illumShow(illumHeroIndex+1,false),5000);
+  }
+  function illumReshuffle(){
+    illumHeroList=illumShuffle(movies.filter(movie=>movie&&movie.image));
+    if(!illumHeroList.length)illumHeroList=illumShuffle(movies);
+    illumRenderFilmstrip();illumShow(0);illumRestartTimer();
+  }
+  document.getElementById('illumHeroPrev').addEventListener('click',()=>{illumShow(illumHeroIndex-1);illumRestartTimer();});
+  document.getElementById('illumHeroNext').addEventListener('click',()=>{illumShow(illumHeroIndex+1);illumRestartTimer();});
+  document.getElementById('illumHeroShuffle').addEventListener('click',illumReshuffle);
+  document.getElementById('illumHeroPlay').addEventListener('click',()=>illumPlaySelected(illumHeroList[illumHeroIndex]));
+  document.getElementById('illumHeroPosterButton').addEventListener('click',()=>illumPlaySelected(illumHeroList[illumHeroIndex]));
+  document.getElementById('illumCarouselPrev').addEventListener('click',()=>illumEls.track.scrollBy({left:-illumEls.track.clientWidth*.8,behavior:'smooth'}));
+  document.getElementById('illumCarouselNext').addEventListener('click',()=>illumEls.track.scrollBy({left:illumEls.track.clientWidth*.8,behavior:'smooth'}));
+  document.getElementById('illumStage').addEventListener('mouseenter',()=>clearInterval(illumHeroTimer));
+  document.getElementById('illumStage').addEventListener('mouseleave',illumRestartTimer);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(illumHeroTimer);illumHeroTimer=null;}else illumRestartTimer();});
 
-  // Theme and grid controls.
-  const themeToggle=document.getElementById('themeToggle'),gridResize=document.getElementById('gridResize');
-  let gridMode=0;const gridModes=['grid-standard','grid-compact','grid-large'];
-  themeToggle.addEventListener('click',()=>{document.body.classList.toggle('light-mode');themeToggle.innerHTML=document.body.classList.contains('light-mode')?'<i class="fas fa-moon"></i>':'<i class="fas fa-sun"></i>';});
-  gridResize.addEventListener('click',()=>{moviesGrid.classList.remove(...gridModes);gridMode=(gridMode+1)%gridModes.length;moviesGrid.classList.add(gridModes[gridMode]);gridResize.title=['Standard grid','Compact grid','Large grid'][gridMode];});
+  // Pixar-style view controls: persistent light/dark theme and responsive poster sizing.
+  const themeToggle=document.getElementById('themeToggle');
+  const gridResize=document.getElementById('gridResize');
+  const illumGridSizes=[{label:'Compact',min:112},{label:'Standard',min:148},{label:'Large',min:190},{label:'Extra large',min:232}];
+  let illumGridIndex=1;
+  try{const saved=Number(localStorage.getItem('illum-grid-size'));if(Number.isInteger(saved)&&saved>=0&&saved<illumGridSizes.length)illumGridIndex=saved;}catch(_){}
+  function illumApplyTheme(light){
+    document.body.classList.toggle('illum-light',light);
+    document.documentElement.dataset.theme=light?'light':'dark';
+    themeToggle.setAttribute('aria-pressed',String(light));
+    themeToggle.innerHTML=light?'<i class="fas fa-moon" aria-hidden="true"></i><span>Dark mode</span>':'<i class="fas fa-sun" aria-hidden="true"></i><span>Light mode</span>';
+    try{localStorage.setItem('illum-theme',light?'light':'dark');}catch(_){}
+  }
+  function illumApplyGrid(){
+    const size=illumGridSizes[illumGridIndex];
+    moviesGrid.style.setProperty('--poster-min',size.min+'px');
+    moviesGrid.style.setProperty('grid-template-columns','repeat(auto-fill,minmax(min(100%, '+size.min+'px),1fr))','important');
+    gridResize.innerHTML='<i class="fas fa-grip" aria-hidden="true"></i><span>Grid: '+size.label+'</span>';
+    gridResize.setAttribute('aria-label','Poster size: '+size.label+'. Click to change');
+    try{localStorage.setItem('illum-grid-size',String(illumGridIndex));}catch(_){}
+  }
+  let illumSavedTheme='dark';try{illumSavedTheme=localStorage.getItem('illum-theme')||'dark';}catch(_){}
+  illumApplyTheme(illumSavedTheme==='light');illumApplyGrid();
+  themeToggle.addEventListener('click',()=>illumApplyTheme(!document.body.classList.contains('illum-light')));
+  gridResize.addEventListener('click',()=>{illumGridIndex=(illumGridIndex+1)%illumGridSizes.length;illumApplyGrid();});
 
   /******************************
    * Initial render
@@ -909,13 +975,13 @@
   renderShorts();
   renderGrid();
 
-  // Critical: populate the hero before the page is shown.
-  // Keep the first selection deterministic for immediate paint, then shuffle the remaining order.
-  illumHeroList = illumShuffle(movies.filter(movie => movie && movie.image));
-  if (!illumHeroList.length) illumHeroList = illumShuffle(movies);
-  illumShow(0);
-  illumResetTimer();
-  moviesGrid.classList.add('grid-standard');
+  // Populate the stage synchronously before the catalogue is considered ready.
+  illumHeroList=illumShuffle(movies.filter(movie=>movie&&movie.image));
+  if(!illumHeroList.length)illumHeroList=illumShuffle(movies);
+  illumRenderFilmstrip();
+  illumShow(0,false);
+  illumRestartTimer();
+  illumApplyGrid();
 
   // Expose close externally if needed
   window.closePlayer = closeModalHandler;
@@ -1337,6 +1403,153 @@ body.light-mode .illum-hero{background:#e5edf7}
  #illumHeroDescription{font-size:10px!important}
  .illum-primary,.illum-secondary{font-size:9px!important;padding:7px!important}
 }
+
+
+/* ILLUMINATION UNIVERSE — refreshed cinematic stage */
+:root{--illum-yellow:#ffd43b;--illum-blue:#68cfff;--illum-ink:#080d1c;--illum-panel:#111a2d;--illum-text:#f7f8fc;--illum-muted:#aebbd0;--poster-min:148px}
+html,body{overflow-x:hidden}
+body{font-family:'Poppins',sans-serif;background:radial-gradient(ellipse at 12% -8%,#263b61 0,transparent 38%),linear-gradient(145deg,#070b16,#10192c 72%,#10152a);color:var(--illum-text);transition:background .25s,color .25s}
+header{position:sticky;top:0;z-index:30;background:rgba(7,12,25,.88)!important;border-bottom:1px solid rgba(255,255,255,.09);backdrop-filter:blur(18px)}
+header .minion-yellow{background:linear-gradient(135deg,#ffe56b,#ffb91d);box-shadow:0 5px 18px #ffc72b44}
+header h1{letter-spacing:-.04em}
+.illum-stage{position:relative;isolation:isolate;overflow:hidden;margin:0 auto 24px;padding:0 0 14px;background:radial-gradient(ellipse at 80% 15%,#264b70 0,transparent 40%),linear-gradient(125deg,#091426 0%,#101b36 52%,#211b3b 100%);border-bottom:1px solid #ffffff17}
+.illum-stage:before{content:"";position:absolute;inset:12px;border:1px solid #ffffff13;border-radius:24px;pointer-events:none;z-index:1}
+.illum-stage-orb{position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none;z-index:-1}
+.illum-orb-one{width:360px;height:360px;right:8%;top:2%;background:radial-gradient(circle,#ffd43b30,transparent 68%);animation:illumGlow 8s ease-in-out infinite}
+.illum-orb-two{width:330px;height:330px;left:25%;bottom:-32%;background:radial-gradient(circle,#55cfff28,transparent 70%)}
+@keyframes illumGlow{50%{transform:scale(1.12);opacity:.65}}
+.illum-stage-stars{position:absolute;inset:0;z-index:-1;opacity:.55;background-image:radial-gradient(2px 2px at 12% 22%,#fff 50%,transparent 70%),radial-gradient(2px 2px at 62% 18%,#ffe7a8 50%,transparent 70%),radial-gradient(1.5px 1.5px at 85% 62%,#fff 50%,transparent 70%),radial-gradient(2px 2px at 44% 82%,#fff 50%,transparent 70%)}
+.illum-stage-brand{position:relative;z-index:2;display:flex;align-items:center;gap:13px;max-width:1380px;margin:auto;padding:27px clamp(18px,4vw,56px) 16px}
+.illum-brand-mark{display:flex;align-items:center;gap:9px}.illum-brand-sun{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:linear-gradient(145deg,#fff17a,#ffba28);color:#17213b;font-size:21px;box-shadow:0 4px 18px #ffd43b55}
+.illum-brand-name{font-size:clamp(17px,2vw,24px);font-weight:900;letter-spacing:.12em;color:#fff;text-shadow:0 4px 18px #0008}
+.illum-brand-caption{font-size:9px;letter-spacing:.2em;color:#b9cbe0;border-left:1px solid #ffffff38;padding-left:13px}
+.illum-feature{position:relative;z-index:3;display:grid;grid-template-columns:minmax(180px,245px) minmax(0,1fr);align-items:center;gap:clamp(22px,4vw,58px);max-width:1180px;margin:0 auto 16px;padding:clamp(16px,2.5vw,28px);border:1px solid #ffffff20;border-radius:24px;background:linear-gradient(110deg,#09152bd9,#1c2b50a8 60%,#312650a1);box-shadow:0 24px 70px #0005;backdrop-filter:blur(14px)}
+.illum-feature-art{position:relative;display:block;width:100%;min-width:0;aspect-ratio:2/2.8;overflow:hidden;padding:0;border:1px solid #ffffff42;border-radius:17px;background:#111a2d;box-shadow:0 20px 45px #0008,0 0 0 7px #ffffff08;perspective:900px;cursor:pointer;touch-action:manipulation}
+.illum-feature-art img{display:block;width:100%;height:100%;object-fit:cover;transform:scale(1.01);transition:transform .55s,opacity .3s}
+.illum-feature-art:hover img{transform:scale(1.055)}
+.illum-feature-art img.changing{opacity:.35}
+.illum-art-play{position:absolute;left:50%;top:50%;display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:#ffd43beF;color:#10172b;box-shadow:0 8px 28px #0007;transform:translate(-50%,-50%);opacity:0;transition:opacity .2s}
+.illum-feature-art:hover .illum-art-play,.illum-feature-art:focus-visible .illum-art-play{opacity:1}
+.illum-feature-copy{min-width:0;color:#fff}
+.illum-feature-kicker{display:flex;align-items:center;gap:9px;color:#ffe28a;font-size:9px;font-weight:800;letter-spacing:.2em}
+.illum-feature-kicker span{width:20px;height:3px;border-radius:4px;background:linear-gradient(90deg,#ffd43b,#70d7ff)}
+.illum-hero-meta{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 8px;color:#c5d6ed;font-size:10px;letter-spacing:.1em;font-weight:700}
+#illumHeroTitle{font-size:clamp(30px,4.3vw,55px);line-height:1.02;letter-spacing:-.045em;font-weight:900;margin:8px 0 12px;text-wrap:balance}
+#illumHeroDescription{max-width:640px;color:#c5d0e1;font-size:clamp(12px,1.15vw,15px);line-height:1.7;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.illum-feature-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.illum-watch-btn,.illum-shuffle-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:43px;padding:0 18px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer;touch-action:manipulation;transition:transform .2s,box-shadow .2s}
+.illum-watch-btn{background:linear-gradient(120deg,#ffe777,#ffbd37);color:#17213b;box-shadow:0 8px 24px #ffc42c38;border:0}
+.illum-shuffle-btn{background:#ffffff0d;color:#fff;border:1px solid #ffffff35}
+.illum-watch-btn:hover,.illum-shuffle-btn:hover{transform:translateY(-2px)}
+.illum-feature-progress{display:flex;align-items:center;gap:11px;margin-top:18px;color:#b8c7dc;font-size:10px}
+.illum-feature-progress>div{height:3px;max-width:145px;flex:1;border-radius:5px;background:#ffffff24;overflow:hidden}
+#illumHeroProgress{display:block;width:0;height:100%;border-radius:5px;background:linear-gradient(90deg,#ffd43b,#75d9ff)}
+.illum-feature-progress button,.illum-filmstrip-arrows button{width:30px;height:30px;border:1px solid #ffffff32;border-radius:50%;background:#ffffff0d;color:#fff;cursor:pointer;touch-action:manipulation}
+.illum-feature-progress button:hover,.illum-filmstrip-arrows button:hover{background:#ffd43b;color:#15203a}
+.illum-filmstrip{position:relative;z-index:4;margin:8px clamp(16px,4vw,55px) 0;padding:13px 14px 8px;border:1px solid #ffffff1c;border-radius:17px;background:#07122680;backdrop-filter:blur(12px)}
+.illum-filmstrip-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px 11px;color:#ffe49c;font-size:9px;font-weight:800;letter-spacing:.16em}
+.illum-filmstrip-heading small{font-size:10px;color:#aebbd0;letter-spacing:0;font-weight:500}
+.illum-filmstrip-arrows{position:absolute;right:14px;top:7px;display:flex;gap:6px}
+.illum-filmstrip-arrows button{width:26px;height:26px}
+.illum-filmstrip-track{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#e7c45e transparent;touch-action:pan-x}
+.illum-film-item{flex:0 0 clamp(76px,8vw,105px);min-width:0;padding:0 0 7px;border:1px solid #ffffff1d;border-radius:11px;overflow:hidden;background:#ffffff0c;color:#fff;text-align:left;cursor:pointer;scroll-snap-align:start;touch-action:pan-x;transition:transform .2s,border-color .2s}
+.illum-film-item:hover,.illum-film-item.active{transform:translateY(-2px);border-color:#ffd43b}
+.illum-film-item img{display:block;width:100%;height:100px;object-fit:cover;background:#151e31}
+.illum-film-item strong{display:block;padding:7px 7px 2px;font-size:9px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.illum-film-item small{display:block;padding:0 7px;color:#e9d38d;font-size:8px}
+.illum-search-section{max-width:1380px;margin:0 auto 14px;padding:0 clamp(16px,4vw,55px)}
+.illum-search-wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.illum-search-box{position:relative;display:flex;align-items:center;flex:1 1 320px;min-width:0}
+.illum-search-box>i{position:absolute;left:15px;color:#95a7c1;font-size:13px}
+.illum-search-box input{width:100%;min-height:44px;padding:0 42px;border:1px solid #ffffff20;border-radius:12px;outline:none;background:#101a2c;color:#fff;font:inherit;font-size:12px}
+.illum-search-box input:focus{border-color:#ffd43b88;box-shadow:0 0 0 3px #ffd43b18}
+.illum-search-box input::placeholder{color:#8493aa}
+.illum-search-box button{position:absolute;right:7px;width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:#9ba9be;cursor:pointer}
+.illum-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;padding:6px 8px;border:1px solid #ffffff1c;border-radius:13px;background:#101a2c}
+.illum-toolbar-label{padding:0 7px;color:#aebed4;font-size:9px;font-weight:800;letter-spacing:.16em}
+.illum-toolbar-actions{display:flex;gap:7px}
+.illum-toolbar button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:35px;padding:0 11px;border:1px solid #ffffff20;border-radius:9px;background:#ffffff0a;color:#f6f7fb;font-size:10px;font-weight:700;cursor:pointer;touch-action:manipulation}
+.illum-toolbar button:hover{border-color:#ffd43b88;background:#ffd43b16}
+#moviesGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--poster-min)),1fr));gap:clamp(12px,1.7vw,22px)!important}
+.movie-card{border:1px solid #ffffff14;border-radius:14px;background:linear-gradient(150deg,#16223a,#0c1425);box-shadow:0 8px 25px #0002;overflow:hidden}
+.movie-card:hover{transform:translateY(-5px);box-shadow:0 18px 35px #0006}
+.movie-poster{height:auto!important;aspect-ratio:2/2.75;object-fit:cover}
+.movie-card strong{color:#f8fafc}
+.movie-card>div:last-child{padding:12px!important}
+.modal-backdrop{z-index:10050!important;padding:18px;overflow-y:auto}
+.modal-card{width:min(1160px,96vw)!important;max-height:calc(100dvh - 36px);overflow:auto;border:1px solid #ffffff1c;border-radius:18px!important;background:#0a1220!important}
+.player-wrapper{position:relative!important;width:100%;height:auto!important;min-height:0!important;padding:0!important;aspect-ratio:16/9;overflow:hidden;max-height:calc(100dvh - 180px)}
+.player-wrapper video,.player-wrapper iframe{position:absolute!important;inset:0;width:100%!important;height:100%!important;object-fit:contain;background:#000}
+.player-meta{align-items:center!important;flex-wrap:wrap;padding:14px 18px!important;gap:14px!important;background:#101b2e}
+.player-meta .meta-left{max-width:100%!important;flex:1 1 220px}
+.controls-row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px!important}
+.controls-row .btn{min-width:40px;min-height:40px;padding:8px 11px;border-radius:9px;touch-action:manipulation}
+body.illum-light{background:linear-gradient(145deg,#f3f6fb,#e6edf8)!important;color:#1c2942!important}
+body.illum-light header{background:#f8fbffee!important;border-color:#d9e0ed}
+body.illum-light header h1,body.illum-light header nav a{color:#263653!important}
+body.illum-light .illum-search-box input{background:#fff;color:#17213a;border-color:#d4ddeb}
+body.illum-light .illum-search-box input::placeholder{color:#77839a}
+body.illum-light .illum-toolbar{background:#fff;border-color:#d7dfed}
+body.illum-light .illum-toolbar-label{color:#52617c}
+body.illum-light .illum-toolbar button{background:#f2f5fa;color:#273653;border-color:#d9e1ef}
+body.illum-light .movie-card{background:#fff;border-color:#dbe2ef;box-shadow:0 8px 24px #23385b12}
+body.illum-light .movie-card strong{color:#1b2944}
+body.illum-light .movie-card>div:last-child>div:last-child{color:#66748e!important}
+body.illum-light footer{background:#e7edf6!important;color:#5d6b83!important}
+@media(max-width:760px){
+ .illum-stage{padding-bottom:10px;margin-bottom:18px}
+ .illum-stage:before{inset:7px;border-radius:17px}
+ .illum-stage-brand{padding:17px 14px 11px;gap:8px}
+ .illum-brand-sun{width:27px;height:27px;font-size:17px}
+ .illum-brand-name{font-size:15px;letter-spacing:.09em}
+ .illum-brand-caption{font-size:7px;letter-spacing:.1em;padding-left:8px}
+ .illum-feature{grid-template-columns:clamp(105px,30vw,150px) minmax(0,1fr);gap:13px;margin:0 10px 12px;padding:12px;border-radius:16px}
+ .illum-feature-art{aspect-ratio:2/2.85;border-radius:10px}
+ .illum-art-play{width:37px;height:37px;font-size:12px;opacity:1}
+ .illum-feature-kicker{font-size:7px;letter-spacing:.1em;gap:5px}
+ .illum-feature-kicker span{width:10px}
+ .illum-hero-meta{font-size:8px;letter-spacing:.03em;margin:7px 0 5px;gap:4px}
+ #illumHeroTitle{font-size:clamp(19px,5.7vw,28px);line-height:1.04;margin:5px 0 7px}
+ #illumHeroDescription{font-size:10px;line-height:1.42;-webkit-line-clamp:2}
+ .illum-feature-actions{gap:6px;margin-top:10px}
+ .illum-watch-btn,.illum-shuffle-btn{min-height:33px;padding:0 9px;font-size:9px;gap:5px}
+ .illum-feature-progress{gap:6px;margin-top:9px;font-size:8px}
+ .illum-feature-progress button{width:25px;height:25px;flex:0 0 25px}
+ .illum-feature-progress>div{max-width:48px}
+ .illum-filmstrip{margin:0 10px;padding:10px 9px 5px;border-radius:13px}
+ .illum-filmstrip-heading{font-size:8px;padding-bottom:8px;padding-right:65px}
+ .illum-filmstrip-heading small{font-size:8px}
+ .illum-filmstrip-arrows{right:9px;top:5px}
+ .illum-filmstrip-arrows button{width:23px;height:23px}
+ .illum-filmstrip-track{gap:7px;padding-bottom:7px}
+ .illum-film-item{flex-basis:76px;border-radius:8px}
+ .illum-film-item img{height:78px}
+ .illum-film-item strong{font-size:8px;padding:6px 5px 2px}
+ .illum-film-item small{font-size:7px;padding:0 5px}
+ .illum-search-section{padding:0 12px;margin-bottom:12px}
+ .illum-search-wrap{gap:9px}
+ .illum-search-box{flex-basis:100%}
+ .illum-search-box input{min-height:42px}
+ .illum-toolbar{width:100%;padding:6px;gap:6px}
+ .illum-toolbar-label{font-size:8px;padding:0 4px}
+ .illum-toolbar-actions{flex:1;justify-content:flex-end}
+ .illum-toolbar button{min-height:34px;padding:0 9px;font-size:9px;gap:6px}
+ #moviesGrid{gap:11px!important}
+ .modal-backdrop{padding:7px;align-items:center}
+ .modal-card{width:100%!important;max-height:calc(100dvh - 14px);border-radius:12px!important}
+ .player-wrapper{aspect-ratio:16/9;max-height:none}
+ .player-meta{padding:11px!important}
+ .controls-row{justify-content:center;width:100%}
+ .controls-row .btn{min-width:39px;min-height:40px;padding:7px 9px;font-size:10px}
+}
+@media(max-width:360px){
+ .illum-feature{grid-template-columns:92px minmax(0,1fr);gap:9px;padding:9px}
+ #illumHeroTitle{font-size:18px}
+ #illumHeroDescription{font-size:9px}
+ .illum-watch-btn,.illum-shuffle-btn{font-size:8px;padding:0 7px}
+ .illum-film-item{flex-basis:69px}
+}
+@media(prefers-reduced-motion:reduce){.illum-orb-one{animation:none}.illum-feature-art img,.movie-card{transition:none!important}}
 
 </style>
 
