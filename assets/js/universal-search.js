@@ -82,8 +82,7 @@
     if (!query) { results.replaceChildren(); summary.textContent = "Search movies, series, live channels and collections"; return; }
     const found = state.records.map(record => ({ record, score: rank(record, query) }))
       .filter(item => item.score > 0 && (state.type === "all" || item.record.type === state.type))
-      .sort((a,b) => b.score-a.score || a.record.title.localeCompare(b.record.title))
-      .slice(0, 120);
+      .sort((a,b) => b.score-a.score || a.record.title.localeCompare(b.record.title));
     summary.textContent = state.ready ? found.length + " results · " + state.records.length.toLocaleString() + " catalogue entries" : "Loading your catalogue…";
     results.replaceChildren();
     if (!found.length) {
