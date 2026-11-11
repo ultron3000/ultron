@@ -1,765 +1,376 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Cloud TV</title>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<!-- HLS.js & Shaka Player for Multi-Format Playback -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
-    
-    :root {
-      --primary: #ef4444;
-      --primary-glow: rgba(239, 68, 68, 0.4);
-      --secondary: #0f172a;
-      --accent: #38bdf8;
-      --muted: #94a3b8;
-      --bg-dark: #070a12;
-      --card-bg: #0f172a;
-      --text-main: #f8fafc;
-      --toolbar-bg: rgba(15, 23, 42, 0.9);
-    }
-    
-    .light {
-      --bg-dark: #f1f5f9;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --muted: #64748b;
-      --toolbar-bg: rgba(255, 255, 255, 0.95);
-    }
-
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--bg-dark);
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.08) 0%, transparent 65%),
-        linear-gradient(to bottom, var(--bg-dark), var(--bg-dark));
-      color: var(--text-main);
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
-    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
-    
-    /* Toolbar Top-Right Controls */
-    .toolbar {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      z-index: 90;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .tool-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      background: var(--toolbar-bg);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: var(--primary);
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      transition: transform .12s, background 0.2s;
-    }
-    .tool-btn:active { transform: scale(.94); }
-    .tool-btn svg { width: 18px; height: 18px; display: block; }
-
-    /* Grid Modes Layouting */
-    .movie-grid {
-      display: grid;
-      gap: 12px;
-      padding-bottom: 2rem;
-      content-visibility: auto;
-      contain-intrinsic-size: 500px;
-    }
-
-    /* Mode: Standard */
-    .mode-standard .movie-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    @media(min-width: 640px) { .mode-standard .movie-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media(min-width: 768px) { .mode-standard .movie-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    @media(min-width: 1024px) { .mode-standard .movie-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-    @media(min-width: 1280px) { .mode-standard .movie-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
-
-    /* Mode: Dense */
-    .mode-dense .movie-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-    }
-    @media(min-width: 640px) { .mode-dense .movie-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    @media(min-width: 1024px) { .mode-dense .movie-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
-    @media(min-width: 1280px) { .mode-dense .movie-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
-
-    /* Mode: Card */
-    .mode-card .movie-grid {
-      grid-template-columns: repeat(1, minmax(0, 1fr));
-      gap: 16px;
-    }
-    @media(min-width: 640px) { .mode-card .movie-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media(min-width: 768px) { .mode-card .movie-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media(min-width: 1280px) { .mode-card .movie-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
-
-    /* Movie Card Styling */
-    .movie-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      border: 1px solid rgba(239, 68, 68, 0.2);
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      perspective: 1000px;
-      will-change: transform;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .movie-card:hover {
-      border-color: var(--primary);
-      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
-    }
-
-    .card-inner {
-      transform-style: preserve-3d;
-      transition: transform 0.1s ease-out;
-      will-change: transform;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .movie-poster {
-      width: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.1s ease-out;
-      will-change: transform;
-    }
-
-    .mode-standard .movie-poster { height: 260px; }
-    .mode-dense .movie-poster { height: 150px; }
-    .mode-card .movie-poster { height: 320px; }
-
-    .movie-title {
-      padding: 0.6rem 0.5rem;
-      font-weight: 600;
-      color: var(--text-main);
-      text-align: center;
-      font-size: 0.85rem;
-      font-family: 'Rajdhani', sans-serif;
-      text-transform: uppercase;
-      background: var(--card-bg);
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .mode-dense .movie-title { display: none; }
-    .mode-dense .movie-card:hover .movie-title {
-      display: flex;
-      position: absolute;
-      bottom: 0;
-      inset-x: 0;
-      padding: 4px;
-      background: rgba(0,0,0,0.8);
-      color: #fff;
-      font-size: 0.75rem;
-    }
-
-    .crimson-gradient-text {
-      background: linear-gradient(135deg, #ffffff 0%, #fca5a5 40%, #ef4444 80%, #b91c1c 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    /* Category Filter Buttons */
-    .category-scroll-container {
-      display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-      padding-bottom: 0.5rem;
-      scrollbar-width: thin;
-      scrollbar-color: #991b1b #070a12;
-    }
-
-    .category-scroll-container::-webkit-scrollbar { height: 4px; }
-
-    .category-btn {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: var(--muted);
-      transition: all 0.2s ease;
-      cursor: pointer;
-      user-select: none;
-      flex-shrink: 0;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-    }
-    
-    .category-btn:hover { border-color: var(--primary); color: var(--text-main); }
-    .category-btn.active { background: var(--primary); border-color: var(--primary); color: #000; font-weight: 700; }
-    
-    /* Custom scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg-dark); }
-    ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
-    
-    /* Responsive Modal Setup */
-    .modal-backdrop { 
-      position: fixed; 
-      inset: 0; 
-      background: rgba(7, 10, 18, 0.95); 
-      display: none; 
-      align-items: center; 
-      justify-content: center; 
-      z-index: 9999; 
-      padding: 0;
-    }
-    .modal-backdrop.active { display: flex; }
-    .modal-card { 
-      width: 100%;
-      height: 100%;
-      max-width: 980px;
-      max-height: 90vh;
-      border-radius: 0;
-      overflow: hidden;
-      background: var(--card-bg);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      display: flex;
-      flex-direction: column;
-    }
-    .player-wrapper { 
-      position: relative;
-      width: 100%;
-      height: 350px;
-      min-height: 250px;
-      background: #000;
-      flex-grow: 1;
-    }
-    #topCloseBtn { 
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 20;
-      background: rgba(0,0,0,0.8);
-      color: var(--primary);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .player-wrapper video, 
-    .player-wrapper iframe { 
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-
-    .player-meta { 
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 12px;
-      color: var(--text-main);
-      background: var(--card-bg);
-      border-top: 1px solid rgba(239, 68, 68, 0.25);
-    }
-    .player-meta .meta-left { width: 100%; }
-    .player-meta h3 { 
-      margin: 0;
-      font-size: 1.125rem;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      color: var(--primary);
-      text-transform: uppercase;
-    }
-    .player-meta p { 
-      margin: 4px 0 0 0;
-      color: var(--muted);
-      font-size: 0.85rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .controls-row { 
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .btn {
-      background: rgba(239, 68, 68, 0.08);
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      flex: 1;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .btn:hover { background: var(--primary); color: #000; }
-
-    @media (min-width: 768px) {
-      .modal-card { width: 92%; height: auto; border-radius: 8px; max-height: 85vh; }
-      .player-wrapper { height: 55vh !important; position: relative !important; }
-      .player-meta { flex-direction: row; justify-content: space-between; align-items: flex-start; }
-      .player-meta .meta-left { max-width: 55%; }
-      .controls-row { flex-wrap: nowrap !important; justify-content: flex-end !important; }
-      .btn { flex: unset !important; min-width: 75px !important; }
-    }
-</style>
-</head>
-<body class="mode-standard relative">
-
-<!-- Top-Right View & Theme Toolbar -->
-<div class="toolbar" role="toolbar" aria-label="View controls">
-  <button id="themeBtn" class="tool-btn" aria-pressed="false" title="Toggle dark/light mode">
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <g id="icon-sun" style="display:none"><path d="M6.76 4.84l-1.8-1.79L3.17 5.85l1.79 1.79L6.76 4.84zM1 13h3v-2H1v2zm10 9h2v-3h-2v3zm7.04-1.16l1.79-1.79-1.79-1.79-1.79 1.79 1.79 1.79zM17 13h3v-2h-3v2zM12 7a5 5 0 100 10 5 5 0 000-10z"/></g>
-      <g id="icon-moon"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></g>
-    </svg>
-  </button>
-  <button id="gridBtn" class="tool-btn" aria-pressed="false" title="Change grid mode">
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 10v-8h8v8h-8z"/></svg>
-  </button>
-</div>
-
-<div class="container mx-auto px-3 py-4 md:py-6 max-w-7xl">
-
-  <!-- Header Section with Cloud TV Logo & Search -->
-  <div class="mb-4 border-b border-red-500/20 pb-4 pr-24">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-      <div class="flex items-center gap-3">
-        <!-- Cloud TV Logo -->
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 to-rose-400 flex items-center justify-center text-white shadow-lg shadow-red-500/30">
-          <img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Cloud TV Logo" class="w-8 h-8 rounded-full object-cover" />
-        </div>
-        <div>
-          <h1 class="font-rajdhani text-2xl md:text-3xl font-bold uppercase crimson-gradient-text tracking-wider">
-            CLOUD TV
-          </h1>
-        </div>
-      </div>
-
-      <!-- Live Search Box -->
-      <div class="relative w-full md:w-72">
-        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-red-500/70 text-xs"></i>
-        <input 
-          type="text" 
-          id="searchInput" 
-          placeholder="Search movies..." 
-          class="w-full pl-9 pr-3 py-2 bg-slate-900/90 border border-red-500/30 rounded-lg text-xs font-mono-tech text-gray-200 placeholder-gray-500 focus:outline-none focus:border-red-500"
-        />
-      </div>
-    </div>
-
-    <!-- Scrollable Category Bar -->
-    <div class="category-scroll-container" id="categoryContainer"></div>
-  </div>
-
-  <!-- Movies Grid -->
-  <div class="mb-8">
-    <div class="movie-grid" id="movies"></div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="border-t border-slate-800 pt-4 text-center text-gray-500">
-    <p class="font-mono-tech text-[10px] text-red-500/60 mb-1 tracking-widest">CLOUD TV ENTERTAINMENT PLATFORM</p>
-    <p class="text-xs">© Cloud TV - All Rights Reserved</p>
-  </footer>
-</div>
-
-<!-- Modal Player -->
-<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true">
-    <div class="player-wrapper" id="playerWrapper">
-      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" title="Close Player">
-        <i class="fas fa-times text-lg"></i>
-      </button>
-    </div>
-
-    <div class="player-meta">
-      <div class="meta-left">
-        <h3 id="modalTitle">Title</h3>
-        <p id="modalDesc"></p>
-      </div>
-      <div class="controls-row">
-        <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20" title="Open directly in new tab">
-          <i class="fas fa-external-link-alt"></i> Direct
-        </a>
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-    // Movies array dynamically loaded from external movies.json file
-    let movies = [];
-
-    const playbackModal = document.getElementById('playbackModal');
-    const playerWrapper = document.getElementById('playerWrapper');
-    const modalVideoId = 'modalVideo';
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
-    const externalBtn = document.getElementById('externalBtn');
-
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
-
-    let currentHls = null;
-    let currentFiltered = [];
-    let currentIndex = null;
-
-    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
-    function isHls(url) {
-      if (!url) return false;
-      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
-    }
-    function isYouTube(url) {
-      if (!url) return false;
-      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
-    }
-
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      if (window.shakaPlayer) {
-        try { window.shakaPlayer.destroy(); } catch(e) {}
-        window.shakaPlayer = null;
-      }
-      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-    }
-
-    function triggerExternalFallback(movie, src) {
-      console.log("Stream failed or unplayable in modal. Triggering external page fallback redirection.");
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
-    }
-
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    async function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
-      
-      currentFiltered = list;
-      currentIndex = index;
-      const movie = list[index];
-      if (!movie) return;
-
-      modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.category ? `${movie.category} Movie` : '');
-
-      resetPlayerContainer();
-      showModal();
-
-      let src = (typeof movie.video === 'object' && movie.video !== null) ? (movie.video.high || Object.values(movie.video)[0]) : movie.video;
-      if (!src) return;
-
-      if (externalBtn) {
-        externalBtn.href = src;
-      }
-
-      const lc = src.toLowerCase();
-
-      // Native Element Error Hook for global fallback handling
-      setTimeout(() => {
-        const vEl = document.getElementById(modalVideoId);
-        if (vEl) {
-          vEl.addEventListener('error', () => triggerExternalFallback(movie, src));
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JioTV DASH Streamer</title>
+    <!-- Shaka Player UI CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.min.css">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --border-color: #334155;
+            --item-hover: #334155;
         }
-      }, 100);
 
-      // DASH / MPD Key setup
-      if (typeof movie.video === 'object' && movie.video.mpd) {
-        const v = document.getElementById(modalVideoId);
-        try {
-          window.shakaPlayer = new shaka.Player(v);
-          window.shakaPlayer.addEventListener('error', () => triggerExternalFallback(movie, src));
-          if (movie.video.key) {
-            const [kid, key] = movie.video.key.split(':');
-            window.shakaPlayer.configure({ drm: { clearKeys: { [kid]: key } } });
-          }
-          await window.shakaPlayer.load(movie.video.mpd);
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
-          return;
-        } catch (e) { 
-          triggerExternalFallback(movie, src);
-          return;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-      }
 
-      // External frame links / Mega / Web embed handler logic block
-      if (lc.includes('mega.nz') || lc.includes('waptv.wapka.xyz') || lc.includes('tv4wab.pages.dev') || lc.includes('24spn-webhost8.blogspot.com') ||
-          lc.includes('livesportz.cfd') || lc.includes('tvwap.pages.dev') || lc.includes('sonucdn-v3.pages.dev') || lc.includes('live4wab.pages.dev') ||
-          lc.includes('joplay.lrl45.workers.dev') || lc.includes('jiogo.pages.dev') || lc.includes('tvgotk.wapka.site') || 
-          lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('livecricketsl.cc.nf')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media" style="background:#000"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
-        return;
-      }
-
-      // YouTube player
-      if (isYouTube(src)) {
-        let embed = src;
-        if (src.includes('watch') && src.includes('v=')) {
-          const v = new URLSearchParams(src.split('?')[1]).get('v');
-          if (v) embed = `https://www.youtube.com/embed/${v}`;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
-        return;
-      }
 
-      // HLS Stream Engine Implementation
-      if (isHls(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls({
-            maxBufferLength: 30,
-            maxMaxBufferLength: 60,
-            liveSyncDurationCount: 3,
-            liveMaxLatencyDurationCount: 6,
-            enableWorker: true,
-            lowLatencyMode: true,
-            abrEwmaDefaultEstimate: 5000000,
-            backBufferLength: 30
-          });
-          currentHls.loadSource(src);
-          currentHls.attachMedia(v);
-          
-          currentHls.on(Hls.Events.ERROR, function (event, data) {
-            if (data.fatal) {
-              switch (data.type) {
-                case Hls.ErrorTypes.NETWORK_ERROR:
-                  console.log("Fatal network error encountered, attempting to recover...");
-                  currentHls.startLoad();
-                  break;
-                case Hls.ErrorTypes.MEDIA_ERROR:
-                  console.log("Fatal media process error encountered, trying buffer recovery...");
-                  currentHls.recoverMediaError();
-                  break;
-                default:
-                  triggerExternalFallback(movie, src);
-                  break;
-              }
+        /* Sidebar / Channel List */
+        .sidebar {
+            width: 380px;
+            background-color: var(--panel-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 8px;
+        }
+
+        .search-box:focus {
+            border-color: var(--accent-color);
+        }
+
+        .category-filter {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .channel-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .channel-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .channel-item:hover {
+            background-color: var(--item-hover);
+        }
+
+        .channel-item.active {
+            background-color: var(--accent-color);
+        }
+
+        .channel-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: contain;
+            background-color: #000;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .channel-info {
+            overflow: hidden;
+        }
+
+        .channel-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .channel-category {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .channel-item.active .channel-category {
+            color: #e2e8f0;
+        }
+
+        /* Main Player Section */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            position: relative;
+        }
+
+        .player-container {
+            width: 100%;
+            height: 100%;
+            max-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            outline: none;
+        }
+
+        .no-channel-selected {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .no-channel-selected h3 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
             }
-          });
-
-          currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
-          });
-        } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
-        } else {
-          triggerExternalFallback(movie, src);
+            .sidebar {
+                width: 100%;
+                height: 50%;
+            }
+            .main-content {
+                height: 50%;
+            }
         }
-        return;
-      }
+    </style>
+</head>
+<body>
 
-      // MP4 streams fallback loop 
-      if (isMP4(src)) {
-        const v = document.getElementById(modalVideoId);
-        v.src = src;
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
-        return;
-      }
+    <!-- Sidebar with Channels -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Live Channels</h2>
+            <input type="text" id="searchInput" class="search-box" placeholder="Search channels...">
+            <select id="categoryFilter" class="category-filter">
+                <option value="">All Categories</option>
+            </select>
+        </div>
+        <div class="channel-list" id="channelList">
+            <!-- Channels dynamically loaded here -->
+        </div>
+    </div>
 
-      // Generic Direct Frame Fallback
-      playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media" style="background:#000"></iframe>`;
-      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
-    }
+    <!-- Video Player View -->
+    <div class="main-content">
+        <div class="player-container" id="playerContainer">
+            <div class="no-channel-selected" id="placeholder">
+                <h3>Select a Channel</h3>
+                <p>Choose a channel from the sidebar to start streaming.</p>
+            </div>
+            <!-- Shaka Player UI container element -->
+            <div data-shaka-player-container style="width:100%; height:100%; display:none;" id="shakaContainer">
+                <video data-shaka-player id="videoPlayer" autoplay></video>
+            </div>
+        </div>
+    </div>
 
-    function togglePlayPause() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
-      } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
-      }
-    }
+    <!-- Shaka Player & UI Library JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.js"></script>
 
-    function playNext() {
-      if (!currentFiltered.length) currentFiltered = movies.slice();
-      if (currentIndex != null && currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-    }
+    <script>
+        let channelsData = [];
+        let player = null;
+        let ui = null;
 
-    function playPrev() {
-      if (!currentFiltered.length) currentFiltered = movies.slice();
-      if (currentIndex != null && currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-    }
-
-    function toggleFullscreen() {
-      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
-      else document.exitFullscreen();
-    }
-
-    function toggleMute() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    }
-
-    function closeModalHandler() {
-      if (currentHls) { currentHls.destroy(); currentHls = null; }
-      const v = document.getElementById(modalVideoId);
-      if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
-      resetPlayerContainer();
-      hideModal();
-      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
-    }
-
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
-    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
-    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
-    playbackModal.addEventListener('click', (e) => { if (e.target === playbackModal) closeModalHandler(); });
-
-    const container = document.getElementById('movies');
-    function renderMovies(moviesToRender) {
-      container.innerHTML = '';
-      moviesToRender.forEach((movie, index) => {
-        const div = document.createElement('div');
-        div.className = `movie-card group`;
-        div.innerHTML = `
-          <div class="card-inner">
-            <img src="${movie.image}" alt="${movie.title}" class="movie-poster" loading="lazy">
-            <div class="movie-title">${movie.title}</div>
-          </div>
-        `;
-        div.addEventListener('click', () => openPlayer(moviesToRender, index));
-        container.appendChild(div);
-      });
-    }
-
-    // Dynamic Categories Generation
-    function buildCategories(movieList) {
-      const catContainer = document.getElementById('categoryContainer');
-      if (!catContainer) return;
-      const categories = ['All', ...new Set(movieList.map(m => m.category).filter(Boolean))];
-      catContainer.innerHTML = '';
-      categories.forEach((cat, index) => {
-        const btn = document.createElement('button');
-        btn.className = `category-btn ${index === 0 ? 'active' : ''}`;
-        btn.textContent = cat;
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          renderMovies(cat === 'All' ? movies : movies.filter(m => m.category === cat));
+        document.addEventListener('DOMContentLoaded', async () => {
+            initShakaPlayer();
+            await fetchChannels();
+            
+            document.getElementById('searchInput').addEventListener('input', filterChannels);
+            document.getElementById('categoryFilter').addEventListener('change', filterChannels);
         });
-        catContainer.appendChild(btn);
-      });
-    }
 
-    // Async Fetch function to download movies list from movies.json location
-    async function loadMoviesData() {
-      try {
-        const response = await fetch('movies.json');
-        if (!response.ok) throw new Error('Network response error attempting to load movies.json.');
-        movies = await response.json();
-        buildCategories(movies);
-        renderMovies(movies);
-      } catch (err) {
-        console.error("Failed to load movie data configuration array:", err);
-        container.innerHTML = `<div class="col-span-full text-center py-8 text-red-400 font-medium font-mono-tech">Failed to load movies dataset. Please verify 'movies.json' exists.</div>`;
-      }
-    }
+        function initShakaPlayer() {
+            // Install polyfills
+            shaka.polyfill.installAll();
 
-    // Initial lifecycle trigger
-    loadMoviesData();
+            if (!shaka.Player.isBrowserSupported()) {
+                alert('Browser not supported for streaming!');
+                return;
+            }
 
-    // Search bar functionality
-    document.getElementById('searchInput').addEventListener('input', function() {
-      const searchTerm = this.value.toLowerCase();
-      renderMovies(movies.filter(movie => movie.title.toLowerCase().includes(searchTerm)));
-    });
+            const video = document.getElementById('videoPlayer');
+            const container = document.getElementById('playerContainer');
+            
+            player = new shaka.Player(video);
+            ui = new shaka.ui.Overlay(player, container, video);
 
-    // Theme & Grid Mode Handlers
-    const themeBtn = document.getElementById('themeBtn');
-    const iconSun = document.getElementById('icon-sun');
-    const iconMoon = document.getElementById('icon-moon');
-    themeBtn.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      const isLight = document.body.classList.contains('light');
-      iconSun.style.display = isLight ? 'block' : 'none';
-      iconMoon.style.display = isLight ? 'none' : 'block';
-    });
+            // Listen for error events
+            player.addEventListener('error', (event) => {
+                console.error('Error code', event.detail.code, 'object', event.detail);
+            });
+        }
 
-    const gridBtn = document.getElementById('gridBtn');
-    const gridModes = ['mode-standard', 'mode-dense', 'mode-card'];
-    let currentGridIndex = 0;
-    gridBtn.addEventListener('click', () => {
-      document.body.classList.remove(gridModes[currentGridIndex]);
-      currentGridIndex = (currentGridIndex + 1) % gridModes.length;
-      document.body.classList.add(gridModes[currentGridIndex]);
-    });
-  </script>
-  
+        async function fetchChannels() {
+            try {
+                const response = awaitこう('channels3.json'); // Fetches from your channels3.json file
+                if (!response.ok) throw new Error('Failed to load channels3.json');
+                channelsData = await response.json();
+                
+                populateCategories();
+                renderChannels(channelsData);
+            } catch (error) {
+                console.error('Error loading channel list:', error);
+                document.getElementById('channelList').innerHTML = '<div style="padding: 16px; color: #ef4444;">Failed to load channels3.json. Make sure the file is hosted in the same directory.</div>';
+            }
+        }
+
+        function populateCategories() {
+            const categories = [...new Set(channelsData.map(c => c.category).filter(Boolean))];
+            const categorySelect = document.getElementById('categoryFilter');
+            
+            categories.sort().forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        function renderChannels(channels) {
+            const listContainer = document.getElementById('channelList');
+            listContainer.innerHTML = '';
+
+            if (channels.length === 0) {
+                listContainer.innerHTML = '<div style="padding: 16px; color: #94a3b8; text-align: center;">No channels found</div>';
+                return;
+            }
+
+            channels.forEach((channel, index) => {
+                const item = document.createElement('div');
+                item.className = 'channel-item';
+                item.dataset.index = channelsData.indexOf(channel); // Keep reference to original array index
+
+                const logoSrc = channel.logo && channel.logo.trim() !== "" ? channel.logo : 'https://via.placeholder.com/40?text=TV';
+
+                item.innerHTML = `
+                    <img class="channel-logo" src="${logoSrc}" alt="${channel.name}" onerror="this.src='https://via.placeholder.com/40?text=TV'">
+                    <div class="channel-info">
+                        <div class="channel-name">${channel.name}</div>
+                        <div class="channel-category">${channel.category || 'General'}</div>
+                    </div>
+                `;
+
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+                    item.classList.add('active');
+                    playChannel(channel);
+                });
+
+                listContainer.appendChild(item);
+            });
+        }
+
+        function filterChannels() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCategory = document.getElementById('categoryFilter').value;
+
+            const filtered = channelsData.filter(channel => {
+                const matchesQuery = channel.name.toLowerCase().includes(query);
+                const matchesCategory = selectedCategory === "" || channel.category === selectedCategory;
+                return matchesQuery && matchesCategory;
+            });
+
+            renderChannels(filtered);
+        }
+
+        async function playChannel(channel) {
+            const placeholder = document.getElementById('placeholder');
+            const shakaContainer = document.getElementById('shakaContainer');
+
+            placeholder.style.display = 'none';
+            shakaContainer.style.display = 'block';
+
+            // Configure DRM Widevine ClearKeys if keys are provided
+            if (channel.keys && channel.keys.length > 0) {
+                const clearKeys = {};
+                channel.keys.forEach(keyPair => {
+                    const [keyId, key] = keyPair.split(':');
+                    if (keyId && key) {
+                        clearKeys[keyId.trim()] = key.trim();
+                    }
+                });
+
+                player.configure({
+                    drm: {
+                        clearKeys: clearKeys
+                    }
+                });
+            } else if (channel.keyId && channel.key && channel.keyId !== "null" && channel.key !== "null") {
+                player.configure({
+                    drm: {
+                        clearKeys: {
+                            [channel.keyId]: channel.key
+                        }
+                    }
+                });
+            } else {
+                player.configure({ drm: { clearKeys: {} } });
+            }
+
+            try {
+                // Load the DASH stream (.mpd)
+                await player.load(channel.url);
+                console.log('Stream loaded successfully:', channel.name);
+            } catch (error) {
+                console.error('Error loading video stream:', error);
+            }
+        }
+    </script>
 </body>
 </html>
