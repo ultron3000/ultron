@@ -967,9 +967,12 @@ img {
   if (!requested) return;
   const input = document.getElementById("searchBar");
   if (input) { input.value = requested; input.dispatchEvent(new Event("input", { bubbles: true })); }
-  fetch("channels2.json").then(response => { if (!response.ok) throw new Error("Channel catalogue unavailable"); return response.json(); })
-    .then(list => { const index = list.findIndex(item => String(item.title || "").toLocaleLowerCase() === requested.toLocaleLowerCase()); if (index >= 0) openPlayer(list, index); })
-    .catch(() => {});
+  Promise.all(["channels2.json", "channels.json"].map(path => fetch(path).then(response => { if (!response.ok) throw new Error("Channel catalogue unavailable"); return response.json(); })))
+    .then(([primary, secondary]) => {
+      const list = primary.concat(secondary.filter(item => !primary.some(existing => String(existing.title || "").toLocaleLowerCase() === String(item.title || "").toLocaleLowerCase())));
+      const index = list.findIndex(item => String(item.title || "").toLocaleLowerCase() === requested.toLocaleLowerCase());
+      if (index >= 0) openPlayer(list, index);
+    }).catch(() => {});
 })();
 </script>
 <script src="assets/js/universal-search.js" defer></script>
