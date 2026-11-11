@@ -451,7 +451,13 @@ function displayMovies(filteredMovies) {
     noResults.classList.add('hidden');
   }
 
-  filteredMovies.forEach((movie, idx) => {
+  const batchSize = 24;
+  let cursor = 0;
+  function appendBatch() {
+    const fragment = document.createDocumentFragment();
+    const stop = Math.min(cursor + batchSize, filteredMovies.length);
+    for (; cursor < stop; cursor++) {
+      const movie = filteredMovies[cursor];
     const div = document.createElement('div');
     div.className = 'movie-card fade-in bg-[#0f172a] rounded-xl overflow-hidden border border-gray-800';
     div.innerHTML = `
@@ -477,8 +483,15 @@ function displayMovies(filteredMovies) {
       </div>
     `;
     div.onclick = () => handleMovieClick(movie);
-    container.appendChild(div);
-  });
+    fragment.appendChild(div);
+    }
+    container.appendChild(fragment);
+    if (cursor < filteredMovies.length) {
+      if ('requestIdleCallback' in window) requestIdleCallback(appendBatch, { timeout: 250 });
+      else setTimeout(appendBatch, 16);
+    }
+  }
+  appendBatch();
 }
 
 /* ===========================
@@ -620,6 +633,40 @@ categoryBtns.forEach(btn => {
     filterMovies();
   });
 });
+
+/* Reliable, persistent display controls */
+const themeToggle = document.getElementById('themeToggle');
+const gridResize = document.getElementById('gridResize');
+const gridSizes = [
+  { label: 'Compact', min: 112, icon: 'fa-grip' },
+  { label: 'Medium', min: 145, icon: 'fa-grip' },
+  { label: 'Large', min: 190, icon: 'fa-th-large' }
+];
+let gridSizeIndex = 1;
+function applyTheme(light) {
+  document.body.classList.toggle('pixar-light', light);
+  if (themeToggle) {
+    themeToggle.setAttribute('aria-pressed', String(light));
+    themeToggle.innerHTML = light
+      ? '<i class="fas fa-moon" aria-hidden="true"></i><span>Dark mode</span>'
+      : '<i class="fas fa-sun" aria-hidden="true"></i><span>Light mode</span>';
+  }
+  try { localStorage.setItem('pixar-theme', light ? 'light' : 'dark'); } catch (_) {}
+}
+function applyGridSize() {
+  const size = gridSizes[gridSizeIndex];
+  container.style.setProperty('--poster-min', size.min + 'px');
+  if (gridResize) {
+    gridResize.innerHTML = '<i class="fas ' + size.icon + '" aria-hidden="true"></i><span>Grid: ' + size.label + '</span>';
+    gridResize.setAttribute('aria-label', 'Poster size: ' + size.label + '. Change size');
+  }
+}
+let savedTheme = 'dark';
+try { savedTheme = localStorage.getItem('pixar-theme') || 'dark'; } catch (_) {}
+applyTheme(savedTheme === 'light');
+applyGridSize();
+if (themeToggle) themeToggle.addEventListener('click', () => applyTheme(!document.body.classList.contains('pixar-light')));
+if (gridResize) gridResize.addEventListener('click', () => { gridSizeIndex = (gridSizeIndex + 1) % gridSizes.length; applyGridSize(); });
 
 document.addEventListener('DOMContentLoaded', () => {
   currentFiltered = [...movies];
@@ -937,95 +984,8 @@ document.addEventListener("contextmenu", function (e) {
     e.preventDefault();
 });
 
-/* =========================
-   Disable Dragging
-========================= */
-document.addEventListener("dragstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Selection
-========================= */
-document.addEventListener("selectstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Copy Actions
-========================= */
-["copy", "cut", "paste"].forEach(function(evt) {
-
-    document.addEventListener(evt, function(e) {
-        e.preventDefault();
-    });
-
-});
-
-/* =========================
-   Detect DevTools Window
-   (Desktop ONLY - FIXED)
-========================= */
-if (!isMobile) {
-
-    setInterval(function () {
-
-        const widthThreshold =
-            window.outerWidth - window.innerWidth > 220;
-
-        const heightThreshold =
-            window.outerHeight - window.innerHeight > 220;
-
-        if (widthThreshold || heightThreshold) {
-
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-
-    }, 1500);
-
-}
-
-/* =========================
-   Disable Console
-========================= */
-(function () {
-
-    console.clear();
-
-    function block() {
-        return false;
-    }
-
-    console.log = block;
-    console.warn = block;
-    console.error = block;
-    console.info = block;
-    console.debug = block;
-    console.table = block;
-
-})();
-
-/* =========================
-   Block "view-source:"
-========================= */
-if (window.location.href.startsWith("view-source:")) {
-
-    document.body.innerHTML = "";
-    window.location.replace("about:blank");
-
-}
-
-/* =========================
-   Prevent iframe inspection
-========================= */
-if (window.top !== window.self) {
-
-    try {
-        window.top.location = window.self.location;
-    } catch (e) {}
-
-}
+/* Normal browser interactions remain enabled: no polling, console overrides,
+   copy blockers, drag blockers or page-clearing scripts. */
 </script>
 
 <style>
@@ -1052,7 +1012,7 @@ img {
 
 /* PIXAR STORYBOOK THEME — playful depth, soft light and low-cost motion */
 :root{--pixar-ink:#10172e;--pixar-night:#111a37;--pixar-violet:#8b5cf6;--pixar-cyan:#67e8f9;--pixar-gold:#ffd166;--pixar-coral:#ff806e}
-html{scroll-behavior:smooth;scroll-padding-top:24px}
+html{scroll-behavior:auto;scroll-padding-top:24px}
 body{background:radial-gradient(ellipse at 50% -12%,#344a80 0%,#19294e 38%,#0b1024 100%);color:#fff;overflow-x:hidden}
 header{padding-top:10px}
 header .container{display:none}
@@ -1261,6 +1221,30 @@ body.pixar-light .pixar-carousel-wrap{background:rgba(24,33,62,.78)}
 }
 @media(max-width:370px){.pixar-feature-showcase{grid-template-columns:96px minmax(0,1fr);gap:10px;padding:9px}.pixar-feature-poster img{height:145px}.pixar-feature-copy h2{font-size:19px}.pixar-feature-copy p{-webkit-line-clamp:2}}
 
+
+/* Stable final grid, theme and low-cost mobile presentation */
+#movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--poster-min,145px),1fr));gap:clamp(10px,1.5vw,20px)}
+#movies .movie-card{min-width:0}
+#movies .movie-card img{display:block;width:100%;height:100%;object-fit:cover}
+body.pixar-light{background:#f4f5fb!important;color:#18213e!important}
+body.pixar-light .pixar-stage{color:#fff}
+body.pixar-light .pixar-toolbar{background:#fff;border-color:#d8def0}
+body.pixar-light .pixar-toolbar-label{color:#596887}
+body.pixar-light .pixar-toolbar button{background:#f1f4fb;color:#263451;border-color:#d8def0}
+body.pixar-light #searchBar{background:#fff!important;color:#17213b!important;border-color:#d5dced!important}
+body.pixar-light .category-btn{background:#fff!important;color:#35415c!important}
+body.pixar-light .category-btn.active{background:linear-gradient(120deg,#ffe39c,#ffb86d)!important;color:#18213e!important}
+body.pixar-light .movie-card{background:#fff!important;border-color:#dbe1ef!important}
+@media(max-width:680px){
+ html{scroll-behavior:auto!important}
+ .pixar-stage,.pixar-feature-showcase,.pixar-carousel-wrap{backdrop-filter:none!important}
+ .float-character,.stage-glow-a,.desk-lamp{animation:none!important}
+ .movie-card,.movie-poster,.pixar-hero-item{transition:none!important}
+ #movies{grid-template-columns:repeat(auto-fill,minmax(var(--poster-min,125px),1fr));gap:10px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
 </style>
 
 </body>
