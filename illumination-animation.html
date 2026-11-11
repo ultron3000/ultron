@@ -909,6 +909,14 @@
   renderShorts();
   renderGrid();
 
+  // Critical: populate the hero before the page is shown.
+  // Keep the first selection deterministic for immediate paint, then shuffle the remaining order.
+  illumHeroList = illumShuffle(movies.filter(movie => movie && movie.image));
+  if (!illumHeroList.length) illumHeroList = illumShuffle(movies);
+  illumShow(0);
+  illumResetTimer();
+  moviesGrid.classList.add('grid-standard');
+
   // Expose close externally if needed
   window.closePlayer = closeModalHandler;
   </script>
@@ -1292,6 +1300,43 @@ body.light-mode .illum-hero{background:#e5edf7}
  .controls-row .btn{min-width:42px;min-height:42px;padding:8px}
 }
 @media(prefers-reduced-motion:reduce){.movie-card,.illum-hero-art{transition:none!important}}
+
+
+/* Final layout corrections: ensure the showcase is visible immediately and compact. */
+.illum-hero{display:block!important;min-height:0!important}
+.illum-hero-inner{position:relative;z-index:1}
+.illum-hero-art{display:block!important;flex:none}
+.illum-hero-art img{opacity:1;visibility:visible}
+#moviesGrid.grid-standard{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#moviesGrid.grid-compact{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+#moviesGrid.grid-large{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#playbackModal.active{display:flex!important;visibility:visible!important;opacity:1!important}
+#playbackModal .modal-card{display:block;position:relative}
+#playerWrapper{position:relative!important;width:100%;height:auto!important;min-height:0;padding:0!important;aspect-ratio:16/9;background:#000}
+#playerWrapper video,#playerWrapper iframe{position:absolute!important;inset:0;width:100%!important;height:100%!important;object-fit:contain;background:#000}
+@media(max-width:760px){
+ .illum-hero-inner{grid-template-columns:clamp(100px,29vw,128px) minmax(0,1fr)!important;align-items:center!important;gap:13px!important;padding:16px 14px 18px!important;min-height:0!important}
+ .illum-hero-art{width:100%!important;max-height:190px!important;aspect-ratio:2/2.85!important;justify-self:start!important;border-radius:11px!important;transform:none!important}
+ .illum-hero-copy{min-width:0!important}
+ .illum-kicker{font-size:8px!important;letter-spacing:.11em!important;gap:5px!important}
+ .illum-kicker span{width:12px!important}
+ .illum-hero-meta{font-size:9px!important;letter-spacing:.06em!important;margin-top:7px!important}
+ #illumHeroTitle{font-size:clamp(20px,5.7vw,27px)!important;line-height:1.04!important;margin:6px 0!important;overflow-wrap:anywhere}
+ #illumHeroDescription{font-size:11px!important;line-height:1.4!important;-webkit-line-clamp:2!important;margin:0!important}
+ .illum-hero-actions{gap:6px!important;margin-top:10px!important}
+ .illum-primary,.illum-secondary{font-size:10px!important;padding:8px 9px!important;min-height:34px!important;border-radius:8px!important;gap:5px!important}
+ .illum-hero-nav{gap:7px!important;margin-top:9px!important;font-size:9px!important}
+ .illum-hero-nav button{width:27px!important;height:27px!important;flex:none}
+ .illum-hero-track{width:45px!important}
+ #moviesGrid.grid-standard,#moviesGrid.grid-compact{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+ #moviesGrid.grid-large{grid-template-columns:repeat(1,minmax(0,1fr))!important}
+}
+@media(max-width:360px){
+ .illum-hero-inner{grid-template-columns:88px minmax(0,1fr)!important;gap:10px!important;padding-inline:10px!important}
+ #illumHeroTitle{font-size:19px!important}
+ #illumHeroDescription{font-size:10px!important}
+ .illum-primary,.illum-secondary{font-size:9px!important;padding:7px!important}
+}
 
 </style>
 
