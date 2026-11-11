@@ -8,6 +8,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <!-- HLS.js for HLS playback -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
     
@@ -8241,41 +8242,117 @@
     const modalDesc = document.getElementById("modalDesc");
     const externalBtn = document.getElementById("externalBtn");
 
+    let currentHls = null;
+    let currentShaka = null;
+
+    function resetMoviePlayer() {
+      if (currentHls) { try { currentHls.destroy(); } catch (e) {} currentHls = null; }
+      if (currentShaka) { try { currentShaka.destroy(); } catch (e) {} currentShaka = null; }
+      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+        <button id="topCloseBtn" onclick="closePlayer()" title="Close Player"><i class="fas fa-times text-lg"></i></button>`;
+    }
+
     function openPlayer(index) {
+      if (index < 0 || index >= movies.length) return;
       currentMovieIndex = index;
       const movie = movies[index];
-      const streamUrl = movie.video || movie.url || "";
-      
-      modalTitle.textContent = movie.title;
-      modalDesc.textContent = movie.description || "";
-      externalBtn.href = streamUrl;
+      const media = movie.video || movie.url || "";
+      const streamUrl = typeof media === "object" && media !== null
+        ? (media.high || media.mpd || Object.values(media).find(value => typeof value === "string" && /^https?:/i.test(value)) || "")
+        : media;
 
-      // Handle iframe embeds vs standard video sources
-      if (streamUrl.includes("mega.nz") || streamUrl.includes("youtube.com") || streamUrl.includes("turboembed.com") || streamUrl.includes("embed") || streamUrl.includes("lizer123.site")) {
-        playerWrapper.innerHTML = `
-          <iframe src="${streamUrl}" allowfullscreen style="width:100%;height:100%;border:0;"></iframe>
-          <button id="topCloseBtn" onclick="closePlayer()" title="Close Player">
-            <i class="fas fa-times text-lg"></i>
-          </button>
-        `;
-      } else {
-        playerWrapper.innerHTML = `
-          <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000">
-            <source src="${streamUrl}" type="video/mp4">
-          </video>
-          <button id="topCloseBtn" onclick="closePlayer()" title="Close Player">
-            <i class="fas fa-times text-lg"></i>
-          </button>
-        `;
+      modalTitle.textContent = movie.title || "";
+      modalDesc.textContent = movie.description || "";
+      externalBtn.href = streamUrl || "#";
+      resetMoviePlayer();
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+
+      if (!streamUrl) return;
+      const lower = streamUrl.toLowerCase();
+      const isYouTube = /youtube\.com|youtu\.be|youtube-nocookie\.com/.test(lower);
+      const isEmbed = /mega\.nz|turboembed\.com|lizer123\.site|\/embed\//.test(lower) ||
+        /waptv\.wapka\.xyz|tv4wab\.pages\.dev|trend48\.st|24spn-webhost8\.blogspot\.com|livesportz\.cfd|tvwap\.pages\.dev|sonucdn-v3\.pages\.dev|live4wab\.pages\.dev|joplay\.lrl45\.workers\.dev|jiogo\.pages\.dev|tvgotk\.wapka\.site|dood|vidcdn|ok\.ru|livecricketsl\.cc\.nf/.test(lower);
+
+      if (isYouTube || isEmbed) {
+        let embedUrl = streamUrl;
+        if (isYouTube && /youtube\.com\/watch/.test(lower)) {
+          const videoId = new URL(streamUrl).searchParams.get("v");
+          if (videoId) embedUrl = "https://www.youtube.com/embed/" + encodeURIComponent(videoId);
+        } else if (isYouTube && /youtu\.be\//.test(lower)) {
+          const videoId = new URL(streamUrl).pathname.split("/").filter(Boolean)[0];
+          if (videoId) embedUrl = "https://www.youtube.com/embed/" + encodeURIComponent(videoId);
+        }
+        const iframe = document.createElement("iframe");
+        iframe.src = embedUrl;
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+        iframe.allowFullscreen = true;
+        iframe.style.cssText = "width:100%;height:100%;border:0;background:#000";
+        playerWrapper.insertBefore(iframe, playerWrapper.firstChild);
+        const video = document.getElementById("modalVideo");
+        if (video) video.remove();
+        return;
       }
 
-      modal.classList.add("active");
+      const video = document.getElementById("modalVideo");
+      if (!video) return;
+      const mpd = typeof media === "object" && media !== null ? media.mpd : (/\.mpd(?:$|\?)/i.test(streamUrl) ? streamUrl : "");
+      if (mpd && window.shaka) {
+        try {
+          currentShaka = new shaka.Player(video);
+          if (typeof media === "object" && media.key) {
+            const parts = media.key.split(":");
+            if (parts.length === 2) currentShaka.configure({drm:{clearKeys:{[parts[0]]:parts[1]}}});
+          }
+          await currentShaka.load(mpd);
+          video.play().catch(() => {});
+          return;
+        } catch (error) { console.error("DASH playback failed", error); return; }
+      }
+
+      if (/\.m3u8|index-|manifest|master/i.test(streamUrl)) {
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls({maxBufferLength:30,maxMaxBufferLength:60,liveSyncDurationCount:3,liveMaxLatencyDurationCount:6,enableWorker:true,lowLatencyMode:true,backBufferLength:30});
+          currentHls.loadSource(streamUrl);
+          currentHls.attachMedia(video);
+          currentHls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+          currentHls.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal && data.type === Hls.ErrorTypes.MEDIA_ERROR) currentHls.recoverMediaError();
+            else if (data.fatal && data.type === Hls.ErrorTypes.NETWORK_ERROR) currentHls.startLoad();
+          });
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+          video.src = streamUrl;
+          video.play().catch(() => {});
+        }
+        return;
+      }
+
+      video.src = streamUrl;
+      video.play().catch(() => {});
     }
 
     function closePlayer() {
+      if (currentHls) { try { currentHls.destroy(); } catch (e) {} currentHls = null; }
+      if (currentShaka) { try { currentShaka.destroy(); } catch (e) {} currentShaka = null; }
+      const video = document.getElementById("modalVideo");
+      if (video) { video.pause(); video.removeAttribute("src"); video.load(); }
       modal.classList.remove("active");
+      document.body.style.overflow = "";
       playerWrapper.innerHTML = "";
     }
+
+    document.getElementById("playPauseBtn").addEventListener("click", () => {
+      const video = document.getElementById("modalVideo");
+      if (video) { if (video.paused) video.play().catch(() => {}); else video.pause(); }
+    });
+    document.getElementById("fullscreenBtn").addEventListener("click", () => {
+      const target = document.getElementById("modalVideo") || playerWrapper.querySelector("iframe");
+      if (target && target.requestFullscreen) target.requestFullscreen().catch(() => {});
+    });
+    document.getElementById("muteBtn").addEventListener("click", () => {
+      const video = document.getElementById("modalVideo");
+      if (video) video.muted = !video.muted;
+    });
 
     document.getElementById("closeBtn").addEventListener("click", closePlayer);
     document.getElementById("prevBtn").addEventListener("click", () => {
