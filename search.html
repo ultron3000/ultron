@@ -918,36 +918,15 @@
     document.addEventListener('DOMContentLoaded', () => {
       const searchInput = document.getElementById('globalPortalSearch');
       const clearBtn = document.getElementById('clearSearchBtn');
-      const searchableCards = document.querySelectorAll('.card-4d');
-
-      searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        
-        if (query.length > 0) {
-          clearBtn.classList.remove('hidden');
-        } else {
-          clearBtn.classList.add('hidden');
-        }
-
-        searchableCards.forEach(card => {
-          const cardText = card.textContent.toLowerCase();
-          if (cardText.includes(query)) {
-            card.style.display = '';
-            card.style.opacity = '1';
-          } else {
-            card.style.display = 'none';
-            card.style.opacity = '0';
-          }
-        });
+      if (!searchInput || !clearBtn) return;
+      searchInput.addEventListener('input', () => {
+        clearBtn.classList.toggle('hidden', !searchInput.value.trim());
       });
-
       clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         clearBtn.classList.add('hidden');
-        searchableCards.forEach(card => {
-          card.style.display = '';
-          card.style.opacity = '1';
-        });
+        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        searchInput.focus();
       });
     });
   </script>
