@@ -1037,9 +1037,8 @@ if (!isMobile) {
             window.outerHeight - window.innerHeight > 220;
 
         if (widthThreshold || heightThreshold) {
-
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
+            /* Detection remains active; do not blank the page on false positives. */
+            document.documentElement.dataset.devtoolsDetected = "true";
         }
 
     }, 1500);
@@ -1070,10 +1069,8 @@ if (!isMobile) {
    Block "view-source:"
 ========================= */
 if (window.location.href.startsWith("view-source:")) {
-
-    document.body.innerHTML = "";
-    window.location.replace("about:blank");
-
+    /* Block the source-view route without replacing the page with a blank tab. */
+    window.stop();
 }
 
 /* =========================
