@@ -8222,14 +8222,24 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
     const categoryContainer = document.getElementById("categoryContainer");
     const searchInput = document.getElementById("searchInput");
 
-    // Initialize Categories
+    // Original category selector, rebuilt with safe event binding.
     function initCategories() {
-      const categories = ["All", ...new Set(movies.map(m => m.category || "Marathi"))];
-      categoryContainer.innerHTML = categories.map(cat => `
-        <button class="category-btn ${cat === activeCategory ? 'active' : ''}" onclick="filterCategory('${cat}')">
-          ${cat}
-        </button>
-      `).join("");
+      const categories = ["All", ...Array.from(new Set(
+        movies.map(movie => String(movie.category || "Marathi").trim()).filter(Boolean)
+      )).sort((a, b) => a.localeCompare(b))];
+
+      const fragment = document.createDocumentFragment();
+      categories.forEach(category => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "category-btn" + (category === activeCategory ? " active" : "");
+        button.textContent = category;
+        button.dataset.category = category;
+        button.setAttribute("aria-pressed", String(category === activeCategory));
+        button.addEventListener("click", () => filterCategory(category));
+        fragment.appendChild(button);
+      });
+      categoryContainer.replaceChildren(fragment);
     }
 
     function filterCategory(cat) {
@@ -8694,6 +8704,44 @@ body.light .tool-btn{background:#e8edf5!important;color:#334155!important}
  body.mode-dense #movies.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
  body.mode-card #movies.movie-grid{grid-template-columns:repeat(1,minmax(0,1fr))!important;gap:13px!important}
  body.mode-card .movie-poster{aspect-ratio:16/9!important}
+}
+
+
+/* RESTORE ORIGINAL MOVIES CONTROLS + MOBILE CATEGORY NAVIGATION */
+#categoryContainer.category-scroll-container{
+  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  justify-content:flex-start!important;align-items:center!important;
+  width:100%!important;max-width:100%!important;min-height:48px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  padding:9px 3px 13px!important;gap:9px!important;
+  scrollbar-width:thin!important;scrollbar-color:rgba(255,200,87,.55) transparent!important;
+  -webkit-overflow-scrolling:touch!important;overscroll-behavior-x:contain!important;
+  touch-action:pan-x pan-y!important;
+}
+#categoryContainer .category-btn{
+  display:inline-flex!important;flex:0 0 auto!important;width:auto!important;
+  min-width:max-content!important;white-space:nowrap!important;
+  align-items:center!important;justify-content:center!important;
+  min-height:40px!important;padding:8px 16px!important;
+  font-size:13px!important;line-height:1.2!important;
+}
+#categoryContainer .category-btn.active{font-weight:800!important}
+body.mode-standard #movies.movie-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))!important;gap:16px!important}
+body.mode-dense #movies.movie-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(105px,1fr))!important;gap:9px!important}
+body.mode-card #movies.movie-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(245px,1fr))!important;gap:19px!important}
+body.mode-standard #movies .movie-poster,body.mode-dense #movies .movie-poster{aspect-ratio:2/3!important;object-fit:cover!important}
+body.mode-card #movies .movie-poster{aspect-ratio:16/10!important;object-fit:cover!important}
+body.light{background:#f4f7fb!important;color:#172033!important;background-image:linear-gradient(145deg,#f8fafc,#e9eff7)!important}
+body.light .category-btn{background:#fff!important;color:#334155!important;border-color:#cbd5e1!important}
+body.light .category-btn.active{background:linear-gradient(120deg,#ffc857,#ff8b54)!important;color:#171923!important}
+body.light .movie-title{background:#fff!important;color:#172033!important}
+@media(max-width:640px){
+ #categoryContainer.category-scroll-container{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x proximity!important}
+ #categoryContainer .category-btn{scroll-snap-align:start!important;min-width:max-content!important;width:auto!important}
+ body.mode-standard #movies.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ body.mode-dense #movies.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+ body.mode-card #movies.movie-grid{grid-template-columns:repeat(1,minmax(0,1fr))!important;gap:13px!important}
+ body.mode-card #movies .movie-poster{aspect-ratio:16/9!important}
 }
 
 </style>
