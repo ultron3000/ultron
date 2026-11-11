@@ -34,7 +34,7 @@
       #universalSearchLayer .us-meta{font-size:10px;color:#91a4bd;text-transform:capitalize;line-height:1.5}
       #universalSearchLayer .us-empty{border:1px dashed rgba(143,190,220,.35);border-radius:18px;padding:38px 18px;text-align:center;color:#cbd8e8;background:rgba(13,26,44,.45)}
       #universalSearchLayer .us-hint{margin-top:18px;color:#71849d;font-size:11px}
-      @media(max-width:760px){#universalSearchLayer{inset:66px 0 0;padding:14px}#universalSearchLayer .us-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}}
+      @media(max-width:760px){#universalSearchLayer{inset:66px 0 0;padding:14px;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}#universalSearchLayer.has-mobile-search{top:118px;bottom:0;padding-bottom:calc(32px + env(safe-area-inset-bottom))}#universalSearchLayer .us-wrap{padding-bottom:36px}#universalSearchLayer .us-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;touch-action:pan-y}#universalSearchLayer .us-card{touch-action:pan-y;user-select:none;-webkit-user-select:none}}
       @media(max-width:480px){#universalSearchLayer .us-top{align-items:flex-start}#universalSearchLayer .us-heading{font-size:20px}#universalSearchLayer .us-muted{font-size:11px}#universalSearchLayer .us-close{padding:9px 10px;font-size:11px}#universalSearchLayer .us-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#universalSearchLayer .us-card{border-radius:13px}#universalSearchLayer .us-card-body{padding:9px}#universalSearchLayer .us-title{font-size:12px}#universalSearchLayer .us-meta{font-size:9px}#universalSearchLayer .us-filter{padding:8px 11px;font-size:11px}}
       @media(prefers-reduced-motion:reduce){#universalSearchLayer *{transition:none!important}}
     </style>
@@ -50,6 +50,7 @@
       <div id="usResults" class="us-grid" aria-live="polite"></div>
       <div class="us-hint">Tip: use ↑ ↓ to move through results, Enter to open, and Esc to close.</div>
     </div>`;
+  root.classList.toggle("has-mobile-search", !!document.querySelector(".mobile-search-bar"));
   document.body.appendChild(root);
   const results = root.querySelector("#usResults");
   const summary = root.querySelector("#usSummary");
