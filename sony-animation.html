@@ -8,6 +8,7 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <!-- hls.js for HLS playback -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -362,249 +363,162 @@ header{background:linear-gradient(110deg,#071a39,#152c4c 48%,#361a36);border-bot
   const watchlistCheckbox = document.getElementById('watchlist-checkbox');
   const modalMeta = document.getElementById('modal-meta');
 
-  // Playback state
+  // TV-style playback engine adapted to the Sony catalogue.
   let currentHls = null;
+  let currentShaka = null;
   let currentIndex = null;
+  let currentPlaybackList = movies.slice();
   const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const playPauseBtn = document.getElementById('playPauseBtn');
-const muteBtn = document.getElementById('muteBtn');
-const fullscreenBtn = document.getElementById('fullscreenBtn');
-const closeBtn = document.getElementById('closeBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const muteBtn = document.getElementById('muteBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const closeBtn = document.getElementById('closeBtn');
 
-
-  // Helper: always return the current <video> element
-  function getModalVideo() {
-    return document.getElementById('modal-video');
+  function getModalVideo(){ return modalPlayer.querySelector('video#modal-video'); }
+  function isHls(u){ return !!u && (/\\.m3u8?(?:$|[?#])/i.test(u) || /(?:index|master).*\\.txt(?:$|[?#])/i.test(u) || /\\.txt(?:$|[?#])/i.test(u) || /manifest/i.test(u)); }
+  function isMP4(u){ return /\\.(mp4|m4v|webm|ogv)(?:$|[?#])/i.test(u||''); }
+  function isYouTube(u){ return !!u && /(?:youtube\\.com|youtu\\.be|youtube-nocookie\\.com)/i.test(u); }
+  function showPlaybackModal(){
+    playbackModal.classList.add('active');
+    playbackModal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
   }
-
-  // Type detection helpers (taken from Hawkeye logic). :contentReference[oaicite:4]{index=4}
-  function isHls(u) { return !!u && (/\.m3u8?(?:$|[?#])/i.test(u) || /(?:index|master).*\.txt(?:$|[?#])/i.test(u) || /\.txt(?:$|[?#])/i.test(u) || /manifest/i.test(u)); }
-  function isMP4(u) {
-    return /\.mp4($|\?)/i.test(u || '');
+  function setVideoControlState(enabled){
+    [playPauseBtn,muteBtn].forEach(btn=>{ if(btn){btn.disabled=!enabled;btn.setAttribute('aria-disabled',String(!enabled));btn.style.opacity=enabled?'1':'.4';} });
   }
-  function isYouTube(u) { return !!(u && (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com'))); }
-
-  // Reset player container to a fresh <video> (destroy Hls if present). :contentReference[oaicite:5]{index=5}
-  function resetPlayerContainer() {
-    if (currentHls) {
-      try { currentHls.destroy(); } catch(e) {}
-      currentHls = null;
+  function resetPlayerContainer(){
+    if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+    if(currentShaka){try{currentShaka.destroy();}catch(e){}currentShaka=null;}
+    modalPlayer.innerHTML='<video id="modal-video" class="w-full" controls playsinline webkit-playsinline preload="metadata" style="width:100%;height:100%;background:#000;object-fit:contain"></video>';
+    setVideoControlState(true);
+    if(playPauseBtn)playPauseBtn.innerHTML='<i class="fas fa-play"></i>';
+    if(muteBtn)muteBtn.innerHTML='<i class="fas fa-volume-up"></i>';
+    if(progressBarFill)progressBarFill.style.width='0%';
+    const v=getModalVideo();
+    if(v){
+      v.addEventListener('timeupdate',()=>{if(v.duration)progressBarFill.style.width=(v.currentTime/v.duration*100)+'%';});
+      v.addEventListener('play',()=>{if(playPauseBtn)playPauseBtn.innerHTML='<i class="fas fa-pause"></i>';if(playBtn)playBtn.innerHTML='<i class="fas fa-pause mr-2"></i> Pause';});
+      v.addEventListener('pause',()=>{if(playPauseBtn)playPauseBtn.innerHTML='<i class="fas fa-play"></i>';if(playBtn)playBtn.innerHTML='<i class="fas fa-play mr-2"></i> Play';});
+      v.addEventListener('ended',()=>{if(playPauseBtn)playPauseBtn.innerHTML='<i class="fas fa-redo"></i>';if(playBtn)playBtn.innerHTML='<i class="fas fa-redo mr-2"></i> Replay';});
+      v.addEventListener('error',()=>{modalDescription.textContent='This stream could not be loaded by the browser. The source may be offline or block playback.';});
     }
-    modalPlayer.innerHTML = `
-      <video id="modal-video" class="w-full" controls playsinline>
-        Your browser does not support the video tag.
-      </video>
-    `;
+    return v;
   }
-
-  // Attach listeners to the video element for progress updates and ended state.
-  function attachVideoListeners() {
-    const videoEl = getModalVideo();
-    if (!videoEl) return;
-    // timeupdate for progress bar
-    videoEl.addEventListener('timeupdate', () => {
-      if (!videoEl.duration) return;
-      const progress = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = progress + '%';
-    });
-    videoEl.addEventListener('ended', () => {
-      playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
-    });
-  }
-
-  // Play / Pause
-playPauseBtn.addEventListener('click', () => {
-  const video = getModalVideo();
-  if (!video) return;
-  if (video.paused) {
-    video.play();
-    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-  } else {
-    video.pause();
-    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-  }
-});
-
-// Previous
-prevBtn.addEventListener('click', () => {
-  if (currentIndex === null || currentIndex === 0) return;
-  const prevMovie = movies[currentIndex - 1];
-  loadingSpinner.classList.remove('hidden');
-  playInModal(prevMovie.title, prevMovie.video, prevMovie, currentIndex - 1);
-});
-
-// Next
-nextBtn.addEventListener('click', () => {
-  if (currentIndex === null || !movies.length) return;
-  const idx=(currentIndex+1)%movies.length, nextMovie=movies[idx];
-  loadingSpinner.classList.remove('hidden');
-  playInModal(nextMovie.title, nextMovie.video, nextMovie, idx);
-});
-
-// Mute / Unmute
-muteBtn.addEventListener('click', () => {
-  const video = getModalVideo();
-  if (!video) return;
-  video.muted = !video.muted;
-  muteBtn.innerHTML = video.muted
-    ? '<i class="fas fa-volume-mute"></i>'
-    : '<i class="fas fa-volume-up"></i>';
-});
-
-// Fullscreen
-fullscreenBtn.addEventListener('click', () => {
-  const player = document.getElementById('modal-player');
-  if (player.requestFullscreen) player.requestFullscreen();
-});
-
-// Close
-closeBtn.addEventListener('click', closeModalHandler);
-
-
-  // Close modal and cleanup (destroy HLS, pause & unload). :contentReference[oaicite:6]{index=6}
-  function closeModalHandler() {
-    const videoEl = getModalVideo();
-    if (currentHls) { try { currentHls.destroy(); } catch(e){} currentHls = null; }
-    if (videoEl) {
-      try { videoEl.pause(); } catch(e){}
-      try { videoEl.removeAttribute('src'); videoEl.load(); } catch(e){}
-    }
-    resetPlayerContainer();
+  function closeModalHandler(){
+    if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+    if(currentShaka){try{currentShaka.destroy();}catch(e){}currentShaka=null;}
+    const v=getModalVideo();
+    if(v){try{v.pause();v.removeAttribute('src');v.load();}catch(e){}}
+    modalPlayer.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');
+    modalPlayer.innerHTML='';
     playbackModal.classList.remove('active');
     playbackModal.setAttribute('aria-hidden','true');
-    document.body.style.overflow = '';
-    currentIndex = null;
-    playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
-    progressBarFill.style.width = '0%';
+    document.body.style.overflow='';
+    currentIndex=null;
+    if(playBtn)playBtn.innerHTML='<i class="fas fa-play mr-2"></i> Play';
+    if(playPauseBtn)playPauseBtn.innerHTML='<i class="fas fa-play"></i>';
+    if(progressBarFill)progressBarFill.style.width='0%';
+    setVideoControlState(true);
   }
+  async function playInModal(title,url,movie={},index=null){
+    currentIndex=index;
+    modalTitle.textContent=movie.title||title||'Playback';
+    modalDescription.textContent=movie.description||'';
+    modalMeta.textContent=[movie.year,movie.duration].filter(Boolean).join(' • ')||'Sony Pictures Animation';
+    if(watchlistCheckbox)watchlistCheckbox.checked=!!movie.inWatchlist;
+    const video=resetPlayerContainer();
+    showPlaybackModal(); // Open immediately; never wait for a manifest callback to reveal the modal.
+    if(loadingSpinner)loadingSpinner.classList.add('hidden');
 
-  // Core playInModal function (supports iframe hosts, YouTube, HLS, MP4; fallback to player.html redirect). :contentReference[oaicite:7]{index=7}
-  function playInModal(title, url, movie = {}, index = null) {
-    currentIndex = index;
-    modalTitle.textContent = movie.title || title || 'Playback';
-    modalDescription.textContent = movie.description || '';
-    modalMeta.textContent = (movie.year ? movie.year + ' • ' : '') + (movie.duration ? movie.duration : '');
-    watchlistCheckbox.checked = !!movie.inWatchlist;
-    progressBarFill.style.width = '0%';
-    resetPlayerContainer();
+    let src=url;
+    if(src&&typeof src==='object')src=src.high||src.url||src.mpd||Object.values(src).find(v=>typeof v==='string');
+    if(!src){modalDescription.textContent='No playable video URL is available for this title.';return;}
+    try{src=new URL(String(src),window.location.href).href;}catch(e){modalDescription.textContent='The video URL is invalid.';return;}
+    const lower=src.toLowerCase();
 
-    if (!url) {
-      modalTitle.textContent = (title || 'Unknown') + ' — No playable URL provided';
-      playbackModal.classList.add('active');
-      playbackModal.setAttribute('aria-hidden','false');
-      document.body.style.overflow = 'hidden';
-      return;
+    // DASH streams, including optional clear-key configuration used by the TV player.
+    if(movie.video&&typeof movie.video==='object'&&movie.video.mpd&&window.shaka){
+      try{
+        currentShaka=new shaka.Player(video);
+        if(movie.video.key){const pair=movie.video.key.split(':');if(pair.length===2)currentShaka.configure({drm:{clearKeys:{[pair[0]]:pair[1]}}});}
+        await currentShaka.load(movie.video.mpd);
+        video.play().catch(()=>{});
+        return;
+      }catch(err){modalDescription.textContent='DASH playback could not start. '+(err.message||'');return;}
     }
 
-    // Hosts that are best embedded as iframe (streamtape, dood, etc.)
-    const iframeHosts = ['streamtape.com','openload.co','vidcdn','dood.', 'sbembed', 'drive.google.com'];
-    if (iframeHosts.some(h => url.includes(h))) {
-      modalPlayer.innerHTML = `<iframe src="${url}" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      loadingSpinner.classList.add('hidden');
-      return;
+    // YouTube URLs are normalised to an embeddable URL.
+    if(isYouTube(src)){
+      let embed=src;
+      try{
+        const u=new URL(src);let id=u.searchParams.get('v');
+        if(!id&&u.hostname.includes('youtu.be'))id=u.pathname.split('/').filter(Boolean)[0];
+        if(!id&&u.pathname.includes('/embed/'))id=u.pathname.split('/embed/')[1].split('/')[0];
+        if(id)embed='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&rel=0&playsinline=1';
+      }catch(e){}
+      const frame=document.createElement('iframe');frame.src=embed;frame.title=(title||'Sony movie')+' player';frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';
+      modalPlayer.replaceChildren(frame);setVideoControlState(false);return;
     }
 
-    // YouTube handling
-    if (isYouTube(url)) {
-      let embedUrl = url;
-      try {
-        if (url.includes('watch') && url.includes('v=')) {
-          const vid = new URLSearchParams(url.split('?')[1]).get('v');
-          if (vid) embedUrl = `https://www.youtube.com/embed/${vid}`;
-        } else if (url.includes('youtu.be/')) {
-          const parts = url.split('youtu.be/');
-          if (parts[1]) {
-            const vid = parts[1].split(/[?&]/)[0];
-            embedUrl = `https://www.youtube.com/embed/${vid}`;
-          }
-        }
-      } catch(e){}
-      modalPlayer.innerHTML = `<iframe src="${embedUrl}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" allowfullscreen allow="autoplay; encrypted-media" frameborder="0"></iframe>`;
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      loadingSpinner.classList.add('hidden');
-      return;
+    const iframeHosts=['streamtape.com','openload.co','vidcdn','dood.','sbembed','drive.google.com','ok.ru','uqload','filemoon','mixdrop','streamwish','voe.sx'];
+    if(iframeHosts.some(host=>lower.includes(host))||(!isHls(src)&&!isMP4(src))){
+      const frame=document.createElement('iframe');frame.src=src;frame.title=(title||'Sony movie')+' player';frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';
+      modalPlayer.replaceChildren(frame);setVideoControlState(false);return;
     }
 
-    // Use the <video> element for HLS or MP4
-    const videoEl = getModalVideo();
-
-    // HLS
-    if (isHls(url)) {
-      if (Hls.isSupported()) {
-        currentHls = new Hls();
-        currentHls.loadSource(url);
-        currentHls.attachMedia(videoEl);
-        currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
-          playbackModal.classList.add('active');
-          document.body.style.overflow = 'hidden';
-          loadingSpinner.classList.add('hidden');
-          videoEl.play().catch(()=>{});
+    if(isHls(src)){
+      if(window.Hls&&Hls.isSupported()){
+        currentHls=new Hls({enableWorker:true,maxBufferLength:30,backBufferLength:30});
+        currentHls.on(Hls.Events.ERROR,(event,data)=>{
+          if(!data.fatal)return;
+          if(data.type===Hls.ErrorTypes.NETWORK_ERROR){try{currentHls.startLoad();}catch(e){modalDescription.textContent='Stream network error. The host may be unavailable.';}}
+          else if(data.type===Hls.ErrorTypes.MEDIA_ERROR){try{currentHls.recoverMediaError();}catch(e){modalDescription.textContent='Stream media error. Try another source.';}}
+          else modalDescription.textContent='This HLS stream failed to load. The source may be offline or restrict access.';
         });
-      } else {
-        // native support (Safari)
-        videoEl.src = url;
-        playbackModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        loadingSpinner.classList.add('hidden');
-        videoEl.play().catch(()=>{});
-      }
-      attachVideoListeners();
+        currentHls.loadSource(src);currentHls.attachMedia(video);
+        currentHls.on(Hls.Events.MANIFEST_PARSED,()=>video.play().catch(()=>{}));
+      }else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=src;video.play().catch(()=>{});}
+      else{modalDescription.textContent='HLS playback is not supported in this browser.';}
       return;
     }
-
-    // MP4
-    if (isMP4(url)) {
-      videoEl.src = url;
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      loadingSpinner.classList.add('hidden');
-      videoEl.play().catch(()=>{});
-      attachVideoListeners();
-      return;
-    }
-
-    // Unknown hosted player / embed URL: keep playback inside this modal.
-    try {
-      const parsed = new URL(url, window.location.href);
-      if (!['http:','https:'].includes(parsed.protocol)) throw new Error('Unsupported media URL');
-      modalPlayer.innerHTML = '<iframe title="'+String(title||'Movie player').replace(/[&<>"]/g,'')+'" src="'+parsed.href.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
-      playbackModal.classList.add('active');
-      playbackModal.setAttribute('aria-hidden','false');
-      document.body.style.overflow='hidden';
-    } catch(e) {
-      modalTitle.textContent=(title||'Movie')+' — Unsupported playback link';
-    }
-    loadingSpinner.classList.add('hidden');
+    video.src=src;
+    video.play().catch(()=>{modalDescription.textContent='Press Play to begin. If playback still fails, the host may block this browser or embedding.';});
   }
 
-  // Play/pause button
-  playBtn.addEventListener('click', () => {
-    const videoEl = getModalVideo();
-    if (!videoEl) return;
-    if (videoEl.paused) {
-      videoEl.play();
-      playBtn.innerHTML = '<i class="fas fa-pause mr-2"></i> Pause';
-    } else {
-      videoEl.pause();
-      playBtn.innerHTML = '<i class="fas fa-play mr-2"></i> Play';
-    }
-  });
-
-  // watchlist toggle (simple client-side example)
-  watchlistCheckbox.addEventListener('change', function(){
-    if (currentIndex == null) return;
-    // implement your watchlist logic (e.g., update movies[currentIndex].inWatchlist)
-  });
-
-  // Close modal handlers
-  closePlaybackBtn.addEventListener('click', closeModalHandler);
-  playbackModal.addEventListener('click', (e) => {
-    if (e.target === playbackModal) closeModalHandler();
-  });
+  function playAdjacent(direction){
+    if(!currentPlaybackList.length)return;
+    if(currentIndex==null)currentIndex=currentPlaybackList.indexOf(movies.find(m=>m.title===modalTitle.textContent));
+    if(currentIndex<0)currentIndex=0;
+    const next=(currentIndex+direction+currentPlaybackList.length)%currentPlaybackList.length;
+    const movie=currentPlaybackList[next];
+    playInModal(movie.title,movie.video,movie,next);
+  }
+  function togglePlayback(){
+    const v=getModalVideo();if(!v)return;
+    if(v.paused)v.play().catch(()=>{});else v.pause();
+  }
+  function toggleMute(){
+    const v=getModalVideo();if(!v)return;v.muted=!v.muted;
+    muteBtn.innerHTML=v.muted?'<i class="fas fa-volume-mute"></i>':'<i class="fas fa-volume-up"></i>';
+  }
+  function toggleFullscreen(){
+    const target=modalPlayer.querySelector('video,iframe')||modalPlayer;
+    if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});return;}
+    const request=target.requestFullscreen||modalPlayer.requestFullscreen;
+    if(request)Promise.resolve(request.call(target)).catch(()=>{});
+  }
+  playPauseBtn.addEventListener('click',togglePlayback);
+  playBtn.addEventListener('click',togglePlayback);
+  prevBtn.addEventListener('click',()=>playAdjacent(-1));
+  nextBtn.addEventListener('click',()=>playAdjacent(1));
+  muteBtn.addEventListener('click',toggleMute);
+  fullscreenBtn.addEventListener('click',toggleFullscreen);
+  closeBtn.addEventListener('click',closeModalHandler);
+  closePlaybackBtn.addEventListener('click',closeModalHandler);
+  playbackModal.addEventListener('click',e=>{if(e.target===playbackModal)closeModalHandler();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&playbackModal.classList.contains('active'))closeModalHandler();});
+  watchlistCheckbox.addEventListener('change',()=>{if(currentIndex!=null&&currentPlaybackList[currentIndex])currentPlaybackList[currentIndex].inWatchlist=watchlistCheckbox.checked;});
 
   // Utility: create cards when movies list is present (kept from Sony code)
   function displayMovies(list) {
@@ -647,14 +561,14 @@ closeBtn.addEventListener('click', closeModalHandler);
   });
   clearSearch.addEventListener('click', () => { searchBar.value=''; displayMovies(movies); });
 
-  // Cinematic hero rotates through the complete Sony catalogue.
-  let sonyHeroOrder=[],sonyHeroIndex=0,sonyHeroTimer=null,sonyHeroStartedAt=0,sonyHeroFrame=null;
+  // Cinematic hero: shuffled on first paint, then advances every five seconds.
+  let sonyHeroOrder=[],sonyHeroIndex=0,sonyHeroTimer=null;
   const sonyHeroTitle=document.getElementById('sonyHeroTitle'),sonyHeroDescription=document.getElementById('sonyHeroDescription'),sonyHeroMeta=document.getElementById('sonyHeroMeta'),sonyHeroPoster=document.getElementById('sonyHeroPoster'),sonyHeroBackdrop=document.getElementById('sonyHeroBackdrop'),sonyHeroCount=document.getElementById('sonyHeroCount'),sonyHeroProgress=document.getElementById('sonyHeroProgress');
   function sonySetHero(movie){
     if(!movie)return;
     sonyHeroTitle.textContent=movie.title||'Sony Animation';
     sonyHeroDescription.textContent=movie.description||'A bold new adventure from Sony Pictures Animation.';
-    sonyHeroMeta.textContent=[movie.year,movie.category,movie.duration].filter(Boolean).join('  •  ');
+    sonyHeroMeta.textContent=[movie.year,movie.category,movie.duration].filter(Boolean).join(' • ');
     sonyHeroPoster.src=movie.image||'';sonyHeroPoster.alt=(movie.title||'Movie')+' poster';
     sonyHeroBackdrop.style.backgroundImage=movie.image?'url("'+String(movie.image).replace(/"/g,'%22')+'")':'none';
     sonyHeroCount.textContent=String(sonyHeroIndex+1).padStart(2,'0')+' / '+String(sonyHeroOrder.length).padStart(2,'0');
@@ -663,32 +577,38 @@ closeBtn.addEventListener('click', closeModalHandler);
   }
   function sonyShowHero(index){
     if(!sonyHeroOrder.length)return;
-    sonyHeroIndex=(index+sonyHeroOrder.length)%sonyHeroOrder.length;sonySetHero(sonyHeroOrder[sonyHeroIndex]);
+    sonyHeroIndex=(index+sonyHeroOrder.length)%sonyHeroOrder.length;
+    sonySetHero(sonyHeroOrder[sonyHeroIndex]);
   }
-  function sonyShuffleHero(){
-    sonyHeroOrder=movies.filter(Boolean).slice().sort(()=>Math.random()-.5);
-    if(!sonyHeroOrder.length)return;
-    sonyShowHero(0);sonyResetHeroTimer();
+  function sonyShuffleArray(items){
+    const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;
   }
   function sonyResetHeroTimer(){
     clearInterval(sonyHeroTimer);
-    if(!document.hidden&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)sonyHeroTimer=setInterval(()=>sonyShowHero(sonyHeroIndex+1),5000);
+    if(!document.hidden)sonyHeroTimer=setInterval(()=>sonyShowHero(sonyHeroIndex+1),5000);
+  }
+  function sonyShuffleHero(){
+    sonyHeroOrder=sonyShuffleArray(movies.filter(m=>m&&m.image));
+    if(!sonyHeroOrder.length)sonyHeroOrder=sonyShuffleArray(movies.filter(Boolean));
+    sonyShowHero(0);sonyResetHeroTimer();
   }
   document.getElementById('sonyHeroPrev').addEventListener('click',()=>{sonyShowHero(sonyHeroIndex-1);sonyResetHeroTimer();});
   document.getElementById('sonyHeroNext').addEventListener('click',()=>{sonyShowHero(sonyHeroIndex+1);sonyResetHeroTimer();});
   document.getElementById('sonyHeroShuffle').addEventListener('click',sonyShuffleHero);
-  const sonyHeroPlay=()=>{const movie=sonyHeroOrder[sonyHeroIndex];if(movie){loadingSpinner.classList.remove('hidden');playInModal(movie.title,movie.video,movie,movies.indexOf(movie));}};
+  const sonyHeroPlay=()=>{const movie=sonyHeroOrder[sonyHeroIndex];if(movie){currentPlaybackList=movies.slice();playInModal(movie.title,movie.video,movie,movies.indexOf(movie));}};
   document.getElementById('sonyHeroPlay').addEventListener('click',sonyHeroPlay);
   document.getElementById('sonyHeroPosterButton').addEventListener('click',sonyHeroPlay);
   document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInterval(sonyHeroTimer);sonyHeroTimer=null;}else sonyResetHeroTimer();});
-  // Initialize page (simulate load)
-  window.addEventListener('DOMContentLoaded', () => {
-    // Hide initial loader and render (with empty movies array you'll see "no results")
-    setTimeout(() => {
-      loadingEl.classList.add('hidden');
-      displayMovies(movies);
-    }, 400);
-  });
+
+  function initializeSonyPage(){
+    if(initializeSonyPage.done)return;initializeSonyPage.done=true;
+    displayMovies(movies);
+    loadingEl.classList.add('hidden');
+    sonyShuffleHero();
+  }
+  // Script is at the end of body; initialise immediately, with a safe DOM-ready fallback.
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initializeSonyPage,{once:true});
+  else initializeSonyPage();
 
   // Expose a small helper for debugging: open playback with a URL
   // Example usage from console:
