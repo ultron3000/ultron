@@ -1,0 +1,28 @@
+name: Universal search validation
+
+on:
+  push:
+    branches:
+      - feat/universal-streaming-search
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate catalogue and browser search script
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check search script syntax
+        run: node --check assets/js/universal-search.js
+      - name: Validate catalogue and playback routes
+        run: node scripts/validate-universal-search.mjs
