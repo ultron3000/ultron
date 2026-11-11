@@ -786,6 +786,14 @@
     let src=movie.video;if(src&&typeof src==='object')src=src.high||src.medium||src.low||src.url||src.mpd||Object.values(src).find(v=>typeof v==='string');
     if(!src){showError('No video source is listed for this title.');return;}
     src=String(src).trim();
+    if(movie.video&&typeof movie.video==='object'&&movie.video.mpd&&window.shaka){
+      try{
+        currentShaka=new shaka.Player(document.getElementById(modalVideoId));
+        if(movie.video.key){const pair=movie.video.key.split(':');if(pair.length===2)currentShaka.configure({drm:{clearKeys:{[pair[0]]:pair[1]}}});}
+        currentShaka.load(movie.video.mpd).then(()=>{const v=document.getElementById(modalVideoId);if(v)v.play().catch(()=>{});}).catch(()=>showError('DASH playback failed.'));
+      }catch(e){showError('DASH playback could not be initialised.');}
+      return;
+    }
     if(isYouTube(src)||/mega\.nz|streamtape|dood|vidcdn|ok\.ru|openload|drive\.google|filemoon|mixdrop|streamwish|voe\.sx|uqload|sbembed/i.test(src)||(!isHls(src)&&!isMp4(src))){
       asEmbed(src,movie.title);playPauseBtn.innerHTML='<i class="fas fa-play mr-2"></i>Player';return;
     }
