@@ -671,7 +671,8 @@ function dwStartTimer(){
 }
 function dwResetTimer(){clearInterval(dwHeroTimer);dwStartTimer();}
 function dwShuffleHero(){
- dwFeaturedList=dwShuffle(movies);
+ const withArtwork=movies.filter(movie=>movie&&movie.image&&/^https?:\/\//i.test(movie.image));
+ dwFeaturedList=dwShuffle(withArtwork.length?withArtwork:movies);
  dwRenderCarousel();
  const first=dwFeaturedList[0]||movies[0];dwSetFeatured(first);dwResetTimer();
 }
