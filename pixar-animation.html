@@ -190,15 +190,9 @@
     }
 
     @media (max-width: 768px) {
-      .modal-controls { 
-        flex-direction: column; 
-        align-items: stretch; 
-        gap: 16px; 
-        padding: 16px;
-      }
-      .controls-group {
-        justify-content: center;
-      }
+      .modal-controls { flex-direction: column; align-items: stretch; gap: 12px; padding: 12px; }
+      .controls-group { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+      .controls-group .btn-control { min-width:42px; min-height:42px; padding:9px 11px; }
     }
 
     video:fullscreen,
@@ -324,16 +318,15 @@
         <div id="modal-meta" class="text-xs font-medium text-yellow-400/80 uppercase tracking-wider mt-0.5">Year • Category</div>
       </div>
 
-      <div class="controls-group flex gap-2 items-center justify-between">
+      <div class="controls-group flex gap-2 items-center justify-between" aria-label="Playback controls">
         <button id="prevBtn" class="btn-control" title="Previous"><i class="fas fa-step-backward"></i></button>
         <button id="playPauseBtn" class="btn-control w-11 h-10" title="Play/Pause"><i class="fas fa-play"></i></button>
         <button id="nextBtn" class="btn-control" title="Next"><i class="fas fa-step-forward"></i></button>
         <button id="fullscreenBtn" class="btn-control" title="Fullscreen"><i class="fas fa-expand"></i></button>
         <button id="muteBtn" class="btn-control" title="Mute/Unmute"><i class="fas fa-volume-up"></i></button>
+        <button id="close-video-modal-bottom" class="btn-control modal-close-inline" type="button" title="Close player" aria-label="Close player"><i class="fas fa-times"></i></button>
       </div>
     </div>
-
-    <div class="modal-footer"><button id="close-video-modal-bottom" type="button" class="modal-close-bottom"><i class="fas fa-times"></i><span>Close player</span></button></div>
     <div id="playerError" class="hidden">Playback error</div>
   </div>
 </div>
@@ -1153,9 +1146,10 @@ header .container{display:none}
 .pixar-carousel-controls{position:absolute;right:14px;top:8px;display:flex;gap:6px}
 .pixar-carousel-controls button{width:27px;height:27px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.09);color:#fff;touch-action:manipulation}
 .pixar-carousel-controls button:hover{background:#ffe39c;color:#18213e}
-.pixar-carousel-track{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;scroll-snap-type:x mandatory;scroll-behavior:smooth;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#e9bd70 transparent;touch-action:pan-x pan-y}
+.pixar-carousel-track{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;scroll-snap-type:x proximity;scroll-behavior:smooth;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#e9bd70 transparent;touch-action:pan-x pan-y;will-change:scroll-position}
 .pixar-hero-item{flex:0 0 clamp(88px,10vw,122px);min-width:0;scroll-snap-align:start;border:1px solid rgba(255,255,255,.15);border-radius:11px;overflow:hidden;background:rgba(255,255,255,.07);color:white;text-align:left;cursor:pointer;transition:transform .2s,border-color .2s;touch-action:pan-x}
 .pixar-hero-item:hover{transform:translateY(-3px);border-color:#ffe39c}
+.pixar-hero-item{touch-action:pan-x pan-y; -webkit-tap-highlight-color:transparent}
 .pixar-hero-item img{display:block;width:100%;height:clamp(100px,12vw,140px);object-fit:cover;background:#202b4d}
 .pixar-hero-item strong{display:block;padding:7px 8px 2px;font-size:10px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pixar-hero-item small{display:block;padding:0 8px 7px;color:#f5d99a;font-size:9px}
@@ -1252,12 +1246,13 @@ body.pixar-light .pixar-carousel-wrap{background:rgba(24,33,62,.78)}
 /* Clean Pixar-inspired typography; avoid a remote logo asset that may render incorrectly. */
 .pixar-wordmark{display:inline-block;color:#fff;font-size:clamp(28px,4vw,43px);font-weight:900;letter-spacing:.11em;line-height:1;text-shadow:0 3px 0 rgba(0,0,0,.25),0 0 22px rgba(255,227,156,.16)}
 .pixar-brand-caption{color:rgba(255,255,255,.62)}
-.modal-footer{display:flex;justify-content:flex-end;padding:0 20px 18px;background:rgba(29,43,82,.95)}
-.modal-close-bottom{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:0 18px;border:1px solid rgba(255,227,156,.36);border-radius:999px;background:linear-gradient(120deg,#ffe39c,#ffb86d);color:#1a2343;font-size:12px;font-weight:800;cursor:pointer;touch-action:manipulation}
-.modal-close-bottom:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.modal-close-inline{background:linear-gradient(120deg,#ffe39c,#ffb86d)!important;color:#1a2343!important;border:1px solid rgba(255,227,156,.5)!important;min-width:42px;min-height:42px;padding:9px 12px!important;display:inline-flex;align-items:center;justify-content:center}
+.modal-close-inline:hover{filter:brightness(1.06);transform:translateY(-1px)}
 .pixar-carousel-track.is-dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}
 .pixar-carousel-track.is-dragging *{pointer-events:auto}
-@media(max-width:768px){.modal-footer{padding:0 14px 14px}.modal-close-bottom{width:100%}}
+@media(max-width:768px){html{scroll-behavior:auto!important}.pixar-carousel-track{scroll-behavior:auto;scroll-snap-type:x proximity;overscroll-behavior-y:auto}.pixar-hero-item:hover{transform:none}.float-character{animation:none!important;transform:none!important}.stage-glow-a,.stage-glow-b{animation:none!important;filter:none!important}.movie-card,.movie-poster{transition:none!important}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}.pixar-carousel-track{scroll-behavior:auto}.float-character,.stage-glow-a,.stage-glow-b{animation:none!important}}
+@media(max-width:768px){.modal-container{width:min(100%,720px);max-height:94dvh}.modal-controls>div:first-child{text-align:center}.controls-group{width:100%}}
 
  .feature-watch{min-height:36px;padding:0 13px;font-size:10px}
  .feature-progress{margin-top:10px;font-size:8px}
