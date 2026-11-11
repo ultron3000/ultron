@@ -236,13 +236,19 @@
   <div class="stage-content">
     <div class="pixar-brand-lockup">
       <div class="desk-lamp" aria-hidden="true"><span class="lamp-shade"></span><span class="lamp-arm"></span><span class="lamp-joint"></span><span class="lamp-base"></span><span class="lamp-light"></span></div>
-      <div><div class="pixar-wordmark">PIXAR<span>UNIVERSE</span></div><div class="pixar-brand-caption">A little wonder goes a long way</div></div>
+      <div class="pixar-logo-lockup"><img class="pixar-official-logo" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Pixar_logo.svg" alt="Pixar Animation Studios" decoding="async"><span class="pixar-universe-tag">UNIVERSE</span><div class="pixar-brand-caption">A little wonder goes a long way</div></div>
     </div>
-    <div class="stage-eyebrow"><span class="eyebrow-dot"></span> YOUR NEXT STORY STARTS HERE</div>
-    <h2 id="stageTitle">Big adventures.<br><em>Little moments.</em></h2>
-    <p id="stageDescription">Step into a world of imagination, friendship and unforgettable animation.</p>
-    <div class="stage-actions"><button id="stagePlay" type="button"><i class="fas fa-play"></i> Play featured story</button><a href="#movies">Explore the collection <i class="fas fa-arrow-down"></i></a></div>
-    <div class="stage-footnote"><span id="stageCount">A universe of stories</span><span class="stage-spark">✦</span><span>Made for movie nights</span></div>
+  </div>
+  <div class="pixar-feature-showcase" aria-live="polite">
+    <div class="pixar-feature-poster"><img id="stageFeaturePoster" src="" alt="Featured Pixar movie poster" fetchpriority="high"><span class="feature-poster-glow"></span></div>
+    <div class="pixar-feature-copy">
+      <span class="feature-kicker"><i class="fas fa-sparkles"></i> FEATURED ADVENTURE</span>
+      <h2 id="stageTitle">Discover a story</h2>
+      <div class="feature-meta" id="stageMeta"></div>
+      <p id="stageDescription">A new animated adventure is waiting for you.</p>
+      <button class="feature-watch" id="stagePlay" type="button"><i class="fas fa-play"></i> Watch now</button>
+      <div class="feature-progress"><span id="stageCount">A universe of stories</span><div><span id="featureProgressBar"></span></div></div>
+    </div>
   </div>
   <div class="pixar-carousel-wrap">
   <div class="pixar-carousel-heading"><span><i class="fas fa-wand-magic-sparkles"></i> THE WHOLE STORY COLLECTION</span><small id="heroCarouselCount">All movies</small></div>
@@ -632,53 +638,83 @@ function shufflePixar(items){
 }
 function initPixarStage(){
   const floating=document.getElementById('floatingCharacters');
-  const picks=shufflePixar(movies).slice(0,3);
-  picks.forEach(item=>{const wrap=document.createElement('div');wrap.className='float-character';const img=document.createElement('img');img.src=item.image;img.alt='';img.loading='lazy';wrap.appendChild(img);floating.appendChild(wrap);});
-  let featured=0,shuffled=shufflePixar(movies);
-  const track=document.getElementById('pixarCarouselTrack');
-  const count=document.getElementById('heroCarouselCount');
-  const title=document.getElementById('stageTitle'),desc=document.getElementById('stageDescription');
-  function setFeatured(item){
-    const idx=movies.indexOf(item);featured=idx<0?0:idx;
-    title.innerHTML='Big adventures.<br><em>'+((item.category==='short')?'Little masterpieces.':item.category==='sequel'?'The story continues.':'Little moments.')+'</em>';
-    desc.textContent=item.title+' · '+(item.year||'')+' — pick a story and let the adventure begin.';
-    document.getElementById('stagePlay').onclick=()=>playInModal(movies,featured);
+  shufflePixar(movies).slice(0,3).forEach(item=>{const wrap=document.createElement('div');wrap.className='float-character';const img=document.createElement('img');img.src=item.image||'';img.alt='';img.loading='lazy';wrap.appendChild(img);floating.appendChild(wrap);});
+  let featured=0,shuffled=shufflePixar(movies),timer=null,progressTimer=null,dragged=false;
+  const track=document.getElementById('pixarCarouselTrack'),count=document.getElementById('heroCarouselCount');
+  const poster=document.getElementById('stageFeaturePoster'),title=document.getElementById('stageTitle'),desc=document.getElementById('stageDescription'),meta=document.getElementById('stageMeta'),play=document.getElementById('stagePlay');
+  const summaries={
+    'WALL·E':'A small waste-collecting robot discovers that even the biggest adventures can begin with a little curiosity.',
+    'Finding Nemo':'Dive into an ocean-sized adventure about family, courage and finding your way home.',
+    'Finding Dory':'A forgetful but fearless fish sets off on a heartwarming journey to find her family.',
+    'Inside Out':'Journey inside a young mind, where emotions work together through life’s biggest changes.',
+    'Inside Out 2':'New emotions arrive as Riley steps into a whole new chapter of growing up.',
+    'Coco':'A music-loving boy journeys into a colourful world of family memories and music.',
+    'Up':'An extraordinary flying house carries an unlikely team into a grand adventure.',
+    'Toy Story':'A friendship between toys turns an ordinary room into a world of extraordinary adventure.',
+    'Ratatouille':'An unlikely chef follows his passion for cooking in the heart of Paris.',
+    'Luca':'Two young sea monsters discover friendship, freedom and a summer they will never forget.',
+    'Soul':'A musician takes a thoughtful, funny journey into what makes life meaningful.',
+    'Turning Red':'Growing up gets wonderfully chaotic in this energetic story of family and identity.',
+    'Elemental':'In a city of elements, an unexpected friendship sparks a story about belonging.',
+    'Lightyear':'A space ranger ventures beyond the limits of the known universe.',
+    'Onward':'Two brothers set out on a magical quest to share one more day with their dad.'
+  };
+  function setFeatured(item,resetProgress=true){
+    if(!item)return;featured=movies.indexOf(item);if(featured<0)featured=0;
+    poster.classList.add('changing');
+    const nextSrc=item.image||'';
+    const swap=()=>{poster.src=nextSrc;poster.alt=item.title+' poster';poster.classList.remove('changing');};
+    poster.onload=swap;poster.onerror=()=>poster.classList.remove('changing');if(poster.src===nextSrc)poster.classList.remove('changing');else poster.src=nextSrc;
+    title.textContent=item.title;
+    meta.replaceChildren();
+    [item.year||'Animation',item.category==='short'?'Short film':item.category==='sequel'?'Sequel':'Feature'].forEach(label=>{const chip=document.createElement('span');chip.textContent=label;meta.appendChild(chip);});
+    desc.textContent=item.description||summaries[item.title]||'An unforgettable animated adventure filled with imagination, friendship and heart.';
+    play.onclick=()=>playInModal(movies,featured);
+    count.textContent=(featured+1)+' / '+movies.length+' adventures';
+    if(resetProgress){const bar=document.getElementById('featureProgressBar');bar.style.transition='none';bar.style.width='0%';requestAnimationFrame(()=>bar.style.transition='width 9s linear');}
   }
   function renderCarousel(){
     track.replaceChildren();
     shuffled.forEach(item=>{
-      const button=document.createElement('button');button.type='button';button.className='pixar-hero-item';
-      const img=document.createElement('img');img.src=item.image||'';img.alt='';img.loading='lazy';
+      const button=document.createElement('button');button.type='button';button.className='pixar-hero-item';button.draggable=false;
+      const img=document.createElement('img');img.src=item.image||'';img.alt='';img.loading='lazy';img.draggable=false;
       const name=document.createElement('strong');name.textContent=item.title;
-      const meta=document.createElement('small');meta.textContent=(item.year||'')+' · '+(item.category==='short'?'Short':item.category==='sequel'?'Sequel':'Feature');
-      button.append(img,name,meta);
-      button.addEventListener('click',()=>{setFeatured(item);playInModal(movies,movies.indexOf(item));});
+      const metaLine=document.createElement('small');metaLine.textContent=(item.year||'')+' · '+(item.category==='short'?'Short':item.category==='sequel'?'Sequel':'Feature');
+      button.append(img,name,metaLine);
+      button.addEventListener('click',()=>{if(dragged)return;setFeatured(item);clearInterval(timer);timer=startRotation();});
       track.appendChild(button);
     });
     count.textContent=shuffled.length+' movies · shuffled';
   }
+  function startRotation(){
+    clearInterval(progressTimer);
+    return setInterval(()=>{const next=(featured+1)%movies.length;setFeatured(movies[next]);},9000);
+  }
   renderCarousel();
-  const initial=shuffled[0]||movies[0];if(initial)setFeatured(initial);
-  document.getElementById('stagePlay').onclick=()=>playInModal(movies,featured);
-  document.getElementById('heroCarouselPrev').addEventListener('click',()=>track.scrollBy({left:-track.clientWidth*.78,behavior:'smooth'}));
-  document.getElementById('heroCarouselNext').addEventListener('click',()=>track.scrollBy({left:track.clientWidth*.78,behavior:'smooth'}));
-  document.getElementById('heroShuffle').addEventListener('click',()=>{const active=movies[featured];shuffled=shufflePixar(movies);renderCarousel();const selected=[...track.children].findIndex(el=>el.querySelector('strong')?.textContent===active?.title);if(selected>=0)track.children[selected].scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});});
-  document.getElementById('themeToggle').addEventListener('click',()=>{
-    const light=document.body.classList.toggle('pixar-light');
-    const btn=document.getElementById('themeToggle');btn.setAttribute('aria-pressed',String(light));
-    btn.innerHTML=light?'<i class="fas fa-moon"></i><span>Dark mode</span>':'<i class="fas fa-sun"></i><span>Light mode</span>';
-    try{localStorage.setItem('pixar-theme',light?'light':'dark');}catch(e){}
+  const first=shuffled[0]||movies[0];setFeatured(first);
+  timer=startRotation();
+  document.getElementById('heroCarouselPrev').addEventListener('click',()=>track.scrollBy({left:-track.clientWidth*.8,behavior:'smooth'}));
+  document.getElementById('heroCarouselNext').addEventListener('click',()=>track.scrollBy({left:track.clientWidth*.8,behavior:'smooth'}));
+  document.getElementById('heroShuffle').addEventListener('click',()=>{shuffled=shufflePixar(movies);renderCarousel();});
+  // Native horizontal touch scroll + pointer-captured mouse dragging on desktop.
+  let pointerDown=false,startX=0,startScroll=0,moved=0;
+  track.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='touch')return;
+    pointerDown=true;dragged=false;moved=0;startX=e.clientX;startScroll=track.scrollLeft;
+    track.classList.add('is-dragging');track.setPointerCapture(e.pointerId);
   });
-  try{if(localStorage.getItem('pixar-theme')==='light'){document.body.classList.add('pixar-light');document.getElementById('themeToggle').setAttribute('aria-pressed','true');document.getElementById('themeToggle').innerHTML='<i class="fas fa-moon"></i><span>Dark mode</span>';}}catch(e){}
-  const gridSteps=[190,155,125,105];let gridIndex=1;
-  const gridBtn=document.getElementById('gridResize');
-  function setGrid(){const px=gridSteps[gridIndex];container.style.setProperty('--poster-min',px+'px');const labels=['Large','Medium','Small','Compact'];gridBtn.innerHTML='<i class="fas fa-grip"></i><span>Grid: '+labels[gridIndex]+'</span>';gridBtn.setAttribute('aria-label','Grid size: '+labels[gridIndex]+'. Click to change.');}
-  setGrid();gridBtn.addEventListener('click',()=>{gridIndex=(gridIndex+1)%gridSteps.length;setGrid();});
+  track.addEventListener('pointermove',e=>{
+    if(!pointerDown)return;const dx=e.clientX-startX;moved=Math.max(moved,Math.abs(dx));
+    if(moved>5){dragged=true;track.scrollLeft=startScroll-dx;}
+  });
+  const stopDrag=e=>{if(!pointerDown)return;pointerDown=false;track.classList.remove('is-dragging');try{track.releasePointerCapture(e.pointerId);}catch(_){}if(dragged)setTimeout(()=>{dragged=false;},80);};
+  track.addEventListener('pointerup',stopDrag);track.addEventListener('pointercancel',stopDrag);track.addEventListener('lostpointercapture',()=>{pointerDown=false;track.classList.remove('is-dragging');});
+  track.addEventListener('dragstart',e=>e.preventDefault());
   const stage=document.querySelector('.pixar-stage');
-  let timer=setInterval(()=>{const next=(featured+1)%movies.length;setFeatured(movies[next]);},9000);
   stage.addEventListener('mouseenter',()=>clearInterval(timer));
-  stage.addEventListener('mouseleave',()=>{clearInterval(timer);timer=setInterval(()=>{const next=(featured+1)%movies.length;setFeatured(movies[next]);},9000);});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInterval(timer);else{clearInterval(timer);timer=setInterval(()=>{const next=(featured+1)%movies.length;setFeatured(movies[next]);},9000);}});
+  stage.addEventListener('mouseleave',()=>{clearInterval(timer);timer=startRotation();});
+  document.addEventListener('visibilitychange',()=>{clearInterval(timer);if(!document.hidden)timer=startRotation();});
+  const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduced)clearInterval(timer);
 }
 initPixarStage();
 </script>
@@ -1149,6 +1185,58 @@ body.pixar-light .pixar-carousel-wrap{background:rgba(24,33,62,.78)}
  #movies{grid-template-columns:repeat(auto-fill,minmax(var(--poster-min,125px),1fr))!important;gap:10px!important}
 }
 @media(max-width:380px){.stage-content h2{font-size:28px}.stage-content>p{max-width:78%;font-size:11px}.pixar-toolbar{gap:6px}.pixar-toolbar button{padding:0 7px;gap:5px}}
+
+
+/* Featured movie carousel layout */
+.pixar-stage{min-height:0;height:auto;padding:22px clamp(12px,3vw,38px) 18px}
+.stage-content{width:100%;max-width:none;padding:0 0 14px}
+.pixar-brand-lockup{margin:0 0 12px;gap:13px}
+.pixar-logo-lockup{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pixar-official-logo{display:block;width:clamp(132px,19vw,220px);height:auto;max-height:42px;object-fit:contain;filter:brightness(0) invert(1);opacity:.97}
+.pixar-universe-tag{font-size:9px;font-weight:700;letter-spacing:.22em;color:#ffe5a2;border-left:1px solid rgba(255,255,255,.3);padding-left:12px}
+.pixar-brand-caption{flex-basis:100%;font-size:9px;margin:0 0 0 2px}
+.pixar-feature-showcase{position:relative;z-index:4;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(18px,4vw,54px);max-width:920px;margin:0 auto 16px;padding:clamp(14px,2.5vw,26px);border:1px solid rgba(255,255,255,.16);border-radius:22px;background:linear-gradient(110deg,rgba(7,13,34,.68),rgba(37,43,91,.55));box-shadow:0 18px 50px rgba(0,0,0,.2);backdrop-filter:blur(12px)}
+.pixar-feature-poster{position:relative;min-width:0;perspective:800px}
+.pixar-feature-poster img{position:relative;z-index:1;display:block;width:100%;height:clamp(190px,25vw,285px);object-fit:cover;object-position:center;border-radius:14px;box-shadow:0 18px 35px rgba(0,0,0,.4);transform:rotateY(5deg);transition:opacity .25s,transform .35s}
+.pixar-feature-poster img.changing{opacity:.25;transform:rotateY(-8deg) scale(.97)}
+.feature-poster-glow{position:absolute;inset:12% -8%;background:rgba(132,110,255,.28);filter:blur(32px);border-radius:50%}
+.pixar-feature-copy{min-width:0;color:white}
+.feature-kicker{display:inline-flex;align-items:center;gap:8px;color:#ffe4a3;font-size:9px;font-weight:800;letter-spacing:.19em}
+.pixar-feature-copy h2{font-size:clamp(27px,4vw,48px);line-height:1.05;letter-spacing:-.04em;margin:12px 0 9px;font-weight:800;text-wrap:balance}
+.feature-meta{display:flex;align-items:center;gap:9px;color:#c9d4f4;font-size:11px;margin-bottom:10px}
+.feature-meta span{padding:4px 8px;border:1px solid rgba(255,255,255,.17);border-radius:30px;background:rgba(255,255,255,.07)}
+.pixar-feature-copy p{max-width:520px;min-height:44px;color:rgba(239,244,255,.77);font-size:clamp(12px,1.25vw,14px);line-height:1.7;margin:0 0 15px}
+.feature-watch{display:inline-flex;align-items:center;gap:10px;min-height:43px;padding:0 20px;border:0;border-radius:99px;background:linear-gradient(120deg,#ffe49d,#ffb56d);color:#1a2343;font-size:12px;font-weight:800;box-shadow:0 8px 22px rgba(255,181,109,.23);cursor:pointer;transition:transform .2s,box-shadow .2s}
+.feature-watch:hover{transform:translateY(-3px);box-shadow:0 13px 28px rgba(255,181,109,.32)}
+.feature-progress{display:flex;align-items:center;gap:12px;margin-top:18px;color:rgba(255,255,255,.55);font-size:9px;letter-spacing:.05em}
+.feature-progress>div{height:3px;max-width:130px;flex:1;border-radius:5px;background:rgba(255,255,255,.16);overflow:hidden}
+#featureProgressBar{display:block;width:0;height:100%;border-radius:5px;background:#ffe19a;transition:width .3s linear}
+.pixar-carousel-track{cursor:grab;user-select:none;-webkit-user-select:none;scrollbar-width:thin}
+.pixar-carousel-track.is-dragging{cursor:grabbing;scroll-snap-type:none;scroll-behavior:auto}
+.pixar-carousel-track.is-dragging *{pointer-events:none}
+.pixar-hero-item{user-select:none;-webkit-user-drag:none}
+.pixar-hero-item img{-webkit-user-drag:none;pointer-events:none}
+@media(max-width:680px){
+ .pixar-stage{padding:16px 10px 12px}
+ .stage-content{padding-bottom:10px}
+ .pixar-brand-lockup{margin-bottom:10px}
+ .desk-lamp{width:34px;flex-basis:34px;transform:scale(.88);transform-origin:left center}
+ .pixar-official-logo{width:124px;max-height:29px}
+ .pixar-universe-tag{font-size:8px;padding-left:8px}
+ .pixar-brand-caption{font-size:8px}
+ .pixar-feature-showcase{grid-template-columns:112px minmax(0,1fr);gap:13px;padding:12px;border-radius:16px;margin-bottom:12px}
+ .pixar-feature-poster img{height:164px;border-radius:10px;transform:none}
+ .pixar-feature-copy h2{font-size:clamp(19px,5.6vw,27px);margin:7px 0 6px}
+ .feature-kicker{font-size:7px;letter-spacing:.12em}
+ .feature-meta{font-size:9px;gap:5px;margin-bottom:6px;flex-wrap:wrap}
+ .feature-meta span{padding:3px 6px}
+ .pixar-feature-copy p{font-size:10px;line-height:1.45;min-height:0;margin-bottom:9px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+ .feature-watch{min-height:36px;padding:0 13px;font-size:10px}
+ .feature-progress{margin-top:10px;font-size:8px}
+ .feature-progress>div{max-width:65px}
+ .pixar-carousel-wrap{margin:6px 0 0}
+}
+@media(max-width:370px){.pixar-feature-showcase{grid-template-columns:96px minmax(0,1fr);gap:10px;padding:9px}.pixar-feature-poster img{height:145px}.pixar-feature-copy h2{font-size:19px}.pixar-feature-copy p{-webkit-line-clamp:2}}
 
 </style>
 
