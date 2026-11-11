@@ -1,0 +1,41 @@
+name: Refresh Cloud TV catalogue
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.html"
+      - "**/*.json"
+      - "scripts/build-catalogue.js"
+      - ".github/workflows/catalogue-sync.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cloudtv-catalogue-sync
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Rebuild the shared catalogue
+        run: node scripts/build-catalogue.js
+      - name: Commit catalogue when changed
+        run: |
+          if git diff --quiet -- universal-search-index.json; then
+            echo "Catalogue is already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add universal-search-index.json
+          git commit -m "chore: refresh searchable catalogue"
+          git push

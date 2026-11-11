@@ -65,21 +65,29 @@
       const response = await fetch(new URL("universal-search-index.json", document.baseURI), { cache: "no-cache" });
       if (!response.ok) throw new Error("Search catalogue unavailable");
       const data = await response.json();
-      state.records = Array.isArray(data.records) ? data.records : [];
+      state.records = (Array.isArray(data.records) ? data.records : []).map(record => ({
+        ...record,
+        title: record.title || record.name || record.label || "Untitled",
+        image: record.image || record.img || record.poster || record.posterUrl || record.thumbnail || record.cover || record.logo || "",
+        category: record.category || record.genre || record.group || "",
+        language: record.language || record.lang || "",
+        description: record.description || record.overview || record.summary || record.subtitle || "",
+        url: record.url || record.href || record.link || "#"
+      }));
       state.ready = true;
     } catch (error) {
       summary.textContent = "Could not load the repository search catalogue. Please refresh and try again.";
     } finally { state.loading = false; }
   }
   function rank(record, query) {
-    const title = normalize(record.title), description = normalize(record.description), category = normalize(record.category), language = normalize(record.language);
+    const title = normalize(record.title), description = normalize(record.description), category = normalize(record.category), language = normalize(record.language), extra = normalize([record.genre, record.tags, record.keywords, record.source].flat().join(" "));
     if (title === query) return 100;
     if (title.startsWith(query)) return 70;
     if (title.includes(query)) return 55;
     if (category.includes(query) || language.includes(query)) return 25;
     if (description.includes(query)) return 10;
     const terms = query.split(" ").filter(Boolean);
-    const haystack = title + " " + category + " " + language + " " + description;
+    const haystack = title + " " + category + " " + language + " " + description + " " + extra;
     return terms.every(term => haystack.includes(term)) ? 5 : 0;
   }
   function render() {
@@ -99,7 +107,7 @@
       const link = document.createElement("a");
       link.className = "us-card"; link.href = record.url || "#"; link.dataset.index = String(index);
       if (record.image) {
-        const img = document.createElement("img"); img.src = record.image; img.alt = ""; img.loading = "lazy"; img.onerror = () => img.remove(); link.appendChild(img);
+        const img = document.createElement("img"); img.src = record.image; img.alt = record.title + " poster"; img.loading = "lazy"; img.decoding = "async"; img.onerror = () => { const fallback = document.createElement("div"); fallback.className = "us-noimg"; fallback.textContent = record.type === "live" ? "◉" : "▶"; img.replaceWith(fallback); }; link.appendChild(img);
       } else {
         const noimg = document.createElement("div"); noimg.className = "us-noimg"; noimg.textContent = record.type === "live" ? "◉" : "▶"; link.appendChild(noimg);
       }
