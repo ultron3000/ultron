@@ -763,61 +763,177 @@
    * TV-style player engine, adapted for Illumination
    ******************************/
   let currentShaka = null;
+  let currentShaka = null;
+  let currentPlayerKind = 'video';
+
+  function setPlayerButtonState(playing){
+    playPauseBtn.innerHTML=playing
+      ? '<i class="fas fa-pause mr-2"></i><span>Pause</span>'
+      : '<i class="fas fa-play mr-2"></i><span>Play</span>';
+  }
+  function setEmbedControls(isEmbed){
+    playPauseBtn.disabled=!!isEmbed;
+    muteBtn.disabled=!!isEmbed;
+    playPauseBtn.title=isEmbed?'Use the embedded player controls':'Play or pause';
+    muteBtn.title=isEmbed?'Volume is controlled by the embedded player':'Mute or unmute';
+    playPauseBtn.classList.toggle('is-unavailable',!!isEmbed);
+    muteBtn.classList.toggle('is-unavailable',!!isEmbed);
+    if(isEmbed)playPauseBtn.innerHTML='<i class="fas fa-play mr-2"></i><span>In player</span>';
+    else setPlayerButtonState(false);
+  }
   function resetPlayerContainer(){
     if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
     if(currentShaka){try{currentShaka.destroy();}catch(e){}currentShaka=null;}
-    playerWrapper.innerHTML='<video id="modalVideo" controls playsinline webkit-playsinline preload="metadata" style="width:100%;height:100%;background:#000;object-fit:contain"></video>';
+    currentPlayerKind='video';
+    playerWrapper.replaceChildren();
+    const video=document.createElement('video');
+    video.id=modalVideoId;video.controls=true;video.playsInline=true;video.setAttribute('webkit-playsinline','');
+    video.preload='metadata';video.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000';
+    video.addEventListener('play',()=>setPlayerButtonState(true));
+    video.addEventListener('pause',()=>setPlayerButtonState(false));
+    video.addEventListener('ended',()=>setPlayerButtonState(false));
+    playerWrapper.appendChild(video);
+    setEmbedControls(false);
   }
-  function showModal(){playbackModal.classList.add('active');playbackModal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
-  function hideModal(){playbackModal.classList.remove('active');playbackModal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
-  function showError(msg){modalDesc.textContent=msg;console.warn(msg);}
-  function isHls(url){return /\.m3u8?(?:$|[?#])/i.test(url||'')||/index[^/]*\.txt(?:$|[?#])/i.test(url||'')||/manifest/i.test(url||'');}
-  function isMp4(url){return /\.(mp4|m4v|webm|ogv)(?:$|[?#])/i.test(url||'');}
+  function showModal(){
+    playbackModal.classList.add('active');
+    playbackModal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+  function hideModal(){
+    playbackModal.classList.remove('active');
+    playbackModal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+  function showError(message){
+    modalDesc.textContent=message;
+    console.warn('[Illumination player]',message);
+  }
+  function isHls(url){return /\.m3u8?(?:$|[?#])/i.test(url||'')||/index[^/]*\.txt(?:$|[?#])/i.test(url||'')||/\.txt(?:$|[?#])/i.test(url||'')&&/index/i.test(url||'');}
+  function isDash(url){return /\.mpd(?:$|[?#])/i.test(url||'');}
+  function isDirectVideo(url){return /\.(?:mp4|m4v|webm|ogv|mov)(?:$|[?#])/i.test(url||'');}
   function isYouTube(url){return /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(url||'');}
-  function asEmbed(url,title){
-    let target=url;
-    try{const u=new URL(url);let id=u.searchParams.get('v');if(!id&&u.hostname.includes('youtu.be'))id=u.pathname.split('/').filter(Boolean)[0];if(!id&&u.pathname.includes('/embed/'))id=u.pathname.split('/embed/')[1].split('/')[0];if(id)target='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&rel=0&playsinline=1';}catch(e){}
-    const frame=document.createElement('iframe');frame.src=target;frame.title=(title||'Illumination movie')+' player';frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';playerWrapper.replaceChildren(frame);
+  function getEmbedUrl(source){
+    let target=String(source||'').trim();
+    try{
+      const u=new URL(target);
+      if(/(^|\.)youtu\.be$/i.test(u.hostname)){
+        const id=u.pathname.split('/').filter(Boolean)[0];
+        if(id)target='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&rel=0&playsinline=1';
+      }else if(/youtube\.com$/i.test(u.hostname)||/youtube-nocookie\.com$/i.test(u.hostname)){
+        let id=u.searchParams.get('v');
+        if(!id&&u.pathname.includes('/embed/'))id=u.pathname.split('/embed/')[1].split('/')[0];
+        if(id)target='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&rel=0&playsinline=1';
+        else{u.searchParams.set('autoplay','1');u.searchParams.set('playsinline','1');target=u.toString();}
+      }else if(/drive\.google\.com$/i.test(u.hostname)){
+        const id=(u.pathname.match(/\/file\/d\/([^/]+)/)||[])[1];
+        if(id)target='https://drive.google.com/file/d/'+id+'/preview';
+      }else if(/vimeo\.com$/i.test(u.hostname)){
+        const id=u.pathname.split('/').filter(Boolean).pop();
+        if(id&&/^\d+$/.test(id))target='https://player.vimeo.com/video/'+id+'?autoplay=1';
+      }else if(/mega\.nz$/i.test(u.hostname)){
+        if(u.pathname.startsWith('/file/'))u.pathname=u.pathname.replace('/file/','/embed/');
+        target=u.toString();
+      }
+    }catch(e){}
+    return target;
   }
-  function openPlayer(list,index){
+  function mountIframe(source,title){
+    const frame=document.createElement('iframe');
+    frame.src=getEmbedUrl(source);
+    frame.title=(title||'Illumination movie')+' video player';
+    frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
+    frame.allowFullscreen=true;
+    frame.referrerPolicy='strict-origin-when-cross-origin';
+    frame.loading='eager';
+    frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';
+    playerWrapper.replaceChildren(frame);
+    currentPlayerKind='iframe';
+    setEmbedControls(true);
+  }
+  async function openPlayer(list,index){
     if(!Array.isArray(list)||!list.length||index==null||index<0||index>=list.length)return;
-    currentFiltered=list;currentIndex=index;const movie=list[index];modalTitle.textContent=movie.title||'';modalDesc.textContent=movie.description||movie.title||'';
+    currentFiltered=list.slice();currentIndex=index;
+    const movie=list[index];if(!movie)return;
+    modalTitle.textContent=movie.title||'Now playing';
+    modalDesc.textContent=movie.description||movie.title||'';
     resetPlayerContainer();showModal();
-    let src=movie.video;if(src&&typeof src==='object')src=src.high||src.medium||src.low||src.url||src.mpd||Object.values(src).find(v=>typeof v==='string');
-    if(!src){showError('No video source is listed for this title.');return;}
-    src=String(src).trim();
-    if(movie.video&&typeof movie.video==='object'&&movie.video.mpd&&window.shaka){
+    let source=movie.video;
+    if(source&&typeof source==='object')source=source.high||source.medium||source.low||source.url||source.src||source.mpd||Object.values(source).find(v=>typeof v==='string');
+    if(!source){showError('No video source is available for this movie.');return;}
+    source=String(source).trim();
+    const video=document.getElementById(modalVideoId);
+    const isDashObject=movie.video&&typeof movie.video==='object'&&movie.video.mpd;
+
+    if(isDashObject||isDash(source)){
+      if(!window.shaka||!window.shaka.Player){showError('DASH playback is unavailable because the player library did not load.');return;}
       try{
-        currentShaka=new shaka.Player(document.getElementById(modalVideoId));
-        if(movie.video.key){const pair=movie.video.key.split(':');if(pair.length===2)currentShaka.configure({drm:{clearKeys:{[pair[0]]:pair[1]}}});}
-        currentShaka.load(movie.video.mpd).then(()=>{const v=document.getElementById(modalVideoId);if(v)v.play().catch(()=>{});}).catch(()=>showError('DASH playback failed.'));
-      }catch(e){showError('DASH playback could not be initialised.');}
-      return;
+        currentShaka=new shaka.Player(video);
+        if(movie.video&&movie.video.key){
+          const parts=movie.video.key.split(':');
+          if(parts.length===2)currentShaka.configure({drm:{clearKeys:{[parts[0]]:parts[1]}}});
+        }
+        currentShaka.addEventListener('error',()=>showError('The DASH stream could not be loaded.'));
+        await currentShaka.load(isDashObject?movie.video.mpd:source);
+        video.play().catch(()=>{});
+        return;
+      }catch(error){showError('DASH playback failed. Check the stream or its access permissions.');return;}
     }
-    if(isYouTube(src)||/mega\.nz|streamtape|dood|vidcdn|ok\.ru|openload|drive\.google|filemoon|mixdrop|streamwish|voe\.sx|uqload|sbembed/i.test(src)||(!isHls(src)&&!isMp4(src))){
-      asEmbed(src,movie.title);playPauseBtn.innerHTML='<i class="fas fa-play mr-2"></i>Player';return;
-    }
-    const v=document.getElementById(modalVideoId);
-    if(isHls(src)){
+    if(isHls(source)){
       if(window.Hls&&Hls.isSupported()){
-        currentHls=new Hls({enableWorker:true,maxBufferLength:30,backBufferLength:30});
-        currentHls.on(Hls.Events.ERROR,(ev,data)=>{if(data.fatal){if(data.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(data.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else showError('This HLS stream could not be played.');}});
-        currentHls.loadSource(src);currentHls.attachMedia(v);currentHls.on(Hls.Events.MANIFEST_PARSED,()=>v.play().catch(()=>{}));
-      }else if(v.canPlayType('application/vnd.apple.mpegurl')){v.src=src;v.play().catch(()=>{});}
-      else showError('HLS is not supported in this browser.');
+        currentHls=new Hls({enableWorker:true,maxBufferLength:30,backBufferLength:30,capLevelToPlayerSize:true});
+        currentHls.on(Hls.Events.ERROR,(event,data)=>{
+          if(!data.fatal)return;
+          if(data.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls?.startLoad();
+          else if(data.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls?.recoverMediaError();
+          else showError('This HLS stream could not be played.');
+        });
+        currentHls.loadSource(source);currentHls.attachMedia(video);
+        currentHls.on(Hls.Events.MANIFEST_PARSED,()=>video.play().catch(()=>{}));
+      }else if(video.canPlayType('application/vnd.apple.mpegurl')){
+        video.src=source;video.play().catch(()=>{});
+      }else showError('HLS playback is not supported in this browser.');
       return;
     }
-    if(movie.video&&typeof movie.video==='object'&&movie.video.mpd&&window.shaka){
-      currentShaka=new shaka.Player(v);currentShaka.load(movie.video.mpd).then(()=>v.play().catch(()=>{})).catch(()=>showError('DASH playback failed.'));return;
+    if(isDirectVideo(source)){
+      video.src=source;
+      video.addEventListener('error',()=>showError('The video file could not be loaded. The source may be unavailable or blocked.'),{once:true});
+      video.play().catch(()=>{});
+      return;
     }
-    v.src=src;v.play().catch(()=>{});
+    // Mega, YouTube, Vimeo, Drive, file hosts and other provider URLs are loaded
+    // inside the modal rather than navigating away from the catalogue.
+    mountIframe(source,movie.title);
   }
-  function togglePlayPause(){const v=playerWrapper.querySelector('video');if(v){if(v.paused)v.play().catch(()=>{});else v.pause();}}
+  function togglePlayPause(){
+    if(currentPlayerKind!=='video')return;
+    const video=document.getElementById(modalVideoId);if(!video)return;
+    if(video.paused)video.play().catch(()=>{});else video.pause();
+  }
   function playNext(){if(currentFiltered.length)openPlayer(currentFiltered,(currentIndex+1)%currentFiltered.length);}
   function playPrev(){if(currentFiltered.length)openPlayer(currentFiltered,(currentIndex-1+currentFiltered.length)%currentFiltered.length);}
-  function toggleFullscreen(){const el=playerWrapper.querySelector('video,iframe')||playerWrapper;if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else if(el.requestFullscreen)el.requestFullscreen().catch(()=>{});}
-  function toggleMute(){const v=playerWrapper.querySelector('video');if(!v)return;v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fas fa-volume-mute"></i>':'<i class="fas fa-volume-up"></i>';}
-  function closeModalHandler(){if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}if(currentShaka){try{currentShaka.destroy();}catch(e){}currentShaka=null;}const v=playerWrapper.querySelector('video');if(v){v.pause();v.removeAttribute('src');v.load();}playerWrapper.querySelectorAll('iframe').forEach(f=>f.src='about:blank');resetPlayerContainer();hideModal();currentIndex=null;currentFiltered=[];playPauseBtn.innerHTML='<i class="fas fa-play mr-2"></i>Play';}
+  function toggleFullscreen(){
+    const target=playerWrapper.querySelector('video,iframe')||playerWrapper;
+    if(document.fullscreenElement){document.exitFullscreen().catch(()=>{});return;}
+    if(target.requestFullscreen)target.requestFullscreen().catch(()=>{});
+    else if(playerWrapper.requestFullscreen)playerWrapper.requestFullscreen().catch(()=>{});
+  }
+  function toggleMute(){
+    if(currentPlayerKind!=='video')return;
+    const video=document.getElementById(modalVideoId);if(!video)return;
+    video.muted=!video.muted;
+    muteBtn.innerHTML=video.muted?'<i class="fas fa-volume-mute"></i>':'<i class="fas fa-volume-up"></i>';
+  }
+  function closeModalHandler(){
+    if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+    if(currentShaka){try{currentShaka.destroy();}catch(e){}currentShaka=null;}
+    const video=playerWrapper.querySelector('video');
+    if(video){video.pause();video.removeAttribute('src');video.load();}
+    playerWrapper.querySelectorAll('iframe').forEach(frame=>{frame.src='about:blank';});
+    resetPlayerContainer();hideModal();currentIndex=null;currentFiltered=[];
+    muteBtn.innerHTML='<i class="fas fa-volume-up"></i>';
+    setPlayerButtonState(false);
+  }
   /******************************
    * Events wiring
    ******************************/
@@ -900,8 +1016,9 @@
   }
   function illumPlaySelected(movie){
     if(!movie)return;
-    const index=movies.findIndex(item=>item===movie || (item.title===movie.title && item.year===movie.year));
-    openPlayer(movies,index>=0?index:0);
+    const index=movies.findIndex(item=>item===movie || (item.title===movie.title && item.year===movie.year && item.video===movie.video));
+    if(index<0){console.warn('Selected Illumination title was not found in the catalogue:',movie.title);return;}
+    openPlayer(movies,index);
   }
   function illumShow(index,resetTimer=true){
     if(!illumHeroList.length)return;
@@ -1565,6 +1682,35 @@ body.illum-light footer{background:#e7edf6!important;color:#5d6b83!important}
  .illum-film-item{flex-basis:69px}
 }
 @media(prefers-reduced-motion:reduce){.illum-orb-one{animation:none}.illum-feature-art img,.movie-card{transition:none!important}}
+
+
+/* TV-player modal refinement: stable 16:9 viewport and usable controls */
+#playbackModal{z-index:10050;box-sizing:border-box;padding:clamp(8px,2vw,24px);overflow-y:auto;overscroll-behavior:contain}
+#playbackModal .modal-card{width:min(1120px,96vw);max-width:1120px;max-height:calc(100dvh - 32px);display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.13);border-radius:18px;background:#091322;box-shadow:0 28px 90px rgba(0,0,0,.72)}
+#playbackModal .player-wrapper{position:relative!important;flex:0 1 auto;width:100%;height:auto!important;min-height:0!important;max-height:calc(100dvh - 180px);aspect-ratio:16/9;padding:0!important;overflow:hidden;background:#000}
+#playbackModal .player-wrapper video,#playbackModal .player-wrapper iframe{position:absolute!important;inset:0;width:100%!important;height:100%!important;max-height:100%;object-fit:contain;background:#000}
+#playbackModal .player-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;background:linear-gradient(110deg,#111f34,#0b1424);color:#f6f8fc}
+#playbackModal .meta-left{min-width:0;max-width:46%;flex:1 1 250px}
+#playbackModal .meta-left h3{font-size:clamp(15px,1.5vw,20px);font-weight:800;line-height:1.2}
+#playbackModal .meta-left p{font-size:12px;line-height:1.45;max-height:3.1em;overflow:auto}
+#playbackModal .controls-row{display:flex;flex:0 1 auto;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:7px}
+#playbackModal .controls-row .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:42px;min-height:42px;padding:9px 12px;border:1px solid rgba(255,212,65,.48);border-radius:10px;background:rgba(255,255,255,.045);color:#ffdc72;font-size:11px;font-weight:700;white-space:nowrap;touch-action:manipulation}
+#playbackModal .controls-row .btn:hover:not(:disabled){background:rgba(255,212,65,.14);border-color:#ffd43b}
+#playbackModal .controls-row .btn:disabled,#playbackModal .controls-row .btn.is-unavailable{opacity:.48;cursor:not-allowed}
+@media(max-width:760px){
+ #playbackModal{padding:8px;align-items:center}
+ #playbackModal .modal-card{width:100%;max-width:none;max-height:calc(100dvh - 16px);border-radius:13px}
+ #playbackModal .player-wrapper{width:100%;max-height:none;flex:0 0 auto;aspect-ratio:16/9}
+ #playbackModal .player-meta{flex-direction:column;align-items:stretch;gap:10px;padding:12px}
+ #playbackModal .meta-left{max-width:100%;flex:0 0 auto}
+ #playbackModal .meta-left p{max-height:2.8em}
+ #playbackModal .controls-row{width:100%;justify-content:center;gap:7px}
+ #playbackModal .controls-row .btn{min-width:42px;min-height:42px;padding:8px 10px;font-size:10px}
+}
+@media(max-width:380px){
+ #playbackModal .controls-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+ #playbackModal .controls-row .btn{width:100%}
+}
 
 </style>
 
