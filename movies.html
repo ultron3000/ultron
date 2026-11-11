@@ -8308,6 +8308,14 @@
     initCategories();
     renderMovies();
 
+    // Support direct title links from universal search without changing normal browsing.
+    const requestedMovie = new URLSearchParams(window.location.search).get("title");
+    if (requestedMovie) {
+      const target = requestedMovie.trim().toLocaleLowerCase();
+      const requestedIndex = movies.findIndex(movie => (movie.title || "").trim().toLocaleLowerCase() === target);
+      if (requestedIndex >= 0) openPlayer(requestedIndex);
+    }
+
     const toolbarObserver = new MutationObserver(() => {
     document.body.classList.toggle(
         'modal-open',
