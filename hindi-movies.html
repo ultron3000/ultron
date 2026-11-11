@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <!-- hls.js for playing .m3u8 in browsers that support MediaSource -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -410,6 +411,34 @@ iframe:-webkit-full-screen {
     object-fit: cover !important;
   }
 }
+
+
+
+/* Cloud TV Hindi Cinema — cinematic depth layer */
+:root{--cinema-gold:#f5c451;--cinema-line:rgba(255,255,255,.11);--cinema-glass:rgba(15,23,42,.72)}
+body{background:radial-gradient(ellipse at 12% -8%,rgba(245,158,11,.18),transparent 34%),radial-gradient(ellipse at 92% 14%,rgba(124,58,237,.15),transparent 30%),linear-gradient(145deg,#070b16 0%,#101a2d 48%,#090e1b 100%);background-attachment:fixed}
+header{position:relative;isolation:isolate}
+header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(110deg,rgba(245,158,11,.10),transparent 45%,rgba(99,102,241,.10));border-bottom:1px solid var(--cinema-line)}
+.movie-card{position:relative;border:1px solid var(--cinema-line);border-radius:16px;background:linear-gradient(155deg,rgba(31,41,59,.96),rgba(10,16,29,.98));box-shadow:0 12px 28px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.055);overflow:hidden;transform:translateZ(0);transition:transform .24s cubic-bezier(.2,.8,.2,1),box-shadow .24s,border-color .24s}
+.movie-card:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.09),transparent 32%,transparent 72%,rgba(245,158,11,.08));opacity:.6}
+.movie-card:hover{transform:perspective(900px) translateY(-7px) rotateX(1.2deg) scale(1.018);border-color:rgba(245,196,81,.62);box-shadow:0 22px 42px rgba(0,0,0,.38),0 0 0 1px rgba(245,196,81,.10)}
+.movie-poster{display:block;object-fit:cover;background:#111827}
+.movie-card .p-4{position:relative;z-index:1;background:linear-gradient(180deg,rgba(17,24,39,.92),rgba(8,13,24,.98))}
+.movie-card h3{letter-spacing:-.02em}
+.search-input,#searchBar{background:rgba(8,13,25,.78)!important;border:1px solid rgba(245,196,81,.38)!important;box-shadow:inset 0 1px 8px rgba(0,0,0,.24),0 8px 24px rgba(0,0,0,.12)}
+.search-input:focus,#searchBar:focus{border-color:var(--cinema-gold)!important;box-shadow:0 0 0 3px rgba(245,196,81,.16),0 12px 30px rgba(0,0,0,.2)}
+.modal-backdrop{padding:clamp(8px,3vw,28px);background:rgba(2,5,12,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.modal-card{width:min(1120px,100%);height:auto;max-height:92vh;border:1px solid rgba(245,196,81,.24);border-radius:20px;background:linear-gradient(145deg,#111b2d,#070b14);box-shadow:0 35px 100px rgba(0,0,0,.72),0 0 0 1px rgba(255,255,255,.035);overflow:hidden}
+.player-wrapper{flex:none;width:100%;aspect-ratio:16/9;min-height:0;max-height:68vh;padding:0!important;height:auto!important;position:relative;background:#000}
+.player-wrapper video,.player-wrapper iframe{position:absolute!important;inset:0;width:100%!important;height:100%!important;max-height:none!important;object-fit:contain;background:#000}
+.player-meta{gap:16px;padding:16px 18px 18px;background:linear-gradient(110deg,#111b2d,#0b1220);border-top:1px solid rgba(255,255,255,.08)}
+.player-meta h3{font-size:clamp(16px,2vw,21px);font-weight:700;color:#fff;letter-spacing:-.025em}
+.controls-row .btn{border-color:rgba(245,196,81,.35);background:rgba(245,196,81,.055);border-radius:10px;transition:background .18s,transform .18s,border-color .18s}
+.controls-row .btn:hover{background:rgba(245,196,81,.16);border-color:var(--cinema-gold);transform:translateY(-2px)}
+#topCloseBtn{background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px)}
+@media(min-width:768px){.modal-card{max-height:92vh}.player-wrapper{max-height:68vh}.player-meta{align-items:center}.player-meta .meta-left{max-width:42%}.controls-row{flex-wrap:wrap}}
+@media(max-width:767px){.modal-backdrop{padding:0;align-items:flex-end}.modal-card{width:100%;max-width:none;max-height:94dvh;border-radius:18px 18px 0 0;border-bottom:0}.player-wrapper{aspect-ratio:16/9;max-height:42dvh}.player-meta{padding:12px;gap:10px}.controls-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.controls-row .btn{min-width:0!important;padding:10px 5px!important;font-size:0!important}.controls-row .btn i{font-size:15px!important;margin:0!important}.movie-card{border-radius:13px}.movie-card:hover{transform:none;box-shadow:0 10px 22px rgba(0,0,0,.22)}}
+@media(prefers-reduced-motion:reduce){.movie-card,.movie-poster,.controls-row .btn{transition:none!important;animation:none!important}.movie-card:hover{transform:none}}
 
   </style>
 </head>
@@ -824,6 +853,7 @@ function cycleView() {
 
     let currentHls = null;
     let currentFiltered = [];
+    let currentShaka = null;
     let currentIndex = null;
 
     /******************************
@@ -843,10 +873,9 @@ function cycleView() {
      * Reset player container
      ******************************/
     function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
+      if (currentHls) { try { currentHls.destroy(); } catch(e) {} currentHls = null; }
+      if (currentShaka) { try { currentShaka.destroy(); } catch(e) {} currentShaka = null; }
+      if (window.shakaPlayer) { try { window.shakaPlayer.destroy(); } catch(e) {} window.shakaPlayer = null; }
       playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
     }
 
@@ -866,7 +895,7 @@ function cycleView() {
     /******************************
      * Core: open player (Illumination logic)
      ******************************/
-    function openPlayer(list, index) {
+    async function openPlayer(list, index) {
       if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
         showError('Invalid playback request');
         return;
@@ -899,6 +928,18 @@ function cycleView() {
 
       const lc = (src || '').toLowerCase();
 
+      // DASH / MPD playback follows the same Shaka path as the TV player.
+      if (movie.video && typeof movie.video === "object" && movie.video.mpd) {
+        const v = document.getElementById(modalVideoId);
+        try {
+          if (!window.shaka || !window.shaka.Player) throw new Error("Shaka Player unavailable");
+          currentShaka = new shaka.Player(v); window.shakaPlayer = currentShaka;
+          currentShaka.addEventListener("error", function(event){ console.warn("Shaka playback error",event.detail||event); });
+          if (movie.video.key) { const parts=movie.video.key.split(":"); if(parts.length===2) currentShaka.configure({drm:{clearKeys:{[parts[0]]:parts[1]}}}); }
+          await currentShaka.load(movie.video.mpd); v.play().catch(function(){});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause'; return;
+        } catch(error) { console.warn("DASH playback could not start",error); showError("This title could not start in the embedded player."); return; }
+      }
 
       // ABSOLUTE PRIORITY: FORCE HLS MODAL PLAY
 if (src.includes('m3u8') || src.includes('proxy.animanga.fun')) {
@@ -964,7 +1005,7 @@ if (src.includes('m3u8') || src.includes('proxy.animanga.fun')) {
         const v = document.getElementById(modalVideoId);
         if (!v) { showError('Video element missing'); return; }
         if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
+          currentHls = new Hls({maxBufferLength:30,maxMaxBufferLength:60,enableWorker:true,abrEwmaDefaultEstimate:2500000,backBufferLength:30});
           try {
             currentHls.loadSource(src);
             currentHls.attachMedia(v);
@@ -975,11 +1016,10 @@ if (src.includes('m3u8') || src.includes('proxy.animanga.fun')) {
           });
           currentHls.on(Hls.Events.ERROR, function(event, data) {
             console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+            if (data && data.fatal && currentHls) {
+              if (data.type === Hls.ErrorTypes.NETWORK_ERROR) currentHls.startLoad();
+              else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) currentHls.recoverMediaError();
+              else { try { currentHls.destroy(); } catch(e){} currentHls = null; showError('Unable to play this stream in the browser.'); }
             }
           });
         } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
@@ -1115,6 +1155,8 @@ function seekForward10() {
      * Close modal & cleanup
      ******************************/
     function closeModalHandler() {
+      if (currentShaka) { try { currentShaka.destroy(); } catch(e) {} currentShaka = null; }
+      if (window.shakaPlayer) { try { window.shakaPlayer.destroy(); } catch(e) {} window.shakaPlayer = null; }
       if (currentHls) {
         try { currentHls.destroy(); } catch(e) {}
         currentHls = null;
