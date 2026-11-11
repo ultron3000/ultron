@@ -26,7 +26,7 @@ for (const path of ["index.html", "search.html", "movies.html", "series.html", "
   const scriptAt = html.lastIndexOf('src="assets/js/universal-search.js"');
   const bodyAt = html.toLowerCase().lastIndexOf("</body>");
   assert.ok(scriptAt >= 0 && scriptAt < bodyAt, path + " loads universal search before </body>");
-  assert.ok(html.lastIndexOf("-->", scriptAt) > html.lastIndexOf("<!--", scriptAt), path + " search script is not inside an HTML comment");
+  assert.ok(html.lastIndexOf("<!--", scriptAt) <= html.lastIndexOf("-->", scriptAt), path + " search script is inside an HTML comment");
 }
 assert.match(readFileSync("movies.html", "utf8"), /openPlayer\(movies\.indexOf\(match\)\)/, "movie deep links use the existing player");
 assert.match(readFileSync("tv.html", "utf8"), /openPlayer\(list, index\)/, "live-channel deep links use the existing player");
