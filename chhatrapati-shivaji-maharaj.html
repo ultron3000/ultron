@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Hind:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap');
@@ -97,7 +98,38 @@
     ::-webkit-scrollbar-track { background: #07050a; }
     ::-webkit-scrollbar-thumb { background: #c2410c; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #ea580c; }
-  </style>
+  
+:root{--heritage-gold:#e8bd63;--heritage-saffron:#e87528;--heritage-line:rgba(232,189,99,.24)}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{overflow-x:hidden;background-color:#09080a;background-image:radial-gradient(ellipse at 15% 8%,rgba(171,77,24,.18),transparent 34%),radial-gradient(ellipse at 88% 42%,rgba(151,113,42,.10),transparent 38%),linear-gradient(145deg,#09080a,#17110d 52%,#09080a)}
+.glass-nav{background:rgba(9,8,10,.88);border-bottom:1px solid var(--heritage-line);box-shadow:0 10px 36px rgba(0,0,0,.22)}
+.swarajya-hero{position:relative;isolation:isolate;min-height:clamp(390px,52vw,610px);display:flex;align-items:flex-end;overflow:hidden;border:1px solid var(--heritage-line);border-radius:26px;background:#17100c;box-shadow:0 28px 80px rgba(0,0,0,.42);margin:4px 0 18px}
+.hero-art{position:absolute;inset:0;z-index:-2;background-image:linear-gradient(90deg,rgba(8,7,7,.97),rgba(8,7,7,.68) 43%,rgba(8,7,7,.12)),linear-gradient(0deg,rgba(8,7,7,.8),transparent 55%),url('https://image.tmdb.org/t/p/original/7ImVIuDZbTpueg0yxG9WvzKPEwF.jpg');background-size:cover;background-position:center 28%;transform:scale(1.02);transition:transform 8s ease}
+.swarajya-hero:hover .hero-art{transform:scale(1.06)}
+.swarajya-hero:after{content:"";position:absolute;inset:12px;border:1px solid rgba(232,189,99,.18);border-radius:18px;pointer-events:none}
+.hero-copy{width:min(680px,100%);padding:clamp(26px,5vw,62px);padding-bottom:clamp(40px,6vw,72px)}
+.hero-kicker{display:inline-flex;gap:9px;color:#f1c978;font-size:12px;font-weight:700;letter-spacing:.14em}
+.hero-copy h1{font-family:'Hind',sans-serif;font-weight:700;font-size:clamp(34px,6vw,66px);line-height:1.12;color:#fff2d2;margin:18px 0 12px;text-shadow:0 4px 30px #000}
+.hero-copy p{max-width:490px;color:#e7d9c2;font-size:clamp(14px,1.6vw,18px);line-height:1.8}
+.hero-actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:24px}
+.hero-actions button,.hero-actions a{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:0 19px;border-radius:999px;font:700 14px 'Hind',sans-serif;text-decoration:none}
+.hero-actions button{background:linear-gradient(120deg,#f4d58a,#c98532);color:#21160b;border:0}
+.hero-actions a{border:1px solid rgba(241,201,120,.42);color:#f8e8c9;background:rgba(10,8,7,.45)}
+.hero-mark{margin-top:26px;color:rgba(241,201,120,.62);font-size:13px;letter-spacing:.12em}
+.hero-index{position:absolute;right:clamp(24px,4vw,50px);bottom:34px;display:flex;align-items:center;gap:10px;color:rgba(245,220,174,.7);font:600 11px 'Cinzel',serif}
+.hero-index span:first-child{font-size:24px;color:#f1c978}.hero-line{width:44px;height:1px;background:#d4a44e}
+.movie-card{background:linear-gradient(150deg,rgba(40,27,18,.9),rgba(13,10,9,.98));border:1px solid rgba(232,189,99,.2);box-shadow:0 12px 30px rgba(0,0,0,.25);transition:transform .28s,border-color .28s,box-shadow .28s;content-visibility:auto;contain-intrinsic-size:290px}
+.movie-card:hover{transform:translateY(-6px) rotateX(2deg);border-color:rgba(232,189,99,.7);box-shadow:0 24px 46px rgba(0,0,0,.48)}
+.movie-card img{transition:transform .5s}.movie-card:hover img{transform:scale(1.055)}
+.movie-card:focus-visible{outline:3px solid #edc875;outline-offset:3px}
+#playbackModal{padding:clamp(10px,3vw,34px);background:rgba(3,2,3,.94);backdrop-filter:blur(16px)}
+#playbackModal>div{width:min(1120px,100%);border:1px solid rgba(232,189,99,.42);border-radius:20px;background:linear-gradient(145deg,#1b1510,#080708);box-shadow:0 35px 110px rgba(0,0,0,.75)}
+#playerWrapper{width:100%;aspect-ratio:16/9;max-height:70vh;background:#000}
+#playerWrapper video,#playerWrapper iframe{width:100%;height:100%;object-fit:contain;border:0;background:#000}
+@media(max-width:640px){.swarajya-hero{min-height:440px;border-radius:18px}.hero-art{background-position:62% center;background-image:linear-gradient(0deg,rgba(8,7,7,.98),rgba(8,7,7,.7) 55%,rgba(8,7,7,.08)),url('https://image.tmdb.org/t/p/w780/7ImVIuDZbTpueg0yxG9WvzKPEwF.jpg')}.hero-copy{padding:24px 22px 38px}.hero-copy h1{font-size:36px}.hero-copy p{font-size:14px}.hero-index{right:22px;top:22px;bottom:auto}main{padding-top:18px!important;gap:38px!important}.movie-card{backdrop-filter:none!important}#playbackModal{padding:0;align-items:flex-end}#playbackModal>div{max-height:94dvh;border-radius:18px 18px 0 0}#playerWrapper{max-height:45dvh}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+</style>
 </head>
 
 <body class="flex flex-col min-h-screen">
@@ -131,6 +163,7 @@
   </nav>
 
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 space-y-12 py-8 pb-20">
+    <section class="swarajya-hero" aria-label="स्वराज्य विशेष"><div class="hero-art" id="heroArt"></div><div class="hero-copy"><span class="hero-kicker"><i class="fa-solid fa-crown"></i> इतिहास • शौर्य • स्वराज्य</span><h1 id="heroTitle">छत्रपती शिवाजी महाराज</h1><p id="heroSubtitle">स्वराज्याच्या इतिहासातील पराक्रम, प्रेरणा आणि अभिमानाचा अविस्मरणीय प्रवास.</p><div class="hero-actions"><button id="heroPlay" type="button"><i class="fa-solid fa-play"></i> आता पाहा</button><a href="#movies"><i class="fa-solid fa-compass"></i> चित्रपट शोधा</a></div><div class="hero-mark">॥ श्री शिवछत्रपती प्रसन्न ॥</div></div><div class="hero-index"><span id="heroNumber">01</span><span class="hero-line"></span><span>स्वराज्य संग्रह</span></div></section>
 
     <section>
       <div class="flex items-center justify-between mb-6 border-b border-orange-900/30 pb-3">
@@ -264,134 +297,76 @@
 
     let currentList = [], currentIndex = 0, currentHls = null;
 
-    /* Render Cards */
+    /* Efficient accessible card rendering */
     function render(list, targetElement) {
+      const fragment = document.createDocumentFragment();
       list.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = 'movie-card group rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between';
-        
-        const isYT = item.isExternal || item.video.includes('youtube') || item.video.includes('youtu.be');
-
-        card.innerHTML = `
-          <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/40">
-            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-70"></div>
-            
-            <div class="absolute top-2 right-2">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isYT ? 'bg-red-600/90 text-white' : 'bg-orange-600/90 text-white'} backdrop-blur-sm shadow">
-                ${isYT ? 'YouTube' : 'Movie'}
-              </span>
-            </div>
-
-            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
-              <span class="w-12 h-12 rounded-full ${isYT ? 'bg-red-600' : 'bg-orange-600'} text-white flex items-center justify-center shadow-lg transform group-hover:scale-110 transition">
-                <i class="${isYT ? 'fa-brands fa-youtube' : 'fas fa-play'} text-lg"></i>
-              </span>
-            </div>
-          </div>
-          <div class="p-3">
-            <h3 class="text-xs sm:text-sm font-semibold text-gray-200 line-clamp-1 group-hover:text-amber-400 transition">${item.title}</h3>
-          </div>
-        `;
-
-        card.onclick = () => {
-          if (isYT) {
-            window.open(item.video, '_blank', 'noopener,noreferrer');
-          } else {
-            openPlayer(list, index);
-          }
-        };
-
-        targetElement.appendChild(card);
+        const card = document.createElement('button');
+        card.type = 'button'; card.className = 'movie-card group rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between text-left';
+        card.setAttribute('aria-label', 'पहा: ' + item.title);
+        const wrap = document.createElement('div'); wrap.className = 'relative w-full aspect-[2/3] overflow-hidden bg-black/40';
+        const img = document.createElement('img'); img.src = item.image; img.alt = item.title + ' पोस्टर'; img.loading = 'lazy'; img.decoding = 'async'; img.className = 'w-full h-full object-cover';
+        const shade = document.createElement('div'); shade.className = 'absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent opacity-70 pointer-events-none';
+        const play = document.createElement('span'); play.className = 'absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition pointer-events-none'; play.innerHTML = '<span class="w-12 h-12 rounded-full bg-orange-600 flex items-center justify-center shadow-xl"><i class="fa-solid fa-play"></i></span>';
+        wrap.append(img,shade,play);
+        const caption=document.createElement('span');caption.className='block p-3 text-xs sm:text-sm font-semibold text-amber-50 line-clamp-2 group-hover:text-amber-300';caption.textContent=item.title;
+        card.append(wrap,caption);card.addEventListener('click',()=>openPlayer(list,index));fragment.appendChild(card);
       });
+      targetElement.replaceChildren(fragment);
     }
 
     render(movies, document.getElementById('movies'));
     render(tvShows, document.getElementById('tvShows'));
 
-    function resetPlayer() {
-      if (currentHls) { 
-        currentHls.destroy(); 
-        currentHls = null; 
-      }
-      wrapper.innerHTML = '<video id="modalVideo" class="w-full h-full object-contain" controls playsinline></video>';
+    let currentList=[],currentIndex=0,currentHls=null,currentShaka=null,playerSession=0;
+    const modalDesc=document.createElement('p');modalDesc.className='text-xs text-orange-200/60 text-center sm:text-left';titleBox.parentElement.appendChild(modalDesc);
+
+    function resetPlayer(){
+      playerSession++;
+      if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+      if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+      const old=wrapper.querySelector('video');if(old){try{old.pause();old.removeAttribute('src');old.load()}catch(e){}}
+      wrapper.innerHTML='<video id="modalVideo" class="w-full h-full object-contain" controls playsinline preload="metadata"></video>';
     }
-
-    function openPlayer(list, index) {
-      currentList = list;
-      currentIndex = index;
-      const item = list[index];
-
-      titleBox.textContent = item.title;
-      resetPlayer();
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-
-      if (item.video.includes('drive.google.com')) {
-        const directViewUrl = item.video.replace('/preview', '/view');
-        externalDriveBtn.href = directViewUrl;
-        externalDriveBtn.classList.remove('hidden');
-        externalDriveBtn.classList.add('flex');
-      } else {
-        externalDriveBtn.classList.add('hidden');
-        externalDriveBtn.classList.remove('flex');
-      }
-
-      if (item.video.includes('.m3u8')) {
-        const v = document.getElementById('modalVideo');
-        if (Hls.isSupported()) {
-          currentHls = new Hls();
-          currentHls.loadSource(item.video);
-          currentHls.attachMedia(v);
-          currentHls.on(Hls.Events.MANIFEST_PARSED, () => v.play());
-        } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = item.video;
-          v.play();
-        }
-      } 
-      else if (item.video.includes('drive.google.com')) {
-        const embedUrl = item.video.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
-        wrapper.innerHTML = `<iframe class="w-full h-full object-contain border-0" src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-      } 
-      else if (item.video.includes('mega.nz')) {
-        wrapper.innerHTML = `<iframe class="w-full h-full object-contain border-0" src="${item.video}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-      }
-      else if (item.video.includes('turboembed.com')) {
-    wrapper.innerHTML = `
-        <iframe
-            class="w-full h-full border-0"
-            src="${item.video}"
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-            allowfullscreen
-            referrerpolicy="no-referrer-when-downgrade">
-        </iframe>
-    `;
-}
-      else {
-        const v = document.getElementById('modalVideo');
-        v.src = item.video;
-        v.play();
-      }
+    function youtubeEmbed(url){
+      try{const u=new URL(url);let id=u.searchParams.get('v');if(!id&&u.hostname.includes('youtu.be'))id=u.pathname.slice(1);if(!id)return url;const list=u.searchParams.get('list');return 'https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+(list?'?list='+encodeURIComponent(list)+'&autoplay=1&rel=0':'?autoplay=1&rel=0')}catch(e){return url}
     }
-
-    function closeModal() {
-      resetPlayer();
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
+    async function openPlayer(list,index){
+      if(!Array.isArray(list)||!list[index])return;
+      currentList=list;currentIndex=index;const item=list[index];resetPlayer();const session=playerSession;
+      titleBox.textContent=item.title||'स्वराज्य';modalDesc.textContent=list===movies?'ऐतिहासिक मराठी चित्रपट':'ऐतिहासिक मराठी मालिका';
+      modal.classList.add('active');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+      const raw=item.video;const src=(raw&&typeof raw==='object')?(raw.high||raw.url||raw.mpd||Object.values(raw).find(v=>typeof v==='string')):raw;
+      if(!src)return;const url=String(src),lc=url.toLowerCase();
+      const yt=lc.includes('youtube.com')||lc.includes('youtu.be'),drive=lc.includes('drive.google.com');
+      externalDriveBtn.classList.toggle('hidden',!drive);externalDriveBtn.classList.toggle('flex',drive);if(drive)externalDriveBtn.href=url.replace('/preview','/view');
+      if(yt||lc.includes('turboembed.com')||lc.includes('mega.nz')||drive||lc.includes('embed')){
+        const frame=document.createElement('iframe');frame.className='w-full h-full border-0';frame.allow='autoplay; encrypted-media; fullscreen; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';
+        frame.src=yt?youtubeEmbed(url):(drive?url.replace(/\/(view|edit)(\?.*)?$/,'/preview'):url);wrapper.replaceChildren(frame);return;
+      }
+      const video=document.getElementById('modalVideo');video.addEventListener('error',()=>{if(session===playerSession)modalDesc.textContent='व्हिडिओ स्रोत उपलब्ध नाही. कृपया नंतर पुन्हा प्रयत्न करा.'},{once:true});
+      if(raw&&typeof raw==='object'&&raw.mpd||/\.mpd($|\?)/i.test(url)){
+        try{if(!window.shaka)throw Error('Shaka unavailable');currentShaka=new shaka.Player(video);await currentShaka.load(raw.mpd||url);if(session===playerSession)video.play().catch(()=>{})}catch(e){if(session===playerSession)modalDesc.textContent='DASH प्लेबॅक उपलब्ध नाही.'}return;
+      }
+      if(/\.m3u8($|\?)/i.test(url)){
+        if(window.Hls&&Hls.isSupported()){currentHls=new Hls({enableWorker:true,maxBufferLength:24,maxMaxBufferLength:48,backBufferLength:20});currentHls.loadSource(url);currentHls.attachMedia(video);currentHls.on(Hls.Events.MANIFEST_PARSED,()=>{if(session===playerSession)video.play().catch(()=>{})});currentHls.on(Hls.Events.ERROR,(e,d)=>{if(!d.fatal||session!==playerSession)return;if(d.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else modalDesc.textContent='स्ट्रीममध्ये अडचण आली.'})}
+        else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=url;video.play().catch(()=>{})}else modalDesc.textContent='या ब्राउझरमध्ये HLS समर्थित नाही.';return;
+      }
+      video.src=url;video.play().catch(()=>{});
     }
+    function closeModal(){resetPlayer();modal.classList.remove('active');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';externalDriveBtn.classList.add('hidden');externalDriveBtn.classList.remove('flex')}
+    prevBtn.onclick=()=>{if(currentIndex>0)openPlayer(currentList,currentIndex-1)};
+    nextBtn.onclick=()=>{if(currentIndex<currentList.length-1)openPlayer(currentList,currentIndex+1)};
+    closeBtn.onclick=closeModal;
+    fullscreenBtn.onclick=()=>{const el=wrapper.querySelector('video,iframe')||wrapper;const fn=el.requestFullscreen||wrapper.requestFullscreen||wrapper.webkitRequestFullscreen;if(fn){const result=fn.call(el);if(result&&result.catch)result.catch(()=>{})}};
+    modal.onclick=e=>{if(e.target===modal)closeModal()};
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('active'))closeModal()});
 
-    prevBtn.onclick = () => currentIndex > 0 && openPlayer(currentList, currentIndex - 1);
-    nextBtn.onclick = () => currentIndex < currentList.length - 1 && openPlayer(currentList, currentIndex + 1);
-    closeBtn.onclick = closeModal;
-
-    fullscreenBtn.onclick = () => {
-      if (wrapper.requestFullscreen) wrapper.requestFullscreen();
-      else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
-    };
-
-    modal.onclick = (e) => {
-      if (e.target === modal) closeModal();
-    };
-  </script>
+    let heroIndex=0;const heroArt=document.getElementById('heroArt'),heroTitle=document.getElementById('heroTitle'),heroSubtitle=document.getElementById('heroSubtitle'),heroNumber=document.getElementById('heroNumber');
+    function setHero(index){heroIndex=(index+movies.length)%movies.length;const item=movies[heroIndex];heroArt.style.backgroundImage="linear-gradient(90deg,rgba(8,7,7,.96),rgba(8,7,7,.68) 43%,rgba(8,7,7,.12)),linear-gradient(0deg,rgba(8,7,7,.8),transparent 55%),url('"+item.image.replace(/'/g,'%27')+"')";heroTitle.textContent=item.title;heroSubtitle.textContent='मराठी इतिहासपटांचा अभिमानास्पद संग्रह — शौर्य, पराक्रम आणि स्वराज्याची प्रेरणा.';heroNumber.textContent=String(heroIndex+1).padStart(2,'0')}
+    setHero(Math.floor(Math.random()*movies.length));
+    document.getElementById('heroPlay').addEventListener('click',()=>openPlayer(movies,heroIndex));
+    document.addEventListener('visibilitychange',()=>{if(document.hidden&&modal.classList.contains('active')){const v=wrapper.querySelector('video');if(v)v.pause()}});
+</script>
 </body>
 </html>
