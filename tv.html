@@ -620,8 +620,15 @@ currentHls.on(Hls.Events.FRAG_BUFFERED, () => {
       }
     }
 
-    // Initial lifecycle trigger execution load
-    loadChannelsData();
+    // Initial lifecycle trigger execution load; support direct channel links from universal search.
+    loadChannelsData().then(() => {
+      const requestedChannel = new URLSearchParams(window.location.search).get('channel');
+      if (requestedChannel) {
+        const target = requestedChannel.trim().toLocaleLowerCase();
+        const index = movies.findIndex(channel => (channel.title || '').trim().toLocaleLowerCase() === target);
+        if (index >= 0) openPlayer(movies, index);
+      }
+    });
 
     document.getElementById('searchBar').addEventListener('input', function() {
       const searchTerm = this.value.toLowerCase();
