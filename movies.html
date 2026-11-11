@@ -8238,27 +8238,95 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
       renderMovies();
     }
 
-    // Render Movie Grid
+    // Progressive catalogue renderer: keep every title, but avoid mounting
+    // hundreds of poster cards in one expensive DOM operation.
+    const MOVIE_BATCH_SIZE = 48;
+    let filteredMovieEntries = [];
+    let renderedMovieCount = 0;
+    let isAppendingMovies = false;
+    const movieLoadMore = document.createElement("button");
+    movieLoadMore.type = "button";
+    movieLoadMore.className = "movie-load-more";
+    movieLoadMore.textContent = "Load more movies";
+    movieLoadMore.setAttribute("aria-label", "Load more movies");
+    moviesContainer.parentElement.appendChild(movieLoadMore);
+
+    function appendMovieBatch() {
+      if (isAppendingMovies || renderedMovieCount >= filteredMovieEntries.length) return;
+      isAppendingMovies = true;
+      const fragment = document.createDocumentFragment();
+      const end = Math.min(renderedMovieCount + MOVIE_BATCH_SIZE, filteredMovieEntries.length);
+
+      for (let i = renderedMovieCount; i < end; i++) {
+        const entry = filteredMovieEntries[i];
+        const movie = entry.movie;
+        const card = document.createElement("article");
+        card.className = "movie-card";
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", "Play " + (movie.title || "movie"));
+        const inner = document.createElement("div");
+        inner.className = "card-inner";
+        const poster = document.createElement("img");
+        poster.className = "movie-poster";
+        poster.loading = i < 12 ? "eager" : "lazy";
+        poster.decoding = "async";
+        poster.fetchPriority = i < 6 ? "high" : "auto";
+        poster.alt = movie.title || "Movie poster";
+        poster.src = movie.image || "";
+        const title = document.createElement("div");
+        title.className = "movie-title";
+        title.textContent = movie.title || "Untitled";
+        inner.append(poster, title);
+        card.appendChild(inner);
+        card.addEventListener("click", () => openPlayer(entry.index));
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openPlayer(entry.index);
+          }
+        });
+        fragment.appendChild(card);
+      }
+
+      moviesContainer.appendChild(fragment);
+      renderedMovieCount = end;
+      movieLoadMore.hidden = renderedMovieCount >= filteredMovieEntries.length;
+      movieLoadMore.textContent = renderedMovieCount >= filteredMovieEntries.length
+        ? "All movies loaded"
+        : "Load more (" + (filteredMovieEntries.length - renderedMovieCount) + " remaining)";
+      isAppendingMovies = false;
+    }
+
     function renderMovies() {
-      const query = searchInput.value.toLowerCase();
-      const filtered = movies.filter(m => {
-        const cat = m.category || "Marathi";
+      const query = (searchInput.value || "").trim().toLocaleLowerCase();
+      filteredMovieEntries = movies.map((movie, index) => ({ movie, index })).filter(({movie}) => {
+        const cat = movie.category || "Marathi";
+        const title = (movie.title || "").toLocaleLowerCase();
+        const description = (movie.description || "").toLocaleLowerCase();
         const matchesCat = activeCategory === "All" || cat === activeCategory;
-        const matchesSearch = m.title.toLowerCase().includes(query) || (m.description && m.description.toLowerCase().includes(query));
-        return matchesCat && matchesSearch;
+        return matchesCat && (!query || title.includes(query) || description.includes(query));
       });
 
-      moviesContainer.innerHTML = filtered.map((movie) => {
-        const realIdx = movies.indexOf(movie);
-        return `
-          <div class="movie-card" onclick="openPlayer(${realIdx})">
-            <div class="card-inner">
-              <img src="${movie.image}" alt="${movie.title}" class="movie-poster" loading="lazy"/>
-              <div class="movie-title">${movie.title}</div>
-            </div>
-          </div>
-        `;
-      }).join("");
+      renderedMovieCount = 0;
+      moviesContainer.replaceChildren();
+      if (!filteredMovieEntries.length) {
+        const empty = document.createElement("p");
+        empty.className = "movie-empty-state";
+        empty.textContent = "No movies found. Try another title or category.";
+        moviesContainer.appendChild(empty);
+        movieLoadMore.hidden = true;
+        return;
+      }
+      appendMovieBatch();
+    }
+
+    movieLoadMore.addEventListener("click", appendMovieBatch);
+    if ("IntersectionObserver" in window) {
+      const movieLoadObserver = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) appendMovieBatch();
+      }, { rootMargin: "700px 0px" });
+      movieLoadObserver.observe(movieLoadMore);
     }
 
     searchInput.addEventListener("input", renderMovies);
@@ -8392,24 +8460,42 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
       if (currentMovieIndex < movies.length - 1) openPlayer(currentMovieIndex + 1);
     });
 
-    // Theme & Grid Toggle
+    // Reliable theme and layout controls with a persisted preference.
     const themeBtn = document.getElementById("themeBtn");
     const gridBtn = document.getElementById("gridBtn");
     const gridModes = ["mode-standard", "mode-dense", "mode-card"];
+    const gridLabels = ["Standard grid", "Compact grid", "Large cards"];
     let currentGridIdx = 0;
 
-    themeBtn.addEventListener("click", () => {
-      document.body.classList.toggle("light");
-      const isLight = document.body.classList.contains("light");
+    function applyMovieTheme(theme) {
+      const isLight = theme === "light";
+      document.body.classList.toggle("light", isLight);
       document.getElementById("icon-sun").style.display = isLight ? "block" : "none";
       document.getElementById("icon-moon").style.display = isLight ? "none" : "block";
+      themeBtn.setAttribute("aria-pressed", String(isLight));
+      themeBtn.title = isLight ? "Switch to dark mode" : "Switch to light mode";
+      try { localStorage.setItem("cloudtv-movies-theme", isLight ? "light" : "dark"); } catch (_) {}
+    }
+
+    let savedMovieTheme = "dark";
+    try { savedMovieTheme = localStorage.getItem("cloudtv-movies-theme") || "dark"; } catch (_) {}
+    applyMovieTheme(savedMovieTheme);
+
+    themeBtn.addEventListener("click", () => {
+      applyMovieTheme(document.body.classList.contains("light") ? "dark" : "light");
     });
 
-    gridBtn.addEventListener("click", () => {
-      document.body.classList.remove(gridModes[currentGridIdx]);
-      currentGridIdx = (currentGridIdx + 1) % gridModes.length;
+    function setMovieGridMode(index) {
+      gridModes.forEach(mode => document.body.classList.remove(mode));
+      currentGridIdx = (index + gridModes.length) % gridModes.length;
       document.body.classList.add(gridModes[currentGridIdx]);
-    });
+      gridBtn.setAttribute("aria-pressed", String(currentGridIdx !== 0));
+      gridBtn.title = "Layout: " + gridLabels[currentGridIdx] + " (click to change)";
+      gridBtn.setAttribute("aria-label", gridBtn.title);
+    }
+
+    setMovieGridMode(0);
+    gridBtn.addEventListener("click", () => setMovieGridMode(currentGridIdx + 1));
 
     // Initial Load
     initCategories();
@@ -8562,213 +8648,6 @@ toolbarObserver.observe(document.getElementById('playbackModal'), {
 
 
 <!-- Disable DevTools + View Source Protection -->
-<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
-
-<script>
-/* =========================
-   Mobile Detection
-========================= */
-const isMobile =
-    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-
-/* =========================
-   Disable DevTools
-========================= */
-DisableDevtool({
-    disable: true,
-    disableMenu: true,
-    clearLog: true,
-    disableSelect: true,
-    disableCopy: true,
-    disableCut: true,
-    disablePaste: true,
-
-    /* FIXED */
-    disableMobile: false,
-
-    interval: 100,
-
-    ondevtoolopen: function () {
-
-        /* ONLY DESKTOP */
-        if (!isMobile) {
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-    }
-});
-
-/* =========================
-   Block View Source Shortcuts
-========================= */
-document.addEventListener("keydown", function (e) {
-
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+U
-    if (e.ctrlKey && e.key.toLowerCase() === "u") {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    }
-
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+J
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+C
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+S
-    if (e.ctrlKey && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+P
-    if (e.ctrlKey && e.key.toLowerCase() === "p") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+A
-    if (e.ctrlKey && e.key.toLowerCase() === "a") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+C
-    if (e.ctrlKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+X
-    if (e.ctrlKey && e.key.toLowerCase() === "x") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+V
-    if (e.ctrlKey && e.key.toLowerCase() === "v") {
-        e.preventDefault();
-        return false;
-    }
-});
-
-/* =========================
-   Disable Right Click
-========================= */
-document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Dragging
-========================= */
-document.addEventListener("dragstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Selection
-========================= */
-document.addEventListener("selectstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Copy Actions
-========================= */
-["copy", "cut", "paste"].forEach(function(evt) {
-
-    document.addEventListener(evt, function(e) {
-        e.preventDefault();
-    });
-
-});
-
-/* =========================
-   Detect DevTools Window
-   (Desktop ONLY - FIXED)
-========================= */
-if (!isMobile) {
-
-    setInterval(function () {
-
-        const widthThreshold =
-            window.outerWidth - window.innerWidth > 220;
-
-        const heightThreshold =
-            window.outerHeight - window.innerHeight > 220;
-
-        if (widthThreshold || heightThreshold) {
-
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-
-    }, 1500);
-
-}
-
-/* =========================
-   Disable Console
-========================= */
-(function () {
-
-    console.clear();
-
-    function block() {
-        return false;
-    }
-
-    console.log = block;
-    console.warn = block;
-    console.error = block;
-    console.info = block;
-    console.debug = block;
-    console.table = block;
-
-})();
-
-/* =========================
-   Block "view-source:"
-========================= */
-if (window.location.href.startsWith("view-source:")) {
-
-    document.body.innerHTML = "";
-    window.location.replace("about:blank");
-
-}
-
-/* =========================
-   Prevent iframe inspection
-========================= */
-if (window.top !== window.self) {
-
-    try {
-        window.top.location = window.self.location;
-    } catch (e) {}
-
-}
-</script>
-
 <style>
 html, body {
     -webkit-touch-callout: none;
@@ -8790,6 +8669,33 @@ img {
 ::selection {
     background: transparent;
 }
+
+/* MOVIES PAGE FIX PACK — preserve catalogue, restore working view modes */
+body.mode-standard #movies.movie-grid{grid-template-columns:repeat(auto-fill,minmax(158px,1fr))!important;gap:clamp(12px,1.5vw,19px)!important}
+body.mode-dense #movies.movie-grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))!important;gap:9px!important}
+body.mode-card #movies.movie-grid{grid-template-columns:repeat(auto-fill,minmax(238px,1fr))!important;gap:18px!important}
+body.mode-standard .movie-poster{aspect-ratio:2/3!important;height:auto!important}
+body.mode-dense .movie-poster{aspect-ratio:2/3!important;height:auto!important}
+body.mode-card .movie-poster{aspect-ratio:16/10!important;height:auto!important}
+body.light{--bg-dark:#f4f7fb;--card-bg:#fff;--text-main:#172033;--muted:#64748b;--toolbar-bg:rgba(255,255,255,.94);background:#f4f7fb!important;background-image:radial-gradient(ellipse at 10% 0%,rgba(239,68,68,.08),transparent 35%),linear-gradient(145deg,#f8fafc,#eaf0f8)!important;color:#172033!important}
+body.light .movie-card{background:#fff!important;border-color:rgba(51,65,85,.15)!important;box-shadow:0 8px 24px rgba(15,23,42,.09)!important}
+body.light .movie-title{background:linear-gradient(180deg,#fff,#f1f5f9)!important;color:#172033!important}
+body.light .category-btn{background:#fff!important;color:#334155!important;border-color:#cbd5e1!important}
+body.light .category-btn.active{background:linear-gradient(120deg,#ffc857,#ff8b54)!important;color:#171923!important}
+body.light .toolbar{background:rgba(255,255,255,.92)!important;box-shadow:0 5px 20px rgba(15,23,42,.12)!important}
+body.light .tool-btn{background:#e8edf5!important;color:#334155!important}
+.movie-load-more{display:block;margin:18px auto 34px;padding:11px 22px;border:1px solid rgba(255,200,87,.45);border-radius:999px;background:rgba(255,200,87,.09);color:var(--text-main);font:600 14px 'Rajdhani',sans-serif;cursor:pointer;min-height:44px}
+.movie-load-more:hover{background:rgba(255,200,87,.2);transform:translateY(-1px)}
+.movie-load-more[hidden]{display:none!important}
+.movie-empty-state{grid-column:1/-1;text-align:center;padding:48px 16px;color:var(--muted)}
+.movie-card:focus-visible{outline:3px solid var(--cinema-amber);outline-offset:3px}
+@media(max-width:640px){
+ body.mode-standard #movies.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ body.mode-dense #movies.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+ body.mode-card #movies.movie-grid{grid-template-columns:repeat(1,minmax(0,1fr))!important;gap:13px!important}
+ body.mode-card .movie-poster{aspect-ratio:16/9!important}
+}
+
 </style>
 
 
