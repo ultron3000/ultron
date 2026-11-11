@@ -166,7 +166,16 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
 <style id="disney-modal-actions">
 #watchlist-btn,#like-btn,#modal-share{cursor:pointer;transition:transform .15s ease,background .15s ease,color .15s ease}#watchlist-btn:active,#like-btn:active,#modal-share:active{transform:scale(.96)}#like-btn.is-liked{background:#8d294a;color:#fff}
 </style>
-</head>
+<style id="tv-modal-player-styles">
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(9px);padding:18px}.modal-backdrop.active{display:flex}
+.disney-player-card{width:100%;height:auto;max-width:980px;max-height:94dvh;background:#09152d;border:1px solid rgba(130,180,255,.25);border-radius:18px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.72);display:flex;flex-direction:column}
+.player-wrapper{position:relative;width:100%;aspect-ratio:16/9;min-height:0;background:#000;flex:none}.player-wrapper video,.player-wrapper iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000;object-fit:contain}
+#topCloseBtn{position:absolute;top:12px;right:12px;z-index:12;width:42px;height:42px;border:1px solid #ffffff30;border-radius:50%;background:#000b;color:#fff;display:grid;place-items:center}
+.player-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;background:linear-gradient(110deg,#09152d,#142d59);color:#fff;border-top:1px solid #ffffff16}.player-meta h3{margin:0;color:#fff;font-size:1.1rem;font-weight:700}.player-meta p{margin:3px 0 0}
+.controls-row{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}.controls-row .btn{min-width:42px;min-height:42px;padding:9px 12px;border:1px solid #8db8ff45;border-radius:11px;background:linear-gradient(145deg,#244a85,#122b55);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:transform .16s,filter .16s}.controls-row .btn:hover{transform:translateY(-2px);filter:brightness(1.18)}.controls-row .disney-close-btn{background:#762b48;border-color:#e8799c66}
+.disney-player-actions{display:flex;gap:9px;padding:0 18px 15px;background:#10254a}.disney-player-actions button{min-height:38px;padding:8px 13px;border-radius:10px;border:1px solid #8db8ff45;background:#1c3b6b;color:#fff}.disney-player-fallback{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;color:#ffe4a8;text-align:center;padding:14px 18px;border-radius:12px;background:#142d59;border:1px solid #ffe4a866;max-width:85%}
+@media(max-width:760px){.modal-backdrop{padding:8px}.disney-player-card{max-height:calc(100dvh - 16px);border-radius:13px;overflow:auto}.player-meta{flex-direction:column;align-items:stretch;padding:12px;gap:10px}.controls-row{justify-content:space-between;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}.controls-row .btn{min-width:0;min-height:42px;padding:8px 5px}.controls-row .btn span{display:none}.disney-player-actions{padding:0 12px 12px}.player-wrapper{flex:none;aspect-ratio:16/9}}
+</style></head>
 <body>
 
   <!-- UI kept exactly as before -->
@@ -227,69 +236,25 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
     </section>
   </main>
 
-    <!-- Modal markup (kept same) -->
-  <div id="playback-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-enter">
-    <div class="max-w-4xl w-full mx-4 bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
-      <div class="flex items-start justify-between p-4 border-b border-gray-800">
-        <div>
-          <h3 id="modal-title" class="text-2xl font-bold"></h3>
-          <div class="text-gray-400 text-sm">
-            <span id="movie-year"></span> • <span id="movie-duration"></span> • <span class="disney-blue-text">★ <span id="movie-rating"></span>/10</span>
-          </div>
-        </div>
-        <div class="flex space-x-3">
-          <button id="modal-share" class="text-gray-400 hover:text-white transition">
-            <i class="fas fa-share-alt"></i>
-          </button>
-          <button id="close-modal" class="text-white bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded transition">
-            <i class="fas fa-times"></i>
-          </button>
+    <!-- TV.html-style Disney playback modal -->
+  <div id="playback-modal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card disney-player-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="modalVideo" controls playsinline preload="metadata" style="width:100%;height:100%;background:#000"></video>
+        <button id="topCloseBtn" type="button" aria-label="Close player"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="player-meta">
+        <div class="meta-left"><h3 id="modalTitle" class="truncate">Disney Animation</h3><p id="modalDesc" class="text-sm text-gray-400 truncate mt-1"></p><p id="modalExtra" class="text-xs text-gray-500 mt-1"></p></div>
+        <div class="controls-row">
+          <button id="prevBtn" class="btn" type="button"><i class="fas fa-step-backward"></i><span>Prev</span></button>
+          <button id="playPauseBtn" class="btn" type="button"><i class="fas fa-play"></i><span>Play</span></button>
+          <button id="nextBtn" class="btn" type="button"><span>Next</span><i class="fas fa-step-forward"></i></button>
+          <button id="fullscreenBtn" class="btn" type="button" aria-label="Fullscreen"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn" type="button" aria-label="Mute"><i class="fas fa-volume-up"></i></button>
+          <button id="closeBtn" class="btn disney-close-btn" type="button" aria-label="Close"><i class="fas fa-times"></i></button>
         </div>
       </div>
-
-      <div class="modal-content relative bg-black">
-        <!-- Player area (we will inject <video> or <iframe> here dynamically) -->
-        <div id="modal-player-area" style="position:relative;padding-top:56.25%;height:0;">
-  <video id="modal-video" class="absolute top-0 left-0 w-full h-full" controls playsinline></video>
-
-  <div class="player-overlay">
-    <div id="player-loader" class="loader" aria-hidden="true" style="display:none"></div>
-  </div>
-</div>
-
-<!-- ✅ CONTROLS NOW LIVE BELOW THE PLAYER -->
-<div class="player-controls-overlay">
-  <div class="left-controls">
-    <button id="pc-prev" class="pc-btn secondary"><i class="fas fa-step-backward"></i></button>
-    <button id="pc-playpause" class="pc-btn"><i class="fas fa-play"></i></button>
-    <button id="pc-next" class="pc-btn secondary"><i class="fas fa-step-forward"></i></button>
-  </div>
-  <div class="right-controls">
-    <button id="pc-mute" class="pc-btn secondary"><i class="fas fa-volume-up"></i></button>
-    <button id="pc-full" class="pc-btn secondary"><i class="fas fa-expand"></i></button>
-  </div>
-</div>
-
-        <div class="p-4">
-          <p id="modal-description" class="text-gray-300 mb-6"></p>
-          <div class="flex space-x-4">
-            <button id="play-button-in-modal" class="disney-blue hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-full flex items-center transition transform hover:scale-105">
-              <i class="fas fa-play mr-2"></i> Play
-            </button>
-            <button id="watchlist-btn" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-full flex items-center transition">
-              <i class="fas fa-plus mr-2"></i> Watchlist
-            </button>
-            <button id="like-btn" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-full transition">
-              <i class="fas fa-thumbs-up"></i>
-            </button>
-          </div>
-
-          <div class="mt-6 pt-6 border-t border-gray-800">
-            <h4 class="text-sm font-semibold text-gray-400 mb-2">Details</h4>
-            <p class="text-gray-300 text-sm"><span id="movie-genre"></span> • <span id="movie-director"></span></p>
-          </div>
-        </div>
-      </div>
+      <div class="disney-player-actions"><button id="watchlist-btn" type="button"><i class="fas fa-plus mr-2"></i> Watchlist</button><button id="like-btn" type="button"><i class="fas fa-thumbs-up"></i></button><button id="modal-share" type="button"><i class="fas fa-share-alt"></i> Share</button></div>
     </div>
   </div>
 
@@ -316,6 +281,7 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
 
   <!-- HLS.js for .m3u8 playback -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
 
   <script>
   /************************************************
@@ -1074,7 +1040,7 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
   function disneyResetHeroTimer() {
     clearInterval(disneyHeroTimer);
     if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches && !document.hidden)
-      disneyHeroTimer=setInterval(()=>disneyMoveHero(1),9000);
+      disneyHeroTimer=setInterval(()=>disneyMoveHero(1),5000);
   }
   function disneyRenderSpotlight() {
     const row=document.getElementById("featured-row");if(!row)return;
@@ -1146,257 +1112,79 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
   // --- DOM refs (matching your markup)
   const featuredRow = document.getElementById('featured-row');
   const mainGrid = document.getElementById('main-grid');
-  const playbackModal = document.getElementById('playback-modal');
-  const modalPlayerArea = document.getElementById('modal-player-area');
-  const modalTitle = document.getElementById('modal-title');
-  const modalDescription = document.getElementById('modal-description');
-  const movieYear = document.getElementById('movie-year');
-  const movieDuration = document.getElementById('movie-duration');
-  const movieRating = document.getElementById('movie-rating');
-  const movieGenre = document.getElementById('movie-genre');
-  const movieDirector = document.getElementById('movie-director');
-  const closeModalBtn = document.getElementById('close-modal');
-
-  // overlay control refs (rebinding done after injection)
-  let pcPlayPause, pcPrev, pcNext, pcMute, pcFull, playerLoader;
-
-  // playback state
-  let currentHls = null;
-  let currentFiltered = [];
-  let currentIndex = null;
-
-  // --- type detection helpers
-  function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
-  function isHls(url) {
-    if (!url) return false;
-    return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
+  // TV.html player architecture adapted to Disney's catalogue.
+  const playbackModal=document.getElementById('playback-modal');
+  const playerWrapper=document.getElementById('playerWrapper');
+  const modalPlayerId='modalVideo';
+  const modalTitle=document.getElementById('modalTitle');
+  const modalDesc=document.getElementById('modalDesc');
+  const modalExtra=document.getElementById('modalExtra');
+  const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+  const playPauseBtn=document.getElementById('playPauseBtn'),fullscreenBtn=document.getElementById('fullscreenBtn'),muteBtn=document.getElementById('muteBtn');
+  let currentHls=null,currentFiltered=[],currentIndex=null;
+  function isMP4(url){return /\.mp4($|\?)/i.test((url||''));}
+  function isHls(url){return !!url&&(/\.m3u8|index-|index.*\.txt|manifest|master/i.test(url));}
+  function isYouTube(url){return !!url&&/youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(url);}
+  function resetPlayerContainer(){
+    if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}
+    if(window.shakaPlayer){try{window.shakaPlayer.destroy();}catch(e){}window.shakaPlayer=null;}
+    playerWrapper.innerHTML='<video id="'+modalPlayerId+'" controls playsinline preload="metadata" style="width:100%;height:100%;background:#000"></video><button id="topCloseBtn" type="button" aria-label="Close player"><i class="fas fa-times"></i></button>';
+    document.getElementById('topCloseBtn').addEventListener('click',closeModalHandler);
   }
-  function isYouTube(url) {
-    if (!url) return false;
-    return /youtube\\.com|youtu\\.be|youtube-nocookie\\.com/i.test(url);
+  function showModal(){playbackModal.classList.add('active');playbackModal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+  function hideModal(){playbackModal.classList.remove('active');playbackModal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  function triggerExternalFallback(movie,src){
+    let a=playerWrapper.querySelector('.disney-player-fallback');if(!a){a=document.createElement('a');a.className='disney-player-fallback';playerWrapper.appendChild(a);}
+    a.href='player.html?title='+encodeURIComponent(movie.title||'')+'&video='+encodeURIComponent(src||'');a.textContent='Stream unavailable here — open full player';a.target='_self';
   }
-
-  // IMPORTANT FIX:
-  // previous implementation redirected any "stream-like" url immediately.
-  // That caused .m3u8 / HLS to be redirected instead of played inline.
-  // We now ONLY redirect to player.html when the URL is truly unknown/unplayable:
-  function shouldRedirectToPlayer(url) {
-    if (!url) return true;
-    const lc = url.toLowerCase();
-    // If it's MP4, HLS, YouTube or known iframe host -> do NOT redirect
-    if (isMP4(lc) || isHls(lc) || isYouTube(lc)) return false;
-    if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('drive.google.com') || lc.includes('openload')) return false;
-    // Otherwise: redirect (unknown/unsupported)
-    return true;
-  }
-
-  // Reset only the media surface. Transport controls stay in the modal shell,
-  // so they survive when the media surface switches from video to an iframe.
-  function resetPlayerArea() {
-    if (currentHls) { try { currentHls.destroy(); } catch(e) {} currentHls = null; }
-    if (window.shakaPlayer) { try { window.shakaPlayer.destroy(); } catch(e) {} window.shakaPlayer = null; }
-    modalPlayerArea.innerHTML = `
-      <video id="modal-video" class="absolute top-0 left-0 w-full h-full" controls playsinline preload="metadata"></video>
-      <div class="player-overlay"><div id="player-loader" class="loader" style="display:none"></div></div>
-    `;
-    bindOverlayControls();
-  }
-
-  // bind overlay control buttons to behavior
-  function bindOverlayControls() {
-    const v = document.getElementById('modal-video');
-    playerLoader = document.getElementById('player-loader');
-
-    pcPlayPause = document.getElementById('pc-playpause');
-    pcPrev = document.getElementById('pc-prev');
-    pcNext = document.getElementById('pc-next');
-    pcMute = document.getElementById('pc-mute');
-    pcFull = document.getElementById('pc-full');
-
-    if (pcPlayPause) {
-      pcPlayPause.disabled = !v;
-      pcPlayPause.onclick = () => {
-        const vid = document.getElementById('modal-video'); if (!vid) return;
-        if (vid.paused) vid.play().catch(()=>{}); else vid.pause();
-      };
+  async function playInModal(list,index){
+    if(!Array.isArray(list)||!list.length||index==null||index<0||index>=list.length)return;
+    currentFiltered=list;currentIndex=index;const movie=list[index];if(!movie)return;
+    modalTitle.textContent=movie.title||'';modalDesc.textContent=movie.description||movie.genre||'Disney Animation';
+    modalExtra.textContent=[movie.year,movie.duration,movie.rating?'★ '+movie.rating+'/10':''].filter(Boolean).join(' · ');
+    resetPlayerContainer();showModal();
+    const raw=movie.video;const src=(typeof raw==='object'&&raw!==null)?(raw.high||raw.medium||raw.low||raw.mpd||Object.values(raw).find(x=>typeof x==='string'&&x.indexOf('http')===0)):raw;
+    if(!src){triggerExternalFallback(movie,'');return;}
+    const lc=String(src).toLowerCase(),v=document.getElementById(modalPlayerId);
+    v.addEventListener('error',()=>triggerExternalFallback(movie,src),{once:true});
+    if(typeof raw==='object'&&raw!==null&&raw.mpd&&window.shaka){
+      try{window.shakaPlayer=new shaka.Player(v);if(raw.key){const [kid,key]=raw.key.split(':');window.shakaPlayer.configure({drm:{clearKeys:{[kid]:key}}});}await window.shakaPlayer.load(raw.mpd);v.play().catch(()=>{});playPauseBtn.innerHTML='<i class="fas fa-pause"></i><span>Pause</span>';return;}
+      catch(e){triggerExternalFallback(movie,src);return;}
     }
-    if (pcPrev) pcPrev.onclick = playPrev;
-    if (pcNext) pcNext.onclick = playNext;
-    if (pcMute) {
-      pcMute.disabled = !v;
-      pcMute.onclick = () => {
-        const vid = document.getElementById('modal-video'); if (!vid) return;
-        vid.muted = !vid.muted;
-        pcMute.innerHTML = vid.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-      };
+    const hosts=['streamtape','dood','vidcdn','ok.ru','mega.nz','drive.google.com','openload','waptv.wapka.xyz','tv4wab.pages.dev','trend48.st','24spn-webhost8.blogspot.com','livesportz.cfd','tvwap.pages.dev','sonucdn-v3.pages.dev','live4wab.pages.dev','joplay.lrl45.workers.dev','jiogo.pages.dev','tvgotk.wapka.site'];
+    if(hosts.some(h=>lc.includes(h))){
+      const frame=document.createElement('iframe');frame.src=src;frame.allow='autoplay; encrypted-media; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='no-referrer-when-downgrade';playerWrapper.insertBefore(frame,document.getElementById('topCloseBtn'));playPauseBtn.innerHTML='<i class="fas fa-pause"></i><span>Playing</span>';return;
     }
-    if (pcFull) {
-      pcFull.onclick = () => {
-        const el = document.getElementById('modal-video') || modalPlayerArea.querySelector('iframe');
-        const target = el || modalPlayerArea;
-        if (!document.fullscreenElement) {
-          const request=target.requestFullscreen||target.webkitRequestFullscreen;
-          if(request) Promise.resolve(request.call(target)).catch(()=>{});
-        } else if(document.exitFullscreen) document.exitFullscreen();
-      };
+    if(isYouTube(src)){
+      let embed=src;try{if(lc.includes('watch')&&new URL(src).searchParams.get('v'))embed='https://www.youtube.com/embed/'+new URL(src).searchParams.get('v');else if(lc.includes('youtu.be/'))embed='https://www.youtube.com/embed/'+src.split('youtu.be/')[1].split(/[?&]/)[0];}catch(e){}
+      const frame=document.createElement('iframe');frame.src=embed+(embed.includes('?')?'&':'?')+'autoplay=1&modestbranding=1&rel=0';frame.allow='autoplay; encrypted-media; picture-in-picture';frame.allowFullscreen=true;playerWrapper.insertBefore(frame,document.getElementById('topCloseBtn'));playPauseBtn.innerHTML='<i class="fas fa-pause"></i><span>Playing</span>';return;
     }
-
-    if(v){v.addEventListener("play",()=>{if(pcPlayPause)pcPlayPause.innerHTML='<i class="fas fa-pause"></i>';});v.addEventListener("pause",()=>{if(pcPlayPause)pcPlayPause.innerHTML='<i class="fas fa-play"></i>';});}
-  }
-
-  // core: opens modal and chooses playback engine (HLS, MP4, iframe, YouTube)
-  function playInModal(list, index) {
-    if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-      console.warn('Invalid playback request'); return;
-    }
-    currentFiltered = list;
-    currentIndex = index;
-    const movie = list[index];
-
-    // set metadata (UI preserved)
-    modalTitle.textContent = movie.title || '';
-    modalDescription.textContent = movie.description || '';
-    movieYear.textContent = movie.year || '';
-    movieDuration.textContent = movie.duration || '';
-    movieRating.textContent = movie.rating || '';
-    movieGenre.textContent = movie.genre || '';
-    movieDirector.textContent = movie.director || '';
-
-    // prepare player area and show loader
-    resetPlayerArea();
-    const loaderEl = document.getElementById('player-loader');
-    if (loaderEl) loaderEl.style.display = 'block';
-
-    playbackModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-
-    // choose src
-    let src = '';
-    if (typeof movie.video === 'object' && movie.video !== null) {
-      src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
-    } else {
-      src = movie.video;
-    }
-    if (!src) {
-      console.warn('No video url — fallback to player.html');
-      setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+    if(isHls(src)){
+      if(window.Hls&&Hls.isSupported()){
+        currentHls=new Hls({maxBufferLength:30,maxMaxBufferLength:60,liveSyncDurationCount:3,liveMaxLatencyDurationCount:6,enableWorker:true,lowLatencyMode:true,backBufferLength:30});
+        currentHls.loadSource(src);currentHls.attachMedia(v);
+        currentHls.on(Hls.Events.ERROR,(event,data)=>{if(!data.fatal)return;if(data.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(data.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else triggerExternalFallback(movie,src);});
+        currentHls.on(Hls.Events.MANIFEST_PARSED,()=>{v.play().catch(()=>{});playPauseBtn.innerHTML='<i class="fas fa-pause"></i><span>Pause</span>';});
+      }else if(v.canPlayType('application/vnd.apple.mpegurl')){v.src=src;v.play().catch(()=>{});}else triggerExternalFallback(movie,src);
       return;
     }
-    const lc = (src || '').toLowerCase();
-
-    // iframe-hosted sites (embed)
-    if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('drive.google.com') || lc.includes('openload')) {
-      modalPlayerArea.innerHTML = `<iframe src="${src}" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-      const l2 = document.getElementById('player-loader'); if (l2) l2.style.display = 'none';
-      bindOverlayControls(); // overlay still bound
-      return;
-    }
-
-    // YouTube (convert to embed)
-    if (isYouTube(src)) {
-      let embed = src;
-      try {
-        if (src.includes('watch') && src.includes('v=')) {
-          const v = new URLSearchParams(src.split('?')[1]).get('v');
-          if (v) embed = `https://www.youtube.com/embed/${v}`;
-        } else if (src.includes('youtu.be/')) {
-          const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-          if (p) embed = `https://www.youtube.com/embed/${p}`;
-        }
-      } catch (e) {}
-      modalPlayerArea.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-      const l3 = document.getElementById('player-loader'); if (l3) l3.style.display = 'none';
-      bindOverlayControls();
-      return;
-    }
-
-    // HLS (.m3u8 / index.txt)
-    if (isHls(src)) {
-      const v = document.getElementById('modal-video');
-      if (!v) { console.warn('Video element missing'); return; }
-      if (window.Hls && Hls.isSupported()) {
-        currentHls = new Hls({
-          enableWorker:true, lowLatencyMode:true, maxBufferLength:30,
-          maxMaxBufferLength:60, backBufferLength:30, liveSyncDurationCount:3
-        });
-        try { currentHls.loadSource(src); currentHls.attachMedia(v); }
-        catch (e) { console.warn('HLS attach error', e); }
-        currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-          const loader=document.getElementById('player-loader'); if(loader)loader.style.display='none';
-          v.play().catch(()=>{});
-        });
-        currentHls.on(Hls.Events.ERROR, function(event,data) {
-          if(!data||!data.fatal)return;
-          if(data.type===Hls.ErrorTypes.NETWORK_ERROR){currentHls.startLoad();return;}
-          if(data.type===Hls.ErrorTypes.MEDIA_ERROR){currentHls.recoverMediaError();return;}
-          try{currentHls.destroy();}catch(e){} currentHls=null;
-          const loader=document.getElementById('player-loader');if(loader)loader.style.display='none';
-          modalPlayerArea.innerHTML='<div class="dw-player-error">This stream could not be loaded. Try another movie or open the full player.</div>';
-          const fallback=document.createElement('a');fallback.className='dw-player-fallback';fallback.href='player.html?title='+encodeURIComponent(movie.title||'')+'&video='+encodeURIComponent(src);fallback.textContent='Open full player';modalPlayerArea.appendChild(fallback);
-        });
-      } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-        v.src = src;
-        v.addEventListener('loadedmetadata', () => {
-          const l5 = document.getElementById('player-loader'); if (l5) l5.style.display = 'none';
-          v.play().catch(()=>{});
-        }, { once: true });
-      } else {
-        console.warn('HLS not supported — redirecting');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-      }
-      bindOverlayControls();
-      return;
-    }
-
-    // MP4 fallback
-    if (isMP4(src)) {
-      const v = document.getElementById('modal-video');
-      if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
-      v.src = src;
-      v.addEventListener('loadeddata', () => {
-        const l6 = document.getElementById('player-loader'); if (l6) l6.style.display = 'none';
-        v.play().catch(()=>{});
-      }, { once: true });
-      bindOverlayControls();
-      return;
-    }
-
-    // unknown => fallback to player page
-    window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+    if(isMP4(src)||/\.(webm|ogg)(\?|$)/i.test(src)){v.src=src;v.play().catch(()=>{});return;}
+    if(/^https?:/i.test(src)){triggerExternalFallback(movie,src);return;}triggerExternalFallback(movie,src);
   }
-
-  // next / prev helpers
-  function playNext() {
-    if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-    if (currentIndex == null) return console.warn('No current video');
-    if (currentIndex < currentFiltered.length - 1) playInModal(currentFiltered, currentIndex + 1);
-    else console.warn('No next video');
+  function togglePlayPause(){const v=document.getElementById(modalPlayerId);if(!v)return;if(v.paused){v.play().catch(()=>{});playPauseBtn.innerHTML='<i class="fas fa-pause"></i><span>Pause</span>';}else{v.pause();playPauseBtn.innerHTML='<i class="fas fa-play"></i><span>Play</span>';}}
+  function playNext(){if(currentIndex!=null&&currentIndex<currentFiltered.length-1)playInModal(currentFiltered,currentIndex+1);}
+  function playPrev(){if(currentIndex!=null&&currentIndex>0)playInModal(currentFiltered,currentIndex-1);}
+  function toggleFullscreen(){const el=document.getElementById(modalPlayerId)||playerWrapper.querySelector('iframe')||playerWrapper;if(!document.fullscreenElement){const fn=el.requestFullscreen||el.webkitRequestFullscreen;if(fn)Promise.resolve(fn.call(el)).catch(()=>{});}else if(document.exitFullscreen)document.exitFullscreen();}
+  function toggleMute(){const v=document.getElementById(modalPlayerId);if(!v)return;v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fas fa-volume-mute"></i>':'<i class="fas fa-volume-up"></i>';}
+  function closeModalHandler(){
+    if(currentHls){try{currentHls.destroy();}catch(e){}currentHls=null;}if(window.shakaPlayer){try{window.shakaPlayer.destroy();}catch(e){}window.shakaPlayer=null;}
+    const v=document.getElementById(modalPlayerId);if(v){v.pause();v.removeAttribute('src');v.load();}
+    resetPlayerContainer();hideModal();currentIndex=null;currentFiltered=[];playPauseBtn.innerHTML='<i class="fas fa-play"></i><span>Play</span>';
   }
-  function playPrev() {
-    if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-    if (currentIndex == null) return console.warn('No current video');
-    if (currentIndex > 0) playInModal(currentFiltered, currentIndex - 1);
-    else console.warn('No previous video');
-  }
-
-  // close & cleanup
-  function closeModalHandler() {
-    if (currentHls) {
-      try { currentHls.destroy(); } catch(e) {}
-      currentHls = null;
-    }
-    const v = document.getElementById('modal-video');
-    if (v) {
-      try { v.pause(); } catch(e){}
-      try { v.removeAttribute('src'); v.load(); } catch(e){}
-    }
-    resetPlayerArea();
-    playbackModal.classList.add('hidden');
-    document.body.style.overflow = '';
-    currentIndex = null;
-    currentFiltered = [];
-  }
-
+  playPauseBtn.addEventListener('click',togglePlayPause);nextBtn.addEventListener('click',playNext);prevBtn.addEventListener('click',playPrev);
+  fullscreenBtn.addEventListener('click',toggleFullscreen);muteBtn.addEventListener('click',toggleMute);
+  document.getElementById('closeBtn').addEventListener('click',closeModalHandler);document.getElementById('topCloseBtn').addEventListener('click',closeModalHandler);
+  playbackModal.addEventListener('click',e=>{if(e.target===playbackModal)closeModalHandler();});
   // --- render functions (preserve your original layout but ensure card clicks open modal)
   function renderCards() {
     const visible=disneyVisibleMovies||movies;
@@ -1442,29 +1230,28 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
   }
 
   // event bindings
-  document.getElementById('close-modal').addEventListener('click', closeModalHandler);
+  // Close buttons are bound by the TV-style modal controller.
   playbackModal.addEventListener('click', (e) => { if (e.target === playbackModal) closeModalHandler(); });
 
   document.addEventListener('keydown', (e) => {
-    if (playbackModal.classList.contains('hidden')) return;
+    if (!playbackModal.classList.contains('active')) return;
     switch (e.key.toLowerCase()) {
       case 'escape': closeModalHandler(); break;
-      case ' ': e.preventDefault(); { const v = document.getElementById('modal-video'); if (v) v.paused ? v.play() : v.pause(); break; }
-      case 'arrowright': { const v = document.getElementById('modal-video'); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-      case 'arrowleft': { const v = document.getElementById('modal-video'); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+      case ' ': e.preventDefault(); { togglePlayPause(); break; }
+      case 'arrowright': { const v=document.getElementById(modalPlayerId);if(v)v.currentTime=Math.max(0,v.currentTime+10); break; }
+      case 'arrowleft': { const v=document.getElementById(modalPlayerId);if(v)v.currentTime=Math.max(0,v.currentTime-10); break; }
       case 'n': playNext(); break;
       case 'p': playPrev(); break;
-      case 'm': { const v = document.getElementById('modal-video'); if (v) v.muted = !v.muted; break; }
+      case 'm': { toggleMute(); break; }
       case 'f': {
-        const el = document.getElementById('modal-video') || modalPlayerArea.querySelector('iframe');
-        if (el) { (el.requestFullscreen || modalPlayerArea.requestFullscreen).call(el).catch(()=>{}); }
+        toggleFullscreen();
         break;
       }
     }
   });
 
   document.getElementById('play-button-in-modal').addEventListener('click', () => {
-    const v=document.getElementById('modal-video');if(v)v.play().catch(()=>{});
+    togglePlayPause();
   });
   function readDisneySet(key){try{return JSON.parse(localStorage.getItem(key)||"[]");}catch(e){return [];}}
   function writeDisneySet(key,items){try{localStorage.setItem(key,JSON.stringify(items));}catch(e){}}
