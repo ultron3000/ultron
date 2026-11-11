@@ -162,6 +162,10 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
 @media(max-width:640px){.player-controls-overlay{padding:9px!important;gap:7px}.player-controls-overlay .left-controls,.player-controls-overlay .right-controls{gap:6px}.pc-btn{min-width:40px;min-height:40px;padding:8px 10px!important;border-radius:11px!important}#playback-modal{padding:8px}#playback-modal>div{width:100%;max-height:calc(100dvh - 16px);overflow:auto;margin:0}.disney-hero-inner{touch-action:pan-y}.disney-spotlight-card{min-width:138px}}
 @media(prefers-reduced-motion:reduce){.pc-btn,.disney-movie-card{transition:none!important}}
 </style>
+
+<style id="disney-modal-actions">
+#watchlist-btn,#like-btn,#modal-share{cursor:pointer;transition:transform .15s ease,background .15s ease,color .15s ease}#watchlist-btn:active,#like-btn:active,#modal-share:active{transform:scale(.96)}#like-btn.is-liked{background:#8d294a;color:#fff}
+</style>
 </head>
 <body>
 
@@ -1130,6 +1134,13 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
     const hero=document.getElementById("disney-hero");
     hero.addEventListener("touchstart",e=>{startX=e.changedTouches[0].clientX;},{passive:true});
     hero.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-startX;if(Math.abs(dx)>55)disneyMoveHero(dx<0?1:-1);},{passive:true});
+    const shelf=document.getElementById("featured-row");
+    let dragX=0,dragScroll=0,dragMoved=false,dragPointer=null;
+    shelf.addEventListener("pointerdown",e=>{if(e.pointerType==="touch")return;dragPointer=e.pointerId;dragX=e.clientX;dragScroll=shelf.scrollLeft;dragMoved=false;shelf.classList.add("is-dragging");shelf.setPointerCapture(e.pointerId);});
+    shelf.addEventListener("pointermove",e=>{if(dragPointer!==e.pointerId)return;const dx=e.clientX-dragX;if(Math.abs(dx)>5)dragMoved=true;if(dragMoved)shelf.scrollLeft=dragScroll-dx;});
+    const endShelfDrag=e=>{if(dragPointer!==e.pointerId)return;dragPointer=null;shelf.classList.remove("is-dragging");if(dragMoved)setTimeout(()=>{dragMoved=false;},0);};
+    shelf.addEventListener("pointerup",endShelfDrag);shelf.addEventListener("pointercancel",endShelfDrag);
+    shelf.addEventListener("click",e=>{if(dragMoved){e.preventDefault();e.stopImmediatePropagation();dragMoved=false;}},true);
   }
 
   // --- DOM refs (matching your markup)
@@ -1415,23 +1426,19 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
 
   // decide whether to inline-play or redirect
   function handleCardClick(movie, idx=0) {
-    // If shouldRedirectToPlayer returns true => fallback to player.html
     if (shouldRedirectToPlayer(movie.video)) {
-      const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
-      window.location.href = url;
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video||"")}`;
       return;
     }
-
-    // otherwise open modal player
-    const filtered = getFilteredList();
-    const indexInFiltered = filtered.findIndex(m => m.title === movie.title && m.year === movie.year);
-    const playIndex = indexInFiltered >= 0 ? indexInFiltered : Math.max(0,movies.indexOf(movie));
-    playInModal(filtered.length ? filtered : movies, playIndex);
+    let list=getFilteredList();
+    let index=list.findIndex(m=>m.title===movie.title&&m.year===movie.year);
+    if(index<0){list=movies;index=movies.indexOf(movie);}
+    playInModal(list,index>=0?index:Math.max(0,idx));
   }
 
-  // simple filtered list getter (preserves original file behavior; extend for search/categories)
+  // Playback next/previous follows the active search/category when possible.
   function getFilteredList() {
-    return movies.slice();
+    return (disneyVisibleMovies&&disneyVisibleMovies.length?disneyVisibleMovies:movies).slice();
   }
 
   // event bindings
@@ -1457,7 +1464,28 @@ body.disney-light{background:#f3f0e8;color:#17264a}body.disney-light .disney-top
   });
 
   document.getElementById('play-button-in-modal').addEventListener('click', () => {
-    const v = document.getElementById('modal-video'); if (v) v.play().catch(()=>{});
+    const v=document.getElementById('modal-video');if(v)v.play().catch(()=>{});
+  });
+  function readDisneySet(key){try{return JSON.parse(localStorage.getItem(key)||"[]");}catch(e){return [];}}
+  function writeDisneySet(key,items){try{localStorage.setItem(key,JSON.stringify(items));}catch(e){}}
+  document.getElementById("watchlist-btn").addEventListener("click",()=>{
+    if(currentIndex==null||!currentFiltered[currentIndex])return;
+    const movie=currentFiltered[currentIndex],items=readDisneySet("disney-animation-watchlist");
+    const exists=items.some(x=>x.title===movie.title&&x.year===movie.year);
+    writeDisneySet("disney-animation-watchlist",exists?items.filter(x=>!(x.title===movie.title&&x.year===movie.year)):[...items,{title:movie.title,year:movie.year,image:movie.image,video:movie.video}]);
+    document.getElementById("watchlist-btn").innerHTML=exists?'<i class="fas fa-plus mr-2"></i> Watchlist':'<i class="fas fa-check mr-2"></i> Added';
+  });
+  document.getElementById("like-btn").addEventListener("click",()=>{
+    if(currentIndex==null||!currentFiltered[currentIndex])return;
+    const movie=currentFiltered[currentIndex],items=readDisneySet("disney-animation-liked");
+    const exists=items.some(x=>x.title===movie.title&&x.year===movie.year);
+    writeDisneySet("disney-animation-liked",exists?items.filter(x=>!(x.title===movie.title&&x.year===movie.year)):[...items,{title:movie.title,year:movie.year}]);
+    const btn=document.getElementById("like-btn");btn.classList.toggle("is-liked",!exists);btn.innerHTML=exists?'<i class="fas fa-thumbs-up"></i>':'<i class="fas fa-heart"></i>';
+  });
+  document.getElementById("modal-share").addEventListener("click",async()=>{
+    if(currentIndex==null||!currentFiltered[currentIndex])return;
+    const movie=currentFiltered[currentIndex],url=location.href.split("#")[0]+"?movie="+encodeURIComponent(movie.title);
+    try{if(navigator.share)await navigator.share({title:movie.title,url});else if(navigator.clipboard)await navigator.clipboard.writeText(url);}catch(e){}
   });
 
   // Boot immediately when this bottom-of-page script runs. Registering
