@@ -108,7 +108,7 @@ function isEpisode(row) {
     row.season != null || row.seasonNumber != null || row.airDate != null);
 }
 function stableId(type, title, source) {
-  const identity = [type, String(title || "").normalize("NFKC").toLocaleLowerCase().replace(/\\s+/g, " ").trim(), source].join("\\0");
+  const identity = [type, String(title || "").normalize("NFKC").toLocaleLowerCase().trim(), source].join("|");
   const digest = crypto.createHash("sha256").update(identity).digest("hex").slice(0, 16);
   return type + "-" + slug(title).slice(0, 48) + "-" + digest;
 }
