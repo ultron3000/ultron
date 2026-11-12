@@ -148,14 +148,6 @@ main{padding-bottom:90px}.hero{position:relative;min-height:clamp(390px,47vw,590
   return a;
  }
  function rail(id,records,live){var el=document.getElementById(id);if(!el)return;el.replaceChildren();if(!records.length){var empty=document.createElement("div");empty.className="empty-state";empty.textContent="No titles are currently listed in this category.";el.appendChild(empty);return}var cursor=0,batch=14,busy=false;function append(){if(busy||cursor>=records.length)return;busy=true;var frag=document.createDocumentFragment(),end=Math.min(cursor+batch,records.length);for(;cursor<end;cursor++)frag.appendChild(card(records[cursor],live));el.appendChild(frag);busy=false;el.dataset.loaded=String(cursor);el.dataset.total=String(records.length)}append();el.addEventListener("scroll",function(){if(cursor>=records.length)return;if(el.scrollLeft+el.clientWidth>=el.scrollWidth-Math.max(360,el.clientWidth*.8))append()},{passive:true});el.addEventListener("focusin",function(){if(cursor<records.length)append()});el.setAttribute("aria-label",records.length+" titles; scroll horizontally to load more")}
- function isHeroItem(r){
-  if(!r||!(r.type==="movie"||r.type==="series")||!r.image||!r.url||!String(r.image).trim())return false;
-  if(r.isEpisode===true)return false;
-  var title=String(r.title||"").trim(),source=String(r.source||"");
-  if(/^(?:s\d{1,2}\s*e\d{1,3}|season\s+\d+\s*(?:episode|ep)\s*\d+|episode\s*\d+|ep\s*\d+)\b/i.test(title))return false;
-  if(/(?:^|[\/_-])(?:episodes?|seasons?)(?:[\/_.?#-]|$)/i.test(source))return false;
-  return true;
- }
  var heroItems=[],heroIndex=0,heroTimer=null;
  function setHero(i){if(!heroItems.length)return;heroIndex=(i+heroItems.length)%heroItems.length;var r=heroItems[heroIndex];var art=document.getElementById("heroArt");art.style.backgroundImage="url("+JSON.stringify(r.image||"").slice(1,-1)+")";var poster=document.getElementById("heroPoster");poster.onerror=function(){poster.style.visibility="hidden";};poster.onload=function(){poster.style.visibility="visible";};poster.src=r.image||"";poster.alt=r.title||"Featured title";document.getElementById("heroTitle").textContent=r.title;document.getElementById("heroKicker").textContent=(r.type==="movie"?"FEATURED MOVIE":"FEATURED SERIES")+" · "+String(r.category||r.language||"CLOUD TV").toUpperCase();document.getElementById("heroDescription").textContent=r.description||"Discover "+r.title+" in the Cloud TV collection.";document.getElementById("heroPlay").href=safeUrl(r.url);document.getElementById("heroPlay").innerHTML='<i class="ri-play-fill"></i> Watch now';document.getElementById("heroCurrent").textContent=String(heroIndex+1).padStart(2,"0");document.querySelectorAll("#heroDots button").forEach(function(b,n){b.setAttribute("aria-current",String(n===heroIndex))})}
  function startHero(){if(heroTimer)clearInterval(heroTimer);heroTimer=setInterval(function(){setHero(heroIndex+1)},11000)}
@@ -170,14 +162,14 @@ main{padding-bottom:90px}.hero{position:relative;min-height:clamp(390px,47vw,590
   rail("rail-series",series);rail("rail-english-series",byCat(series,"english"));rail("rail-hindi-series",byCat(series,"hindi"));rail("rail-marathi-series",byCat(series,"marathi"));
   var animatedAndCartoons=series.filter(function(r){var category=String(r.category||"").toLowerCase(),language=String(r.language||"").toLowerCase(),title=String(r.title||"").toLowerCase(),description=String(r.description||"").toLowerCase();return category.includes("animation")||category.includes("cartoon")||category.includes("animated")||language.includes("animation")||language.includes("cartoon")||language.includes("animated")||/\b(cartoon|animated|animation|anime|toon)\b/.test(title+" "+description)});rail("rail-animated-series",shuffle(animatedAndCartoons));
   rail("rail-live",shuffle(live),true);var sportsAndCricket=live.filter(function(r){return ["sports","cricket","football"].indexOf(String(r.category||"").toLowerCase())!==-1});rail("rail-sports",shuffle(sportsAndCricket),true);rail("rail-collections",collections);
-  heroItems=shuffle(all.filter(isHeroItem));
+  heroItems=shuffle(all.filter(function(r){return (r.type==="movie"||r.type==="series")&&r.image&&r.url&&String(r.image).trim()!==""}));
   var dots=document.getElementById("heroDots");dots.replaceChildren();var dotCount=Math.min(8,heroItems.length);for(var i=0;i<dotCount;i++){(function(n){var b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Show featured title "+(n+1));b.addEventListener("click",function(){setHero(Math.floor(n*heroItems.length/dotCount));startHero()});dots.appendChild(b)})(i)}
   document.getElementById("heroTotal").textContent=String(heroItems.length);setHero(Math.floor(Math.random()*heroItems.length));startHero();
  }).catch(function(){document.getElementById("catalogue").innerHTML='<div class="empty-state">The catalogue could not be loaded. Please refresh to try again.</div>'});
   /* The shared search loader emits this event after its background index refresh. */
   window.addEventListener("cloudtv:catalogue-updated",function(event){
    var records=event.detail&&event.detail.records;if(!Array.isArray(records))return;
-   var next=records.filter(isHeroItem);
+   var next=records.filter(function(r){return (r.type==="movie"||r.type==="series")&&r.image&&r.url&&String(r.image).trim()!==""});
    if(!next.length)return;
    var fresh=next.slice();for(var i=fresh.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=fresh[i];fresh[i]=fresh[j];fresh[j]=tmp}
    heroItems=fresh;var dots=document.getElementById("heroDots");dots.replaceChildren();var dotCount=Math.min(8,heroItems.length);
