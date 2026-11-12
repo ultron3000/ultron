@@ -1,688 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CIA</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09080d">
+<meta name="description" content="Explore CIA — An FBI agent and a CIA case officer form an uneasy partnership on a clandestine task force working to prevent domestic terrorism in New York. Their different methods make every operation a test of trust, instinct and loyalty.">
+<title>CIA | Series Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#09080d;--panel:#14121a;--panel2:#1c1923;--text:#f7f3f4;--muted:#b4a9b2;--line:rgba(255,220,230,.13);--rose:#e8a0ad;--red:#b94e67;--gold:#d9c1a0;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 0%,rgba(185,78,103,.15),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(120,73,91,.12),transparent 35%)}.shell{width:min(1320px,100%);margin:auto;padding:0 clamp(15px,4vw,54px)}
+.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(9,8,13,.88);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font:700 18px "Space Grotesk",sans-serif;letter-spacing:-.04em}.brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(140deg,var(--rose),var(--red));color:#170b10}.top-link{color:var(--muted);font-size:12px;font-weight:700}.top-link:hover{color:var(--rose)}
+/* Exact responsive hero system from series.html */
+.series-hero-shell{max-width:1320px;margin:18px auto 28px;padding:0 18px}
+.series-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(330px,34vw,455px);border:1px solid rgba(148,163,184,.28);border-radius:26px;background:#020617;box-shadow:0 26px 80px rgba(0,0,0,.42);touch-action:pan-y}
+.series-hero-bg{position:absolute;inset:0;z-index:-2;overflow:hidden;background-position:center;background-size:cover}
+.series-hero-bg iframe{position:absolute;top:50%;left:50%;width:177.78vh;height:56.25vw;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:0;pointer-events:none;opacity:.76}
+.series-hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,23,.66),rgba(2,6,23,.78) 48%,rgba(2,6,23,.9)),linear-gradient(0deg,rgba(2,6,23,.58),rgba(2,6,23,.12))}
+.series-hero-inner{position:relative;z-index:1;min-height:inherit;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(24px,4vw,58px);padding:clamp(22px,4vw,48px)}
+.series-hero-art{display:block;width:100%;max-width:245px;aspect-ratio:2/2.85;justify-self:center;transform:perspective(1100px) rotateY(-9deg) rotateX(2deg);transform-style:preserve-3d;filter:drop-shadow(0 24px 30px rgba(0,0,0,.62));transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.series-hero-art img{display:block;width:100%;height:100%;object-fit:cover;border-radius:15px;border:1px solid rgba(255,255,255,.4);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 18px 45px #0008}
+.series-hero:hover .series-hero-art{transform:perspective(1100px) rotateY(-3deg) rotateX(0) translateY(-5px) scale(1.015)}
+.series-hero-copy{max-width:760px;min-width:0;color:#fff;text-align:left}
+.series-hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid rgba(103,232,249,.38);border-radius:999px;background:rgba(8,47,73,.62);color:#a5f3fc;font-size:10px;font-weight:900;letter-spacing:.15em}
+.series-hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;color:#bae6fd;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.series-hero-title{margin:12px 0 10px;color:#fff;font-size:clamp(2rem,4.6vw,4.2rem);font-weight:950;line-height:1.02;letter-spacing:-.045em;text-wrap:balance;text-shadow:0 5px 25px #0009}
+.series-hero-description{max-width:62ch;margin:0 0 22px;color:#e2e8f0;font-size:clamp(13px,1.25vw,15px);line-height:1.7;text-shadow:0 2px 12px #000}
+.series-hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.series-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font-size:12px;font-weight:900;transition:transform .2s,filter .2s,background .2s;border:0;cursor:pointer}
+.series-hero-btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.series-hero-primary{color:#fff;background:linear-gradient(110deg,#0891b2,#4f46e5);box-shadow:0 9px 26px #0891b244}
+.series-hero-secondary{color:#fff;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(12px)}
+.series-hero-dots{display:flex;gap:5px;margin-top:19px}
+.series-hero-dots span{width:17px;height:3px;border-radius:8px;background:#ffffff55}
+.series-hero-dots span.active{width:32px;background:#67e8f9}
+@media(max-width:700px){
+ .series-hero-shell{padding:0 12px;margin:13px auto 21px}
+ .series-hero{min-height:310px;border-radius:20px}
+ .series-hero-bg iframe{width:177.78vh;height:56.25vw;opacity:.58}
+ .series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.78),rgba(2,6,23,.84)),linear-gradient(0deg,rgba(2,6,23,.78),rgba(2,6,23,.24))}
+ .series-hero-inner{grid-template-columns:minmax(88px,27%) minmax(0,1fr);gap:clamp(12px,3vw,20px);padding:20px 15px 62px;min-height:310px}
+ .series-hero-art{width:100%;max-width:150px;transform:perspective(800px) rotateY(-5deg)}
+ .series-hero-art img{border-radius:11px}
+ .series-hero:hover .series-hero-art{transform:perspective(800px) rotateY(-3deg) translateY(-2px)}
+ .series-hero-kicker{font-size:8px;padding:6px 9px;letter-spacing:.1em}
+ .series-hero-meta{font-size:9px;gap:6px;margin-top:10px}
+ .series-hero-title{font-size:clamp(1.35rem,5.5vw,2.25rem);line-height:1.04;margin:9px 0 8px}
+ .series-hero-description{font-size:11px;line-height:1.5;margin-bottom:13px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+ .series-hero-btn{min-height:37px;padding:0 11px;font-size:10px;gap:6px}
+ .series-hero-dots{margin-top:12px}
+}
+@media(max-width:390px){
+ .series-hero{min-height:292px}
+ .series-hero-inner{min-height:292px;grid-template-columns:82px minmax(0,1fr);gap:11px;padding:16px 12px 58px}
+ .series-hero-title{font-size:1.28rem}
+ .series-hero-description{-webkit-line-clamp:3;font-size:10px}
+ .series-hero-btn{padding:0 9px;font-size:9px}
+}
 
-  <!-- HLS.js for HLS playback support -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+.section{margin:42px 0 48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:17px}.overline{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.2em;text-transform:uppercase}.section-title{font:700 clamp(23px,3vw,32px)/1.1 "Space Grotesk",sans-serif;letter-spacing:-.05em;margin:6px 0 0}.section-desc{font-size:11px;color:var(--muted);margin-top:6px}.episode-tools{display:flex;gap:9px;align-items:center}.search{width:min(230px,38vw);height:39px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);padding:0 12px;outline:none;font-size:11px}.search:focus{border-color:var(--rose)}.season-pill{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;color:var(--text);font-size:11px;font-weight:700}
+.episode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}.episode-card{min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:linear-gradient(155deg,#1b1720,#100e14);transition:transform .22s,border-color .22s,box-shadow .22s;cursor:pointer}.episode-card:hover{transform:translateY(-5px);border-color:rgba(232,160,173,.55);box-shadow:0 14px 34px rgba(0,0,0,.3)}.episode-image-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:#211922}.episode-image{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s}.episode-card:hover .episode-image{transform:scale(1.045)}.episode-number{position:absolute;top:10px;left:10px;background:rgba(8,7,12,.78);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:5px 8px;font-size:9px;font-weight:800;letter-spacing:.1em}.episode-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,7,12,.12);opacity:0;transition:.2s}.episode-play span{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:rgba(232,160,173,.95);color:#1b0c12;box-shadow:0 7px 24px rgba(0,0,0,.4)}.episode-card:hover .episode-play{opacity:1}.episode-info{padding:13px 14px 15px}.episode-kicker{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.episode-title{font:700 15px/1.25 "Space Grotesk",sans-serif;margin:7px 0 6px;min-height:38px}.episode-description{font-size:10px;line-height:1.6;color:#b9adb4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}.episode-runtime{font-size:9px;color:#8e838b;margin-top:10px}
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.about-panel{border:1px solid var(--line);border-radius:17px;padding:23px;background:linear-gradient(145deg,rgba(30,24,34,.94),rgba(17,14,20,.94))}.about-panel h3{font:700 18px "Space Grotesk",sans-serif;margin:0 0 10px}.about-panel p{font-size:12px;line-height:1.8;color:#c3b7be;margin:0}.cast-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.cast-chip{font-size:10px;color:#e5d8de;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+.footer{border-top:1px solid var(--line);padding:25px 0 35px;color:#8f858c;font-size:10px}.footer-inner{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.91);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(12px)}.modal-backdrop.active{display:flex}.modal-card{position:relative;width:min(100%,1020px);max-height:95vh;overflow:auto;background:#0d0b11;border:1px solid rgba(232,160,173,.2);border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.7)}.player-wrapper{position:relative;width:100%;aspect-ratio:16/9;background:#000}.player-wrapper video,.player-wrapper iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}.player-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;background:#131018;border-top:1px solid var(--line)}.meta-left{min-width:0}.player-meta h3{font:700 16px "Space Grotesk",sans-serif;margin:0}.player-meta p{font-size:10px;color:#a99da5;margin:5px 0 0}.controls-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}.player-btn{min-width:40px;height:39px;padding:0 11px;border:1px solid rgba(232,160,173,.35);border-radius:9px;background:#201923;color:#f3c3cd;font-size:11px}.player-btn:hover{background:#38202d}.player-btn.close{color:#fff;background:#652c3b;border-color:#8c4055}#topCloseBtn{position:absolute;top:12px;right:12px;z-index:5;width:39px;height:39px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px}
+@media(max-width:900px){.episode-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{min-height:clamp(520px,calc(100svh - 68px),760px)}.hero-inner{grid-template-columns:minmax(175px,28%) minmax(0,1fr);gap:clamp(20px,4vw,38px);padding:28px clamp(22px,5vw,52px)}.about{grid-template-columns:1fr}}
+@media(max-width:620px){.topbar{height:59px}.hero{width:100vw;margin:0 0 30px calc(50% - 50vw);border-radius:0;min-height:calc(100svh - 59px);height:calc(100svh - 59px)}.hero-video{opacity:.31}.hero-video iframe{width:190%;height:190%;left:-45%;top:-45%}.hero-art{background:linear-gradient(90deg,rgba(8,7,12,.42),rgba(8,7,12,.84) 34%,rgba(8,7,12,.96)),linear-gradient(0deg,rgba(8,7,12,.75),transparent 85%)}.hero-inner{height:100%;min-height:0;display:grid;grid-template-columns:minmax(96px,31%) minmax(0,1fr);align-items:center;gap:clamp(10px,3vw,18px);padding:18px clamp(12px,4vw,22px)}.hero-poster{width:100%;max-width:190px;border-radius:10px;align-self:center}.hero-copy{width:100%;min-width:0}.eyebrow{font-size:8px;letter-spacing:.12em;gap:5px}.eyebrow:before{width:13px}h1{font-size:clamp(27px,8vw,43px);line-height:.98;letter-spacing:-.065em;margin:9px 0 10px}.hero-subtitle{font-size:clamp(9px,2.65vw,11px);line-height:1.5;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.meta{margin:10px 0;font-size:8px;gap:6px 9px}.meta span{gap:4px}.tags{gap:5px;margin:9px 0}.tag{font-size:7px;padding:4px 6px}.actions{margin-top:12px;gap:6px}.primary,.secondary{min-height:36px;padding:0 9px;font-size:9px;border-radius:8px;gap:5px}.trailer-note{font-size:8px;line-height:1.4;margin-top:9px}.section{margin:31px 0 37px}.section-head{align-items:flex-start;flex-direction:column}.episode-tools{width:100%}.search{flex:1;width:auto}.episode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.episode-card{border-radius:12px}.episode-info{padding:10px}.episode-title{font-size:13px;min-height:34px}.episode-description{font-size:9px;min-height:44px}.episode-runtime{font-size:8px}.episode-play{opacity:1}.episode-play span{width:34px;height:34px;font-size:12px}.about-panel{padding:17px}.modal-backdrop{padding:0;align-items:stretch}.modal-card{width:100%;max-height:100dvh;height:auto;align-self:center;border-radius:0;border-left:0;border-right:0}.player-wrapper{aspect-ratio:16/9;flex:none}.player-meta{flex-direction:column;align-items:stretch;padding:13px;gap:12px}.controls-row{justify-content:center;gap:8px}.player-btn{height:43px;min-width:45px;padding:0 10px}.meta-left{padding-right:45px}.player-meta h3{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-  <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #07090e; }
-    ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+/* Advertisement layout safety: keep fixed-size ad creatives inside the page */
+.ad-slot{display:flex;justify-content:center;align-items:flex-start;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box;margin:20px auto!important;padding:0 12px}
+.ad-slot iframe,.ad-slot ins,.ad-slot img{max-width:100%!important;box-sizing:border-box}
+.ad-slot.ad-banner-728 iframe{display:block;width:min(728px,100%)!important;max-width:100%!important;height:90px!important;margin:0 auto!important}
+.ad-slot.ad-banner-160 iframe{display:block;width:160px!important;max-width:100%!important;height:600px!important;margin:0 auto!important}
+.ad-slot.ad-native>div{max-width:100%;width:100%;overflow:hidden}
+@media(max-width:700px){
+ html,body{max-width:100%;overflow-x:clip}
+ .ad-slot{margin:14px auto!important;padding:0 10px}
+ .ad-slot.ad-banner-160{display:none!important}
+ .ad-slot.ad-banner-728 iframe{width:100%!important;max-width:100%!important;height:90px!important}
+ .ad-slot.ad-native iframe{max-width:100%!important}
+}
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    @keyframes arrowBounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(5px);} }
-
-    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-    .pulse-hover:hover { animation: pulse 1.5s infinite; }
-    .arrow-bounce { animation: arrowBounce 2s infinite; }
-
-    .glow-effect { position: relative; transition: transform 0.3s ease; }
-    .glow-effect:hover { transform: translateY(-5px); }
-    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(2,132,199,0); transition:box-shadow 0.3s; pointer-events:none;}
-    .glow-effect:hover::after { box-shadow:0 0 20px rgba(2,132,199,0.3); }
-
-    .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip:text; background-clip:text; color:transparent; }
-    .marvel-font { font-family: 'Marvel', sans-serif; }
-
-    /* Responsive adjustments */
-    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
-    @media (max-width: 400px) { .movie-card { width: 100%; } }
-
-    /* Theme Accents (Intelligence / Slate Navy) */
-    header { background: linear-gradient(90deg,#0b0f19,#04060b); }
-    .cia-accent { color: #38bdf8; }
-    .btn-cia { background: #0284c7; color: #ffffff; font-weight: 600; }
-    .btn-cia:hover { background: #0369a1; }
-    
-    body { background: #07090e; color: #e2e8f0; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
-
-    /* Modal styles */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.92); display:none; align-items:center; justify-content:center; z-index:9999; }
-    .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0f172a; border: 1px solid rgba(2, 132, 199, 0.3); box-shadow:0 30px 80px rgba(0,0,0,0.8); }
-    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
-    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
-
-    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
-    .player-meta .meta-left { max-width:65%; }
-    .player-meta h3 { margin:0; font-size:1.125rem; font-weight: 700; color: #fff; }
-    .player-meta p { margin:6px 0 0 0; color:#94a3b8; font-size:0.92rem; }
-
-    .controls-row { display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
-
-    .btn {
-      background:transparent; border:1px solid #0284c7; color:#38bdf8;
-      padding:8px 12px; border-radius:8px; cursor:pointer; transition: all 0.2s;
-    }
-    .btn:hover { background: rgba(2,132,199,0.15); color: #fff; }
-
-    .hidden { display:none; }
-
-    @media(max-width:640px){
-      .player-meta .meta-left { max-width:55%; }
-      .btn { padding:6px 8px; font-size:0.9rem; }
-    }
-
-    /* MOBILE FIX */
-    @media (max-width: 767px) {
-      .player-wrapper {
-        padding-bottom: 56.25% !important;
-        height: 0 !important;
-        position: relative !important;
-      }
-      .player-wrapper video,
-      .player-wrapper iframe {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-      }
-      .player-meta {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
-        padding: 12px !important;
-        background: #0f172a !important;
-        z-index: 20 !important;
-      }
-      .controls-row {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        gap: 8px !important;
-      }
-      .btn {
-        padding: 6px 10px !important;
-        font-size: 0.85rem !important;
-      }
-    }
-
-    /* SMART FULLSCREEN VIDEO FIX */
-    video:fullscreen,
-    video:-webkit-full-screen,
-    iframe:fullscreen,
-    iframe:-webkit-full-screen {
-      width: 100vw !important;
-      height: 100vh !important;
-      max-width: 100vw !important;
-      max-height: 100vh !important;
-      object-fit: contain !important;
-      background-color: black;
-    }
-
-    @media (min-aspect-ratio: 16/9) {
-      video:fullscreen,
-      video:-webkit-full-screen,
-      iframe:fullscreen,
-      iframe:-webkit-full-screen {
-        object-fit: cover !important;
-      }
-    }
-  </style>
+:root{--rose:#60a5fa;--red:#1d4ed8;--gold:#bfdbfe;--line:#60a5fa33}
+.series-hero-kicker{border-color:#60a5fa66;background:#1d4ed8aa;color:#bfdbfe}
+.series-hero-meta{color:#bfdbfe}
+.series-hero-primary{background:linear-gradient(110deg,#1d4ed8,#60a5fa);box-shadow:0 9px 26px #60a5fa44}
+.series-hero-dots span.active{background:#60a5fa}
+.episode-kicker{color:#60a5fa}
+.episode-card:hover{border-color:#60a5fa88}
+.episode-play span{background:#60a5fa;color:#09080d}
+.search:focus{border-color:#60a5fa}
+.player-btn{border-color:#60a5fa66;color:#bfdbfe}
+</style>
 </head>
-<body class="bg-[#07090e] text-gray-100 min-h-screen font-roboto">
-  <!-- Header -->
-  <header class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-sky-500/20 shadow-lg">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-2 sm:space-x-3">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-sky-600 to-indigo-700 rounded-full flex items-center justify-center pulse-hover shadow-lg">
-          <i class="fas fa-user-tie text-white text-base sm:text-lg"></i>
-        </div>
-        <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">CIA</h1>
-      </div>
-      
-      <div class="flex items-center space-x-2 sm:space-x-4">
-        <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-sky-950/40 transition relative">
-          <i class="fas fa-bookmark cia-accent"></i>
-        </button>
-        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-sky-950/40 transition">
-          <i class="fas fa-moon cia-accent"></i>
-        </button>
-        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-sky-950/40 transition">
-          <i class="fas fa-search cia-accent"></i>
-        </button>
-      </div>
+<body>
+<div class="ambient"></div>
+<nav class="topbar"><div class="shell topbar-inner"><a class="brand" href="#top"><span class="brand-mark"><i class="fa-solid fa-user-secret"></i></span><span>CIA <span style="color:var(--rose)">/ 2026</span></span></a><a class="top-link" href="series.html"><i class="fa-solid fa-arrow-left"></i> Back to series</a></div></nav>
+<main class="shell" id="top">
+<section class="series-hero-shell" aria-label="CIA featured series">
+  <div class="series-hero" id="ciaHero">
+    <div class="series-hero-bg" id="ciaHeroVideo" aria-hidden="true" style="background-image:url('https://image.tmdb.org/t/p/w500/8XbgWv137Umc8resTDeWh9ff7Y0.jpg')">
+      <iframe id="ciaHeroTrailer" title="CIA trailer background" src="https://www.youtube-nocookie.com/embed/BgHUJsw1hXo?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=BgHUJsw1hXo&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1"></iframe>
     </div>
-    
-    <!-- Search Bar -->
-    <div id="search-bar" class="hidden px-4 pb-4 bg-black/90">
-      <div class="relative max-w-xl mx-auto">
-        <input id="global-search" type="text" placeholder="Search episodes..." 
-               class="w-full bg-gray-900 border border-sky-500/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder-gray-400 text-sm">
-        <i class="fas fa-search absolute left-3 top-3 text-sky-400 text-sm"></i>
-      </div>
-    </div>
-    
-    <!-- Watchlist Dropdown -->
-    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-72 bg-gray-900 border border-sky-900/50 rounded-xl shadow-2xl z-50 py-2">
-      <div class="px-4 py-2 border-b border-gray-800">
-        <h3 class="font-semibold cia-accent marvel-font tracking-wide">MY WATCHLIST</h3>
-      </div>
-      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
-        <div class="px-4 py-3 text-center text-gray-500 text-xs">Your watchlist is empty</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="container mx-auto px-4 py-6">
-    <!-- Hero Section -->
-    <section class="mb-12 relative overflow-hidden rounded-2xl border border-sky-500/20 shadow-2xl bg-black">
-      <div class="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-transparent z-10"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
-      
-      <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-          <iframe
-            src="https://www.youtube.com/embed/BgHUJsw1hXo?autoplay=1&mute=1&loop=1&playlist=BgHUJsw1hXo&controls=0&modestbranding=1"
-            frameborder="0"
-            allow="autoplay; fullscreen"
-            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-60"
-          ></iframe>
+    <div class="series-hero-inner">
+      <div class="series-hero-art"><img src="https://image.tmdb.org/t/p/w500/8XbgWv137Umc8resTDeWh9ff7Y0.jpg" alt="CIA official poster" fetchpriority="high"></div>
+      <div class="series-hero-copy">
+        <div class="series-hero-kicker"><i class="fa-solid fa-sparkles"></i><span>PARAMOUNT+ ORIGINAL</span></div>
+        <div class="series-hero-meta"><span>2026</span><span>20 Episodes</span><span>Espionage action drama</span></div>
+        <h1 class="series-hero-title">CIA</h1>
+        <p class="series-hero-description">An FBI agent and a CIA case officer form an uneasy partnership on a clandestine task force working to prevent domestic terrorism in New York. Their different methods make every operation a test of trust, instinct and loyalty.</p>
+        <div class="series-hero-actions">
+          <a class="series-hero-btn series-hero-primary" href="#episodes"><i class="fa-solid fa-play"></i> Explore episodes</a>
+          <button class="series-hero-btn series-hero-secondary" id="trailerBtn" type="button"><i class="fa-brands fa-youtube"></i> Watch trailer</button>
         </div>
-        
-        <div class="absolute bottom-0 left-0 z-20 p-5 sm:p-6 md:p-8 max-w-2xl">
-          <div class="flex items-center mb-1 sm:mb-2 space-x-2">
-            <span class="bg-sky-600 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">CBS</span>
-            <span class="text-sky-400 text-xs sm:text-sm font-medium">Seasons 1-2</span>
-          </div>
-          <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-2 gradient-text marvel-font tracking-wide">CIA</h2>
-          <div class="flex items-center mb-2 sm:mb-4 text-xs sm:text-sm">
-            <div class="flex items-center mr-4 text-sky-400">
-              <i class="fas fa-star mr-1"></i>
-              <span class="font-bold text-white">7.0</span>
-            </div>
-            <span class="text-gray-400 mr-4">TV-Series</span>
-            <span class="text-gray-400">Action / Thriller</span>
-          </div>
-          <p class="text-gray-300 mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base leading-relaxed">
-            Follows a partnership between an FBI agent and a CIA Case Officer who work together on a clandestine taskforce to prevent domestic terrorism in New York.
-          </p>
-          <div class="flex space-x-3">
-            <button id="play-all" class="btn-cia py-2.5 px-6 rounded-full transition flex items-center shadow-lg shadow-sky-900/40 text-xs sm:text-sm pulse-hover">
-              <i class="fas fa-play mr-2 text-xs"></i> Play S1 E1
-            </button>
-            <button id="hero-trailer-btn" class="bg-gray-900/90 hover:bg-gray-800 text-white border border-sky-500/40 font-semibold py-2.5 px-6 rounded-full transition flex items-center backdrop-blur-sm text-xs sm:text-sm">
-              <i class="fas fa-film text-sky-400 mr-2"></i> Watch Trailer
-            </button>
-          </div>
-        </div>
-        <div class="absolute bottom-4 right-4 z-20">
-          <button id="scroll-down" class="bg-black/50 text-sky-400 rounded-full p-2.5 border border-sky-500/30 hover:bg-sky-500 hover:text-black transition">
-            <i class="fas fa-chevron-down arrow-bounce"></i>
-          </button>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Season Navigation -->
-  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
-    <h3 class="text-lg sm:text-xl font-bold flex items-center mb-2 sm:mb-0">
-      <i class="fas fa-tv cia-accent mr-2"></i>
-      <span class="marvel-font tracking-wider text-xl sm:text-2xl">EPISODES</span>
-    </h3>
-    <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-      <div class="flex items-center space-x-2 min-w-max">
-        <button class="season-btn active bg-sky-600 text-white font-bold px-4 py-1.5 rounded-full text-xs shadow" data-season="all">All</button>
-        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-4 py-1.5 rounded-full text-xs font-medium border border-gray-800" data-season="1">Season 1</button>
-        <button class="season-btn bg-gray-900 hover:bg-gray-800 text-gray-300 px-4 py-1.5 rounded-full text-xs font-medium border border-gray-800" data-season="2">Season 2</button>
+        <div class="series-hero-dots" aria-hidden="true"><span class="active"></span><span></span><span></span></div>
       </div>
     </div>
   </div>
-
-  <!-- Episodes Grid -->
-  <section class="container mx-auto px-4">
-    <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-      <!-- Movie cards inserted by JS -->
-    </div>
-  </section>
-
-  <!-- Footer / Social -->
-  <div class="border-t border-gray-900 mt-12 py-8 text-center text-gray-600">
-    <div class="flex justify-center space-x-6 mb-3">
-      <a href="#" class="text-gray-400 hover:text-sky-400 transition"><i class="fab fa-facebook-f text-lg"></i></a>
-      <a href="#" class="text-gray-400 hover:text-sky-400 transition"><i class="fab fa-twitter text-lg"></i></a>
-      <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-sky-400 transition"><i class="fab fa-instagram text-lg"></i></a>
-      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-sky-400 transition"><i class="fab fa-youtube text-lg"></i></a>
-    </div>
-    <p class="text-xs text-gray-500">© CIA Series Fan Portal. All player functionality and links intact.</p>
+</section>
+<section class="section" id="episodes">
+  <div class="section-head"><div><div class="overline">2026 · Espionage action drama</div><h2 class="section-title">CIA: The complete story.</h2><div class="section-desc">Espionage action drama. Explore every available episode.</div></div>
+    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"><select class="season-pill" id="seasonFilter" aria-label="Filter by season"><option value="all">All seasons</option><option value="1">Season 1</option><option value="2">Season 2</option></select></div>
   </div>
-
-  <!-- Playback Modal -->
-  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true">
-      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-sky-400 text-2xl bg-black/70 rounded-full w-9 h-9 flex items-center justify-center border border-gray-700">
-        <i class="fas fa-times"></i>
-      </button>
-
-      <div class="player-wrapper" id="playerWrapper">
-        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      </div>
-
-      <div class="player-meta">
-        <div class="meta-left">
-          <h3 id="modalTitle">Episode Title</h3>
-          <p id="modalDesc" class="text-sm">Episode description will appear here.</p>
-        </div>
-        <div class="controls-row">
-          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
-          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-        </div>
-      </div>
-    </div>
+  <div class="episode-grid" id="episodeGrid"></div>
+</section>
+<section class="section">
+ <div class="section-head"><div><div class="overline">Inside the story</div><h2 class="section-title">Inside CIA</h2></div></div>
+ <div class="about">
+  <article class="about-panel"><h3>Series overview</h3><p><em>CIA</em>. A high-stakes espionage drama following an unlikely FBI–CIA partnership as the team works through threats, covert operations and the personal cost of life inside intelligence services.</p></article>
+  <article class="about-panel"><h3>Production</h3><p><strong>Platform:</strong> PARAMOUNT+<br><strong>Genre:</strong> Espionage action drama<br><strong>Release:</strong> 2026<br><strong>Episodes:</strong> 20 listed episodes<br><strong>Format:</strong> 2 season(s)</p></article>
+ </div>
+</section>
+<footer class="footer"><div class="footer-inner"><span>CIA · 2026</span><a href="https://www.imdb.com/title/tt8014982/episodes/" target="_blank" rel="noopener">Episode guide · IMDb <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div></footer>
+</main>
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+ <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="player-wrapper" id="playerWrapper"><video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="player-meta"><div class="meta-left"><h3 id="modalTitle">CIA</h3><p id="modalDesc">CIA</p></div>
+   <div class="controls-row"><button class="player-btn" id="prevBtn" aria-label="Previous episode"><i class="fa-solid fa-backward-step"></i> <span>Prev</span></button><button class="player-btn" id="playPauseBtn" aria-label="Play or pause"><i class="fa-solid fa-play"></i></button><button class="player-btn" id="nextBtn" aria-label="Next episode"><span>Next</span> <i class="fa-solid fa-forward-step"></i></button><button class="player-btn" id="fullscreenBtn" aria-label="Fullscreen"><i class="fa-solid fa-expand"></i></button><button class="player-btn" id="muteBtn" aria-label="Mute"><i class="fa-solid fa-volume-high"></i></button><button class="player-btn close" id="closeBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
   </div>
-
-  <!-- Loading Spinner -->
-  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-sky-500"></div>
-  </div>
-
-  <script>
-// ========================
-// SEASON SELECTOR + DATA
-// ========================
-const movies = [
+ </div>
+</div>
+<script>
+const episodes = [
   // Season 1 (12 eps)[cite: 4]
-  { title: 'S1E01 - Directed Energy', video:'https://mega.nz/embed/Lnw11bAY#gUFqID-Gthxf6TKztoubCPyuZxq4Dv_vB-hVxqyMsAg', image:'https://image.tmdb.org/t/p/w300/7QuzsX5OE1bNOscdUO6RhzNUJFC.jpg', season:1, duration:'45 min', rating:'7.2', description:'Partnership between an FBI agent and a CIA Case Officer begins.' },
-  { title: 'S1E02 - Fatal Defect', video:'https://mega.nz/embed/yzZWWIzA#fuPpGbVtR2OhkzCFGEedsR2nCayKjmumwA6m90hhoWg', image:'https://image.tmdb.org/t/p/w300/jIDnyQkSLguUFv2GQ8p21JuzalW.jpg', season:1, duration:'45 min', rating:'7.1', description:'Investigation uncovers critical security vulnerabilities.' },
-  { title: 'S1E03 - Bridge Of Lies', video:'https://mega.nz/embed/n7ZxGLrL#ZhpE-ZhyGTq5d8Lul_wOmFwpPAKZTAfcV1yPeaGgLlA', image:'https://image.tmdb.org/t/p/w300/aU95kPEfiIITg1TVqQfL2atQHIS.jpg', season:1, duration:'45 min', rating:'7.3', description:'A web of deceit threatens the clandestine taskforce.' },
-  { title: 'S1E04 - Forced Labor', video:'https://mega.nz/embed/G3ATgZbB#FhefjlgjVVCv2V3YFhw29sacranYrtgaPfrA-95P5q0', image:'https://image.tmdb.org/t/p/w185/qtr5rKWDK3mRaCa3BUQnsmwG57c.jpg', season:1, duration:'45 min', rating:'7.0', description:'The team tracks down illegal operations inside New York.' },
-  { title: 'S1E05 - Deep Cover', video:'https://mega.nz/embed/j6o1ESaQ#fUnCUtuhWxxQW3pARN8qWZVRfOAnX9-vMIxVctWoPws', image:'https://image.tmdb.org/t/p/w500/4xYAgmBqT6Cp5g1hYrH2bxPEMQw.jpg', season:1, duration:'45 min', rating:'7.4', description:'Deep infiltration brings unexpected hazards.' },
-  { title: 'S1E06 - Pledge of Allegiance', video:'https://mega.nz/embed/yzQSzBRI#_MeQM6K6J84eBUbM6BVXP6hW85oGWw8s98xey8yTe4M', image:'https://image.tmdb.org/t/p/w500/3kEJznx4ywSdTbo5dyxnRJr5ZoS.jpg', season:1, duration:'45 min', rating:'7.5', description:'Loyalties are tested under high-stakes pressures.' },
-  { title: 'S1E07 - Elimination Game', video:'https://mega.nz/embed/W6xSAKzT#s4anECPfc47Odojnjw1s15JMjmjhZg1qqhonFZS5faE', image:'https://image.tmdb.org/t/p/w300/eKh23JRoATd216Fa7kG1wBG7Exs.jpg', season:1, duration:'45 min', rating:'7.2', description:'A dangerous game of elimination unfolds.' },
-  { title: 'S1E08 - Orbital', video:'https://mega.nz/embed/S3pyzbqK#GfFtwOAv3_D8tajHSg9PmvWYGhIQUb1FxOvrh4pQaC0', image:'https://image.tmdb.org/t/p/w300/mjmyNlelNKpHUQy8mhx0mZP7KKJ.jpg', season:1, duration:'45 min', rating:'7.6', description:'High-altitude threats demand immediate action.' },
-  { title: 'S1E09 - Blood Money', video:'https://mega.nz/embed/irpHnJqI#iJHBtH9vHbxlSoEBviDRNQWtVnMeLfOcCrTTGeUHGWM', image:'https://image.tmdb.org/t/p/w300/csKpBceGD7ccjUQ8NA51Fcb4TmI.jpg', season:1, duration:'45 min', rating:'7.3', description:'Following financial trails linked to domestic terrorism.' },
-  { title: 'S1E10 - Rare Earth', video:'https://mega.nz/embed/7uY33BJQ#4Zdx3sl7Xf_afnmpNpsp5nckkmsCCD9slxBwXPaj9Wo', image:'https://image.tmdb.org/t/p/w300/dztpmQ7Am4XdffhCd2ymhDE7JAn.jpg', season:1, duration:'45 min', rating:'7.4', description:'A race to secure volatile resources.' },
-  { title: 'S1E11 - Forbidden Eye', video:'https://mega.nz/embed/u3YwlaQZ#xXlfpC3ha1roX2Rbvv9Kkuy-Hj23qiDIqe5I36J4mCE', image:'https://image.tmdb.org/t/p/w300/aSndNmKdFj3RLO0jKcRCcUl4Uu2.jpg', season:1, duration:'45 min', rating:'7.5', description:'Surveillance reveals shocking secrets.' },
-  { title: 'S1E12 - Broken Glass', video:'https://mega.nz/embed/iyBhnJRC#DjVx1AEgHpc41jD4ARa0CskzgDgP0oKLxuLbSZdAtTs', image:'https://image.tmdb.org/t/p/w300/ujsUIZJSAeNF8BVTRYms8EdPVBh.jpg', season:1, duration:'45 min', rating:'7.7', description:'Season 1 explosive finale.' },
+  { title: 'Directed Energy', episode: 1, video:'https://mega.nz/embed/Lnw11bAY#gUFqID-Gthxf6TKztoubCPyuZxq4Dv_vB-hVxqyMsAg', image:'https://image.tmdb.org/t/p/w300/7QuzsX5OE1bNOscdUO6RhzNUJFC.jpg', season:1, runtime:'45 min', rating:'7.2', description:'Partnership between an FBI agent and a CIA Case Officer begins.' },
+  { title: 'Fatal Defect', episode: 2, video:'https://mega.nz/embed/yzZWWIzA#fuPpGbVtR2OhkzCFGEedsR2nCayKjmumwA6m90hhoWg', image:'https://image.tmdb.org/t/p/w300/jIDnyQkSLguUFv2GQ8p21JuzalW.jpg', season:1, runtime:'45 min', rating:'7.1', description:'Investigation uncovers critical security vulnerabilities.' },
+  { title: 'Bridge Of Lies', episode: 3, video:'https://mega.nz/embed/n7ZxGLrL#ZhpE-ZhyGTq5d8Lul_wOmFwpPAKZTAfcV1yPeaGgLlA', image:'https://image.tmdb.org/t/p/w300/aU95kPEfiIITg1TVqQfL2atQHIS.jpg', season:1, runtime:'45 min', rating:'7.3', description:'A web of deceit threatens the clandestine taskforce.' },
+  { title: 'Forced Labor', episode: 4, video:'https://mega.nz/embed/G3ATgZbB#FhefjlgjVVCv2V3YFhw29sacranYrtgaPfrA-95P5q0', image:'https://image.tmdb.org/t/p/w185/qtr5rKWDK3mRaCa3BUQnsmwG57c.jpg', season:1, runtime:'45 min', rating:'7.0', description:'The team tracks down illegal operations inside New York.' },
+  { title: 'Deep Cover', episode: 5, video:'https://mega.nz/embed/j6o1ESaQ#fUnCUtuhWxxQW3pARN8qWZVRfOAnX9-vMIxVctWoPws', image:'https://image.tmdb.org/t/p/w500/4xYAgmBqT6Cp5g1hYrH2bxPEMQw.jpg', season:1, runtime:'45 min', rating:'7.4', description:'Deep infiltration brings unexpected hazards.' },
+  { title: 'Pledge of Allegiance', episode: 6, video:'https://mega.nz/embed/yzQSzBRI#_MeQM6K6J84eBUbM6BVXP6hW85oGWw8s98xey8yTe4M', image:'https://image.tmdb.org/t/p/w500/3kEJznx4ywSdTbo5dyxnRJr5ZoS.jpg', season:1, runtime:'45 min', rating:'7.5', description:'Loyalties are tested under high-stakes pressures.' },
+  { title: 'Elimination Game', episode: 7, video:'https://mega.nz/embed/W6xSAKzT#s4anECPfc47Odojnjw1s15JMjmjhZg1qqhonFZS5faE', image:'https://image.tmdb.org/t/p/w300/eKh23JRoATd216Fa7kG1wBG7Exs.jpg', season:1, runtime:'45 min', rating:'7.2', description:'A dangerous game of elimination unfolds.' },
+  { title: 'Orbital', episode: 8, video:'https://mega.nz/embed/S3pyzbqK#GfFtwOAv3_D8tajHSg9PmvWYGhIQUb1FxOvrh4pQaC0', image:'https://image.tmdb.org/t/p/w300/mjmyNlelNKpHUQy8mhx0mZP7KKJ.jpg', season:1, runtime:'45 min', rating:'7.6', description:'High-altitude threats demand immediate action.' },
+  { title: 'Blood Money', episode: 9, video:'https://mega.nz/embed/irpHnJqI#iJHBtH9vHbxlSoEBviDRNQWtVnMeLfOcCrTTGeUHGWM', image:'https://image.tmdb.org/t/p/w300/csKpBceGD7ccjUQ8NA51Fcb4TmI.jpg', season:1, runtime:'45 min', rating:'7.3', description:'Following financial trails linked to domestic terrorism.' },
+  { title: 'Rare Earth', episode: 10, video:'https://mega.nz/embed/7uY33BJQ#4Zdx3sl7Xf_afnmpNpsp5nckkmsCCD9slxBwXPaj9Wo', image:'https://image.tmdb.org/t/p/w300/dztpmQ7Am4XdffhCd2ymhDE7JAn.jpg', season:1, runtime:'45 min', rating:'7.4', description:'A race to secure volatile resources.' },
+  { title: 'Forbidden Eye', episode: 11, video:'https://mega.nz/embed/u3YwlaQZ#xXlfpC3ha1roX2Rbvv9Kkuy-Hj23qiDIqe5I36J4mCE', image:'https://image.tmdb.org/t/p/w300/aSndNmKdFj3RLO0jKcRCcUl4Uu2.jpg', season:1, runtime:'45 min', rating:'7.5', description:'Surveillance reveals shocking secrets.' },
+  { title: 'Broken Glass', episode: 12, video:'https://mega.nz/embed/iyBhnJRC#DjVx1AEgHpc41jD4ARa0CskzgDgP0oKLxuLbSZdAtTs', image:'https://image.tmdb.org/t/p/w300/ujsUIZJSAeNF8BVTRYms8EdPVBh.jpg', season:1, runtime:'45 min', rating:'7.7', description:'Season 1 explosive finale.' },
 
   // Season 2 (Unreleased placeholder items with "00" video/image urls and dynamic release date info)
-  { title: 'S2E01 - Episode 1', video:'https://turboembed.com/mr6j', image:'https://image.tmdb.org/t/p/w300/mHYTWFUPjcWDZjN7VKHlCPMFzyM.jpg', season:2, duration:'45 min', rating:'7.5', description:'Expected release date: May 12, 2026.' },
-  { title: 'S2E02 - Episode 2', video:'https://turboembed.com/8vdr', image:'https://image.tmdb.org/t/p/w300/m9ybGzRR4TyqyWQ5n58xmKM5OJu.jpg', season:2, duration:'45 min', rating:'7.5', description:'Expected release date: May 19, 2026.' },
-  { title: 'S2E03 - Episode 3', video:'https://turboembed.com/0x7x', image:'https://image.tmdb.org/t/p/w300/tNZGDEbMJrNmrgoNjEzsT65pS6o.jpg', season:2, duration:'45 min', rating:'7.6', description:'Expected release date: May 26, 2026.' },
-  { title: 'S2E04 - Episode 4', video:'https://turboembed.com/ubjo', image:'https://image.tmdb.org/t/p/w300/mUZ7T9qpS9sgTnZvn6ExFwSreKr.jpg', season:2, duration:'45 min', rating:'7.7', description:'Expected release date: June 2, 2026.' },
-  { title: 'S2E05 - Episode 5', video:'https://turboembed.com/3rop', image:'https://image.tmdb.org/t/p/w300/uTEOscN25GB3rH5YQKR0pe4JHuh.jpg', season:2, duration:'45 min', rating:'7.9', description:'Expected release date: June 9, 2026.' },
-  { title: 'S2E06 - Episode 6', video:'https://turboembed.com/iqdk', image:'https://image.tmdb.org/t/p/w300/7bXVHfDHkOtozZEz1yOuToEFzaV.jpg', season:2, duration:'45 min', rating:'Upcoming', description:'Expected release date: June 16, 2026.' },
-  { title: 'S2E07 - Episode 7', video:'00', image:'00', season:2, duration:'45 min', rating:'Upcoming', description:'Expected release date: June 23, 2026.' },
-  { title: 'S2E08 - Episode 8', video:'00', image:'00', season:2, duration:'45 min', rating:'Upcoming', description:'Expected release date: June 30, 2026.' }
+  { title: 'Episode 1', episode: 1, video:'https://turboembed.com/mr6j', image:'https://image.tmdb.org/t/p/w300/mHYTWFUPjcWDZjN7VKHlCPMFzyM.jpg', season:2, runtime:'45 min', rating:'7.5', description:'Expected release date: May 12, 2026.' },
+  { title: 'Episode 2', episode: 2, video:'https://turboembed.com/8vdr', image:'https://image.tmdb.org/t/p/w300/m9ybGzRR4TyqyWQ5n58xmKM5OJu.jpg', season:2, runtime:'45 min', rating:'7.5', description:'Expected release date: May 19, 2026.' },
+  { title: 'Episode 3', episode: 3, video:'https://turboembed.com/0x7x', image:'https://image.tmdb.org/t/p/w300/tNZGDEbMJrNmrgoNjEzsT65pS6o.jpg', season:2, runtime:'45 min', rating:'7.6', description:'Expected release date: May 26, 2026.' },
+  { title: 'Episode 4', episode: 4, video:'https://turboembed.com/ubjo', image:'https://image.tmdb.org/t/p/w300/mUZ7T9qpS9sgTnZvn6ExFwSreKr.jpg', season:2, runtime:'45 min', rating:'7.7', description:'Expected release date: June 2, 2026.' },
+  { title: 'Episode 5', episode: 5, video:'https://turboembed.com/3rop', image:'https://image.tmdb.org/t/p/w300/uTEOscN25GB3rH5YQKR0pe4JHuh.jpg', season:2, runtime:'45 min', rating:'7.9', description:'Expected release date: June 9, 2026.' },
+  { title: 'Episode 6', episode: 6, video:'https://turboembed.com/iqdk', image:'https://image.tmdb.org/t/p/w300/7bXVHfDHkOtozZEz1yOuToEFzaV.jpg', season:2, runtime:'45 min', rating:'Upcoming', description:'Expected release date: June 16, 2026.' },
+  { title: 'Episode 7', episode: 7, video:'00', image:'00', season:2, runtime:'45 min', rating:'Upcoming', description:'Expected release date: June 23, 2026.' },
+  { title: 'Episode 8', episode: 8, video:'00', image:'00', season:2, runtime:'45 min', rating:'Upcoming', description:'Expected release date: June 30, 2026.' }
 ];
-
-    /* ------------------------
-       Modal / playback implementation
-       ------------------------ */
-    const playerWrapper = document.getElementById('playerWrapper');
-    const playbackModal = document.getElementById('playbackModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
-
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
-
-    let currentHls = null;
-    let currentFiltered = [];
-    let currentIndex = null;
-
-    function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
-    function isHls(u) {
-      if (!u) return false;
-      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master');
-    }
-    function isYouTube(u) {
-      if (!u) return false;
-      return u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/');
-    }
-
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-    }
-
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function showError(msg) { console.warn(msg); }
-
-    function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
-      currentFiltered = list;
-      currentIndex = index;
-      const item = list[index];
-      if (!item) { showError('Missing item'); return; }
-
-      modalTitle.textContent = item.title || '';
-      modalDesc.textContent = item.description || '';
-
-      resetPlayerContainer();
-      showModal();
-
-      let src = item.video || '';
-
-      // Handle "00" placeholder cleanly for unreleased episodes
-      if (!src || src === "00") {
-        playerWrapper.innerHTML = `<div class="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 text-center p-4">
-          <i class="fas fa-clock text-sky-400 text-3xl mb-2"></i>
-          <p class="text-white font-semibold">Episode Unreleased</p>
-          <p class="text-gray-400 text-xs mt-1">${item.description}</p>
-        </div>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-        return;
-      }
-
-      const lc = (src||'').toLowerCase();
-
-      if (src.includes('m3u8-proxy.m3u8') || lc.includes('streamtape.com') || lc.includes('turboembed.com') || lc.includes('drive.google.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      if (isYouTube(src)) {
-        let embed = src;
-        try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch(e){}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      if (isHls(src)) {
-        const v = document.getElementById('modalVideo');
-        if (!v) { showError('Video element missing'); return; }
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) {}
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        }
-        return;
-      }
-
-      if (isMP4(src)) {
-        const v = document.getElementById('modalVideo');
-        if (!v) return;
-        v.src = src;
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
-    }
-
-    /* Controls */
-    function togglePlayPause() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-      }
-    }
-    function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return;
-      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-    }
-    function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return;
-      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-    }
-    function toggleFullscreen() {
-      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
-      } else {
-        document.exitFullscreen();
-      }
-    }
-    function toggleMute() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    }
-
-    function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      const v = document.getElementById('modalVideo');
-      if (v) {
-        try { v.pause(); v.removeAttribute('src'); v.load(); } catch(e){}
-      }
-      resetPlayerContainer();
-      hideModal();
-      currentIndex = null;
-      currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-    }
-
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
-    closeModalBtn.addEventListener('click', closeModalHandler);
-    playbackModal.addEventListener('click', function(e){ if (e.target === playbackModal) closeModalHandler(); });
-
-    /* Render episodes grid */
-    const container = document.getElementById('movies');
-    function renderMovies(list) {
-      container.innerHTML = '';
-      list.forEach((movie, index) => {
-        const card = document.createElement('div');
-        card.className = 'movie-card fade-in delay-2 glow-effect bg-gray-900/60 border border-gray-800 rounded-xl p-2.5 overflow-hidden cursor-pointer transition hover:border-sky-500/50';
-        
-        // Handle unreleased placeholder thumbnail visual if image is "00"
-        const imgSrc = movie.image === "00" 
-          ? "https://image.tmdb.org/t/p/w300/7QuzsX5OE1bNOscdUO6RhzNUJFC.jpg" 
-          : movie.image;
-
-        card.innerHTML = `
-          <div class="relative group overflow-hidden rounded-lg">
-            <img src="${imgSrc}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-lg transform group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-              <p class="text-gray-300 text-xs line-clamp-2">${movie.description || ''}</p>
-            </div>
-            <div class="absolute top-2 right-2 bg-black/70 text-sky-400 rounded-full w-8 h-8 flex items-center justify-center shadow">
-              <i class="fas ${movie.video === '00' ? 'fa-clock' : 'fa-play'} text-xs"></i>
-            </div>
-            <div class="absolute top-2 left-2 bg-black/80 px-2 py-0.5 rounded text-[11px] font-bold text-sky-400">
-              S${movie.season} E${index + 1}
-            </div>
-          </div>
-          <div class="mt-2.5 px-1">
-            <h3 class="text-white font-bold text-sm sm:text-base line-clamp-1">${movie.title}</h3>
-            <div class="flex items-center justify-between text-gray-400 text-xs mt-1">
-              <span><i class="far fa-clock mr-1 text-sky-400"></i>${movie.duration}</span>
-              <span class="${movie.video === '00' ? 'text-amber-400 font-medium' : ''}">${movie.rating}</span>
-            </div>
-          </div>
-        `;
-        card.addEventListener('click', () => {
-          const loadingSpinner = document.getElementById('loading-spinner');
-          if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-          openPlayer(list, index);
-          if (loadingSpinner) loadingSpinner.classList.add('hidden');
-        });
-        container.appendChild(card);
-      });
-    }
-
-    /* Init page */
-    function initPage() {
-      renderMovies(movies);
-
-      const seasonBtns = document.querySelectorAll('.season-btn');
-      seasonBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => {
-            b.classList.remove('active', 'bg-sky-600', 'text-white', 'font-bold');
-            b.classList.add('bg-gray-900', 'text-gray-300');
-          });
-          this.classList.add('active', 'bg-sky-600', 'text-white', 'font-bold');
-          this.classList.remove('bg-gray-900', 'text-gray-300');
-          const season = this.dataset.season;
-          let filtered = (!season || season === 'all') ? movies : movies.filter(m => String(m.season) === String(season));
-          renderMovies(filtered);
-        });
-      });
-
-      document.getElementById('play-all')?.addEventListener('click', () => {
-        openPlayer(movies, 0);
-      });
-
-      document.getElementById('hero-trailer-btn')?.addEventListener('click', () => {
-        const trailerItem = [{
-          title: "CIA — Official Series Trailer",
-          description: "Official CBS trailer for the action-thriller series CIA.",
-          video: "https://www.youtube.com/embed/BgHUJsw1hXo"
-        }];
-        openPlayer(trailerItem, 0);
-      });
-
-      const globalSearch = document.getElementById('global-search');
-      if (globalSearch) {
-        globalSearch.addEventListener('input', (e) => {
-          const q = e.target.value.trim().toLowerCase();
-          const activeSeasonBtn = document.querySelector('.season-btn.active');
-          const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
-          let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
-          if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
-          renderMovies(list);
-        });
-      }
-
-      updateWatchlist();
-    }
-
-    const watchlistItems = document.getElementById('watchlist-items');
-    function updateWatchlist() {
-      if (!watchlistItems) return;
-      watchlistItems.innerHTML = '';
-      const watchlistMovies = movies.filter(m => m.inWatchlist);
-      if (watchlistMovies.length === 0) {
-        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-500 text-xs">Your watchlist is empty</div>';
-        return;
-      }
-      watchlistMovies.forEach((movie, idx) => {
-        const index = movies.indexOf(movie);
-        const item = document.createElement('div');
-        item.className = 'px-4 py-2.5 hover:bg-gray-800/60 transition cursor-pointer flex items-center justify-between border-b border-gray-800/40';
-        item.innerHTML = `
-          <div class="flex items-center truncate">
-            <span class="text-sky-400 font-bold text-xs mr-2">${idx + 1}.</span>
-            <span class="text-white text-xs truncate">${movie.title}</span>
-          </div>
-          <button class="remove-from-watchlist text-gray-500 hover:text-red-500 ml-2" data-index="${index}">
-            <i class="fas fa-times text-xs"></i>
-          </button>
-        `;
-        item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
-          e.stopPropagation();
-          movies[index].inWatchlist = false;
-          updateWatchlist();
-        });
-        item.addEventListener('click', () => {
-          openPlayer(movies, index);
-          document.getElementById('watchlist-dropdown').classList.add('hidden');
-        });
-        watchlistItems.appendChild(item);
-      });
-    }
-
-    const searchBtn = document.getElementById('search-btn');
-    const searchBar = document.getElementById('search-bar');
-    const themeToggle = document.getElementById('theme-toggle');
-    const watchlistBtn = document.getElementById('watchlist-btn');
-    const watchlistDropdown = document.getElementById('watchlist-dropdown');
-
-    searchBtn.addEventListener('click', () => {
-      searchBar.classList.toggle('hidden');
-      watchlistDropdown.classList.add('hidden');
-    });
-
-    watchlistBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      watchlistDropdown.classList.toggle('hidden');
-      searchBar.classList.add('hidden');
-    });
-
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('bg-gray-100');
-      document.body.classList.toggle('text-gray-900');
-      document.body.classList.toggle('bg-[#07090e]');
-      document.body.classList.toggle('text-gray-100');
-      const icon = themeToggle.querySelector('i');
-      if (document.body.classList.contains('bg-[#07090e]')) {
-        icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
-      } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
-      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initPage();
-    });
-  </script>
-  <!-- ========================================================= -->
+const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch"),seasonFilter=document.getElementById("seasonFilter");
+const playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper");
+const modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc");
+const playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
+let currentHls=null,currentShaka=null,currentList=episodes,currentIndex=0;
+function episodeImage(ep){return ep.image&&ep.image!=="00"?ep.image:"https://placehold.co/600x340/0d0b11/aaaaaa?text="+encodeURIComponent("Season "+ep.season+" Episode "+ep.episode)}
+function renderEpisodes(list){
+ grid.innerHTML="";
+ if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;padding:25px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No episodes match your search.</div>';return}
+ list.forEach(function(ep){
+  const card=document.createElement("article");card.className="episode-card";card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label","Play episode "+ep.episode+": "+ep.title);
+  card.innerHTML='<div class="episode-image-wrap"><img class="episode-image" loading="lazy" src="'+episodeImage(ep)+'" alt="'+ep.title.replace(/"/g,"&quot;")+'"><span class="episode-number">EP '+String(ep.episode).padStart(2,"0")+'</span><span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span></div><div class="episode-info"><div class="episode-kicker">Season 1 · Episode '+ep.episode+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime"><i class="fa-regular fa-clock"></i> '+(ep.runtime||'Runtime unavailable')+'</div></div>';
+  const play=function(){openPlayer(list,list.indexOf(ep))};card.addEventListener("click",play);card.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();play()}});
+  grid.appendChild(card);
+ });
+}
+function filterEpisodes(){const q=search.value.trim().toLowerCase(),season=seasonFilter.value;renderEpisodes(episodes.filter(function(ep){return (season==="all"||String(ep.season)===season)&&(!q||ep.title.toLowerCase().includes(q)||(ep.description||"").toLowerCase().includes(q))}))}
+search.addEventListener("input",filterEpisodes);seasonFilter.addEventListener("change",filterEpisodes);
+function isHls(url){return /\.m3u8($|\?)/i.test(url)||/index.*\.txt/i.test(url)||/manifest|master/i.test(url)}
+function isMp4(url){return /\.mp4($|\?)/i.test(url)}
+function isYouTube(url){return /youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(url)}
+function resetPlayer(){
+ if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+ if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+ playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+}
+function showPlayer(){playbackModal.classList.add("active");playbackModal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden"}
+function closePlayer(){
+ const v=document.getElementById("modalVideo");if(v){try{v.pause();v.removeAttribute("src");v.load()}catch(e){}}
+ if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+ if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+ playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+ playbackModal.classList.remove("active");playbackModal.setAttribute("aria-hidden","true");document.body.style.overflow="";
+ playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>';
+}
+async function openPlayer(list,index){
+ if(!Array.isArray(list)||index<0||index>=list.length)return;
+ currentList=list;currentIndex=index;const item=list[index];
+ modalTitle.textContent=item.title;modalDesc.textContent="CIA · Season "+item.season+" · Episode "+item.episode;
+ resetPlayer();showPlayer();
+ let src=typeof item.video==="object"&&item.video!==null?(item.video.high||item.video.medium||item.video.low||item.video.mpd||Object.values(item.video)[0]):item.video;
+ if(!src||src==="00"){modalDesc.textContent+=" · Video source not available yet";return}
+ const lower=String(src).toLowerCase();
+ const video=document.getElementById("modalVideo");
+ if(typeof item.video==="object"&&item.video!==null&&item.video.mpd&&window.shaka){
+  try{currentShaka=new shaka.Player(video);if(item.video.key){const parts=item.video.key.split(":");currentShaka.configure({drm:{clearKeys:{[parts[0]]:parts[1]}}})}await currentShaka.load(item.video.mpd);video.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}catch(err){console.warn("DASH playback error",err);modalDesc.textContent+=" · Stream could not be loaded";return}
+ }
+ if(isYouTube(src)){
+  let id="";try{const u=new URL(src);id=u.searchParams.get("v")||u.pathname.split("/").filter(Boolean).pop()}catch(e){}
+  const embed=id&&id!=="embed"? "https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1&rel=0&modestbranding=1":src;
+  playerWrapper.innerHTML='<iframe src="'+embed+'" title="CIA video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ const iframeHosts=["turboembed.com","streamtape.com","dood","vidcdn","ok.ru","mega.nz","drive.google.com","voe.sx","filemoon","mixdrop","dailymotion.com"];
+ if(iframeHosts.some(function(host){return lower.includes(host)})&&!isHls(src)&&!isMp4(src)){
+  playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="CIA episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ if(isHls(src)){
+  if(window.Hls&&Hls.isSupported()){
+   currentHls=new Hls({enableWorker:true,maxBufferLength:30,maxMaxBufferLength:60,backBufferLength:30});currentHls.loadSource(src);currentHls.attachMedia(video);
+   currentHls.on(Hls.Events.MANIFEST_PARSED,function(){video.play().catch(function(){})});
+   currentHls.on(Hls.Events.ERROR,function(event,data){if(data.fatal){if(data.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(data.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else modalDesc.textContent+=" · Playback error"}});
+  }else if(video.canPlayType("application/vnd.apple.mpegurl")){video.src=src;video.play().catch(function(){})}else modalDesc.textContent+=" · HLS is not supported by this browser";
+  playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ if(isMp4(src)||/\.webm($|\?)/i.test(src)||/\.mp3($|\?)/i.test(src)){
+  video.src=src;video.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ // Generic hosted pages and embed endpoints are handled in-frame.
+ if(/^https?:\/\//i.test(src)){
+  playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="CIA episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ modalDesc.textContent+=" · Unsupported video source";
+}
+function playNext(){if(currentIndex<currentList.length-1)openPlayer(currentList,currentIndex+1)}
+function playPrev(){if(currentIndex>0)openPlayer(currentList,currentIndex-1)}
+function togglePlayPause(){const v=document.getElementById("modalVideo");if(!v)return;if(v.paused){v.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>'}else{v.pause();playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}}
+function toggleFullscreen(){const el=document.getElementById("modalVideo")||playerWrapper.querySelector("iframe");if(!el)return;const fn=el.requestFullscreen||playerWrapper.requestFullscreen;if(!document.fullscreenElement&&fn)Promise.resolve(fn.call(el)).catch(function(){});else if(document.exitFullscreen)document.exitFullscreen()}
+function toggleMute(){const v=document.getElementById("modalVideo");if(!v)return;v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>'}
+document.getElementById("prevBtn").addEventListener("click",playPrev);document.getElementById("nextBtn").addEventListener("click",playNext);playPauseBtn.addEventListener("click",togglePlayPause);document.getElementById("fullscreenBtn").addEventListener("click",toggleFullscreen);muteBtn.addEventListener("click",toggleMute);document.getElementById("closeBtn").addEventListener("click",closePlayer);
+document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+playbackModal.addEventListener("click",function(e){if(e.target===playbackModal)closePlayer()});
+document.addEventListener("keydown",function(e){if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
+document.getElementById("trailerBtn").addEventListener("click",function(){openPlayer([{title:"CIA — Official Trailer",season:1,episode:0,video:"https://www.youtube.com/watch?v=BgHUJsw1hXo"}],0)});
+renderEpisodes(episodes);
+</script>
+<!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
 <!-- COPY & PASTE BEFORE </body> -->
@@ -699,7 +279,7 @@ const movies = [
 <script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
 
 <!-- 160x600 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
@@ -713,7 +293,7 @@ const movies = [
 </div>
 
 <!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '5a4dc7c6c5524517e3d815b39b121f28',
@@ -738,7 +318,7 @@ const movies = [
 <script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
 
 <!-- 160x600 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
@@ -752,7 +332,7 @@ const movies = [
 </div>
 
 <!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '5a4dc7c6c5524517e3d815b39b121f28',
@@ -777,13 +357,13 @@ const movies = [
 <script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
 
 <!-- NATIVE BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
   <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
   <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
 </div>
 
 <!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '44f6fc8fc8db36beacbc97b0453593a3',
@@ -804,239 +384,6 @@ const movies = [
 <!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
 <!-- ========================================================= -->
 
-
-
-
-<!-- Disable DevTools + View Source Protection -->
-<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
-
-<script>
-/* =========================
-   Mobile Detection
-========================= */
-const isMobile =
-    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-
-/* =========================
-   Disable DevTools
-========================= */
-DisableDevtool({
-    disable: true,
-    disableMenu: true,
-    clearLog: true,
-    disableSelect: true,
-    disableCopy: true,
-    disableCut: true,
-    disablePaste: true,
-
-    /* FIXED */
-    disableMobile: false,
-
-    interval: 100,
-
-    ondevtoolopen: function () {
-
-        /* ONLY DESKTOP */
-        if (!isMobile) {
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-    }
-});
-
-/* =========================
-   Block View Source Shortcuts
-========================= */
-document.addEventListener("keydown", function (e) {
-
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+U
-    if (e.ctrlKey && e.key.toLowerCase() === "u") {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    }
-
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+J
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+C
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+S
-    if (e.ctrlKey && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+P
-    if (e.ctrlKey && e.key.toLowerCase() === "p") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+A
-    if (e.ctrlKey && e.key.toLowerCase() === "a") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+C
-    if (e.ctrlKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+X
-    if (e.ctrlKey && e.key.toLowerCase() === "x") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+V
-    if (e.ctrlKey && e.key.toLowerCase() === "v") {
-        e.preventDefault();
-        return false;
-    }
-});
-
-/* =========================
-   Disable Right Click
-========================= */
-document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Dragging
-========================= */
-document.addEventListener("dragstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Selection
-========================= */
-document.addEventListener("selectstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Copy Actions
-========================= */
-["copy", "cut", "paste"].forEach(function(evt) {
-
-    document.addEventListener(evt, function(e) {
-        e.preventDefault();
-    });
-
-});
-
-/* =========================
-   Detect DevTools Window
-   (Desktop ONLY - FIXED)
-========================= */
-if (!isMobile) {
-
-    setInterval(function () {
-
-        const widthThreshold =
-            window.outerWidth - window.innerWidth > 220;
-
-        const heightThreshold =
-            window.outerHeight - window.innerHeight > 220;
-
-        if (widthThreshold || heightThreshold) {
-
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-
-    }, 1500);
-
-}
-
-/* =========================
-   Disable Console
-========================= */
-(function () {
-
-    console.clear();
-
-    function block() {
-        return false;
-    }
-
-    console.log = block;
-    console.warn = block;
-    console.error = block;
-    console.info = block;
-    console.debug = block;
-    console.table = block;
-
-})();
-
-/* =========================
-   Block "view-source:"
-========================= */
-if (window.location.href.startsWith("view-source:")) {
-
-    document.body.innerHTML = "";
-    window.location.replace("about:blank");
-
-}
-
-/* =========================
-   Prevent iframe inspection
-========================= */
-if (window.top !== window.self) {
-
-    try {
-        window.top.location = window.self.location;
-    } catch (e) {}
-
-}
-</script>
-
-<style>
-html, body {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    overflow-x: hidden;
-}
-
-/* Disable image dragging */
-img {
-    pointer-events: none;
-    -webkit-user-drag: none;
-}
-
-/* Hide selection */
-::selection {
-    background: transparent;
-}
-</style>
-
+ 
 </body>
 </html>
