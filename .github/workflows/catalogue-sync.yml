@@ -5,6 +5,7 @@ on:
     paths:
       - "**/*.html"
       - "**/*.json"
+      - "**/*.js"
       - "scripts/build-catalogue.js"
       - ".github/workflows/catalogue-sync.yml"
   workflow_dispatch:
@@ -30,6 +31,8 @@ jobs:
           node-version: 20
       - name: Rebuild the shared catalogue
         run: node scripts/build-catalogue.js
+      - name: Validate generated catalogue
+        run: node -e "const d=require('./universal-search-index.json'); if(!d.records?.length || d.count!==d.records.length) process.exit(1); const ids=new Set(); for(const r of d.records){if(!r.title||!r.url||ids.has(r.id)) process.exit(1); ids.add(r.id)} console.log('Validated '+d.count+' searchable records')"
       - name: Commit catalogue when changed
         run: |
           if git diff --quiet -- universal-search-index.json; then

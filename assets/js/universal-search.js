@@ -2,7 +2,7 @@
 (() => {
   "use strict";
   const INPUTS = ["#mainSearch", "#sidebarSearch", "#searchInput", "#globalPortalSearch", "#searchBar"];
-  const state = { records: [], query: "", type: "all", active: 0, ready: false, loading: false, loadedAt: 0 };
+  const state = { records: [], query: "", type: "all", active: 0, ready: false, loading: false, loadedAt: 0, version: "" };
   const REFRESH_INTERVAL = 60 * 1000;
   const normalize = value => String(value || "").normalize("NFKD").toLocaleLowerCase().replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   const escapeText = value => String(value || "");
@@ -76,10 +76,12 @@
         category: record.category || record.genre || record.group || "",
         language: record.language || record.lang || "",
         description: record.description || record.overview || record.summary || record.subtitle || "",
-        url: record.url || record.href || record.link || "#"
+        tags: record.tags || record.keywords || "", searchText: record.searchText || "", source: record.source || "",
+        url: record.url || record.href || record.link || record.source || "#"
       }));
       state.ready = true;
       state.loadedAt = Date.now();
+      state.version = data.generatedAt || String(data.count || state.records.length);
       window.dispatchEvent(new CustomEvent("cloudtv:catalogue-updated", { detail: { records: state.records, generatedAt: data.generatedAt || "" } }));
       if (state.query.trim()) render();
     } catch (error) {
@@ -88,15 +90,16 @@
     } finally { state.loading = false; }
   }
   function rank(record, query) {
-    const title = normalize(record.title), description = normalize(record.description), category = normalize(record.category), language = normalize(record.language), extra = normalize([record.genre, record.tags, record.keywords, record.source].flat().join(" "));
+    const title = normalize(record.title), description = normalize(record.description), category = normalize(record.category), language = normalize(record.language), extra = normalize([record.genre, record.tags, record.keywords, record.source, record.searchText, record.type].flat().join(" "));
     if (title === query) return 100;
     if (title.startsWith(query)) return 70;
     if (title.includes(query)) return 55;
-    if (category.includes(query) || language.includes(query)) return 25;
+    if (category.includes(query) || language.includes(query) || extra.includes(query)) return 25;
     if (description.includes(query)) return 10;
     const terms = query.split(" ").filter(Boolean);
     const haystack = title + " " + category + " " + language + " " + description + " " + extra;
-    return terms.every(term => haystack.includes(term)) ? 5 : 0;
+    const matched = terms.filter(term => haystack.includes(term)).length;
+    return matched === terms.length ? 8 : matched ? 2 : 0;
   }
   function render() {
     const query = normalize(state.query);
