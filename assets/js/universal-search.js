@@ -4,7 +4,7 @@
   const INPUTS = ["#mainSearch", "#sidebarSearch", "#searchInput", "#globalPortalSearch", "#searchBar"];
   const state = { records: [], query: "", type: "all", active: 0, ready: false, loading: false, loadedAt: 0, version: "" };
   const REFRESH_INTERVAL = 5 * 60 * 1000;
-  const MAX_RENDER_RESULTS = 120;
+  const MAX_RENDER_RESULTS = 60;
   const normalize = value => String(value || "").normalize("NFKD").toLocaleLowerCase().replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   const escapeText = value => String(value || "");
   const root = document.createElement("section");
@@ -137,11 +137,16 @@
     });
     state.active = 0;
   }
+  let renderTimer = 0;
+  function scheduleRender() {
+    if (renderTimer) window.clearTimeout(renderTimer);
+    renderTimer = window.setTimeout(() => { renderTimer = 0; render(); }, 70);
+  }
   function update(value) {
     state.query = value || "";
     inputs.forEach(input => { if (input.value !== state.query) input.value = state.query; });
-    if (state.query.trim()) { open(); if (!state.ready) load().then(render); else render(); }
-    else render();
+    if (state.query.trim()) { open(); if (!state.ready) load().then(render); else scheduleRender(); }
+    else { if (renderTimer) window.clearTimeout(renderTimer); renderTimer = 0; render(); }
   }
   inputs.forEach(input => {
     input.setAttribute("autocomplete", "off");
@@ -172,12 +177,9 @@
   const clearButton = document.getElementById("clearSearchBtn");
   if (clearButton && inputs.some(input => input.id === "globalPortalSearch")) clearButton.addEventListener("click", () => { update(""); close(); });
 
-  // Keep the search index fresh while the page remains open, and refresh when
-  // the visitor returns to the tab. The server-side workflow rebuilds the index.
-  window.setInterval(() => {
-    if (document.visibilityState === "visible") load(true);
-  }, REFRESH_INTERVAL);
+  // Revalidate only when the visitor returns after the refresh window.
+  // Avoid a background timer repeatedly waking the page while it is idle.
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") load(true);
+    if (document.visibilityState === "visible") load();
   });
 })();
