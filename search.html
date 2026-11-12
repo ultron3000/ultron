@@ -53,7 +53,7 @@ h1{font-size:clamp(42px,8vw,88px);line-height:.99;letter-spacing:-.075em;margin:
  const isMobile=()=>matchMedia('(max-width:600px)').matches;
  const pick=(arr,n)=>{const copy=arr.slice();for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]];}return copy.slice(0,n);};
  function resize(){const rect=canvas.getBoundingClientRect();w=Math.max(1,rect.width);h=Math.max(1,rect.height);dpr=Math.min(devicePixelRatio||1,1.7);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);seed();}
- function seed(){const pool=records.filter(r=>r.image&&r.url&&r.type!=='live');nodes=pick(pool,isMobile()?17: thirty()).map((record,i)=>({record,x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:18+Math.random()*20,phase:Math.random()*6.28}));nodes.forEach(n=>loadImage(n.record.image));}
+ function seed(){const pool=records.filter(r=>r.image&&r.url&&r.type!=='live');nodes=pick(pool,isMobile()?17:32).map((record,i)=>({record,x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:18+Math.random()*20,phase:Math.random()*6.28}));nodes.forEach(n=>loadImage(n.record.image));}
  function thirty(){return  thirtyCount();}
  function thirtyCount(){return  thirtyCountValue();}
  function thirtyCountValue(){return  thirtyVal;}
@@ -67,7 +67,7 @@ h1{font-size:clamp(42px,8vw,88px);line-height:.99;letter-spacing:-.075em;margin:
  function nearest(x,y){let best=-1,d=Infinity;nodes.forEach((n,i)=>{const dd=(n.x-x)**2+(n.y-y)**2;if(dd<d){d=dd;best=i;}});return best;}
  canvas.addEventListener('pointermove',e=>{const r=canvas.getBoundingClientRect();pointer={x:e.clientX-r.left,y:e.clientY-r.top};hovered=nearest(pointer.x,pointer.y);canvas.style.cursor=hovered>=0?'pointer':'crosshair';},{passive:true});
  canvas.addEventListener('pointerleave',()=>{pointer={x:-9999,y:-9999};hovered=-1;});
- canvas.addEventListener('click',()=>{if(hovered>=0&&nodes[hovered])location.href=nodes[hovered].record.url;});
+ canvas.addEventListener('click',e=>{const r=canvas.getBoundingClientRect(),i=nearest(e.clientX-r.left,e.clientY-r.top);if(i>=0&&nodes[i])location.href=nodes[i].record.url;});
  document.getElementById('universeShuffle').addEventListener('click',()=>{seed();status.textContent='A fresh part of the catalogue';});
  document.querySelectorAll('[data-search]').forEach(btn=>btn.addEventListener('click',()=>{const input=document.getElementById('globalPortalSearch');input.value=btn.dataset.search;input.dispatchEvent(new Event('input',{bubbles:true}));input.focus();window.scrollTo({top:0,behavior:'smooth'});}));
  fetch(new URL('universal-search-index.json?v='+Date.now(),document.baseURI),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('index unavailable');return r.json();}).then(data=>{records=(data.records||[]).filter(r=>r.type==='movie'||r.type==='series');resize();status.textContent=records.length.toLocaleString()+' titles · tap a poster to explore';if(!reduced)loop(0);else draw();}).catch(()=>{status.textContent='Catalogue unavailable · try refreshing';});
