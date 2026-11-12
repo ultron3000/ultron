@@ -96,11 +96,19 @@ let records = [
   ...movieRows.map(item => normalize("movie", item, "movies.html")),
   ...seriesRows.map(item => normalize("series", item, "series.html"))
 ];
-const channels = JSON.parse(read("channels2.json") || "[]");
+// Prefer the complete current channel catalogue; retain channels2.json as a
+// backwards-compatible fallback for repositories that have not added channels3 yet.
+const channelFile = read("channels3.json") ? "channels3.json" : "channels2.json";
+const channels = JSON.parse(read(channelFile) || "[]");
 records.push(...channels.map(item => {
-  const row = normalize("live", item, "channels2.json");
-  if (row) row.url = "tv.html?channel=" + encodeURIComponent(row.title);
-  if (row) row.language = first(item, ["language", "lang"]);
+  const row = normalize("live", item, channelFile);
+  if (row) {
+    const channelId = first(item, ["id", "channelId", "channel_id"]);
+    row.url = "tv.html?channel=" + encodeURIComponent(row.title) + (channelId ? "&id=" + encodeURIComponent(channelId) : "");
+    row.image = first(item, ["logo", "image", "img", "icon"]) || row.image;
+    row.category = first(item, ["category", "genre", "group", "language"]);
+    row.language = first(item, ["language", "lang"]);
+  }
   return row;
 }));
 
@@ -117,7 +125,7 @@ const byType = records.reduce((out, item) => { out[item.type] = (out[item.type] 
 const output = {
   version: 2,
   generatedAt: new Date().toISOString(),
-  generatedFrom: ["movies.html (movies array)", "series.html (seriesData array)", "channels2.json", "category landing pages", "curated collections"],
+  generatedFrom: ["movies.html (movies array)", "series.html (seriesData array)", "channels3.json (fallback: channels2.json)", "category landing pages", "curated collections"],
   count: records.length,
   counts: byType,
   records
