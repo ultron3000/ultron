@@ -49,15 +49,16 @@ h1{font-size:clamp(30px,5vw,48px);line-height:1.04;letter-spacing:-.065em;margin
  const canvas=document.getElementById('movieUniverse'), status=document.getElementById('universeStatus'), sync=document.getElementById('catalogueSyncState');
  if(!canvas||!canvas.getContext)return;
  const ctx=canvas.getContext('2d',{alpha:false}), reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
- const INDEX='universal-search-index.json', SYNC_MS=60000;
- let records=[],nodes=[],images=new Map(),w=0,h=0,dpr=1,raf=0,pointer={x:-9999,y:-9999},hovered=-1,lastFrame=0,lastVersion='',loading=false,visible=true;
+ const INDEX='universal-search-index.json', SYNC_MS=5*60*1000;
+ let records=[],nodes=[],images=new Map(),w=0,h=0,dpr=1,raf=0,pointer={x:-9999,y:-9999},hovered=-1,lastFrame=0,lastVersion='',loading=false,visible=true,inView=true,lastSyncAt=0;
  const isMobile=()=>matchMedia('(max-width:600px)').matches;
+ const isEpisodeRecord=r=>r.isEpisode===true||/^(?:s\\d{1,2}\\s*e\\d{1,3}|season\\s+\\d+\\s*(?:episode|ep)\\s*\\d+|episode\\s*\\d+|ep\\s*\\d+)\\b/i.test(String(r.title||'').trim())||/(?:^|[\\\\/_-])(?:episodes?|seasons?)(?:[\\\\/_.?#-]|$)/i.test(String(r.source||''));
  const pick=(arr,n)=>{const copy=arr.slice();for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]];}return copy.slice(0,n);};
  function imageFor(url){if(!url||images.has(url))return;const img=new Image();img.decoding='async';img.onload=()=>{images.set(url,img);draw();};img.onerror=()=>images.set(url,null);img.src=url;images.set(url,'loading');}
  function makeNodes(fresh=false){
-   const pool=records.filter(r=>r.image&&r.url&&r.type!=='live');
+   const pool=records.filter(r=>r.image&&r.url&&r.type!=='live'&&!isEpisodeRecord(r));
    if(!pool.length)return;
-   const count=isMobile()?18:34, chosen=pick(pool,count);
+   const count=isMobile()?10:18, chosen=pick(pool,count);
    if(!fresh||!nodes.length){nodes=chosen.map(record=>({record,x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45}));}
    else {
      const keep=new Map(nodes.map(n=>[n.record.id||n.record.title,n]));
@@ -96,16 +97,16 @@ h1{font-size:clamp(30px,5vw,48px);line-height:1.04;letter-spacing:-.065em;margin
      if(i===hovered){ctx.fillStyle='#fff';ctx.font='700 12px Plus Jakarta Sans,sans-serif';ctx.shadowColor='#000';ctx.shadowBlur=8;ctx.fillText(n.record.title.slice(0,28),Math.max(8,Math.min(w-190,n.x-70)),Math.max(20,Math.min(h-20,n.y)));ctx.shadowBlur=0;}
    });
  }
- function tick(t){raf=requestAnimationFrame(tick);if(!visible||document.visibilityState!=='visible')return;if(t-lastFrame<(reduced?1000:32))return;lastFrame=t;if(!reduced)step();draw();}
+ function tick(t){raf=requestAnimationFrame(tick);if(!visible||!inView||document.visibilityState!=='visible')return;if(t-lastFrame<(reduced?1000:50))return;lastFrame=t;if(!reduced)step();draw();}
  function nearest(x,y){let best=-1,d=Infinity;nodes.forEach((n,i)=>{const dd=(n.x-x)**2+(n.y-y)**2;if(dd<d){d=dd;best=i;}});return best;}
  async function syncCatalogue(){
-   if(loading)return;loading=true;
+   if(loading||Date.now()-lastSyncAt<SYNC_MS)return;loading=true;
    try{
-     const url=new URL(INDEX,document.baseURI);url.searchParams.set('v',Date.now());
-     const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
-     const data=await response.json(),version=data.generatedAt||String(data.count||'');
+     const url=new URL(INDEX,document.baseURI);
+     const response=await fetch(url,{cache:'no-cache'});if(!response.ok)throw new Error('HTTP '+response.status);
+     const data=await response.json(),version=data.generatedAt||String(data.count||'');lastSyncAt=Date.now();
      if(version!==lastVersion){
-       lastVersion=version;records=(data.records||[]).filter(r=>(r.type==='movie'||r.type==='series')&&r.url);
+       lastVersion=version;records=(data.records||[]).filter(r=>(r.type==='movie'||r.type==='series')&&r.url&&!isEpisodeRecord(r));
        makeNodes(true);
        if(sync)sync.textContent='SYNCED · '+new Date(data.generatedAt||Date.now()).toLocaleTimeString();
      }
@@ -120,9 +121,10 @@ h1{font-size:clamp(30px,5vw,48px);line-height:1.04;letter-spacing:-.065em;margin
  window.addEventListener('resize',resize,{passive:true});
  new ResizeObserver(resize).observe(canvas);
  document.addEventListener('visibilitychange',()=>{visible=document.visibilityState==='visible';if(visible){syncCatalogue();draw();}});
- window.addEventListener('cloudtv:catalogue-updated',e=>{const incoming=e.detail&&e.detail.records;if(Array.isArray(incoming)){records=incoming.filter(r=>(r.type==='movie'||r.type==='series')&&r.url);lastVersion='event-'+Date.now();makeNodes(true);}});
+ window.addEventListener('cloudtv:catalogue-updated',e=>{const incoming=e.detail&&e.detail.records;if(Array.isArray(incoming)){records=incoming.filter(r=>(r.type==='movie'||r.type==='series')&&r.url&&!isEpisodeRecord(r));lastVersion='event-'+Date.now();makeNodes(true);}});
  syncCatalogue();raf=requestAnimationFrame(tick);
  window.setInterval(()=>{if(document.visibilityState==='visible')syncCatalogue();},SYNC_MS);
+ const universeObserver=new IntersectionObserver(entries=>{inView=entries.some(entry=>entry.isIntersecting);if(inView){draw();if(!raf)raf=requestAnimationFrame(tick);}},{rootMargin:'120px'});universeObserver.observe(canvas);
  window.addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
 })();
 </script>
