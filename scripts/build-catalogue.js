@@ -111,10 +111,10 @@ function stableId(type, title, source) {
 }
 function normalize(type, item, source, options = {}) {
   if (!item || typeof item !== "object" || Array.isArray(item)) return null;
-  const title = first(item, ["title", "name", "label", "movieTitle", "showTitle"]);
+  const title = first(item, ["title", "name", "label", "movieTitle", "showTitle", "movie", "filmName", "seriesTitle"]);
   if (!title || title.length > 220) return null;
   const inferred = inferPath(source);
-  const image = first(item, ["image", "img", "poster", "posterUrl", "poster_url", "thumbnail", "thumb", "cover", "logo", "icon", "backdrop"]);
+  const image = first(item, ["image", "img", "imageUrl", "image_url", "poster", "posterUrl", "poster_url", "posterPath", "poster_path", "thumbnail", "thumbnailUrl", "thumb", "cover", "coverUrl", "logo", "icon", "backdrop", "backdropUrl", "src"]);
   const category = first(item, ["category", "genre", "genres", "group", "type"]) || options.category || inferred.category;
   const language = first(item, ["language", "lang", "originalLanguage"]) || options.language || inferred.language;
   let url = "";
@@ -123,7 +123,7 @@ function normalize(type, item, source, options = {}) {
   else if (type === "series" && first(item, ["url", "href", "link", "page"]) && /^https?:\/\//i.test(first(item, ["url", "href", "link", "page"]))) url = first(item, ["url", "href", "link", "page"]);
   else url = source;
   const tags = flatten([item.tags, item.keywords, item.cast, item.director, item.studio, item.network, item.badge, item.subtitle]);
-  const description = first(item, ["description", "overview", "summary", "subtitle", "plot", "synopsis"]);
+  const description = first(item, ["description", "overview", "summary", "subtitle", "plot", "synopsis", "story", "about"]);
   return {
     id: stableId(type, title, source), type, title, category, language,
     year: item.year || item.releaseYear || item.release_year || "",
@@ -246,6 +246,14 @@ for (const record of existing.records || []) {
 
 const finalRecords = dedupe(records);
 if (!finalRecords.length) throw new Error("Catalogue scan returned zero records; refusing to overwrite the live index.");
+const atlantis = finalRecords.find(record => normalizeTitle(record.title) === normalizeTitle("Atlantis: The Lost Empire"));
+if (!atlantis) {
+  const disneyPage = read("disney-animation.html");
+  if (disneyPage.includes("Atlantis: The Lost Empire")) {
+    throw new Error("Regression check: Atlantis: The Lost Empire exists in disney-animation.html but was not extracted into the search catalogue.");
+  }
+}
+function normalizeTitle(value) { return String(value || "").normalize("NFKD").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
 const counts = finalRecords.reduce((out, item) => { out[item.type] = (out[item.type] || 0) + 1; return out; }, {});
 const output = {
   version: 3, generatedAt: new Date().toISOString(),
