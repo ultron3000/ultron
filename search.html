@@ -105,7 +105,7 @@ h1{font-size:clamp(30px,5vw,48px);line-height:1.04;letter-spacing:-.065em;margin
      const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
      const data=await response.json(),version=data.generatedAt||String(data.count||'');
      if(version!==lastVersion){
-       lastVersion=version;records=(data.records||[]).filter(r=>(r.type==='movie'||r.type==='series')&&r.image&&r.url);
+       lastVersion=version;records=(data.records||[]).filter(r=>(r.type==='movie'||r.type==='series')&&r.url);
        makeNodes(true);
        if(sync)sync.textContent='SYNCED · '+new Date(data.generatedAt||Date.now()).toLocaleTimeString();
      }
@@ -120,7 +120,7 @@ h1{font-size:clamp(30px,5vw,48px);line-height:1.04;letter-spacing:-.065em;margin
  window.addEventListener('resize',resize,{passive:true});
  new ResizeObserver(resize).observe(canvas);
  document.addEventListener('visibilitychange',()=>{visible=document.visibilityState==='visible';if(visible){syncCatalogue();draw();}});
- window.addEventListener('cloudtv:catalogue-updated',e=>{const incoming=e.detail&&e.detail.records;if(Array.isArray(incoming)){records=incoming.filter(r=>(r.type==='movie'||r.type==='series')&&r.image&&r.url);lastVersion='event-'+Date.now();makeNodes(true);}});
+ window.addEventListener('cloudtv:catalogue-updated',e=>{const incoming=e.detail&&e.detail.records;if(Array.isArray(incoming)){records=incoming.filter(r=>(r.type==='movie'||r.type==='series')&&r.url);lastVersion='event-'+Date.now();makeNodes(true);}});
  syncCatalogue();raf=requestAnimationFrame(tick);
  window.setInterval(()=>{if(document.visibilityState==='visible')syncCatalogue();},SYNC_MS);
  window.addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
