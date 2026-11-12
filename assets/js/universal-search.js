@@ -76,7 +76,8 @@
         category: record.category || record.genre || record.group || "",
         language: record.language || record.lang || "",
         description: record.description || record.overview || record.summary || record.subtitle || "",
-        url: record.url || record.href || record.link || "#"
+        tags: record.tags || record.keywords || "", searchText: record.searchText || "", source: record.source || "",
+        url: record.url || record.href || record.link || record.source || "#"
       }));
       state.ready = true;
       state.loadedAt = Date.now();
