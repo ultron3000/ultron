@@ -2,7 +2,8 @@
 (() => {
   "use strict";
   const INPUTS = ["#mainSearch", "#sidebarSearch", "#searchInput", "#globalPortalSearch", "#searchBar"];
-  const state = { records: [], query: "", type: "all", active: 0, ready: false, loading: false };
+  const state = { records: [], query: "", type: "all", active: 0, ready: false, loading: false, loadedAt: 0 };
+  const REFRESH_INTERVAL = 3 * 60 * 1000;
   const normalize = value => String(value || "").normalize("NFKD").toLocaleLowerCase().replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   const escapeText = value => String(value || "");
   const root = document.createElement("section");
@@ -58,11 +59,14 @@
   const activeInput = () => inputs.find(el => document.activeElement === el) || inputs[0];
   function close() { root.hidden = true; state.active = 0; }
   function open() { root.hidden = false; }
-  async function load() {
-    if (state.ready || state.loading) return;
+  async function load(force = false) {
+    if (state.loading) return;
+    if (!force && state.ready && Date.now() - state.loadedAt < REFRESH_INTERVAL) return;
     state.loading = true;
     try {
-      const response = await fetch(new URL("universal-search-index.json", document.baseURI), { cache: "no-cache" });
+      const indexUrl = new URL("universal-search-index.json", document.baseURI);
+      indexUrl.searchParams.set("v", String(Date.now()));
+      const response = await fetch(indexUrl, { cache: "no-store" });
       if (!response.ok) throw new Error("Search catalogue unavailable");
       const data = await response.json();
       state.records = (Array.isArray(data.records) ? data.records : []).map(record => ({
@@ -75,8 +79,11 @@
         url: record.url || record.href || record.link || "#"
       }));
       state.ready = true;
+      state.loadedAt = Date.now();
+      if (state.query.trim()) render();
     } catch (error) {
-      summary.textContent = "Could not load the repository search catalogue. Please refresh and try again.";
+      if (!state.ready) summary.textContent = "Could not load the repository search catalogue. Please refresh and try again.";
+      console.warn("Cloud TV search index refresh failed; keeping the last good index.", error);
     } finally { state.loading = false; }
   }
   function rank(record, query) {
@@ -152,4 +159,13 @@
   if (initial) { const input = inputs.find(el => el.id === "searchInput" || el.id === "searchBar") || inputs[0]; if (input) { input.value = initial; state.query = initial; load().then(render); } }
   const clearButton = document.getElementById("clearSearchBtn");
   if (clearButton && inputs.some(input => input.id === "globalPortalSearch")) clearButton.addEventListener("click", () => { update(""); close(); });
+
+  // Keep the search index fresh while the page remains open, and refresh when
+  // the visitor returns to the tab. The server-side workflow rebuilds the index.
+  window.setInterval(() => {
+    if (document.visibilityState === "visible") load(true);
+  }, REFRESH_INTERVAL);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") load(true);
+  });
 })();
