@@ -1,287 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Ted Lasso</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09080d">
+<meta name="description" content="Explore Ted Lasso — An optimistic American college football coach is hired to manage an English football club. Despite knowing little about the sport, Ted wins people over with kindness, belief and an endless supply of biscuits.">
+<title>Ted Lasso | Series Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#09080d;--panel:#14121a;--panel2:#1c1923;--text:#f7f3f4;--muted:#b4a9b2;--line:rgba(255,220,230,.13);--rose:#e8a0ad;--red:#b94e67;--gold:#d9c1a0;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 0%,rgba(185,78,103,.15),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(120,73,91,.12),transparent 35%)}.shell{width:min(1320px,100%);margin:auto;padding:0 clamp(15px,4vw,54px)}
+.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(9,8,13,.88);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font:700 18px "Space Grotesk",sans-serif;letter-spacing:-.04em}.brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(140deg,var(--rose),var(--red));color:#170b10}.top-link{color:var(--muted);font-size:12px;font-weight:700}.top-link:hover{color:var(--rose)}
+/* Exact responsive hero system from series.html */
+.series-hero-shell{max-width:1320px;margin:18px auto 28px;padding:0 18px}
+.series-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(330px,34vw,455px);border:1px solid rgba(148,163,184,.28);border-radius:26px;background:#020617;box-shadow:0 26px 80px rgba(0,0,0,.42);touch-action:pan-y}
+.series-hero-bg{position:absolute;inset:0;z-index:-2;overflow:hidden;background-position:center;background-size:cover}
+.series-hero-bg iframe{position:absolute;top:50%;left:50%;width:177.78vh;height:56.25vw;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:0;pointer-events:none;opacity:.76}
+.series-hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,23,.66),rgba(2,6,23,.78) 48%,rgba(2,6,23,.9)),linear-gradient(0deg,rgba(2,6,23,.58),rgba(2,6,23,.12))}
+.series-hero-inner{position:relative;z-index:1;min-height:inherit;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(24px,4vw,58px);padding:clamp(22px,4vw,48px)}
+.series-hero-art{display:block;width:100%;max-width:245px;aspect-ratio:2/2.85;justify-self:center;transform:perspective(1100px) rotateY(-9deg) rotateX(2deg);transform-style:preserve-3d;filter:drop-shadow(0 24px 30px rgba(0,0,0,.62));transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.series-hero-art img{display:block;width:100%;height:100%;object-fit:cover;border-radius:15px;border:1px solid rgba(255,255,255,.4);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 18px 45px #0008}
+.series-hero:hover .series-hero-art{transform:perspective(1100px) rotateY(-3deg) rotateX(0) translateY(-5px) scale(1.015)}
+.series-hero-copy{max-width:760px;min-width:0;color:#fff;text-align:left}
+.series-hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid rgba(103,232,249,.38);border-radius:999px;background:rgba(8,47,73,.62);color:#a5f3fc;font-size:10px;font-weight:900;letter-spacing:.15em}
+.series-hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;color:#bae6fd;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.series-hero-title{margin:12px 0 10px;color:#fff;font-size:clamp(2rem,4.6vw,4.2rem);font-weight:950;line-height:1.02;letter-spacing:-.045em;text-wrap:balance;text-shadow:0 5px 25px #0009}
+.series-hero-description{max-width:62ch;margin:0 0 22px;color:#e2e8f0;font-size:clamp(13px,1.25vw,15px);line-height:1.7;text-shadow:0 2px 12px #000}
+.series-hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.series-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font-size:12px;font-weight:900;transition:transform .2s,filter .2s,background .2s;border:0;cursor:pointer}
+.series-hero-btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.series-hero-primary{color:#fff;background:linear-gradient(110deg,#0891b2,#4f46e5);box-shadow:0 9px 26px #0891b244}
+.series-hero-secondary{color:#fff;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(12px)}
+.series-hero-dots{display:flex;gap:5px;margin-top:19px}
+.series-hero-dots span{width:17px;height:3px;border-radius:8px;background:#ffffff55}
+.series-hero-dots span.active{width:32px;background:#67e8f9}
+@media(max-width:700px){
+ .series-hero-shell{padding:0 12px;margin:13px auto 21px}
+ .series-hero{min-height:310px;border-radius:20px}
+ .series-hero-bg iframe{width:177.78vh;height:56.25vw;opacity:.58}
+ .series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.78),rgba(2,6,23,.84)),linear-gradient(0deg,rgba(2,6,23,.78),rgba(2,6,23,.24))}
+ .series-hero-inner{grid-template-columns:minmax(88px,27%) minmax(0,1fr);gap:clamp(12px,3vw,20px);padding:20px 15px 62px;min-height:310px}
+ .series-hero-art{width:100%;max-width:150px;transform:perspective(800px) rotateY(-5deg)}
+ .series-hero-art img{border-radius:11px}
+ .series-hero:hover .series-hero-art{transform:perspective(800px) rotateY(-3deg) translateY(-2px)}
+ .series-hero-kicker{font-size:8px;padding:6px 9px;letter-spacing:.1em}
+ .series-hero-meta{font-size:9px;gap:6px;margin-top:10px}
+ .series-hero-title{font-size:clamp(1.35rem,5.5vw,2.25rem);line-height:1.04;margin:9px 0 8px}
+ .series-hero-description{font-size:11px;line-height:1.5;margin-bottom:13px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+ .series-hero-btn{min-height:37px;padding:0 11px;font-size:10px;gap:6px}
+ .series-hero-dots{margin-top:12px}
+}
+@media(max-width:390px){
+ .series-hero{min-height:292px}
+ .series-hero-inner{min-height:292px;grid-template-columns:82px minmax(0,1fr);gap:11px;padding:16px 12px 58px}
+ .series-hero-title{font-size:1.28rem}
+ .series-hero-description{-webkit-line-clamp:3;font-size:10px}
+ .series-hero-btn{padding:0 9px;font-size:9px}
+}
 
-  <!-- HLS.js for HLS playback support -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+.section{margin:42px 0 48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:17px}.overline{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.2em;text-transform:uppercase}.section-title{font:700 clamp(23px,3vw,32px)/1.1 "Space Grotesk",sans-serif;letter-spacing:-.05em;margin:6px 0 0}.section-desc{font-size:11px;color:var(--muted);margin-top:6px}.episode-tools{display:flex;gap:9px;align-items:center}.search{width:min(230px,38vw);height:39px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);padding:0 12px;outline:none;font-size:11px}.search:focus{border-color:var(--rose)}.season-pill{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;color:var(--text);font-size:11px;font-weight:700}
+.episode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}.episode-card{min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:linear-gradient(155deg,#1b1720,#100e14);transition:transform .22s,border-color .22s,box-shadow .22s;cursor:pointer}.episode-card:hover{transform:translateY(-5px);border-color:rgba(232,160,173,.55);box-shadow:0 14px 34px rgba(0,0,0,.3)}.episode-image-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:#211922}.episode-image{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s}.episode-card:hover .episode-image{transform:scale(1.045)}.episode-number{position:absolute;top:10px;left:10px;background:rgba(8,7,12,.78);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:5px 8px;font-size:9px;font-weight:800;letter-spacing:.1em}.episode-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,7,12,.12);opacity:0;transition:.2s}.episode-play span{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:rgba(232,160,173,.95);color:#1b0c12;box-shadow:0 7px 24px rgba(0,0,0,.4)}.episode-card:hover .episode-play{opacity:1}.episode-info{padding:13px 14px 15px}.episode-kicker{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.episode-title{font:700 15px/1.25 "Space Grotesk",sans-serif;margin:7px 0 6px;min-height:38px}.episode-description{font-size:10px;line-height:1.6;color:#b9adb4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}.episode-runtime{font-size:9px;color:#8e838b;margin-top:10px}
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.about-panel{border:1px solid var(--line);border-radius:17px;padding:23px;background:linear-gradient(145deg,rgba(30,24,34,.94),rgba(17,14,20,.94))}.about-panel h3{font:700 18px "Space Grotesk",sans-serif;margin:0 0 10px}.about-panel p{font-size:12px;line-height:1.8;color:#c3b7be;margin:0}.cast-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.cast-chip{font-size:10px;color:#e5d8de;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+.footer{border-top:1px solid var(--line);padding:25px 0 35px;color:#8f858c;font-size:10px}.footer-inner{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.91);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(12px)}.modal-backdrop.active{display:flex}.modal-card{position:relative;width:min(100%,1020px);max-height:95vh;overflow:auto;background:#0d0b11;border:1px solid rgba(232,160,173,.2);border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.7)}.player-wrapper{position:relative;width:100%;aspect-ratio:16/9;background:#000}.player-wrapper video,.player-wrapper iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}.player-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;background:#131018;border-top:1px solid var(--line)}.meta-left{min-width:0}.player-meta h3{font:700 16px "Space Grotesk",sans-serif;margin:0}.player-meta p{font-size:10px;color:#a99da5;margin:5px 0 0}.controls-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}.player-btn{min-width:40px;height:39px;padding:0 11px;border:1px solid rgba(232,160,173,.35);border-radius:9px;background:#201923;color:#f3c3cd;font-size:11px}.player-btn:hover{background:#38202d}.player-btn.close{color:#fff;background:#652c3b;border-color:#8c4055}#topCloseBtn{position:absolute;top:12px;right:12px;z-index:5;width:39px;height:39px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px}
+@media(max-width:900px){.episode-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{min-height:clamp(520px,calc(100svh - 68px),760px)}.hero-inner{grid-template-columns:minmax(175px,28%) minmax(0,1fr);gap:clamp(20px,4vw,38px);padding:28px clamp(22px,5vw,52px)}.about{grid-template-columns:1fr}}
+@media(max-width:620px){.topbar{height:59px}.hero{width:100vw;margin:0 0 30px calc(50% - 50vw);border-radius:0;min-height:calc(100svh - 59px);height:calc(100svh - 59px)}.hero-video{opacity:.31}.hero-video iframe{width:190%;height:190%;left:-45%;top:-45%}.hero-art{background:linear-gradient(90deg,rgba(8,7,12,.42),rgba(8,7,12,.84) 34%,rgba(8,7,12,.96)),linear-gradient(0deg,rgba(8,7,12,.75),transparent 85%)}.hero-inner{height:100%;min-height:0;display:grid;grid-template-columns:minmax(96px,31%) minmax(0,1fr);align-items:center;gap:clamp(10px,3vw,18px);padding:18px clamp(12px,4vw,22px)}.hero-poster{width:100%;max-width:190px;border-radius:10px;align-self:center}.hero-copy{width:100%;min-width:0}.eyebrow{font-size:8px;letter-spacing:.12em;gap:5px}.eyebrow:before{width:13px}h1{font-size:clamp(27px,8vw,43px);line-height:.98;letter-spacing:-.065em;margin:9px 0 10px}.hero-subtitle{font-size:clamp(9px,2.65vw,11px);line-height:1.5;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.meta{margin:10px 0;font-size:8px;gap:6px 9px}.meta span{gap:4px}.tags{gap:5px;margin:9px 0}.tag{font-size:7px;padding:4px 6px}.actions{margin-top:12px;gap:6px}.primary,.secondary{min-height:36px;padding:0 9px;font-size:9px;border-radius:8px;gap:5px}.trailer-note{font-size:8px;line-height:1.4;margin-top:9px}.section{margin:31px 0 37px}.section-head{align-items:flex-start;flex-direction:column}.episode-tools{width:100%}.search{flex:1;width:auto}.episode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.episode-card{border-radius:12px}.episode-info{padding:10px}.episode-title{font-size:13px;min-height:34px}.episode-description{font-size:9px;min-height:44px}.episode-runtime{font-size:8px}.episode-play{opacity:1}.episode-play span{width:34px;height:34px;font-size:12px}.about-panel{padding:17px}.modal-backdrop{padding:0;align-items:stretch}.modal-card{width:100%;max-height:100dvh;height:auto;align-self:center;border-radius:0;border-left:0;border-right:0}.player-wrapper{aspect-ratio:16/9;flex:none}.player-meta{flex-direction:column;align-items:stretch;padding:13px;gap:12px}.controls-row{justify-content:center;gap:8px}.player-btn{height:43px;min-width:45px;padding:0 10px}.meta-left{padding-right:45px}.player-meta h3{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-  <style>
-    /* Custom Scrollbar - AFC Richmond Colors */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #000d1d; }
-    ::-webkit-scrollbar-thumb { background: #f2c94c; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #ffd858; }
+/* Advertisement layout safety: keep fixed-size ad creatives inside the page */
+.ad-slot{display:flex;justify-content:center;align-items:flex-start;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box;margin:20px auto!important;padding:0 12px}
+.ad-slot iframe,.ad-slot ins,.ad-slot img{max-width:100%!important;box-sizing:border-box}
+.ad-slot.ad-banner-728 iframe{display:block;width:min(728px,100%)!important;max-width:100%!important;height:90px!important;margin:0 auto!important}
+.ad-slot.ad-banner-160 iframe{display:block;width:160px!important;max-width:100%!important;height:600px!important;margin:0 auto!important}
+.ad-slot.ad-native>div{max-width:100%;width:100%;overflow:hidden}
+@media(max-width:700px){
+ html,body{max-width:100%;overflow-x:clip}
+ .ad-slot{margin:14px auto!important;padding:0 10px}
+ .ad-slot.ad-banner-160{display:none!important}
+ .ad-slot.ad-banner-728 iframe{width:100%!important;max-width:100%!important;height:90px!important}
+ .ad-slot.ad-native iframe{max-width:100%!important}
+}
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    @keyframes arrowBounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(5px);} }
-
-    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-    .pulse-hover:hover { animation: pulse 1.5s infinite; }
-    .arrow-bounce { animation: arrowBounce 2s infinite; }
-
-    .glow-effect { position: relative; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-    .glow-effect:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(242, 201, 76, 0.2); }
-
-    .gradient-text { background: linear-gradient(90deg, #f2c94c, #0056b3, #e50914); -webkit-background-clip:text; background-clip:text; color:transparent; }
-    .title-font { font-family: 'Montserrat', sans-serif; }
-
-    /* Responsive Grid Adjustments */
-    @media (max-width: 640px) { .movie-card { width: calc(50% - 0.5rem); } }
-    @media (max-width: 400px) { .movie-card { width: 100%; } }
-
-    body { background: #000c18; color: #e6f3e9; font-family: 'Roboto', system-ui, -apple-system, sans-serif; }
-    header { background: linear-gradient(90deg, #001228, #001c3f); }
-    .theme-accent { color: #f2c94c; }
-    .btn-theme { background: #f2c94c; color: #001c3f; }
-    .btn-theme:hover { background: #ffd858; }
-
-    /* Modal Player Container Styles */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,12,24,0.95); backdrop-filter: blur(8px); display:none; align-items:center; justify-content:center; z-index:9999; }
-    .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:14px; overflow:hidden; background:#001733; border: 1px solid rgba(242, 201, 76, 0.3); box-shadow:0 30px 80px rgba(0,0,0,0.85); }
-    
-    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
-    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
-
-    .player-meta { display:flex; justify-content:space-between; gap:16px; padding:16px 20px; color:#ddd; align-items:center; background:#001126; border-top: 1px solid rgba(255,255,255,0.08); }
-    .player-meta .meta-left { max-width:55%; }
-    .player-meta h3 { margin:0; font-size:1.2rem; font-weight:700; color:#fff; }
-    .player-meta p { margin:4px 0 0 0; color:#9CA3AF; font-size:0.88rem; line-height:1.35; }
-
-    .controls-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
-
-    .btn {
-      background: rgba(242, 201, 76, 0.1); border:1px solid #f2c94c; color:#f2c94c;
-      padding:8px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; font-size:0.88rem; font-weight:600; transition: all 0.2s ease;
-    }
-    .btn:hover { background: #f2c94c; color: #001c3f; }
-
-    .hidden { display:none; }
-
-    /* Mobile Responsive Layout Improvements */
-    @media (max-width: 767px) {
-      .player-wrapper { padding-bottom: 56.25% !important; height: 0 !important; position: relative !important; }
-      .player-wrapper video, .player-wrapper iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
-
-      .player-meta {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-        padding: 14px !important;
-        background: #001733 !important;
-      }
-
-      .player-meta .meta-left { max-width: 100% !important; }
-
-      .controls-row {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        gap: 8px !important;
-        width: 100% !important;
-      }
-
-      .btn {
-        padding: 8px !important;
-        font-size: 0 !important;
-        min-width: 42px !important;
-        height: 42px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-
-      .btn i { font-size: 1.1rem !important; margin: 0 !important; }
-    }
-  </style>
+:root{--rose:#86efac;--red:#166534;--gold:#dcfce7;--line:#86efac33}
+.series-hero-kicker{border-color:#86efac66;background:#166534aa;color:#dcfce7}
+.series-hero-meta{color:#dcfce7}
+.series-hero-primary{background:linear-gradient(110deg,#166534,#86efac);box-shadow:0 9px 26px #86efac44}
+.series-hero-dots span.active{background:#86efac}
+.episode-kicker{color:#86efac}
+.episode-card:hover{border-color:#86efac88}
+.episode-play span{background:#86efac;color:#09080d}
+.search:focus{border-color:#86efac}
+.player-btn{border-color:#86efac66;color:#dcfce7}
+</style>
 </head>
-<body class="bg-[#000c18] text-gray-100 min-h-screen font-roboto">
-
-  <!-- Header -->
-  <header class="sticky top-0 z-50 bg-[#001228]/90 backdrop-blur-sm border-b border-[#f2c94c]/20 shadow-lg">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-2 sm:space-x-3">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#e50914] to-[#f2c94c] rounded-full flex items-center justify-center pulse-hover">
-         <i class="fas fa-futbol text-[#001c3f] text-sm sm:text-base"></i>
-        </div>
-        <h1 class="text-xl sm:text-2xl font-bold gradient-text title-font tracking-wider uppercase">Ted Lasso</h1>
-      </div>
-      
-      <div class="flex items-center space-x-2 sm:space-x-4">
-        <button id="watchlist-btn" class="p-2 rounded-full hover:bg-gray-800 transition relative">
-          <i class="fas fa-bookmark theme-accent"></i>
-        </button>
-        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-moon theme-accent"></i>
-        </button>
-        <button id="search-btn" class="p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-search theme-accent"></i>
-        </button>
-      </div>
+<body>
+<div class="ambient"></div>
+<nav class="topbar"><div class="shell topbar-inner"><a class="brand" href="#top"><span class="brand-mark"><i class="fa-solid fa-futbol"></i></span><span>TED LASSO <span style="color:var(--rose)">/ 2020–2023</span></span></a><a class="top-link" href="series.html"><i class="fa-solid fa-arrow-left"></i> Back to series</a></div></nav>
+<main class="shell" id="top">
+<section class="series-hero-shell" aria-label="Ted Lasso featured series">
+  <div class="series-hero" id="tedLassoHero">
+    <div class="series-hero-bg" id="tedLassoHeroVideo" aria-hidden="true" style="background-image:url('https://image.tmdb.org/t/p/w500/uRHsiw1wLxPHFXkkv4Ix1s0O6f4.jpg')">
+      <iframe id="tedLassoHeroTrailer" title="Ted Lasso trailer background" src="https://www.youtube-nocookie.com/embed/Kk1KdTMhFs8?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=Kk1KdTMhFs8&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1"></iframe>
     </div>
-    
-    <!-- Search Bar -->
-    <div id="search-bar" class="hidden px-4 pb-4 bg-[#001228]/95">
-      <div class="relative max-w-xl mx-auto">
-        <input id="global-search" type="text" placeholder="Search episodes..." 
-               class="w-full bg-[#001d3d] border border-[#f2c94c]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#f2c94c] placeholder-gray-400 text-sm">
-        <i class="fas fa-search absolute left-3.5 top-3 text-[#f2c94c]"></i>
-      </div>
-    </div>
-    
-    <!-- Watchlist Dropdown -->
-    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-[#001a38] border border-[#f2c94c]/30 rounded-lg shadow-2xl z-50 py-2">
-      <div class="px-4 py-2 border-b border-gray-700">
-        <h3 class="font-semibold theme-accent title-font tracking-wider">My Watchlist</h3>
-      </div>
-      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
-        <div class="px-4 py-3 text-center text-gray-400 text-xs">Your watchlist is empty</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="container mx-auto px-4 py-6">
-    <!-- Hero Section -->
-    <section class="mb-10 relative overflow-hidden rounded-xl shadow-2xl bg-[#001228] border border-[#f2c94c]/20">
-      <div class="absolute inset-0 bg-gradient-to-r from-[#000c18] via-[#000c18]/70 to-transparent z-10"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-[#000c18] via-[#000c18]/50 to-transparent z-10"></div>
-      
-      <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[480px] overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-          <iframe
-            src="https://www.youtube.com/embed/3u7EIioht6U?autoplay=1&mute=1&loop=1&playlist=Kk1KdTMhFs8&controls=0&modestbranding=1"
-            frameborder="0"
-            allow="autoplay; fullscreen"
-            class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-50"
-          ></iframe>
+    <div class="series-hero-inner">
+      <div class="series-hero-art"><img src="https://image.tmdb.org/t/p/w500/uRHsiw1wLxPHFXkkv4Ix1s0O6f4.jpg" alt="Ted Lasso official poster" fetchpriority="high"></div>
+      <div class="series-hero-copy">
+        <div class="series-hero-kicker"><i class="fa-solid fa-sparkles"></i><span>APPLE TV+ ORIGINAL</span></div>
+        <div class="series-hero-meta"><span>2020–2023</span><span>44 Episodes</span><span>Comedy · Sports · Drama</span></div>
+        <h1 class="series-hero-title">Ted Lasso</h1>
+        <p class="series-hero-description">An optimistic American college football coach is hired to manage an English football club. Despite knowing little about the sport, Ted wins people over with kindness, belief and an endless supply of biscuits.</p>
+        <div class="series-hero-actions">
+          <a class="series-hero-btn series-hero-primary" href="#episodes"><i class="fa-solid fa-play"></i> Explore episodes</a>
+          <button class="series-hero-btn series-hero-secondary" id="trailerBtn" type="button"><i class="fa-brands fa-youtube"></i> Watch trailer</button>
         </div>
-        
-        <div class="absolute bottom-0 left-0 z-20 p-5 sm:p-8 md:p-10 max-w-2xl">
-          <div class="flex items-center mb-2">
-            <span class="bg-[#e50914] text-white text-xs font-bold px-2 py-0.5 rounded mr-2">APPLE TV+</span>
-            <span class="text-[#f2c94c] text-xs sm:text-sm font-semibold">Seasons 1-4</span>
-          </div>
-          <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-2 gradient-text title-font tracking-wide">TED LASSO</h2>
-          <div class="flex items-center mb-3 text-xs sm:text-sm">
-            <div class="flex items-center mr-4">
-              <i class="fas fa-star theme-accent mr-1"></i>
-              <span class="text-white font-bold">8.8</span>
-            </div>
-            <span class="text-gray-300">Comedy • Drama • Sport</span>
-          </div>
-          <p class="text-gray-300 mb-5 text-xs sm:text-sm md:text-base leading-relaxed line-clamp-3">An American college football coach is hired to manage a British soccer team. What he lacks in knowledge, he makes up for with optimism, determination... and biscuits.</p>
-          <div class="flex items-center space-x-3">
-            <button id="play-all" class="btn-theme font-bold py-2.5 px-7 rounded-full transition flex items-center shadow-lg text-sm pulse-hover">
-              <i class="fas fa-play mr-2 text-xs"></i> Play S1E01
-            </button>
-            <button class="bg-gray-800/80 hover:bg-gray-700 text-white font-semibold py-2.5 px-6 rounded-full transition flex items-center border border-gray-700 text-sm">
-              <i class="fas fa-info-circle mr-2"></i> Details
-            </button>
-          </div>
-        </div>
-        <div class="absolute bottom-4 right-4 z-20">
-          <button id="scroll-down" class="bg-black/50 text-[#f2c94c] rounded-full p-2 border border-[#f2c94c]/30 hover:bg-[#f2c94c] hover:text-[#001c3f] transition">
-            <i class="fas fa-chevron-down arrow-bounce"></i>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Season Navigation -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-gray-800 pb-4">
-      <h3 class="text-xl sm:text-2xl font-bold flex items-center mb-3 sm:mb-0">
-        <i class="fas fa-tv theme-accent mr-2.5"></i>
-        <span class="title-font tracking-wider uppercase">EPISODES</span>
-      </h3>
-      <div class="w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-        <div class="flex items-center space-x-2 min-w-max">
-          <button class="season-btn active bg-[#f2c94c] text-[#001c3f] px-4 py-1.5 rounded-full text-xs font-bold transition" data-season="all">All</button>
-          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-[#001c3f] border border-gray-800 hover:border-[#f2c94c]/50 transition" data-season="1">Season 1</button>
-          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-[#001c3f] border border-gray-800 hover:border-[#f2c94c]/50 transition" data-season="2">Season 2</button>
-          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-[#001c3f] border border-gray-800 hover:border-[#f2c94c]/50 transition" data-season="3">Season 3</button>
-          <button class="season-btn px-4 py-1.5 rounded-full text-xs font-semibold text-gray-300 hover:text-white bg-[#001c3f] border border-gray-800 hover:border-[#f2c94c]/50 transition" data-season="4">Season 4</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Episodes Grid -->
-    <section>
-      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5">
-        <!-- Episode cards inserted dynamically -->
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <div class="border-t border-gray-800 mt-12 pt-8 pb-8 text-center text-gray-500">
-    <div class="flex justify-center space-x-4 mb-3">
-      <a href="#" class="text-gray-400 hover:text-[#f2c94c] transition px-2"><i class="fab fa-facebook-f text-lg"></i></a>
-      <a href="#" class="text-gray-400 hover:text-[#f2c94c] transition px-2"><i class="fab fa-twitter text-lg"></i></a>
-      <a href="#" class="text-gray-400 hover:text-[#f2c94c] transition px-2"><i class="fab fa-instagram text-lg"></i></a>
-      <a href="#" class="text-gray-400 hover:text-[#f2c94c] transition px-2"><i class="fab fa-youtube text-lg"></i></a>
-    </div>
-    <p class="text-xs text-gray-600">Ted Lasso &copy; 2026. All rights reserved.</p>
-  </div>
-
-  <!-- Replaced Playback Modal -->
-  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true">
-      <button id="closeModalBtn" class="absolute top-3 right-3 z-50 text-white hover:text-[#f2c94c] text-xl bg-black/60 hover:bg-black/90 rounded-full w-9 h-9 flex items-center justify-center transition border border-gray-700">
-        <i class="fas fa-times"></i>
-      </button>
-
-      <div class="player-wrapper" id="playerWrapper">
-        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      </div>
-
-      <div class="player-meta">
-        <div class="meta-left">
-          <h3 id="modalTitle">Episode Title</h3>
-          <p id="modalDesc">Episode description will appear here.</p>
-        </div>
-        <div class="controls-row">
-          <a id="externalBtn" target="_blank" rel="noopener noreferrer" class="btn bg-red-600/20 hover:bg-red-600/40 border-red-500/50 text-red-400 hover:text-red-300" title="Open directly in new tab if embed is blocked">
-            <i class="fas fa-external-link-alt mr-2"></i> Direct
-          </a>
-          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
-          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-          <button id="closeBtn" class="btn border-gray-600 text-gray-300 hover:bg-gray-800"><i class="fas fa-times mr-2"></i>Close</button>
-        </div>
+        <div class="series-hero-dots" aria-hidden="true"><span class="active"></span><span></span><span></span></div>
       </div>
     </div>
   </div>
-
-  <!-- Loading Spinner -->
-  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
-    <div class="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-[#f2c94c]"></div>
+</section>
+<section class="section" id="episodes">
+  <div class="section-head"><div><div class="overline">2020–2023 · Comedy · Sports · Drama</div><h2 class="section-title">Ted Lasso: The complete story.</h2><div class="section-desc">Comedy · Sports · Drama. Explore every available episode.</div></div>
+    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"><select class="season-pill" id="seasonFilter" aria-label="Filter by season"><option value="all">All seasons</option><option value="1">Season 1</option><option value="2">Season 2</option><option value="3">Season 3</option><option value="4">Season 4</option></select></div>
   </div>
-
-  <script>
-    // Helper function for building dynamic release date placeholders
-    function makeReleasePlaceholder(epNum, releaseDate) {
-      const dateText = encodeURIComponent(`Airing ${releaseDate}`);
-      const titleText = encodeURIComponent(`Episode ${epNum}`);
-      return `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23001733'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23f2c94c' stroke-width='4' opacity='0.4'/%3E%3Ctext x='50%25' y='42%25' fill='%23ffffff' font-family='sans-serif' font-size='42' font-weight='bold' text-anchor='middle'%3E${titleText}%3C/text%3E%3Ctext x='50%25' y='58%25' fill='%23f2c94c' font-family='sans-serif' font-size='36' font-weight='600' text-anchor='middle'%3E${dateText}%3C/text%3E%3C/svg%3E`;
-    }
-
-    // ===============================================
-    // TED LASSO (EPISODE DATA - SEASONS 1-4)
-    // ===============================================
-    const movies = [
+  <div class="episode-grid" id="episodeGrid"></div>
+</section>
+<section class="section">
+ <div class="section-head"><div><div class="overline">Inside the story</div><h2 class="section-title">Inside Ted Lasso</h2></div></div>
+ <div class="about">
+  <article class="about-panel"><h3>Series overview</h3><p><em>Ted Lasso</em>. A warm-hearted comedy-drama about leadership, friendship and the power of optimism, set around AFC Richmond and the people whose lives Ted changes.</p></article>
+  <article class="about-panel"><h3>Production</h3><p><strong>Platform:</strong> APPLE TV+<br><strong>Genre:</strong> Comedy · Sports · Drama<br><strong>Release:</strong> 2020–2023<br><strong>Episodes:</strong> 44 listed episodes<br><strong>Format:</strong> 4 season(s)</p></article>
+ </div>
+</section>
+<footer class="footer"><div class="footer-inner"><span>TED LASSO · 2026</span><a href="https://www.imdb.com/title/tt8014982/episodes/" target="_blank" rel="noopener">Episode guide · IMDb <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div></footer>
+</main>
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+ <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="player-wrapper" id="playerWrapper"><video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="player-meta"><div class="meta-left"><h3 id="modalTitle">Ted Lasso</h3><p id="modalDesc">Ted Lasso</p></div>
+   <div class="controls-row"><button class="player-btn" id="prevBtn" aria-label="Previous episode"><i class="fa-solid fa-backward-step"></i> <span>Prev</span></button><button class="player-btn" id="playPauseBtn" aria-label="Play or pause"><i class="fa-solid fa-play"></i></button><button class="player-btn" id="nextBtn" aria-label="Next episode"><span>Next</span> <i class="fa-solid fa-forward-step"></i></button><button class="player-btn" id="fullscreenBtn" aria-label="Fullscreen"><i class="fa-solid fa-expand"></i></button><button class="player-btn" id="muteBtn" aria-label="Mute"><i class="fa-solid fa-volume-high"></i></button><button class="player-btn close" id="closeBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
+  </div>
+ </div>
+</div>
+<script>
+const episodes = [
       // ===== SEASON 1 =====
       {
         title: "Pilot",
@@ -639,354 +505,96 @@
     description: "Big changes in bunches."
 },
     ];
-
-    /* -----------------------------------------------
-       Modal & Player Integration
-       ----------------------------------------------- */
-    const playerWrapper = document.getElementById('playerWrapper');
-    const playbackModal = document.getElementById('playbackModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
-
-    const externalBtn = document.getElementById('externalBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
-    const closeBtn = document.getElementById('closeBtn');
-
-    let currentHls = null;
-    let currentFiltered = [];
-    let currentIndex = null;
-
-    function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
-    function isHls(u) {
-      if (!u) return false;
-      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master');
-    }
-    function isYouTube(u) {
-      if (!u) return false;
-      return u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/');
-    }
-
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-    }
-
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
-
-      currentFiltered = list;
-      currentIndex = index;
-      const item = list[index];
-      if (!item) return;
-
-      modalTitle.textContent = item.title || '';
-      modalDesc.textContent = item.description || '';
-
-      resetPlayerContainer();
-      showModal();
-
-      let src = (typeof item.video === 'object' && item.video !== null) 
-        ? (item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0]) 
-        : item.video;
-
-      if (externalBtn) {
-        externalBtn.href = (src && src !== '00') ? src : '#';
-      }
-
-      if (!src || src === "00") {
-        playerWrapper.innerHTML = `
-          <div class="flex flex-col items-center justify-center h-full w-full bg-gradient-to-br from-[#001733] to-[#000c18] text-center p-6 border border-[#f2c94c]/20">
-            <i class="fas fa-futbol text-[#f2c94c] text-5xl mb-3 animate-bounce"></i>
-            <h4 class="text-xl font-bold text-white mb-1 title-font tracking-wider">${item.title}</h4>
-            <p class="text-xs text-gray-300 max-w-md mb-3">${item.description}</p>
-            <span class="inline-block bg-[#f2c94c]/20 border border-[#f2c94c] text-[#f2c94c] text-xs px-3 py-1 rounded-full font-mono">Status: Video Link Pending ("00")</span>
-          </div>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-        return;
-      }
-
-      const lc = (src||'').toLowerCase();
-
-      if (
-        src.includes('m3u8-proxy.m3u8') ||
-        lc.includes('streamtape.com') ||
-        lc.includes('dood') ||
-        lc.includes('vidcdn') ||
-        lc.includes('ok.ru') ||
-        lc.includes('mega.nz') ||
-        lc.includes('openload') ||
-        lc.includes('drive.google.com')
-      ) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      if (isYouTube(src)) {
-        let embed = src;
-        try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch(e){}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      if (isHls(src)) {
-        const v = document.getElementById('modalVideo');
-        if (!v) return;
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
-          currentHls.loadSource(src);
-          currentHls.attachMedia(v);
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        }
-        return;
-      }
-
-      if (isMP4(src)) {
-        const v = document.getElementById('modalVideo');
-        if (v) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        }
-      }
-    }
-
-    function togglePlayPause() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-      }
-    }
-
-    function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex != null && currentIndex < currentFiltered.length - 1) {
-        openPlayer(currentFiltered, currentIndex + 1);
-      }
-    }
-
-    function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex != null && currentIndex > 0) {
-        openPlayer(currentFiltered, currentIndex - 1);
-      }
-    }
-
-    function toggleFullscreen() {
-      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el);
-      } else {
-        document.exitFullscreen();
-      }
-    }
-
-    function toggleMute() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    }
-
-    function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      const v = document.getElementById('modalVideo');
-      if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
-      }
-      resetPlayerContainer();
-      hideModal();
-      currentIndex = null;
-      currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-    }
-
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
-    if (closeBtn) closeBtn.addEventListener('click', closeModalHandler);
-
-    closeModalBtn.addEventListener('click', closeModalHandler);
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime += 10; break; }
-        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime -= 10; break; }
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
-      }
-    });
-
-    // High Performance Dynamic Card Rendering
-    const container = document.getElementById('movies');
-    function renderMovies(list) {
-      container.innerHTML = '';
-      const fragment = document.createDocumentFragment();
-
-      list.forEach((movie, index) => {
-        const card = document.createElement('div');
-        card.className = 'movie-card rounded-xl overflow-hidden cursor-pointer flex flex-col justify-between glow-effect bg-[#001733]/80 border border-[#f2c94c]/20';
-        
-        let displayImg = movie.image;
-        if (!displayImg || displayImg === '00') {
-          displayImg = `data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'%3E%3Crect width='100%25' height='100%25' fill='%23001733'/%3E%3Crect x='20' y='20' width='1240' height='680' fill='none' stroke='%23f2c94c' stroke-width='4' opacity='0.3'/%3E%3Ctext x='50%25' y='50%25' fill='%23f2c94c' font-family='sans-serif' font-size='38' font-weight='bold' text-anchor='middle'%3ES${movie.season} E${movie.episode} - ${encodeURIComponent(movie.title)}%3C/text%3E%3C/svg%3E`;
-        }
-
-        card.innerHTML = `
-          <div class="relative group overflow-hidden bg-[#000d1d]">
-            <img src="${displayImg}" alt="${movie.title}" loading="lazy" class="w-full h-36 sm:h-44 md:h-52 object-cover opacity-90 group-hover:opacity-100 transition-opacity">
-            <div class="absolute inset-0 bg-gradient-to-t from-[#000c18] via-[#000c18]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end p-3">
-              <p class="text-gray-300 text-xs line-clamp-2">${movie.description || ''}</p>
-            </div>
-            <div class="absolute top-2.5 right-2.5 bg-[#000c18]/80 text-[#f2c94c] rounded-full w-8 h-8 flex items-center justify-center border border-[#f2c94c]/30">
-              <i class="fas fa-play text-xs"></i>
-            </div>
-            <div class="absolute top-2.5 left-2.5 flex items-center bg-[#000c18]/80 px-2 py-0.5 rounded border border-gray-800">
-              <i class="fas fa-star text-[#f2c94c] text-[10px] mr-1"></i>
-              <span class="text-white text-xs font-bold">${movie.rating || '8.5'}</span>
-            </div>
-          </div>
-          <div class="p-3">
-            <h3 class="text-white font-semibold text-sm line-clamp-1 group-hover:text-[#f2c94c] transition">${movie.title}</h3>
-            <div class="flex items-center text-gray-400 text-xs mt-1.5 font-medium">
-              <span class="bg-[#000c18] text-[#f2c94c] border border-[#f2c94c]/30 px-1.5 py-0.5 rounded text-[10px] font-bold">S${movie.season} E${movie.episode}</span>
-              <span class="mx-1.5">•</span>
-              <span>${movie.runtime || '30 min'}</span>
-            </div>
-          </div>
-        `;
-        card.addEventListener('click', () => openPlayer(list, index));
-        fragment.appendChild(card);
-      });
-
-      container.appendChild(fragment);
-    }
-
-    function initPage() {
-      renderMovies(movies);
-
-      const seasonBtns = document.querySelectorAll('.season-btn');
-      seasonBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => {
-            b.classList.remove('active', 'bg-[#f2c94c]', 'text-[#001c3f]');
-            b.classList.add('text-gray-300', 'bg-[#001c3f]');
-          });
-          this.classList.add('active', 'bg-[#f2c94c]', 'text-[#001c3f]');
-          this.classList.remove('text-gray-300', 'bg-[#001c3f]');
-          
-          const season = this.dataset.season;
-          const filtered = (!season || season === 'all') 
-            ? movies 
-            : movies.filter(m => String(m.season) === String(season));
-          
-          renderMovies(filtered);
-        });
-      });
-
-      const playAllBtn = document.getElementById('play-all');
-      if (playAllBtn) {
-        playAllBtn.addEventListener('click', () => openPlayer(movies, 0));
-      }
-
-      const globalSearch = document.getElementById('global-search');
-      if (globalSearch) {
-        globalSearch.addEventListener('input', (e) => {
-          const q = e.target.value.trim().toLowerCase();
-          const activeSeasonBtn = document.querySelector('.season-btn.active');
-          const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
-          let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
-          if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
-          renderMovies(list);
-        });
-      }
-    }
-
-    const searchBtn = document.getElementById('search-btn');
-    const searchBar = document.getElementById('search-bar');
-    const themeToggle = document.getElementById('theme-toggle');
-    const watchlistBtn = document.getElementById('watchlist-btn');
-    const watchlistDropdown = document.getElementById('watchlist-dropdown');
-
-    searchBtn.addEventListener('click', () => {
-      searchBar.classList.toggle('hidden');
-      watchlistDropdown.classList.add('hidden');
-    });
-
-    watchlistBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      watchlistDropdown.classList.toggle('hidden');
-      searchBar.classList.add('hidden');
-    });
-
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('bg-gray-100');
-      document.body.classList.toggle('text-gray-900');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
-      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initPage();
-    });
-  </script>
+const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch"),seasonFilter=document.getElementById("seasonFilter");
+const playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper");
+const modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc");
+const playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
+let currentHls=null,currentShaka=null,currentList=episodes,currentIndex=0;
+function episodeImage(ep){return ep.image&&ep.image!=="00"?ep.image:"https://placehold.co/600x340/0d0b11/aaaaaa?text="+encodeURIComponent("Season "+ep.season+" Episode "+ep.episode)}
+function renderEpisodes(list){
+ grid.innerHTML="";
+ if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;padding:25px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No episodes match your search.</div>';return}
+ list.forEach(function(ep){
+  const card=document.createElement("article");card.className="episode-card";card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label","Play episode "+ep.episode+": "+ep.title);
+  card.innerHTML='<div class="episode-image-wrap"><img class="episode-image" loading="lazy" src="'+episodeImage(ep)+'" alt="'+ep.title.replace(/"/g,"&quot;")+'"><span class="episode-number">EP '+String(ep.episode).padStart(2,"0")+'</span><span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span></div><div class="episode-info"><div class="episode-kicker">Season 1 · Episode '+ep.episode+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime"><i class="fa-regular fa-clock"></i> '+(ep.runtime||'Runtime unavailable')+'</div></div>';
+  const play=function(){openPlayer(list,list.indexOf(ep))};card.addEventListener("click",play);card.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();play()}});
+  grid.appendChild(card);
+ });
+}
+function filterEpisodes(){const q=search.value.trim().toLowerCase(),season=seasonFilter.value;renderEpisodes(episodes.filter(function(ep){return (season==="all"||String(ep.season)===season)&&(!q||ep.title.toLowerCase().includes(q)||(ep.description||"").toLowerCase().includes(q))}))}
+search.addEventListener("input",filterEpisodes);seasonFilter.addEventListener("change",filterEpisodes);
+function isHls(url){return /\.m3u8($|\?)/i.test(url)||/index.*\.txt/i.test(url)||/manifest|master/i.test(url)}
+function isMp4(url){return /\.mp4($|\?)/i.test(url)}
+function isYouTube(url){return /youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(url)}
+function resetPlayer(){
+ if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+ if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+ playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+}
+function showPlayer(){playbackModal.classList.add("active");playbackModal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden"}
+function closePlayer(){
+ const v=document.getElementById("modalVideo");if(v){try{v.pause();v.removeAttribute("src");v.load()}catch(e){}}
+ if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+ if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+ playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+ playbackModal.classList.remove("active");playbackModal.setAttribute("aria-hidden","true");document.body.style.overflow="";
+ playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>';
+}
+async function openPlayer(list,index){
+ if(!Array.isArray(list)||index<0||index>=list.length)return;
+ currentList=list;currentIndex=index;const item=list[index];
+ modalTitle.textContent=item.title;modalDesc.textContent="Ted Lasso · Season "+item.season+" · Episode "+item.episode;
+ resetPlayer();showPlayer();
+ let src=typeof item.video==="object"&&item.video!==null?(item.video.high||item.video.medium||item.video.low||item.video.mpd||Object.values(item.video)[0]):item.video;
+ if(!src||src==="00"){modalDesc.textContent+=" · Video source not available yet";return}
+ const lower=String(src).toLowerCase();
+ const video=document.getElementById("modalVideo");
+ if(typeof item.video==="object"&&item.video!==null&&item.video.mpd&&window.shaka){
+  try{currentShaka=new shaka.Player(video);if(item.video.key){const parts=item.video.key.split(":");currentShaka.configure({drm:{clearKeys:{[parts[0]]:parts[1]}}})}await currentShaka.load(item.video.mpd);video.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}catch(err){console.warn("DASH playback error",err);modalDesc.textContent+=" · Stream could not be loaded";return}
+ }
+ if(isYouTube(src)){
+  let id="";try{const u=new URL(src);id=u.searchParams.get("v")||u.pathname.split("/").filter(Boolean).pop()}catch(e){}
+  const embed=id&&id!=="embed"? "https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1&rel=0&modestbranding=1":src;
+  playerWrapper.innerHTML='<iframe src="'+embed+'" title="Ted Lasso video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ const iframeHosts=["turboembed.com","streamtape.com","dood","vidcdn","ok.ru","mega.nz","drive.google.com","voe.sx","filemoon","mixdrop","dailymotion.com"];
+ if(iframeHosts.some(function(host){return lower.includes(host)})&&!isHls(src)&&!isMp4(src)){
+  playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="Ted Lasso episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ if(isHls(src)){
+  if(window.Hls&&Hls.isSupported()){
+   currentHls=new Hls({enableWorker:true,maxBufferLength:30,maxMaxBufferLength:60,backBufferLength:30});currentHls.loadSource(src);currentHls.attachMedia(video);
+   currentHls.on(Hls.Events.MANIFEST_PARSED,function(){video.play().catch(function(){})});
+   currentHls.on(Hls.Events.ERROR,function(event,data){if(data.fatal){if(data.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(data.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else modalDesc.textContent+=" · Playback error"}});
+  }else if(video.canPlayType("application/vnd.apple.mpegurl")){video.src=src;video.play().catch(function(){})}else modalDesc.textContent+=" · HLS is not supported by this browser";
+  playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ if(isMp4(src)||/\.webm($|\?)/i.test(src)||/\.mp3($|\?)/i.test(src)){
+  video.src=src;video.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ // Generic hosted pages and embed endpoints are handled in-frame.
+ if(/^https?:\/\//i.test(src)){
+  playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="Ted Lasso episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ modalDesc.textContent+=" · Unsupported video source";
+}
+function playNext(){if(currentIndex<currentList.length-1)openPlayer(currentList,currentIndex+1)}
+function playPrev(){if(currentIndex>0)openPlayer(currentList,currentIndex-1)}
+function togglePlayPause(){const v=document.getElementById("modalVideo");if(!v)return;if(v.paused){v.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>'}else{v.pause();playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}}
+function toggleFullscreen(){const el=document.getElementById("modalVideo")||playerWrapper.querySelector("iframe");if(!el)return;const fn=el.requestFullscreen||playerWrapper.requestFullscreen;if(!document.fullscreenElement&&fn)Promise.resolve(fn.call(el)).catch(function(){});else if(document.exitFullscreen)document.exitFullscreen()}
+function toggleMute(){const v=document.getElementById("modalVideo");if(!v)return;v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>'}
+document.getElementById("prevBtn").addEventListener("click",playPrev);document.getElementById("nextBtn").addEventListener("click",playNext);playPauseBtn.addEventListener("click",togglePlayPause);document.getElementById("fullscreenBtn").addEventListener("click",toggleFullscreen);muteBtn.addEventListener("click",toggleMute);document.getElementById("closeBtn").addEventListener("click",closePlayer);
+document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+playbackModal.addEventListener("click",function(e){if(e.target===playbackModal)closePlayer()});
+document.addEventListener("keydown",function(e){if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
+document.getElementById("trailerBtn").addEventListener("click",function(){openPlayer([{title:"Ted Lasso — Official Trailer",season:1,episode:0,video:"https://www.youtube.com/watch?v=Kk1KdTMhFs8"}],0)});
+renderEpisodes(episodes);
+</script>
 <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
@@ -1004,7 +612,7 @@
 <script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
 
 <!-- 160x600 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
@@ -1018,7 +626,7 @@
 </div>
 
 <!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '5a4dc7c6c5524517e3d815b39b121f28',
@@ -1043,7 +651,7 @@
 <script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
 
 <!-- 160x600 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
@@ -1057,7 +665,7 @@
 </div>
 
 <!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '5a4dc7c6c5524517e3d815b39b121f28',
@@ -1082,13 +690,13 @@
 <script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
 
 <!-- NATIVE BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
   <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
   <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
 </div>
 
 <!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
   <script type="text/javascript">
     atOptions = {
       'key' : '44f6fc8fc8db36beacbc97b0453593a3',
@@ -1109,240 +717,6 @@
 <!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
 <!-- ========================================================= -->
 
-
-
-
-<!-- Disable DevTools + View Source Protection -->
-<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
-
-<script>
-/* =========================
-   Mobile Detection
-========================= */
-const isMobile =
-    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-
-/* =========================
-   Disable DevTools
-========================= */
-DisableDevtool({
-    disable: true,
-    disableMenu: true,
-    clearLog: true,
-    disableSelect: true,
-    disableCopy: true,
-    disableCut: true,
-    disablePaste: true,
-
-    /* FIXED */
-    disableMobile: false,
-
-    interval: 100,
-
-    ondevtoolopen: function () {
-
-        /* ONLY DESKTOP */
-        if (!isMobile) {
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-    }
-});
-
-/* =========================
-   Block View Source Shortcuts
-========================= */
-document.addEventListener("keydown", function (e) {
-
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+U
-    if (e.ctrlKey && e.key.toLowerCase() === "u") {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    }
-
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+J
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+C
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+S
-    if (e.ctrlKey && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+P
-    if (e.ctrlKey && e.key.toLowerCase() === "p") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+A
-    if (e.ctrlKey && e.key.toLowerCase() === "a") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+C
-    if (e.ctrlKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+X
-    if (e.ctrlKey && e.key.toLowerCase() === "x") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+V
-    if (e.ctrlKey && e.key.toLowerCase() === "v") {
-        e.preventDefault();
-        return false;
-    }
-});
-
-/* =========================
-   Disable Right Click
-========================= */
-document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Dragging
-========================= */
-document.addEventListener("dragstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Selection
-========================= */
-document.addEventListener("selectstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Copy Actions
-========================= */
-["copy", "cut", "paste"].forEach(function(evt) {
-
-    document.addEventListener(evt, function(e) {
-        e.preventDefault();
-    });
-
-});
-
-/* =========================
-   Detect DevTools Window
-   (Desktop ONLY - FIXED)
-========================= */
-if (!isMobile) {
-
-    setInterval(function () {
-
-        const widthThreshold =
-            window.outerWidth - window.innerWidth > 220;
-
-        const heightThreshold =
-            window.outerHeight - window.innerHeight > 220;
-
-        if (widthThreshold || heightThreshold) {
-
-            document.body.innerHTML = "";
-            window.location.replace("about:blank");
-        }
-
-    }, 1500);
-
-}
-
-/* =========================
-   Disable Console
-========================= */
-(function () {
-
-    console.clear();
-
-    function block() {
-        return false;
-    }
-
-    console.log = block;
-    console.warn = block;
-    console.error = block;
-    console.info = block;
-    console.debug = block;
-    console.table = block;
-
-})();
-
-/* =========================
-   Block "view-source:"
-========================= */
-if (window.location.href.startsWith("view-source:")) {
-
-    document.body.innerHTML = "";
-    window.location.replace("about:blank");
-
-}
-
-/* =========================
-   Prevent iframe inspection
-========================= */
-if (window.top !== window.self) {
-
-    try {
-        window.top.location = window.self.location;
-    } catch (e) {}
-
-}
-</script>
-
-<style>
-html, body {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    overflow-x: hidden;
-}
-
-/* Disable image dragging */
-img {
-    pointer-events: none;
-    -webkit-user-drag: none;
-}
-
-/* Hide selection */
-::selection {
-    background: transparent;
-}
-</style>
-
-
+ 
 </body>
 </html>
