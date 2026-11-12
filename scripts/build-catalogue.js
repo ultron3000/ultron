@@ -25,7 +25,7 @@ function walk(dir = ROOT, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
       if (!SKIP_DIRS.has(entry.name) && !entry.name.startsWith(".")) walk(path.join(dir, entry.name), out);
-    } else if (/\.(?:html?|json)$/i.test(entry.name)) {
+    } else if (/\.(?:html?|json|js)$/i.test(entry.name)) {
       out.push(path.relative(ROOT, path.join(dir, entry.name)).replace(/\\/g, "/"));
     }
   }
@@ -155,18 +155,22 @@ function dedupe(records) {
 
 const files = walk();
 const htmlFiles = files.filter(file => /\.html?$/i.test(file));
+const jsFiles = files.filter(file => /\.js$/i.test(file));
 const jsonFiles = files.filter(file => /\.json$/i.test(file));
 const existing = (() => { try { return JSON.parse(read("universal-search-index.json")); } catch (_) { return {}; } })();
 const knownSeriesSlugs = new Set((existing.records || []).filter(r => r.type === "series")
   .map(r => slug((r.url || "").split("?")[0].split("/").pop())));
 const records = [];
-const stats = { htmlScanned: 0, arraysFound: 0, movieArrays: 0, seriesArrays: 0, jsonScanned: 0 };
+const stats = { htmlScanned: 0, jsScanned: 0, arraysFound: 0, movieArrays: 0, seriesArrays: 0, jsonScanned: 0 };
 
-for (const file of htmlFiles) {
-  const html = read(file);
-  stats.htmlScanned++;
-  const meta = pageMeta(file, html);
-  const pageSlug = slug(file);
+for (const file of [...htmlFiles, ...jsFiles]) {
+  const isJs = /\.js$/i.test(file);
+  const siblingHtml = isJs ? file.replace(/\.js$/i, ".html") : file;
+  const sourcePage = isJs && fs.existsSync(path.join(ROOT, siblingHtml)) ? siblingHtml : file;
+  const html = read(sourcePage);
+  if (isJs) stats.jsScanned++; else stats.htmlScanned++;
+  const meta = pageMeta(sourcePage, html);
+  const pageSlug = slug(sourcePage);
   const arrays = extractArrays(html);
   for (const array of arrays) {
     const declared = array.name;
@@ -182,25 +186,25 @@ for (const file of htmlFiles) {
     const isEpisodeArray = /^(episodes?|seasons?)$/i.test(declared);
     const type = episodeData || isEpisodeArray || (isMovieArray && seriesPage) ? "series" : isSeriesArray ? "series" : "movie";
     if (type === "movie") stats.movieArrays++; else stats.seriesArrays++;
-    const pathHints = inferPath(file);
+    const pathHints = inferPath(sourcePage);
     const pageCategory = pathHints.category || (meta.title.match(/animation|cartoon|anime/i) ? "Animation" : "");
     if (isEpisodeArray) {
-      records.push({ id: stableId("series", meta.title, file), type: "series", title: meta.title, category: pageCategory || "Series", language: pathHints.language, description: meta.description, image: meta.image, url: file, source: file, tags: file, searchText: [meta.title, meta.description, file].join(" ") });
+      records.push({ id: stableId("series", meta.title, file), type: "series", title: meta.title, category: pageCategory || "Series", language: pathHints.language, description: meta.description, image: meta.image, url: sourcePage, source: sourcePage, tags: sourcePage, searchText: [meta.title, meta.description, sourcePage].join(" ") });
     } else {
       for (const row of array.rows) {
-        const record = normalize(type, row, file, { ...pathHints, category: first(row, ["category", "genre"]) || pageCategory });
+        const record = normalize(type, row, sourcePage, { ...pathHints, category: first(row, ["category", "genre"]) || pageCategory });
         if (record) records.push(record);
       }
     }
   }
   // Category/franchise landing pages are searchable even when their content is rendered as HTML cards.
-  const base = path.basename(file);
+  const base = path.basename(sourcePage);
   if (/(?:movie|movies|series|animation|animated|cartoon|collection|category|franchise|studio)/i.test(base) &&
       !/^(?:index|search|search1|movies|series)\.html?$/i.test(base)) {
     records.push({
-      id: stableId("collection", meta.title, file), type: "collection", title: meta.title,
+      id: stableId("collection", meta.title, sourcePage), type: "collection", title: meta.title,
       category: "Category", description: meta.description, image: meta.image,
-      url: file, source: file, tags: inferPath(file).category, searchText: [meta.title, meta.description, file].join(" ")
+      url: sourcePage, source: sourcePage, tags: inferPath(sourcePage).category, searchText: [meta.title, meta.description, sourcePage].join(" ")
     });
   }
 }
