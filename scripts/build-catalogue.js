@@ -14,7 +14,7 @@ const INDEX = path.join(ROOT, "universal-search-index.json");
 const SKIP_DIRS = new Set([".git", "node_modules", ".next", "dist", "build", "vendor"]);
 const ARRAY_NAMES = {
   movie: /^(movies?|movieData|movieList|allMovies|films?|filmData|filmList)$/i,
-  series: /^(seriesData|seriesList|allSeries|tvSeries|shows|showData|showList)$/i
+  series: /^(seriesData|seriesList|allSeries|tvSeries|shows|showData|showList|episodes?|seasons?)$/i
 };
 
 function read(rel) {
