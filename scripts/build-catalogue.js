@@ -174,8 +174,16 @@ for (const file of [...htmlFiles, ...jsFiles]) {
   const arrays = extractArrays(read(file));
   for (const array of arrays) {
     const declared = array.name;
-    const isMovieArray = ARRAY_NAMES.movie.test(declared);
-    const isSeriesArray = ARRAY_NAMES.series.test(declared);
+    const objectRows = array.rows.filter(row => row && typeof row === "object" && !Array.isArray(row));
+    const sampleRow = objectRows[0] || {};
+    const hasMediaFields = objectRows.some(row =>
+      ["video", "url", "href", "link", "image", "img", "poster", "posterUrl", "thumbnail", "description", "overview", "genre", "year"].some(key => row[key] != null)
+    );
+    const looksLikeMediaCatalogue = objectRows.length > 0 &&
+      (sampleRow.title != null || sampleRow.name != null || sampleRow.movieTitle != null || sampleRow.showTitle != null) &&
+      hasMediaFields;
+    const isMovieArray = ARRAY_NAMES.movie.test(declared) || (looksLikeMediaCatalogue && !/series|show|episode|season/i.test(sourcePage));
+    const isSeriesArray = ARRAY_NAMES.series.test(declared) || (looksLikeMediaCatalogue && /series|show|episode|season/i.test(sourcePage));
     if (!isMovieArray && !isSeriesArray) continue;
     stats.arraysFound++;
     const sample = array.rows.find(row => row && typeof row === "object" && !Array.isArray(row));
@@ -241,7 +249,7 @@ if (!finalRecords.length) throw new Error("Catalogue scan returned zero records;
 const counts = finalRecords.reduce((out, item) => { out[item.type] = (out[item.type] || 0) + 1; return out; }, {});
 const output = {
   version: 3, generatedAt: new Date().toISOString(),
-  generatedFrom: ["repository-wide recursive HTML/JSON scan", "movies/series data arrays", "channel JSON", "category and franchise pages"],
+  generatedFrom: ["repository-wide recursive HTML/JavaScript/JSON scan", "named and inferred media data arrays", "channel JSON", "category and franchise pages"],
   count: finalRecords.length, counts, scan: stats, records: finalRecords
 };
 fs.writeFileSync(INDEX, JSON.stringify(output, null, 2) + "\n");
