@@ -178,14 +178,19 @@ for (const file of htmlFiles) {
     if (!sample) continue;
     const episodeData = isEpisode(sample) || array.rows.some(isEpisode);
     // Some show-detail pages unfortunately name their episode list "movies".
-    const seriesPage = knownSeriesSlugs.has(pageSlug) || /(?:series|episode|season|show)/i.test(file);
-    const type = episodeData || (isMovieArray && seriesPage) ? "series" : isSeriesArray ? "series" : "movie";
+    const seriesPage = knownSeriesSlugs.has(pageSlug) || /(?:series|episode|season|show)/i.test(file) || arrays.some(candidate => /^(episodes?|seasons?)$/i.test(candidate.name));
+    const isEpisodeArray = /^(episodes?|seasons?)$/i.test(declared);
+    const type = episodeData || isEpisodeArray || (isMovieArray && seriesPage) ? "series" : isSeriesArray ? "series" : "movie";
     if (type === "movie") stats.movieArrays++; else stats.seriesArrays++;
     const pathHints = inferPath(file);
     const pageCategory = pathHints.category || (meta.title.match(/animation|cartoon|anime/i) ? "Animation" : "");
-    for (const row of array.rows) {
-      const record = normalize(type, row, file, { ...pathHints, category: first(row, ["category", "genre"]) || pageCategory });
-      if (record) records.push(record);
+    if (isEpisodeArray) {
+      records.push({ id: stableId("series", meta.title, file), type: "series", title: meta.title, category: pageCategory || "Series", language: pathHints.language, description: meta.description, image: meta.image, url: file, source: file, tags: file, searchText: [meta.title, meta.description, file].join(" ") });
+    } else {
+      for (const row of array.rows) {
+        const record = normalize(type, row, file, { ...pathHints, category: first(row, ["category", "genre"]) || pageCategory });
+        if (record) records.push(record);
+      }
     }
   }
   // Category/franchise landing pages are searchable even when their content is rendered as HTML cards.
