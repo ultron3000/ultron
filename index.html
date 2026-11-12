@@ -153,7 +153,7 @@ main{padding-bottom:90px}.hero{position:relative;min-height:clamp(390px,47vw,590
  function startHero(){if(heroTimer)clearInterval(heroTimer);heroTimer=setInterval(function(){setHero(heroIndex+1)},11000)}
  document.getElementById("heroPrev").addEventListener("click",function(){setHero(heroIndex-1);startHero()});
  document.getElementById("heroNext").addEventListener("click",function(){setHero(heroIndex+1);startHero()});
- fetch("universal-search-index.json?v="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("Catalogue request failed");return r.json()}).then(function(data){
+ fetch("universal-search-index.json",{cache:"no-cache"}).then(function(r){if(!r.ok)throw new Error("Catalogue request failed");return r.json()}).then(function(data){
   var all=data.records||[],movies=all.filter(function(r){return r.type==="movie"}),series=all.filter(function(r){return r.type==="series"}),live=all.filter(function(r){return r.type==="live"}),collections=all.filter(function(r){return r.type==="collection"});
   var shuffle=function(list){var out=list.slice();for(var i=out.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=out[i];out[i]=out[j];out[j]=tmp}return out};var byCat=function(list,cat){return list.filter(function(r){return String(r.category||"").toLowerCase()===cat.toLowerCase()||String(r.language||"").toLowerCase()===cat.toLowerCase()})};var byAny=function(list,terms){return list.filter(function(r){var c=String(r.category||"").toLowerCase(),l=String(r.language||"").toLowerCase(),t=String(r.title||"").toLowerCase();return terms.some(function(x){return c.includes(x)||l.includes(x)||t.includes(x)})})};
   rail("rail-movies",shuffle(movies));rail("rail-english-movies",shuffle(byCat(movies,"English")));rail("rail-animated-movies",byCat(movies,"Animation"));
@@ -166,16 +166,6 @@ main{padding-bottom:90px}.hero{position:relative;min-height:clamp(390px,47vw,590
   var dots=document.getElementById("heroDots");dots.replaceChildren();var dotCount=Math.min(8,heroItems.length);for(var i=0;i<dotCount;i++){(function(n){var b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Show featured title "+(n+1));b.addEventListener("click",function(){setHero(Math.floor(n*heroItems.length/dotCount));startHero()});dots.appendChild(b)})(i)}
   document.getElementById("heroTotal").textContent=String(heroItems.length);setHero(Math.floor(Math.random()*heroItems.length));startHero();
  }).catch(function(){document.getElementById("catalogue").innerHTML='<div class="empty-state">The catalogue could not be loaded. Please refresh to try again.</div>'});
-  /* The shared search loader emits this event after its background index refresh. */
-  window.addEventListener("cloudtv:catalogue-updated",function(event){
-   var records=event.detail&&event.detail.records;if(!Array.isArray(records))return;
-   var next=records.filter(function(r){return (r.type==="movie"||r.type==="series")&&r.image&&r.url&&String(r.image).trim()!==""});
-   if(!next.length)return;
-   var fresh=next.slice();for(var i=fresh.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=fresh[i];fresh[i]=fresh[j];fresh[j]=tmp}
-   heroItems=fresh;var dots=document.getElementById("heroDots");dots.replaceChildren();var dotCount=Math.min(8,heroItems.length);
-   for(var n=0;n<dotCount;n++){(function(k){var button=document.createElement("button");button.type="button";button.setAttribute("aria-label","Show featured title "+(k+1));button.addEventListener("click",function(){setHero(Math.floor(k*heroItems.length/dotCount));startHero()});dots.appendChild(button)})(n)}
-   document.getElementById("heroTotal").textContent=String(heroItems.length);setHero(Math.floor(Math.random()*heroItems.length));startHero();
-  });
  document.querySelectorAll(".rail-arrow").forEach(function(btn){btn.addEventListener("click",function(){var el=document.getElementById(btn.dataset.rail);if(el)el.scrollBy({left:Number(btn.dataset.dir)*el.clientWidth*.82,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})})});
  document.querySelectorAll(".rail").forEach(function(el){
   var down=false,startX=0,startScroll=0,moved=false;
