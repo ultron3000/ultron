@@ -107,6 +107,9 @@ function isEpisode(row) {
   return row && (row.episode != null || row.episodeNumber != null || row.epNum != null ||
     row.season != null || row.seasonNumber != null || row.airDate != null);
 }
+function isEpisodeTitle(title) {
+  return /^(?:s\d{1,2}\s*e\d{1,3}|season\s+\d+\s*(?:episode|ep)\s*\d+|episode\s*\d+|ep\s*\d+)\b/i.test(String(title || "").trim());
+}
 function stableId(type, title, source) {
   const identity = [type, String(title || "").normalize("NFKC").toLocaleLowerCase().trim(), source].join("|");
   const digest = crypto.createHash("sha256").update(identity).digest("hex").slice(0, 16);
@@ -129,6 +132,7 @@ function normalize(type, item, source, options = {}) {
   const description = first(item, ["description", "overview", "summary", "subtitle", "plot", "synopsis", "story", "about"]);
   return {
     id: stableId(type, title, source), type, title, category, language,
+    isEpisode: Boolean(options.isEpisode || isEpisode(item) || isEpisodeTitle(title)),
     year: item.year || item.releaseYear || item.release_year || "",
     description, image, url, source,
     tags, searchText: [title, category, language, description, tags, source].filter(Boolean).join(" ")
@@ -203,7 +207,14 @@ for (const file of [...htmlFiles, ...jsFiles]) {
       records.push({ id: stableId("series", meta.title, file), type: "series", title: meta.title, category: pageCategory || "Series", language: pathHints.language, description: meta.description, image: meta.image, url: sourcePage, source: sourcePage, tags: sourcePage, searchText: [meta.title, meta.description, sourcePage].join(" ") });
     } else {
       for (const row of array.rows) {
-        const record = normalize(type, row, sourcePage, { ...pathHints, category: first(row, ["category", "genre"]) || pageCategory });
+        const record = normalize(type, row, sourcePage, {
+          ...pathHints,
+          category: first(row, ["category", "genre"]) || pageCategory,
+          // A movie-named array on a known series detail page contains episodes, not standalone series.
+          isEpisode: type === "series" && !isEpisodeArray &&
+            (episodeData || (isMovieArray && seriesPage) || isEpisode(row) ||
+             isEpisodeTitle(first(row, ["title", "name", "label", "movieTitle", "showTitle", "movie", "filmName", "seriesTitle"])))
+        });
         if (record) records.push(record);
       }
     }
