@@ -108,7 +108,7 @@ function isEpisode(row) {
     row.season != null || row.seasonNumber != null || row.airDate != null);
 }
 function isEpisodeTitle(title) {
-  return /^(?:s\\d{1,2}\\s*e\\d{1,3}|season\\s+\\d+\\s*(?:episode|ep)\\s*\\d+|episode\\s*\\d+|ep\\s*\\d+)\\b/i.test(String(title || "").trim());
+  return /^(?:s\d{1,2}\s*e\d{1,3}|season\s+\d+\s*(?:episode|ep)\s*\d+|episode\s*\d+|ep\s*\d+)\b/i.test(String(title || "").trim());
 }
 function stableId(type, title, source) {
   const identity = [type, String(title || "").normalize("NFKC").toLocaleLowerCase().trim(), source].join("|");
