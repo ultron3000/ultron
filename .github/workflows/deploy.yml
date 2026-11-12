@@ -6,9 +6,14 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Refresh Cloud TV catalogue"]
+    types: [completed]
+    branches: [main]
 
 jobs:
   deploy-siteje:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     name: Deploy to cloudtv.site.je
     runs-on: ubuntu-latest
 
@@ -27,6 +32,7 @@ jobs:
           port: 21
 
   deploy-infinityfree:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     name: Deploy to ultron3000.infinityfree.me
     runs-on: ubuntu-latest
 
@@ -45,6 +51,7 @@ jobs:
           port: 21
 
   deploy-cloudtv-free:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     name: Deploy to cloudtv.free.je
     runs-on: ubuntu-latest
 
