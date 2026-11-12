@@ -9,6 +9,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const crypto = require("node:crypto");
 const ROOT = path.resolve(__dirname, "..");
 const INDEX = path.join(ROOT, "universal-search-index.json");
 const SKIP_DIRS = new Set([".git", "node_modules", ".next", "dist", "build", "vendor"]);
@@ -107,7 +108,9 @@ function isEpisode(row) {
     row.season != null || row.seasonNumber != null || row.airDate != null);
 }
 function stableId(type, title, source) {
-  return type + "-" + slug(title) + "-" + slug(source).slice(0, 42);
+  const identity = [type, String(title || "").normalize("NFKC").toLocaleLowerCase().trim(), source].join("|");
+  const digest = crypto.createHash("sha256").update(identity).digest("hex").slice(0, 16);
+  return type + "-" + slug(title).slice(0, 48) + "-" + digest;
 }
 function normalize(type, item, source, options = {}) {
   if (!item || typeof item !== "object" || Array.isArray(item)) return null;
@@ -254,9 +257,16 @@ if (!atlantis) {
   }
 }
 function normalizeTitle(value) { return String(value || "").normalize("NFKD").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
+// Recompute stable IDs after deduplication and reject any collision before writing.
+const idSet = new Set();
+for (const record of finalRecords) {
+  record.id = stableId(record.type, record.title, record.source || record.url || "");
+  if (idSet.has(record.id)) throw new Error("Duplicate catalogue ID after stable hashing: " + record.id);
+  idSet.add(record.id);
+}
 const counts = finalRecords.reduce((out, item) => { out[item.type] = (out[item.type] || 0) + 1; return out; }, {});
 const output = {
-  version: 3, generatedAt: new Date().toISOString(),
+  version: 4, generatedAt: new Date().toISOString(),
   generatedFrom: ["repository-wide recursive HTML/JavaScript/JSON scan", "named and inferred media data arrays", "channel JSON", "category and franchise pages"],
   count: finalRecords.length, counts, scan: stats, records: finalRecords
 };

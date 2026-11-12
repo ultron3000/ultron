@@ -35,7 +35,7 @@ jobs:
       - name: Rebuild the shared catalogue
         run: node scripts/build-catalogue.js
       - name: Validate generated catalogue
-        run: node -e "const d=require('./universal-search-index.json'); if(!d.records?.length || d.count!==d.records.length) process.exit(1); const ids=new Set(); for(const r of d.records){if(!r.title||!r.url||ids.has(r.id)) process.exit(1); ids.add(r.id)} console.log('Validated '+d.count+' searchable records')"
+        run: node -e "const fs=require('fs'); const d=JSON.parse(fs.readFileSync('universal-search-index.json','utf8')); if(!d.records?.length || d.count!==d.records.length) throw Error('Empty or inconsistent catalogue'); const ids=new Set(); for(const r of d.records){if(!r.title||!r.url) throw Error('Missing title/url: '+JSON.stringify(r)); if(ids.has(r.id)) throw Error('Duplicate ID: '+r.id); ids.add(r.id)} const norm=s=>String(s||'').normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); if(fs.readFileSync('disney-animation.html','utf8').includes('Atlantis: The Lost Empire')&&!d.records.some(r=>norm(r.title)===norm('Atlantis: The Lost Empire'))) throw Error('Atlantis regression: missing from index'); console.log('Validated '+d.count+' records; Atlantis present; IDs unique')"
       - name: Commit catalogue when changed
         run: |
           if git diff --quiet -- universal-search-index.json; then
