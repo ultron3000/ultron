@@ -3,7 +3,7 @@
   "use strict";
   const INPUTS = ["#mainSearch", "#sidebarSearch", "#searchInput", "#globalPortalSearch", "#searchBar"];
   const state = { records: [], query: "", type: "all", active: 0, ready: false, loading: false, loadedAt: 0 };
-  const REFRESH_INTERVAL = 3 * 60 * 1000;
+  const REFRESH_INTERVAL = 60 * 1000;
   const normalize = value => String(value || "").normalize("NFKD").toLocaleLowerCase().replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   const escapeText = value => String(value || "");
   const root = document.createElement("section");
@@ -80,6 +80,7 @@
       }));
       state.ready = true;
       state.loadedAt = Date.now();
+      window.dispatchEvent(new CustomEvent("cloudtv:catalogue-updated", { detail: { records: state.records, generatedAt: data.generatedAt || "" } }));
       if (state.query.trim()) render();
     } catch (error) {
       if (!state.ready) summary.textContent = "Could not load the repository search catalogue. Please refresh and try again.";
