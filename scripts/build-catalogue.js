@@ -171,7 +171,7 @@ for (const file of [...htmlFiles, ...jsFiles]) {
   if (isJs) stats.jsScanned++; else stats.htmlScanned++;
   const meta = pageMeta(sourcePage, html);
   const pageSlug = slug(sourcePage);
-  const arrays = extractArrays(html);
+  const arrays = extractArrays(read(file));
   for (const array of arrays) {
     const declared = array.name;
     const isMovieArray = ARRAY_NAMES.movie.test(declared);
@@ -182,7 +182,7 @@ for (const file of [...htmlFiles, ...jsFiles]) {
     if (!sample) continue;
     const episodeData = isEpisode(sample) || array.rows.some(isEpisode);
     // Some show-detail pages unfortunately name their episode list "movies".
-    const seriesPage = knownSeriesSlugs.has(pageSlug) || /(?:series|episode|season|show)/i.test(file) || arrays.some(candidate => /^(episodes?|seasons?)$/i.test(candidate.name));
+    const seriesPage = knownSeriesSlugs.has(pageSlug) || /(?:series|episode|season|show)/i.test(sourcePage) || arrays.some(candidate => /^(episodes?|seasons?)$/i.test(candidate.name));
     const isEpisodeArray = /^(episodes?|seasons?)$/i.test(declared);
     const type = episodeData || isEpisodeArray || (isMovieArray && seriesPage) ? "series" : isSeriesArray ? "series" : "movie";
     if (type === "movie") stats.movieArrays++; else stats.seriesArrays++;
