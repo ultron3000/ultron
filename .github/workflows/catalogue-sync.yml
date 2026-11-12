@@ -35,7 +35,27 @@ jobs:
       - name: Rebuild the shared catalogue
         run: node scripts/build-catalogue.js
       - name: Validate generated catalogue
-        run: node -e "const fs=require('fs'); const d=JSON.parse(fs.readFileSync('universal-search-index.json','utf8')); if(!d.records?.length || d.count!==d.records.length) throw Error('Empty or inconsistent catalogue'); const ids=new Set(); for(const r of d.records){if(!r.title||!r.url) throw Error('Missing title/url: '+JSON.stringify(r)); if(ids.has(r.id)) throw Error('Duplicate ID: '+r.id); ids.add(r.id)} const norm=s=>String(s||'').normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); if(fs.readFileSync('disney-animation.html','utf8').includes('Atlantis: The Lost Empire')&&!d.records.some(r=>norm(r.title)===norm('Atlantis: The Lost Empire'))) throw Error('Atlantis regression: missing from index'); console.log('Validated '+d.count+' records; Atlantis present; IDs unique')"
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const data = JSON.parse(fs.readFileSync("universal-search-index.json", "utf8"));
+          if (!Array.isArray(data.records) || !data.records.length || data.count !== data.records.length) {
+            throw new Error("Empty or inconsistent catalogue");
+          }
+          const ids = new Set();
+          for (const record of data.records) {
+            if (!record.title || !record.url) throw new Error("Missing title or URL: " + JSON.stringify(record));
+            if (ids.has(record.id)) throw new Error("Duplicate record ID: " + record.id);
+            ids.add(record.id);
+          }
+          const normalize = value => String(value || "").normalize("NFKD").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+          const disneyPage = fs.readFileSync("disney-animation.html", "utf8");
+          if (disneyPage.includes("Atlantis: The Lost Empire") &&
+              !data.records.some(record => normalize(record.title) === normalize("Atlantis: The Lost Empire"))) {
+            throw new Error("Atlantis regression: title exists on disney-animation.html but is missing from the index");
+          }
+          console.log("Validated " + data.count + " records; unique IDs; Atlantis regression passed");
+          NODE
       - name: Commit catalogue when changed
         run: |
           if git diff --quiet -- universal-search-index.json; then
