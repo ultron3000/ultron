@@ -295,6 +295,76 @@
     return clearKeys;
   }
 
+  // Optional public source index: only direct manifest URLs are read from these
+  // lists. DRM keys, cookies, proxying, and app-impersonation headers are not used.
+  const MASTER_SOURCES_URL = 'https://raw.githubusercontent.com/Tvwap/links/refs/heads/main/Tv4wap';
+  let externalSourcePromise = null;
+
+  async function fetchPublicText(url) {
+    if (!url || typeof url !== 'string') return null;
+    try {
+      const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json, text/plain, */*' } });
+      if (!response.ok) return null;
+      return await response.text();
+    } catch (error) {
+      console.warn('Optional channel source unavailable (direct browser fetch only):', url, error);
+      return null;
+    }
+  }
+
+  function parseDirectChannelUrl(raw, targetId) {
+    if (!raw) return '';
+    const wanted = text(targetId);
+    try {
+      const parsed = JSON.parse(raw);
+      const rows = Array.isArray(parsed) ? parsed : (parsed.channels || parsed.data || parsed.results || []);
+      if (Array.isArray(rows)) {
+        const match = rows.find(row => row && text(row.id || row.channelId || row.channel_id) === wanted);
+        if (match) {
+          const candidate = text(match.stream_url || match.streamUrl || match.final_url || match.url || match.link || match.mpd || match.m3u8);
+          if (/^https?:\/\//i.test(candidate)) return candidate;
+        }
+      }
+    } catch (_) {}
+    // Support simple M3U playlists where the channel ID is present in EXTINF metadata.
+    const lines = raw.split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+      if (!lines[i].startsWith('#EXTINF')) continue;
+      const meta = lines[i];
+      const idMatch = meta.match(/(?:tvg-id|channel-id|id)=["']?([^"',\s]+)["']?/i);
+      if (idMatch && idMatch[1] === wanted) {
+        const candidate = text(lines[i + 1]);
+        if (/^https?:\/\//i.test(candidate)) return candidate;
+      }
+    }
+    return '';
+  }
+
+  async function getExternalChannelUrls(channel) {
+    if (!channel || !text(channel.id)) return [];
+    if (!externalSourcePromise) {
+      externalSourcePromise = (async () => {
+        const masterText = await fetchPublicText(MASTER_SOURCES_URL);
+        if (!masterText) return [];
+        try {
+          const master = JSON.parse(masterText);
+          return [master.mb, master.pl].filter(value => typeof value === 'string' && /^https?:\/\//i.test(value));
+        } catch (error) {
+          console.warn('Optional master source index is not valid JSON.', error);
+          return [];
+        }
+      })();
+    }
+    const sourceUrls = await externalSourcePromise;
+    const found = [];
+    for (const sourceUrl of sourceUrls) {
+      const raw = await fetchPublicText(sourceUrl);
+      const candidate = parseDirectChannelUrl(raw, channel.id);
+      if (candidate && !found.includes(candidate)) found.push(candidate);
+    }
+    return found;
+  }
+
   async function playChannel(channel) {
     activeChannel = channel;
     renderChannels();
@@ -310,12 +380,6 @@
       els.logo.appendChild(img);
     } else els.logo.textContent = logoFallback(nameOf(channel));
 
-    if (!channel.url) {
-      setStatus('NO STREAM URL', 'error');
-      els.notice.className = 'notice error';
-      els.notice.textContent = nameOf(channel) + ' has no stream URL in channels3.json.';
-      return;
-    }
     if (!player) await initPlayer();
     if (!player) return;
     const token = ++requestToken;
@@ -330,7 +394,30 @@
         drm: { clearKeys },
         streaming: { bufferingGoal: 30, rebufferingGoal: 2, retryParameters: { maxAttempts: 3, baseDelay: 500, backoffFactor: 2 } }
       });
-      await player.load(channel.url);
+
+      // Try the uploaded channel record first, then direct manifest URLs from
+      // the optional public MB/PL indexes, matching strictly by channel ID.
+      const candidates = [];
+      if (channel.url && /^https?:\/\//i.test(channel.url)) candidates.push(channel.url);
+      const externalUrls = await getExternalChannelUrls(channel);
+      externalUrls.forEach(url => { if (!candidates.includes(url)) candidates.push(url); });
+      if (!candidates.length) throw new Error('No direct stream URL found for channel ID ' + text(channel.id) + '.');
+
+      let lastError = null;
+      let playingUrl = '';
+      for (const candidate of candidates) {
+        if (token !== requestToken) return;
+        try {
+          await player.unload();
+          await player.load(candidate);
+          playingUrl = candidate;
+          break;
+        } catch (candidateError) {
+          lastError = candidateError;
+          console.warn('Manifest candidate failed for', nameOf(channel), candidate, candidateError);
+        }
+      }
+      if (!playingUrl) throw (lastError || new Error('All direct manifest URLs failed.'));
       if (token !== requestToken) return;
       setStatus('NOW PLAYING', '');
       els.notice.className = 'notice';
