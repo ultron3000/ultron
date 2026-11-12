@@ -3,7 +3,8 @@
   "use strict";
   const INPUTS = ["#mainSearch", "#sidebarSearch", "#searchInput", "#globalPortalSearch", "#searchBar"];
   const state = { records: [], query: "", type: "all", active: 0, ready: false, loading: false, loadedAt: 0, version: "" };
-  const REFRESH_INTERVAL = 60 * 1000;
+  const REFRESH_INTERVAL = 5 * 60 * 1000;
+  const MAX_RENDER_RESULTS = 120;
   const normalize = value => String(value || "").normalize("NFKD").toLocaleLowerCase().replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
   const escapeText = value => String(value || "");
   const root = document.createElement("section");
@@ -61,24 +62,28 @@
   function open() { root.hidden = false; }
   async function load(force = false) {
     if (state.loading) return;
-    if (!force && state.ready && Date.now() - state.loadedAt < REFRESH_INTERVAL) return;
+    if (state.ready && Date.now() - state.loadedAt < REFRESH_INTERVAL) return;
     state.loading = true;
     try {
       const indexUrl = new URL("universal-search-index.json", document.baseURI);
-      indexUrl.searchParams.set("v", String(Date.now()));
-      const response = await fetch(indexUrl, { cache: "no-store" });
+      const response = await fetch(indexUrl, { cache: "no-cache" });
       if (!response.ok) throw new Error("Search catalogue unavailable");
       const data = await response.json();
-      state.records = (Array.isArray(data.records) ? data.records : []).map(record => ({
-        ...record,
-        title: record.title || record.name || record.label || "Untitled",
-        image: record.image || record.img || record.poster || record.posterUrl || record.thumbnail || record.cover || record.logo || "",
-        category: record.category || record.genre || record.group || "",
-        language: record.language || record.lang || "",
-        description: record.description || record.overview || record.summary || record.subtitle || "",
-        tags: record.tags || record.keywords || "", searchText: record.searchText || "", source: record.source || "",
-        url: record.url || record.href || record.link || record.source || "#"
-      }));
+      state.records = (Array.isArray(data.records) ? data.records : []).map(record => {
+        const item = {
+          ...record,
+          title: record.title || record.name || record.label || "Untitled",
+          image: record.image || record.img || record.poster || record.posterUrl || record.thumbnail || record.cover || record.logo || "",
+          category: record.category || record.genre || record.group || "",
+          language: record.language || record.lang || "",
+          description: record.description || record.overview || record.summary || record.subtitle || "",
+          tags: record.tags || record.keywords || "", searchText: record.searchText || "", source: record.source || "",
+          url: record.url || record.href || record.link || record.source || "#"
+        };
+        item._normalizedTitle = normalize(item.title);
+        item._normalizedHaystack = normalize([item.title, item.category, item.language, item.description, item.genre, item.tags, item.keywords, item.source, item.searchText, item.type].flat().join(" "));
+        return item;
+      });
       state.ready = true;
       state.loadedAt = Date.now();
       state.version = data.generatedAt || String(data.count || state.records.length);
@@ -90,31 +95,34 @@
     } finally { state.loading = false; }
   }
   function rank(record, query) {
-    const title = normalize(record.title), description = normalize(record.description), category = normalize(record.category), language = normalize(record.language), extra = normalize([record.genre, record.tags, record.keywords, record.source, record.searchText, record.type].flat().join(" "));
+    const title = record._normalizedTitle || normalize(record.title);
     if (title === query) return 100;
     if (title.startsWith(query)) return 70;
     if (title.includes(query)) return 55;
-    if (category.includes(query) || language.includes(query) || extra.includes(query)) return 25;
-    if (description.includes(query)) return 10;
+    const haystack = record._normalizedHaystack || normalize([record.title, record.category, record.language, record.description, record.genre, record.tags, record.keywords, record.source, record.searchText, record.type].flat().join(" "));
+    if (haystack.includes(query)) return 25;
     const terms = query.split(" ").filter(Boolean);
-    const haystack = title + " " + category + " " + language + " " + description + " " + extra;
     const matched = terms.filter(term => haystack.includes(term)).length;
     return matched === terms.length ? 8 : matched ? 2 : 0;
   }
   function render() {
     const query = normalize(state.query);
     if (!query) { results.replaceChildren(); summary.textContent = "Search movies, series, live channels and collections"; return; }
-    const found = state.records.map(record => ({ record, score: rank(record, query) }))
-      .filter(item => item.score > 0 && (state.type === "all" || item.record.type === state.type))
-      .sort((a,b) => b.score-a.score || a.record.title.localeCompare(b.record.title));
-    summary.textContent = state.ready ? found.length + " results · " + state.records.length.toLocaleString() + " catalogue entries" : "Loading your catalogue…";
+    const found = [];
+    for (const record of state.records) {
+      if (state.type !== "all" && record.type !== state.type) continue;
+      const score = rank(record, query);
+      if (score > 0) found.push({ record, score });
+    }
+    found.sort((a,b) => b.score-a.score || a.record.title.localeCompare(b.record.title));
+    summary.textContent = state.ready ? found.length + " results · " + state.records.length.toLocaleString() + " catalogue entries" + (found.length > MAX_RENDER_RESULTS ? " · showing top " + MAX_RENDER_RESULTS : "") : "Loading your catalogue…";
     results.replaceChildren();
     if (!found.length) {
       const empty = document.createElement("div"); empty.className = "us-empty"; empty.style.gridColumn = "1/-1";
       empty.textContent = state.ready ? "No matches found. Try another title, language, genre or channel." : "Loading search catalogue…";
       results.appendChild(empty); return;
     }
-    found.forEach(({record}, index) => {
+    found.slice(0, MAX_RENDER_RESULTS).forEach(({record}, index) => {
       const link = document.createElement("a");
       link.className = "us-card"; link.href = record.url || "#"; link.dataset.index = String(index);
       if (record.image) {
@@ -132,12 +140,12 @@
   function update(value) {
     state.query = value || "";
     inputs.forEach(input => { if (input.value !== state.query) input.value = state.query; });
-    if (state.query.trim()) { open(); load().then(render); }
+    if (state.query.trim()) { open(); if (!state.ready) load().then(render); else render(); }
     else render();
   }
   inputs.forEach(input => {
     input.setAttribute("autocomplete", "off");
-    input.addEventListener("focus", () => { if (input.value.trim()) { state.query = input.value; open(); load().then(render); } });
+    input.addEventListener("focus", () => { if (input.value.trim()) { state.query = input.value; open(); if (!state.ready) load().then(render); else render(); } });
     input.addEventListener("input", () => update(input.value));
     input.addEventListener("keydown", event => {
       if (event.key === "Escape") { close(); input.blur(); }
