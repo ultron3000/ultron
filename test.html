@@ -93,7 +93,7 @@
   let requestToken = 0;
 
   const text = value => String(value == null ? '' : value).trim();
-  const categoryOf = channel => text(channel.category) || 'General';
+  const categoryOf = channel => text(channel.category) || 'Uncategorized';
   const nameOf = channel => text(channel.name) || ('Channel ' + text(channel.id));
   const escapeText = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const logoFallback = name => text(name).split(/\s+/).slice(0,2).map(part => part[0] || '').join('').toUpperCase() || 'TV';
@@ -269,17 +269,29 @@
 
   function clearKeysFor(channel) {
     const clearKeys = {};
+    const addPair = (kid, key) => {
+      const id = text(kid);
+      const value = text(key);
+      if (id && value && !['null','undefined'].includes(id.toLowerCase()) &&
+          !['null','undefined'].includes(value.toLowerCase())) {
+        clearKeys[id] = value;
+      }
+    };
+
+    // Accept the common "kid:key" array format and object-based key records.
     if (Array.isArray(channel.keys)) {
       channel.keys.forEach(pair => {
-        const parts = text(pair).split(':');
-        if (parts.length >= 2 && parts[0] && parts[1]) clearKeys[parts[0].trim()] = parts.slice(1).join(':').trim();
+        if (typeof pair === 'string') {
+          const separator = pair.indexOf(':');
+          if (separator > 0) addPair(pair.slice(0, separator), pair.slice(separator + 1));
+        } else if (pair && typeof pair === 'object') {
+          addPair(pair.keyId || pair.kid || pair.kidHex, pair.key || pair.keyValue || pair.keyHex);
+        }
       });
     }
-    if (!Object.keys(clearKeys).length && channel.keyId && channel.key &&
-        !['null','undefined'].includes(text(channel.keyId).toLowerCase()) &&
-        !['null','undefined'].includes(text(channel.key).toLowerCase())) {
-      clearKeys[text(channel.keyId)] = text(channel.key);
-    }
+
+    // The uploaded channels3.json primarily uses the single keyId/key fields.
+    if (!Object.keys(clearKeys).length) addPair(channel.keyId, channel.key);
     return clearKeys;
   }
 
@@ -313,8 +325,9 @@
     try {
       await player.unload();
       if (token !== requestToken) return;
+      const clearKeys = clearKeysFor(channel);
       player.configure({
-        drm: { clearKeys: clearKeysFor(channel) },
+        drm: { clearKeys },
         streaming: { bufferingGoal: 30, rebufferingGoal: 2, retryParameters: { maxAttempts: 3, baseDelay: 500, backoffFactor: 2 } }
       });
       await player.load(channel.url);
