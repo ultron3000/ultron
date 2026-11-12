@@ -69,6 +69,29 @@
                   radial-gradient(circle at 85% 85%, rgba(219, 39, 119, 0.08) 0%, transparent 40%),
                   #f1f5f9;
     }
+
+/* Cinematic shuffled series hero */
+.series-hero-shell{max-width:1280px;margin:18px auto 26px;padding:0 16px;perspective:1400px}
+.series-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(340px,42vw,500px);border:1px solid #334155;border-radius:28px;background:#020617;box-shadow:0 28px 80px #0009;touch-action:pan-y;transform-style:preserve-3d}
+.series-hero:before{content:"";position:absolute;z-index:-2;inset:-8%;background:var(--hero-image) center 30%/cover;filter:blur(24px) saturate(1.35);opacity:.48;transform:scale(1.1)}
+.series-hero:after{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(90deg,#020617 0%,#020617e8 36%,#02061755 76%),linear-gradient(0deg,#020617aa,transparent 55%)}
+.series-hero-inner{min-height:inherit;display:grid;grid-template-columns:1.1fr .8fr;align-items:center;gap:24px;padding:clamp(24px,5vw,60px)}
+.series-hero-copy{max-width:600px}.series-hero-kicker{display:inline-flex;gap:8px;align-items:center;border:1px solid #22d3ee66;background:#083344aa;color:#a5f3fc;border-radius:30px;padding:7px 12px;font-size:10px;font-weight:900;letter-spacing:.15em}
+.series-hero-title{font-size:clamp(2.2rem,5vw,4.6rem);line-height:.98;letter-spacing:-.05em;font-weight:950;color:white;margin:18px 0 12px;max-width:12ch;text-shadow:0 8px 30px #0009}
+.series-hero-meta{display:flex;gap:10px;flex-wrap:wrap;color:#bae6fd;font-size:12px;font-weight:800}
+.series-hero-description{color:#cbd5e1;line-height:1.65;font-size:14px;max-width:48ch;margin:14px 0 22px}
+.series-hero-actions{display:flex;gap:10px;flex-wrap:wrap}.series-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:13px;font-size:12px;font-weight:900;transition:.2s}
+.series-hero-btn:hover{transform:translateY(-3px);filter:brightness(1.12)}.series-hero-primary{background:linear-gradient(110deg,#06b6d4,#6366f1);color:white;box-shadow:0 10px 26px #0891b244}.series-hero-secondary{background:#0f172acc;border:1px solid #ffffff44;color:white}
+.series-hero-art{justify-self:center;width:min(100%,270px);aspect-ratio:2/2.85;transform:rotateY(-13deg) rotateX(3deg) translateZ(35px);filter:drop-shadow(0 28px 32px #0009);transition:transform .5s}
+.series-hero-art img{width:100%;height:100%;object-fit:cover;border-radius:17px;border:1px solid #ffffff55}.series-hero:hover .series-hero-art{transform:rotateY(-5deg) translateY(-7px) translateZ(45px) scale(1.025)}
+.series-hero-controls{position:absolute;right:20px;bottom:18px;display:flex;align-items:center;gap:8px;z-index:3}.series-hero-arrow{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:white;background:#0f172acc;border:1px solid #ffffff44;backdrop-filter:blur(10px)}.series-hero-counter{font:800 10px monospace;color:#e2e8f0;min-width:48px;text-align:center}
+.series-hero-progress{position:absolute;left:0;bottom:0;width:100%;height:3px;background:#ffffff22}.series-hero-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#22d3ee,#818cf8,#f472b6)}
+.series-hero-dots{display:flex;gap:5px;margin-top:18px}.series-hero-dots span{height:3px;width:18px;border-radius:8px;background:#ffffff44}.series-hero-dots span.active{width:34px;background:#67e8f9}
+.series-hero.is-changing .series-hero-copy{animation:seriesCopyIn .45s ease}.series-hero.is-changing .series-hero-art{animation:seriesArtIn .55s ease}
+@keyframes seriesCopyIn{from{opacity:.2;transform:translateY(12px)}to{opacity:1;transform:none}}@keyframes seriesArtIn{from{opacity:.2;transform:translateX(20px) rotateY(-25deg)}to{opacity:1;transform:rotateY(-13deg) rotateX(3deg) translateZ(35px)}}
+@media(max-width:700px){.series-hero-shell{padding:0 12px;margin:14px auto 20px}.series-hero{min-height:510px;border-radius:22px}.series-hero-inner{grid-template-columns:1fr;align-content:end;padding:24px 20px 76px}.series-hero:after{background:linear-gradient(0deg,#020617 0%,#020617ed 42%,#02061744 100%)}.series-hero-art{position:absolute;right:6%;top:7%;width:36%;max-width:160px;opacity:.83;transform:rotateY(-12deg) rotateZ(3deg)}.series-hero-title{font-size:clamp(2rem,10vw,3.1rem);padding-right:15%}.series-hero-description{font-size:13px;margin:12px 0 18px}.series-hero-controls{right:13px;bottom:15px}}
+@media(prefers-reduced-motion:reduce){.series-hero,.series-hero *{animation:none!important;transition:none!important}}
+
   </style>
 </head>
 
@@ -127,6 +150,25 @@
       </button>
     </div>
   </header>
+
+
+  <section class="series-hero-shell" aria-label="Featured series">
+    <div class="series-hero" id="seriesHero" aria-roledescription="carousel">
+      <div class="series-hero-inner">
+        <div class="series-hero-copy">
+          <div class="series-hero-kicker"><i class="fas fa-sparkles"></i> THE SERIES UNIVERSE</div>
+          <div class="series-hero-meta"><span id="heroBadge">FEATURED SERIES</span><span id="heroSubtitle">Explore the collection</span></div>
+          <h2 class="series-hero-title" id="heroTitle">Find your next series.</h2>
+          <p class="series-hero-description" id="heroDescription">Discover something new from the complete series collection.</p>
+          <div class="series-hero-actions"><a id="heroWatch" class="series-hero-btn series-hero-primary" href="#seriesGrid"><i class="fas fa-play"></i> Explore series</a><button id="heroSurprise" class="series-hero-btn series-hero-secondary" type="button"><i class="fas fa-shuffle"></i> Surprise me</button></div>
+          <div class="series-hero-dots" id="heroDots" aria-hidden="true"></div>
+        </div>
+        <a class="series-hero-art" id="heroArtLink" href="#seriesGrid" tabindex="-1" aria-hidden="true"><img id="heroImage" src="" alt="" fetchpriority="high"></a>
+      </div>
+      <div class="series-hero-controls"><button class="series-hero-arrow" id="heroPrev" aria-label="Previous series" type="button"><i class="fas fa-chevron-left"></i></button><span class="series-hero-counter" id="heroCounter">01 / 01</span><button class="series-hero-arrow" id="heroNext" aria-label="Next series" type="button"><i class="fas fa-chevron-right"></i></button></div>
+      <div class="series-hero-progress"><span id="heroProgress"></span></div>
+    </div>
+  </section>
 
   <!-- Search Bar Section -->
   <div class="max-w-2xl mx-auto px-4 mt-6 mb-8">
@@ -362,6 +404,22 @@
     let currentCategory = 'all';
     let isCompactGrid = false;
 
+
+    // Hero is driven by the same catalogue as the grid; no duplicate data list.
+    const heroNode=document.getElementById('seriesHero');
+    const hero={order:[],index:0,start:0,duration:7200,paused:false,raf:0,x:0,y:0};
+    const he={title:document.getElementById('heroTitle'),badge:document.getElementById('heroBadge'),sub:document.getElementById('heroSubtitle'),desc:document.getElementById('heroDescription'),img:document.getElementById('heroImage'),art:document.getElementById('heroArtLink'),watch:document.getElementById('heroWatch'),counter:document.getElementById('heroCounter'),dots:document.getElementById('heroDots'),progress:document.getElementById('heroProgress')};
+    function shuffleHero(keep){const old=hero.order[hero.index];hero.order=seriesData.map((_,i)=>i).filter(i=>!keep||i!==old);for(let i=hero.order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[hero.order[i],hero.order[j]]=[hero.order[j],hero.order[i]];}if(keep&&old!==undefined)hero.order.unshift(old);hero.index=0;}
+    function showHero(){if(!seriesData.length)return;const item=seriesData[hero.order[hero.index]]||seriesData[0];heroNode.classList.remove('is-changing');void heroNode.offsetWidth;heroNode.classList.add('is-changing');he.title.textContent=item.title||'Discover a series';he.badge.textContent=item.badge||'SERIES';he.sub.textContent=item.subtitle||item.category||'Series collection';he.desc.textContent=item.description||('Explore '+item.title+' and discover more from the collection.');he.img.src=item.img||'';he.img.alt=item.title||'Series poster';he.art.href=item.url||'#seriesGrid';he.watch.href=item.url||'#seriesGrid';heroNode.style.setProperty('--hero-image',item.img?'url("'+item.img.replace(/["\\]/g,'')+'")':'none');he.counter.textContent=String(hero.index+1).padStart(2,'0')+' / '+String(seriesData.length).padStart(2,'0');he.dots.innerHTML='';for(let i=0;i<Math.min(7,seriesData.length);i++){const d=document.createElement('span');if(i===hero.index%7)d.className='active';he.dots.appendChild(d);}hero.start=performance.now();he.progress.style.width='0%';}
+    function stepHero(dir=1,reshuffle=false){if(!seriesData.length)return;if(reshuffle)shuffleHero(true);else{hero.index+=dir;if(hero.index>=hero.order.length||hero.index<0){shuffleHero(true);if(dir<0)hero.index=hero.order.length-1;}}showHero();}
+    function heroFrame(now){if(!hero.paused&&hero.start){const p=Math.min(100,(now-hero.start)/hero.duration*100);he.progress.style.width=p+'%';if(p>=100)stepHero(1);}hero.raf=requestAnimationFrame(heroFrame);}
+    function initHero(){if(!seriesData.length)return;shuffleHero(false);showHero();if(!hero.raf)hero.raf=requestAnimationFrame(heroFrame);}
+    document.getElementById('heroPrev').addEventListener('click',()=>stepHero(-1));document.getElementById('heroNext').addEventListener('click',()=>stepHero(1));document.getElementById('heroSurprise').addEventListener('click',()=>stepHero(1,true));
+    heroNode.addEventListener('mouseenter',()=>hero.paused=true);heroNode.addEventListener('mouseleave',()=>{hero.paused=false;hero.start=performance.now();});heroNode.addEventListener('focusin',()=>hero.paused=true);heroNode.addEventListener('focusout',()=>{hero.paused=false;hero.start=performance.now();});
+    heroNode.addEventListener('touchstart',e=>{hero.x=e.changedTouches[0].clientX;hero.y=e.changedTouches[0].clientY;},{passive:true});heroNode.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-hero.x,dy=e.changedTouches[0].clientY-hero.y;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.2){stepHero(dx<0?1:-1);hero.start=performance.now();}},{passive:true});
+    heroNode.addEventListener('pointermove',e=>{if(e.pointerType==='touch'||matchMedia('(max-width:700px)').matches)return;const r=heroNode.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;heroNode.style.transform='rotateX('+(-y*1.5)+'deg) rotateY('+(x*2)+'deg)';});heroNode.addEventListener('pointerleave',()=>heroNode.style.transform='');
+    document.addEventListener('visibilitychange',()=>{hero.paused=document.hidden;if(!document.hidden)hero.start=performance.now();});
+
     function updateCounts() {
       document.getElementById('countAll').innerText = seriesData.length;
       document.getElementById('countAnim').innerText = seriesData.filter(s => s.category === 'animation').length;
@@ -463,6 +521,7 @@
 
     updateCounts();
     renderSeries('', 'all');
+    initHero();
   </script>
 
   <!-- ========================================================= -->
