@@ -118,7 +118,7 @@ function normalize(type, item, source, options = {}) {
   const category = first(item, ["category", "genre", "genres", "group", "type"]) || options.category || inferred.category;
   const language = first(item, ["language", "lang", "originalLanguage"]) || options.language || inferred.language;
   let url = "";
-  if (source === "movies.html") url = "movies.html?title=" + encodeURIComponent(title);
+  if (source === "movies.html" || (/\.json$/i.test(source) && type === "movie")) url = "movies.html?title=" + encodeURIComponent(title);
   else if (type === "series" && source === "series.html") url = first(item, ["url", "href", "link", "page"]) || "series.html?title=" + encodeURIComponent(title);
   else if (type === "series" && first(item, ["url", "href", "link", "page"]) && /^https?:\/\//i.test(first(item, ["url", "href", "link", "page"]))) url = first(item, ["url", "href", "link", "page"]);
   else url = source;
