@@ -276,9 +276,9 @@ header h1{font-family:"Space Grotesk","DM Sans",sans-serif;font-size:clamp(17px,
 .marathi-search:focus{border-color:var(--accent);box-shadow:0 0 0 3px #e7b66f22}
 .marathi-hero-shell{width:min(1320px,100%);margin:14px auto 30px;padding:0 clamp(12px,2.5vw,30px)}
 .marathi-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(330px,35vw,465px);border:1px solid rgba(231,182,111,.2);border-radius:25px;background:#100d12;box-shadow:0 25px 75px #0007;touch-action:pan-y}
-.marathi-hero-bg{position:absolute;inset:-18px;z-index:-2;background-size:cover;background-position:center 35%;filter:blur(22px) brightness(.35) saturate(.8);transform:scale(1.08);transition:background-image .2s}
-.marathi-hero:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(8,7,11,.64),rgba(8,7,11,.84) 49%,rgba(8,7,11,.93)),linear-gradient(0deg,rgba(8,7,11,.55),transparent 70%)}
-.marathi-hero-inner{min-height:inherit;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(22px,4vw,55px);padding:clamp(22px,4vw,46px)}
+.marathi-hero-bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center 35%;background-repeat:no-repeat;filter:blur(3px) brightness(.48) saturate(.95);transform:scale(1.035);opacity:.96;pointer-events:none}
+.marathi-hero:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(8,7,11,.38),rgba(8,7,11,.68) 48%,rgba(8,7,11,.82)),linear-gradient(0deg,rgba(8,7,11,.42),transparent 70%)}
+.marathi-hero-inner{position:relative;z-index:2;min-height:inherit;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(22px,4vw,55px);padding:clamp(22px,4vw,46px)}
 .marathi-hero-art{width:100%;max-width:230px;aspect-ratio:2/2.85;justify-self:center;overflow:hidden;border-radius:14px;border:1px solid #ffffff55;box-shadow:0 22px 45px #0009;transform:perspective(1000px) rotateY(-7deg)}
 .marathi-hero-art img{display:block;width:100%;height:100%;object-fit:cover;background:#17131a}
 .marathi-hero-copy{min-width:0;max-width:720px;color:#fff}
@@ -293,7 +293,7 @@ header h1{font-family:"Space Grotesk","DM Sans",sans-serif;font-size:clamp(17px,
 .marathi-hero-secondary{background:#ffffff12;border-color:#ffffff38;color:#fff}
 .marathi-hero-nav{position:absolute;right:18px;bottom:18px;display:flex;gap:7px;z-index:3}
 .marathi-hero-nav button{width:35px;height:35px;border:1px solid #ffffff40;border-radius:50%;background:#100d12aa;color:#fff;backdrop-filter:blur(8px)}
-.marathi-hero-count{position:absolute;left:clamp(16px,3vw,32px);bottom:24px;color:#ffffffa8;font-size:9px;font-weight:800;letter-spacing:.14em}
+.marathi-hero-count{position:absolute;z-index:3;left:clamp(16px,3vw,32px);bottom:24px;color:#ffffffa8;font-size:9px;font-weight:800;letter-spacing:.14em}
 .marathi-catalogue{width:min(1320px,100%);margin:0 auto;padding:0 clamp(12px,2.5vw,30px)}
 .marathi-catalogue-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:0 0 12px}
 .marathi-overline{color:var(--accent);font-size:9px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
@@ -444,8 +444,6 @@ header h1{font-family:"Space Grotesk","DM Sans",sans-serif;font-size:clamp(17px,
   <img src="https://media.istockphoto.com/id/2167232116/vector/maharashtra-map-with-hindu-maratha-flag-card-banner-vector.jpg?s=612x612&w=0&k=20&c=6vvJVfUOmUx2Ksh2oT49bLk93q-eZo7p_J5eXvSmraM=" alt="Logo" />
 </div>
 
-<header><h1>मराठी चित्रपट संग्रह</h1></header>
-
 <!-- Catalogue controls -->
 <div class="toolbar" role="toolbar" aria-label="Search and view controls">
   <label class="marathi-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="movieSearch" class="marathi-search" type="search" placeholder="चित्रपट शोधा..." aria-label="मराठी चित्रपट शोधा"></label>
@@ -474,8 +472,6 @@ header h1{font-family:"Space Grotesk","DM Sans",sans-serif;font-size:clamp(17px,
   <div class="marathi-hero-inner">
    <div class="marathi-hero-art"><img id="marathiHeroPoster" alt="Featured Marathi movie poster" width="450" height="640" decoding="async" fetchpriority="high"></div>
    <div class="marathi-hero-copy">
-    <div class="marathi-hero-kicker"><i class="fa-solid fa-crown"></i> मराठी चित्रपट संग्रह</div>
-    <div class="marathi-hero-meta" id="marathiHeroMeta">FEATURED · MARATHI CINEMA</div>
     <h2 class="marathi-hero-title" id="marathiHeroTitle">मराठी चित्रपट</h2>
     <p class="marathi-hero-description" id="marathiHeroDescription">मराठी चित्रपटांचा खास संग्रह पाहा.</p>
     <div class="marathi-hero-actions">
@@ -736,14 +732,13 @@ function showMarathiHero(index){
  const imageUrl=movie.image||'',token=++marathiHeroImageToken;
  poster.alt=movie.title+' poster';
  document.getElementById('marathiHeroTitle').textContent=movie.title;
- document.getElementById('marathiHeroMeta').textContent='FEATURED · MARATHI CINEMA';
  document.getElementById('marathiHeroDescription').textContent='मराठी चित्रपटसृष्टीतील '+movie.title+' हा चित्रपट पाहण्यासाठी सज्ज व्हा. तुमच्या आवडीचा चित्रपट शोधा आणि आनंद घ्या.';
  document.getElementById('marathiHeroCount').textContent='FEATURED '+String(marathiHeroIndex+1).padStart(2,'0')+' / '+movies.length;
  if(!imageUrl){poster.removeAttribute('src');bg.style.backgroundImage='none';return;}
  const preload=new Image();preload.decoding='async';preload.src=imageUrl;
  const apply=()=>{if(token!==marathiHeroImageToken)return;poster.src=imageUrl;bg.style.backgroundImage='url("'+String(imageUrl).replace(/["\\]/g,'')+'")';};
- if(preload.decode)preload.decode().then(apply).catch(()=>{if(preload.complete&&preload.naturalWidth)apply();});
- else preload.onload=apply;
+ if(preload.decode)preload.decode().then(apply).catch(()=>{if(preload.complete)apply();});
+ else {preload.onload=apply;preload.onerror=apply;}
 }
 function nextMarathiHero(){showMarathiHero(marathiHeroIndex+1)}
 function startMarathiHero(){clearInterval(marathiHeroTimer);marathiHeroTimer=setInterval(nextMarathiHero,9000)}
