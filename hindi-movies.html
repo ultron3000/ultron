@@ -479,55 +479,20 @@ header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:non
 </div>
 <div class="container mx-auto px-4 py-8 max-w-7xl">
 
-<!-- ================= HEADER ================= -->
-<header class="sticky top-0 z-50 bg-gradient-to-r from-black via-gray-900 to-black border-b border-yellow-500">
-  <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center items-stretch justify-between gap-4">
-
-
-    <!-- Logo + Title -->
-    <div class="flex items-center gap-4">
-      <img
-        src="https://www.shutterstock.com/image-vector/bollywood-neon-sign-bright-signboard-600nw-1351338800.jpg"
-        alt="Logo"
-        class="h-12 w-auto logo-animate"
-      />
-      <h1 class="text-2xl md:text-3xl font-bold text-yellow-400 glow-text whitespace-nowrap">
-        Hindi Movies
-      </h1>
-    </div>
-
-    <!-- Search + View Toggle -->
-<div class="relative w-full md:max-w-md flex items-center gap-3">
-  <div class="relative flex-1">
-    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-yellow-400"></i>
-    <input
-      id="searchBar"
-      type="text"
-      placeholder="Search movies..."
-      class="w-full pl-11 pr-4 py-2.5 rounded-lg bg-gray-900 text-white
-             border border-yellow-500 focus:outline-none
-             focus:ring-2 focus:ring-yellow-400 placeholder-yellow-400"
-    />
+<!-- Responsive Cloud TV header, search and display controls -->
+<header class="hm-site-header">
+ <div class="hm-header-brand">
+  <img src="https://static.readdy.ai/image/0ece273271c4ee2094ead0eb9c84c9b.png" alt="Cloud TV" class="hm-brand-logo">
+  <div class="hm-brand-copy"><h1>CLOUD TV</h1><span>HINDI MOVIES COLLECTION</span></div>
+ </div>
+ <div class="hm-header-tools">
+  <label class="hm-search-wrap" for="searchBar"><i class="fas fa-search" aria-hidden="true"></i><input id="searchBar" type="search" placeholder="Search Hindi movies..." autocomplete="off" aria-label="Search Hindi movies"><kbd>⌕</kbd></label>
+  <div class="hm-tool-group" role="toolbar" aria-label="Appearance and grid controls">
+   <button id="themeBtn" class="hm-tool-btn" type="button" aria-label="Switch to light mode" aria-pressed="false" title="Toggle dark and light mode"><i id="hmThemeIcon" class="fas fa-sun"></i></button>
+   <button id="gridBtn" class="hm-tool-btn" type="button" aria-label="Change movie grid layout" aria-pressed="false" title="Change grid layout"><i id="hmGridIcon" class="fas fa-grip"></i></button>
   </div>
-
-  <!-- View Toggle Icon -->
-  <button
-    id="viewToggleBtn"
-    onclick="cycleView()"
-    title="Change View"
-    class="text-yellow-400 hover:text-yellow-300 transition flex-shrink-0">
-    <i id="viewToggleIcon" class="fas fa-th-large text-xl"></i>
-  </button>
-</div>
-
-
-
-  </div>
+ </div>
 </header>
-
-
-</div>
-</div>
 <!-- Hindi cinema featured hero; catalogue and original player are preserved -->
 <section id="hmHero" class="hm-hero-shell" aria-label="Featured Hindi movies">
  <div class="hm-hero-bg" id="hmHeroBg" aria-hidden="true"></div>
@@ -546,7 +511,7 @@ header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:non
 </section>
 <!-- Movies Grid -->
 <div class="mb-12">
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movies"></div>
+<div class="movie-grid" id="movies"></div>
 </div>
 <!-- Footer / Social -->
   <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
@@ -591,48 +556,7 @@ header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:non
     /******************************
      * Existing movies array (unchanged)
      ******************************/
-    /* ===== FINAL VIEW CYCLER (MOBILE SAFE) ===== */
-let currentView = 0; // 0=grid, 1=compact, 2=list
-
-function cycleView() {
-  const grid = document.getElementById('movies');
-  const icon = document.getElementById('viewToggleIcon');
-
-  // reset
-  grid.className = 'grid gap-6';
-
-  if (currentView === 0) {
-    // COMPACT (works on mobile)
-    grid.classList.add(
-      'grid-cols-3',
-      'sm:grid-cols-4',
-      'md:grid-cols-5',
-      'lg:grid-cols-6'
-    );
-    icon.className = 'fas fa-border-all text-xl';
-    currentView = 1;
-  }
-  else if (currentView === 1) {
-    // LIST
-    grid.classList.add('grid-cols-1');
-    grid.classList.add('list-grid');
-    icon.className = 'fas fa-list text-xl';
-    currentView = 2;
-  }
-  else {
-    // DEFAULT GRID
-    grid.classList.add(
-      'grid-cols-2',
-      'sm:grid-cols-3',
-      'md:grid-cols-4',
-      'lg:grid-cols-5',
-      'xl:grid-cols-6'
-    );
-    icon.className = 'fas fa-th-large text-xl';
-    currentView = 0;
-  }
-}
-
+    /* Display mode is managed by the shared Cloud TV theme/grid controls below. */
     const movies = [
             { title: "Prahaar", video: "https://mega.nz/embed/v7YxmLqJ#mp48QrsaAElNotKKk78wiMRdanYXLYSTwJ5t4GdZtg0", image: "https://image.tmdb.org/t/p/w500/g2bZzjWzdPZ5GXrN8dQ8sixant3.jpg", category: "Hindi", year: 2026 },
             { title: "Nayyi Navelli", video: "https://mega.nz/embed/VQtDASTB#v_fDYDE1D1J8ZJ6rK3OGmAYjNfw1Q-60H707bb8HQzk", image: "https://image.tmdb.org/t/p/w500/aZEKuzGt7ObqoKjTM4kcMd0klYy.jpg", category: "Hindi", year: 2026 },
@@ -1325,6 +1249,44 @@ function seekForward10() {
     // Initial render
     renderMovies(movies);
     initHindiHero();
+    // Shared Cloud TV theme and responsive grid controls (adapted from movies.html).
+    const themeBtn = document.getElementById('themeBtn');
+    const gridBtn = document.getElementById('gridBtn');
+    const themeIcon = document.getElementById('hmThemeIcon');
+    const gridIcon = document.getElementById('hmGridIcon');
+    const gridModes = ['mode-standard', 'mode-dense', 'mode-card'];
+    const gridLabels = ['Standard grid', 'Compact grid', 'Large cards'];
+    let currentGridIdx = 0;
+    function applyHindiTheme(theme) {
+      const light = theme === 'light';
+      document.body.classList.toggle('light', light);
+      themeIcon.className = light ? 'fas fa-moon' : 'fas fa-sun';
+      themeBtn.setAttribute('aria-pressed', String(light));
+      themeBtn.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
+      themeBtn.title = light ? 'Switch to dark mode' : 'Switch to light mode';
+      try { localStorage.setItem('cloudtv-movies-theme', light ? 'light' : 'dark'); } catch (_) {}
+    }
+    let savedHindiTheme = 'dark';
+    try { savedHindiTheme = localStorage.getItem('cloudtv-movies-theme') || 'dark'; } catch (_) {}
+    applyHindiTheme(savedHindiTheme);
+    themeBtn.addEventListener('click', function() {
+      applyHindiTheme(document.body.classList.contains('light') ? 'dark' : 'light');
+    });
+    function setHindiGridMode(index) {
+      gridModes.forEach(function(mode) { document.body.classList.remove(mode); });
+      currentGridIdx = (index + gridModes.length) % gridModes.length;
+      document.body.classList.add(gridModes[currentGridIdx]);
+      gridBtn.setAttribute('aria-pressed', String(currentGridIdx !== 0));
+      gridBtn.title = 'Layout: ' + gridLabels[currentGridIdx] + ' (click to change)';
+      gridBtn.setAttribute('aria-label', gridBtn.title);
+      gridIcon.className = currentGridIdx === 0 ? 'fas fa-grip' : currentGridIdx === 1 ? 'fas fa-border-all' : 'fas fa-list';
+      try { localStorage.setItem('cloudtv-hindi-grid-mode', String(currentGridIdx)); } catch (_) {}
+    }
+    let savedHindiGrid = 0;
+    try { savedHindiGrid = Number(localStorage.getItem('cloudtv-hindi-grid-mode') || 0); } catch (_) {}
+    setHindiGridMode(Number.isInteger(savedHindiGrid) ? savedHindiGrid : 0);
+    gridBtn.addEventListener('click', function() { setHindiGridMode(currentGridIdx + 1); });
+
 
     /******************************
      * Backwards-compatible extras:
@@ -1416,7 +1378,7 @@ function seekForward10() {
 <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
-<!-- COPY & PASTE BEFORE </body> -->
+<!-- COPY & PASTE BEFORE  -->
 <!-- ========================================================= -->
 
 <!-- ===================== -->
@@ -1767,6 +1729,38 @@ img {
 ::selection {
     background: transparent;
 }
+
+/* ===== Cloud TV shared theme + responsive catalogue system ===== */
+:root{--hm-bg:#080d18;--hm-panel:#111a2b;--hm-card:#111b2c;--hm-text:#f8fafc;--hm-muted:#a8b3c7;--hm-line:rgba(245,196,81,.20);--hm-input:#0c1423}
+body{background:radial-gradient(ellipse at 10% 0%,rgba(245,158,11,.13),transparent 34%),radial-gradient(ellipse at 92% 12%,rgba(99,102,241,.10),transparent 32%),linear-gradient(145deg,#070b16,#101a2d 52%,#090e1b);background-attachment:fixed;color:var(--hm-text);transition:background .25s,color .25s}
+body.light{--hm-bg:#f3f6fb;--hm-panel:#fff;--hm-card:#fff;--hm-text:#172033;--hm-muted:#65728a;--hm-line:rgba(161,98,7,.22);--hm-input:#fff;background:linear-gradient(145deg,#f8fafc,#e9eef6 60%,#f8fafc);color:var(--hm-text)}
+body.light .hm-site-header{background:rgba(255,255,255,.92);border-color:var(--hm-line);box-shadow:0 12px 35px rgba(15,23,42,.08)}
+body.light .hm-brand-copy h1{color:#172033}body.light .hm-brand-copy span{color:#8a650d}
+body.light .hm-search-wrap{background:#f8fafc;border-color:#d6deea;color:#64748b}body.light .hm-search-wrap input{color:#172033}body.light .hm-search-wrap input::placeholder{color:#8994a8}
+body.light .hm-tool-btn{background:#fff;color:#9a6b08;border-color:#d8c28c;box-shadow:0 5px 16px #0f172a12}
+body.light .hm-hero-shell{border-color:#d6b65d;box-shadow:0 18px 50px #0f172a18}body.light .hm-hero-bg{filter:blur(3px) brightness(.55)}
+body.light .movie-card{background:#fff!important;border-color:#dce3ee!important;box-shadow:0 8px 22px rgba(15,23,42,.08)}body.light .movie-card .p-4{background:linear-gradient(180deg,#fff,#f7f9fc)!important}body.light .movie-card h3{color:#172033!important}body.light .movie-card .text-gray-400{color:#64748b!important}
+.hm-site-header{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:22px;width:100%;padding:15px clamp(14px,2.5vw,28px);margin:0 auto 18px;border:1px solid rgba(245,196,81,.25);border-radius:16px;background:rgba(5,10,19,.88);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.22)}
+.hm-header-brand{display:flex;align-items:center;gap:12px;min-width:0}.hm-brand-logo{display:block;width:44px;height:44px;object-fit:contain;border-radius:12px;flex:0 0 auto;pointer-events:none}
+.hm-brand-copy h1{margin:0;color:#f8d36d;font-size:clamp(19px,2.1vw,27px);font-weight:900;line-height:1;letter-spacing:.12em}.hm-brand-copy span{display:block;margin-top:5px;color:#c5a95e;font-size:8px;font-weight:800;letter-spacing:.2em}
+.hm-header-tools{display:flex;align-items:center;gap:11px;min-width:0;width:min(570px,58%)}
+.hm-search-wrap{display:flex;align-items:center;gap:11px;flex:1;min-width:0;height:44px;padding:0 13px;border:1px solid rgba(245,196,81,.3);border-radius:11px;background:#0b1423;color:#e6bd57}
+.hm-search-wrap>i{font-size:13px;flex:0 0 auto}.hm-search-wrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#fff;font:500 12px Poppins,sans-serif}.hm-search-wrap input::placeholder{color:#91a0b7}.hm-search-wrap kbd{font-size:10px;opacity:.55;border:1px solid currentColor;border-radius:4px;padding:1px 5px}
+.hm-tool-group{display:flex;align-items:center;gap:7px;flex:0 0 auto}.hm-tool-btn{display:grid;place-items:center;width:42px;height:42px;border:1px solid rgba(245,196,81,.32);border-radius:11px;background:#111b2c;color:#f5ca62;cursor:pointer;box-shadow:0 5px 16px #0003;transition:transform .18s,border-color .18s}.hm-tool-btn:hover{transform:translateY(-2px);border-color:#f5c451}.hm-tool-btn:focus-visible,.hm-hero-btn:focus-visible{outline:2px solid #f5c451;outline-offset:3px}
+.hm-hero-shell{width:100%;max-width:1200px;margin:18px auto 30px;min-height:clamp(320px,33vw,420px)}.hm-hero-inner{min-height:inherit;grid-template-columns:minmax(150px,215px) minmax(0,1fr);gap:clamp(20px,3.5vw,42px);padding:clamp(20px,3vw,36px)}.hm-hero-poster{max-width:215px}.hm-hero-copy h2{font-size:clamp(1.9rem,4vw,3.6rem)}
+#movies.movie-grid{display:grid!important;align-items:stretch;gap:clamp(10px,1.3vw,17px)!important;padding:8px 0 38px;content-visibility:auto;contain-intrinsic-size:800px;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+body.mode-standard #movies.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+@media(min-width:640px){body.mode-standard #movies.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(min-width:768px){body.mode-standard #movies.movie-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}@media(min-width:1024px){body.mode-standard #movies.movie-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}}@media(min-width:1280px){body.mode-standard #movies.movie-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}}
+body.mode-dense #movies.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+@media(min-width:640px){body.mode-dense #movies.movie-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}@media(min-width:1024px){body.mode-dense #movies.movie-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important}}@media(min-width:1280px){body.mode-dense #movies.movie-grid{grid-template-columns:repeat(8,minmax(0,1fr))!important}}
+body.mode-card #movies.movie-grid{grid-template-columns:repeat(1,minmax(0,1fr))!important;gap:15px!important}
+@media(min-width:640px){body.mode-card #movies.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}@media(min-width:768px){body.mode-card #movies.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(min-width:1280px){body.mode-card #movies.movie-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+#movies.movie-grid .movie-card{min-width:0;transition:box-shadow .2s,border-color .2s,transform .2s}#movies.movie-grid .movie-poster{display:block;width:100%;height:auto!important;aspect-ratio:2/3;object-fit:cover}
+body.mode-dense #movies.movie-grid .movie-card:hover{transform:translateY(-2px)}body.mode-dense #movies.movie-grid .movie-card .p-4{padding:8px!important}body.mode-dense #movies.movie-grid .movie-card h3{font-size:11px!important}
+body.mode-card #movies.movie-grid .movie-card{display:flex;flex-direction:row;align-items:center}body.mode-card #movies.movie-grid .movie-card>div:first-child{width:34%;max-width:180px;flex:0 0 34%}body.mode-card #movies.movie-grid .movie-poster{height:100%!important;max-height:245px;aspect-ratio:2/3}body.mode-card #movies.movie-grid .movie-card .p-4{flex:1;min-width:0}body.mode-card #movies.movie-grid .movie-card h3{white-space:normal;overflow:visible}
+@media(max-width:700px){.hm-site-header{align-items:stretch;flex-direction:column;gap:12px;padding:12px;margin-bottom:13px}.hm-header-brand{gap:10px}.hm-brand-logo{width:38px;height:38px}.hm-brand-copy h1{font-size:21px}.hm-brand-copy span{font-size:7px}.hm-header-tools{width:100%;gap:8px}.hm-search-wrap{height:42px;padding:0 10px}.hm-tool-group{gap:6px}.hm-tool-btn{width:40px;height:40px}.hm-hero-shell{width:100%;margin:12px auto 22px;min-height:285px}.hm-hero-inner{min-height:285px;grid-template-columns:minmax(78px,25%) minmax(0,1fr);gap:12px;padding:15px 11px 52px}.hm-hero-poster{max-width:135px}.hm-hero-copy h2{font-size:clamp(1.2rem,5vw,1.85rem)}#movies.movie-grid{gap:10px!important}body.mode-standard #movies.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}body.mode-dense #movies.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}body.mode-card #movies.movie-grid{grid-template-columns:1fr!important}body.mode-card #movies.movie-grid .movie-card>div:first-child{width:30%;flex-basis:30%}}
+@media(max-width:380px){.hm-brand-copy h1{font-size:18px}.hm-search-wrap kbd{display:none}.hm-hero-inner{grid-template-columns:68px minmax(0,1fr);gap:9px}.hm-hero-copy p{-webkit-line-clamp:2;font-size:9px}.hm-hero-btn{padding:0 5px;font-size:7px}}
+@media(prefers-reduced-motion:reduce){.hm-tool-btn,.hm-hero-poster,.hm-hero-btn{transition:none!important}}
 </style>
 
 
