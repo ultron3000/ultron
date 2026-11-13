@@ -232,6 +232,87 @@
       .player-meta h3{font-size:14px}
     }
     @media(prefers-reduced-motion:reduce){.series-hero-art,.series-hero-btn,.series-hero-dots button{transition:none!important}}
+
+    /* Responsive catalogue: retain desktop columns, show two posters on phones */
+    #moviesGrid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:clamp(10px,1.5vw,22px);
+      align-items:stretch;
+    }
+    @media(min-width:640px){#moviesGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem}}
+    @media(min-width:768px){#moviesGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:1.35rem}}
+    @media(min-width:1024px){#moviesGrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:1.4rem}}
+    @media(min-width:1280px){#moviesGrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:1.5rem}}
+    @media(max-width:639px){
+      #moviesGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+      #moviesGrid .movie-card{min-width:0;perspective:none;border-radius:11px}
+      #moviesGrid .movie-card .card-inner{height:100%;border-radius:11px;transform:none!important}
+      #moviesGrid .movie-card .card-img{height:auto;aspect-ratio:2/2.85;object-fit:cover}
+      #moviesGrid .movie-card .card-meta{padding:10px!important}
+      #moviesGrid .movie-card .card-meta h3,
+      #moviesGrid .movie-card .card-meta .movie-title{font-size:12px!important;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+      #moviesGrid .movie-card .card-meta p{font-size:10px!important;line-height:1.35}
+      #moviesGrid .movie-card .card-overlay{padding:9px;opacity:1;transform:none;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.72))}
+      #moviesGrid .movie-card .card-overlay button{font-size:10px;padding:6px 8px}
+      #moviesGrid .movie-card .rating-badge{top:7px;right:7px;font-size:9px;padding:3px 6px;transform:none}
+      #moviesGrid .movie-card:hover .card-inner{transform:none!important}
+    }
+    @media(max-width:360px){
+      #moviesGrid{gap:8px}
+      #moviesGrid .movie-card .card-meta{padding:8px!important}
+      #moviesGrid .movie-card .card-meta h3,
+      #moviesGrid .movie-card .card-meta .movie-title{font-size:11px!important}
+    }
+
+    /* Embedded providers (Mega and other iframe sources): occupy the complete 16:9 stage */
+    #playbackModal .modal-card{width:min(100%,1020px);max-height:calc(100dvh - 36px);overflow-y:auto;overscroll-behavior:contain}
+    #playbackModal .player-wrapper{
+      position:relative!important;
+      display:block!important;
+      width:100%!important;
+      height:auto!important;
+      aspect-ratio:16/9!important;
+      min-height:0!important;
+      overflow:hidden!important;
+      padding:0!important;
+      background:#000!important;
+      isolation:isolate;
+    }
+    #playbackModal .player-wrapper>iframe,
+    #playbackModal .player-wrapper>video{
+      position:absolute!important;
+      display:block!important;
+      inset:0!important;
+      width:100%!important;
+      height:100%!important;
+      min-width:0!important;
+      min-height:0!important;
+      max-width:none!important;
+      max-height:none!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      object-fit:contain;
+      background:#000!important;
+    }
+    #playbackModal .player-wrapper>iframe{z-index:2;overflow:hidden}
+    #playbackModal .player-wrapper>video{z-index:1}
+    #playbackModal #topCloseBtn{z-index:8;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    #playbackModal .player-meta{position:relative;z-index:3}
+    @media(max-width:620px){
+      #playbackModal.modal-backdrop{padding:0!important;align-items:center!important;justify-content:center!important}
+      #playbackModal .modal-card{width:100%!important;max-width:none!important;max-height:100dvh!important;height:auto!important;border-radius:0!important;overflow-y:auto!important}
+      #playbackModal .player-wrapper{width:100%!important;aspect-ratio:16/9!important;flex:none!important}
+      #playbackModal .player-wrapper>iframe,
+      #playbackModal .player-wrapper>video{width:100%!important;height:100%!important}
+    }
+    @media(max-height:460px) and (orientation:landscape){
+      #playbackModal.modal-backdrop{padding:8px!important}
+      #playbackModal .modal-card{width:min(92vw,1100px)!important;max-height:calc(100dvh - 16px)!important}
+      #playbackModal .player-wrapper{max-height:calc(100dvh - 105px)!important;aspect-ratio:16/9!important}
+      #playbackModal .player-meta{padding:8px 12px!important}
+    }
 </style>
 
   <!-- Shaka + HLS engines for DASH and HLS playback -->
@@ -560,9 +641,24 @@
     function showError(message){console.warn('[Predator player]',message)}
     function setPlayerLoading(isLoading){if(loadingSpinner)loadingSpinner.classList.toggle('hidden',!isLoading)}
     function addPlayerIframe(src,title){
-      const safeSrc=String(src).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-      playerWrapper.innerHTML='<iframe src="'+safeSrc+'" title="'+String(title||'Predator movie').replace(/"/g,'&quot;')+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><button id="topCloseBtn" type="button" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
-      document.getElementById('topCloseBtn').addEventListener('click',closeModalHandler);
+      const frame=document.createElement('iframe');
+      frame.src=String(src);
+      frame.title=String(title||'Predator movie')+' player';
+      frame.allow='autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write';
+      frame.allowFullscreen=true;
+      frame.referrerPolicy='strict-origin-when-cross-origin';
+      frame.loading='eager';
+      frame.setAttribute('webkitallowfullscreen','');
+      frame.setAttribute('mozallowfullscreen','');
+      frame.setAttribute('playsinline','');
+      frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block;border:0;background:#000';
+      const close=document.createElement('button');
+      close.id='topCloseBtn';close.type='button';close.setAttribute('aria-label','Close player');
+      close.innerHTML='<i class="fa-solid fa-xmark"></i>';
+      playerWrapper.replaceChildren(frame,close);
+      close.addEventListener('click',closeModalHandler);
+      frame.addEventListener('load',function(){setPlayerLoading(false)},{once:true});
+      frame.addEventListener('error',function(){setPlayerLoading(false);showError('Embedded player failed to load')},{once:true});
     }
     async function openPlayer(list,index){
       if(!Array.isArray(list)||!list.length||index==null||index<0||index>=list.length)return;
@@ -639,10 +735,12 @@
     function playNext(){if(currentIndex!=null&&currentIndex<currentFiltered.length-1)openPlayer(currentFiltered,currentIndex+1)}
     function playPrev(){if(currentIndex!=null&&currentIndex>0)openPlayer(currentFiltered,currentIndex-1)}
     function toggleFullscreen(){
-      const target=document.getElementById('modalVideo')||playerWrapper.querySelector('iframe')||playerWrapper;
-      const request=target.requestFullscreen||playerWrapper.requestFullscreen;
-      if(!document.fullscreenElement&&request)Promise.resolve(request.call(target)).catch(function(){});
-      else if(document.exitFullscreen)document.exitFullscreen();
+      const target=playerWrapper.querySelector('iframe')||document.getElementById('modalVideo')||playerWrapper;
+      if(document.fullscreenElement){if(document.exitFullscreen)document.exitFullscreen().catch(function(){});return}
+      const request=target.requestFullscreen||target.webkitRequestFullscreen||playerWrapper.requestFullscreen||playerWrapper.webkitRequestFullscreen;
+      if(request)Promise.resolve(request.call(target)).catch(function(){
+        if(playerWrapper.requestFullscreen)playerWrapper.requestFullscreen().catch(function(){});
+      });
     }
     function toggleMute(){
       const v=document.getElementById('modalVideo');if(!v)return;
