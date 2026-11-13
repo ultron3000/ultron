@@ -8507,7 +8507,11 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
         } else {
           const previousIndex = featuredMovieEntry ? featuredMovieEntry.index : lastFeaturedMovieIndex;
           const candidates = pool.filter(entry => entry.index !== previousIndex);
-          const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+          const randomValues = new Uint32Array(1);
+          const randomIndex = window.crypto && window.crypto.getRandomValues
+            ? (window.crypto.getRandomValues(randomValues), randomValues[0] / 4294967296)
+            : Math.random();
+          const chosen = candidates[Math.floor(randomIndex * candidates.length)];
           movieHeroCursor = pool.findIndex(entry => entry.index === chosen.index);
         }
       } else if (mode === "next") {
@@ -8600,9 +8604,9 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
         inner.className = "card-inner";
         const poster = document.createElement("img");
         poster.className = "movie-poster";
-        poster.loading = i < 12 ? "eager" : "lazy";
+        poster.loading = i < 4 ? "eager" : "lazy";
         poster.decoding = "async";
-        poster.fetchPriority = i < 6 ? "high" : "auto";
+        poster.fetchPriority = i < 3 ? "high" : "auto";
         poster.alt = movie.title || "Movie poster";
         poster.src = movie.image || "";
         const title = document.createElement("div");
@@ -8656,7 +8660,7 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
     if ("IntersectionObserver" in window) {
       const movieLoadObserver = new IntersectionObserver(entries => {
         if (entries.some(entry => entry.isIntersecting)) appendMovieBatch();
-      }, { rootMargin: "700px 0px" });
+      }, { rootMargin: "350px 0px" });
       movieLoadObserver.observe(movieLoadMore);
     }
 
@@ -8832,6 +8836,13 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
     initCategories();
     renderMovies();
     renderMovieHero("first");
+
+    // Rotate the featured movie automatically without reloading the catalogue.
+    // Pause while the tab is hidden or the video player is open.
+    const movieHeroAutoShuffle = window.setInterval(() => {
+      if (document.hidden || document.getElementById("playbackModal")?.classList.contains("active")) return;
+      renderMovieHero("random");
+    }, 10000);
 
     // Support direct title links from universal search without changing normal browsing.
     const requestedMovie = new URLSearchParams(window.location.search).get("title");
