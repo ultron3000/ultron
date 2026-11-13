@@ -8477,6 +8477,7 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
     const movieHeroCount = document.getElementById("movieHeroCount");
     let movieHeroCursor = 0;
     let featuredMovieEntry = null;
+    let lastFeaturedMovieIndex = null;
 
     function getMovieHeroEntries() {
       const query = (searchInput.value || "").trim().toLocaleLowerCase();
@@ -8494,20 +8495,30 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
       if (!pool.length) {
         movieHeroShell.hidden = true;
         featuredMovieEntry = null;
+        movieHeroCursor = 0;
         return;
       }
       movieHeroShell.hidden = false;
-      if (mode === "random" && pool.length > 1) {
-        let next = movieHeroCursor;
-        while (next === movieHeroCursor) next = Math.floor(Math.random() * pool.length);
-        movieHeroCursor = next;
+
+      // Randomize on page load and avoid repeating the current title on Shuffle.
+      if (mode === "random" || mode === "first") {
+        if (pool.length === 1) {
+          movieHeroCursor = 0;
+        } else {
+          const previousIndex = featuredMovieEntry ? featuredMovieEntry.index : lastFeaturedMovieIndex;
+          const candidates = pool.filter(entry => entry.index !== previousIndex);
+          const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+          movieHeroCursor = pool.findIndex(entry => entry.index === chosen.index);
+        }
       } else if (mode === "next") {
-        movieHeroCursor = (movieHeroCursor + 1) % pool.length;
-      } else {
-        movieHeroCursor = 0;
+        const currentPosition = featuredMovieEntry
+          ? pool.findIndex(entry => entry.index === featuredMovieEntry.index)
+          : -1;
+        movieHeroCursor = (currentPosition + 1 + pool.length) % pool.length;
       }
-      movieHeroCursor %= pool.length;
+
       featuredMovieEntry = pool[movieHeroCursor];
+      lastFeaturedMovieIndex = featuredMovieEntry.index;
       const movie = featuredMovieEntry.movie;
       const image = movie.image || "";
       movieHeroTitle.textContent = movie.title || "Untitled";
