@@ -189,6 +189,52 @@ main{padding-top:clamp(10px,1.8vw,20px)!important;gap:clamp(24px,3vw,38px)!impor
 @media(max-width:360px){#movies,#tvShows{grid-template-columns:repeat(2,minmax(0,1fr))!important}.hero-copy{max-width:92%!important;padding-left:13px!important}.hero-copy h1{font-size:24px!important}}
 @media(prefers-reduced-motion:reduce){.logo-pulse{animation:none!important}.movie-card,.hero-art{transition:none!important}}
 
+
+/* CINEMATIC POSTER HERO — dynamic movie/series artwork */
+.swarajya-hero{min-height:clamp(330px,34vw,430px)!important;display:flex!important;align-items:center!important;padding:clamp(20px,3vw,38px)!important}
+.hero-art{z-index:0!important;inset:0!important;background-size:cover!important;background-position:center 30%!important;filter:saturate(1.08) brightness(.92)!important;transform:scale(1.025)!important;transition:opacity .45s ease,background-image .35s ease!important}
+.swarajya-hero:before{z-index:1!important;background:linear-gradient(90deg,rgba(7,5,4,.32),rgba(7,5,4,.68) 42%,rgba(7,5,4,.88) 100%),linear-gradient(0deg,rgba(7,5,4,.48),transparent 70%)!important}
+.hero-poster{position:absolute;z-index:2;left:clamp(22px,4vw,48px);top:50%;width:clamp(145px,17vw,205px);aspect-ratio:2/3;transform:translateY(-50%);overflow:hidden;border:1px solid rgba(244,207,138,.68);border-radius:13px;background:#17100c;box-shadow:0 20px 48px rgba(0,0,0,.58);transition:opacity .35s ease,transform .45s ease}
+.hero-poster img{display:block;width:100%;height:100%;object-fit:cover}
+.hero-copy{z-index:2!important;width:min(690px,calc(100% - 245px))!important;margin-left:clamp(190px,22vw,260px)!important;padding:clamp(12px,2vw,24px)!important}
+.hero-kicker{display:inline-flex!important;align-items:center;gap:8px;background:rgba(15,10,6,.48);border:1px solid rgba(241,201,120,.25);border-radius:999px;padding:7px 11px!important}
+.hero-copy h1{font-size:clamp(29px,4.2vw,52px)!important;margin:13px 0 8px!important}
+.hero-copy p{max-width:530px!important;font-size:clamp(12px,1.25vw,15px)!important;line-height:1.65!important}
+.hero-actions{margin-top:16px!important}
+.hero-mark{margin-top:15px!important}
+.hero-index{z-index:4!important;bottom:17px!important;right:clamp(18px,3vw,34px)!important}
+.hero-controls{z-index:5!important;top:16px!important;right:16px!important}
+.hero-controls button{width:36px!important;height:36px!important;font-size:18px!important;display:grid!important;place-items:center!important;backdrop-filter:blur(8px)}
+#heroShuffle{font-size:13px!important}
+@media(max-width:640px){
+ .swarajya-hero{min-height:286px!important;align-items:center!important;padding:13px!important;border-radius:16px!important}
+ .hero-art{background-position:58% center!important}
+ .swarajya-hero:before{background:linear-gradient(90deg,rgba(7,5,4,.36),rgba(7,5,4,.72) 45%,rgba(7,5,4,.9)),linear-gradient(0deg,rgba(7,5,4,.55),transparent 72%)!important}
+ .hero-poster{left:13px;width:clamp(88px,27vw,122px);border-radius:9px}
+ .hero-copy{width:calc(100% - 112px)!important;margin-left:clamp(101px,31vw,137px)!important;padding:34px 5px 26px 4px!important}
+ .hero-kicker{font-size:7px!important;letter-spacing:.1em!important;padding:5px 7px!important;max-width:100%}
+ .hero-copy h1{font-size:clamp(20px,5.9vw,29px)!important;line-height:1.18!important;margin:9px 0 6px!important}
+ .hero-copy p{font-size:10px!important;line-height:1.45!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+ .hero-actions{gap:5px!important;margin-top:10px!important}
+ .hero-actions button,.hero-actions a{min-height:32px!important;padding:0 9px!important;font-size:10px!important;gap:5px!important}
+ .hero-mark{font-size:8px!important;margin-top:9px!important}
+ .hero-controls{top:9px!important;right:9px!important;gap:4px!important}
+ .hero-controls button{width:28px!important;height:28px!important;font-size:15px!important}
+ #heroShuffle{font-size:10px!important}
+ .hero-index{right:12px!important;bottom:9px!important;font-size:8px!important;gap:6px!important}
+ .hero-index span:first-child{font-size:15px!important}
+ .hero-line{width:20px!important}
+ .swarajya-hero:after{inset:6px!important;border-radius:10px!important}
+}
+@media(max-width:370px){
+ .swarajya-hero{min-height:260px!important}
+ .hero-poster{width:82px!important;left:10px!important}
+ .hero-copy{width:calc(100% - 99px)!important;margin-left:94px!important}
+ .hero-copy h1{font-size:19px!important}
+ .hero-copy p{font-size:9px!important;-webkit-line-clamp:2}
+ .hero-actions button,.hero-actions a{font-size:9px!important;padding:0 7px!important}
+}
+
 </style>
 </head>
 
@@ -224,7 +270,8 @@ main{padding-top:clamp(10px,1.8vw,20px)!important;gap:clamp(24px,3vw,38px)!impor
 
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 space-y-12 py-8 pb-20">
     <section class="swarajya-hero" aria-label="स्वराज्य चित्रपट आणि मालिका">
-      <div class="hero-art" id="heroArt"></div>
+      <div class="hero-art" id="heroArt" aria-hidden="true"></div>
+      <div class="hero-poster" aria-hidden="true"><img id="heroPoster" alt="" decoding="async" fetchpriority="high"></div>
       <div class="hero-copy">
         <span class="hero-kicker">॥ इतिहास • शौर्य • स्वराज्य ॥</span>
         <h1 id="heroTitle">छत्रपती शिवाजी महाराज</h1>
@@ -522,22 +569,31 @@ main{padding-top:clamp(10px,1.8vw,20px)!important;gap:clamp(24px,3vw,38px)!impor
       if (!heroItems.length) return;
       heroPosition = (position + heroItems.length) % heroItems.length;
       const entry = heroItems[heroPosition], item = entry.item;
-      heroArt.style.backgroundImage = "linear-gradient(90deg,rgba(8,7,7,.96),rgba(8,7,7,.64) 48%,rgba(8,7,7,.12)),linear-gradient(0deg,rgba(8,7,7,.78),transparent 58%),url('" + String(item.image || '').replace(/'/g,'%27') + "')";
+      const imageUrl = item.image || '';
+      const heroPoster = document.getElementById('heroPoster');
       heroTitle.textContent = item.title || 'स्वराज्य';
       heroSubtitle.textContent = entry.type === 'मालिका' ? 'मराठी ऐतिहासिक मालिकांचा गौरवशाली संग्रह.' : 'मराठी ऐतिहासिक चित्रपटांचा अभिमानास्पद संग्रह.';
       heroNumber.textContent = String(heroPosition+1).padStart(2,'0');
       heroType.textContent = entry.type;
       document.getElementById('heroPlay').onclick = () => openPlayer(entry.list,entry.index);
+      if (imageUrl) {
+        // Update the foreground poster and atmospheric background together.
+        heroPoster.alt = (item.title || 'स्वराज्य') + ' poster';
+        heroPoster.src = imageUrl;
+        heroArt.style.backgroundImage = 'url("' + imageUrl.replace(/["\\]/g,'') + '")';
+      } else {
+        heroPoster.removeAttribute('src');
+        heroArt.style.backgroundImage = 'none';
+      }
     }
-    // Start with a random featured title; Shuffle always changes the selection.
     function showRandomHero() {
       if (heroItems.length < 2) return showHero(0);
-      let next = heroPosition;
-      while (next === heroPosition) next = Math.floor(Math.random() * heroItems.length);
-      showHero(next);
+      const choices = heroItems.map((_,index)=>index).filter(index=>index!==heroPosition);
+      showHero(choices[Math.floor(Math.random()*choices.length)]);
     }
+    // Randomize the first feature on every visit.
     showRandomHero();
-    document.getElementById('heroShuffle').addEventListener('click', showRandomHero);
+    document.getElementById('heroShuffle').addEventListener('click',showRandomHero);
     document.getElementById('heroPrev').addEventListener('click',()=>showHero(heroPosition-1));
     document.getElementById('heroNext').addEventListener('click',()=>showHero(heroPosition+1));
     const heroCarousel=document.querySelector('.swarajya-hero');
@@ -553,12 +609,28 @@ main{padding-top:clamp(10px,1.8vw,20px)!important;gap:clamp(24px,3vw,38px)!impor
     },{passive:true});
     heroCarousel.addEventListener('pointercancel',()=>{swipeTracking=false;},{passive:true});
     heroCarousel.addEventListener('keydown',event=>{if(event.key==='ArrowRight')showHero(heroPosition+1);if(event.key==='ArrowLeft')showHero(heroPosition-1);});
+
+    // Auto-shuffle at a relaxed pace; pause on hover, focus, hidden tabs or playback.
     let heroTimer = null;
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      heroTimer = window.setInterval(()=>showHero(heroPosition+1),7000);
-      document.querySelector('.swarajya-hero').addEventListener('mouseenter',()=>window.clearInterval(heroTimer));
-      document.querySelector('.swarajya-hero').addEventListener('mouseleave',()=>{window.clearInterval(heroTimer);heroTimer=window.setInterval(()=>showHero(heroPosition+1),7000)});
-    }
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const heroShouldPause = () => document.hidden || heroCarousel.matches(':hover') ||
+      heroCarousel.contains(document.activeElement) || modal.classList.contains('active');
+    const stopHeroTimer = () => { if (heroTimer) { window.clearInterval(heroTimer); heroTimer = null; } };
+    const startHeroTimer = () => {
+      stopHeroTimer();
+      if (reducedMotion || heroShouldPause()) return;
+      heroTimer = window.setInterval(showRandomHero, 8000);
+    };
+    heroCarousel.addEventListener('mouseenter',stopHeroTimer);
+    heroCarousel.addEventListener('mouseleave',startHeroTimer);
+    heroCarousel.addEventListener('focusin',stopHeroTimer);
+    heroCarousel.addEventListener('focusout',startHeroTimer);
+    document.addEventListener('visibilitychange',startHeroTimer);
+    const originalCloseModalForHero = closeModal;
+    closeModal = function(...args) { const result = originalCloseModalForHero.apply(this,args); startHeroTimer(); return result; };
+    const originalOpenPlayerForHero = openPlayer;
+    openPlayer = function(...args) { stopHeroTimer(); return originalOpenPlayerForHero.apply(this,args); };
+    startHeroTimer();
   </script>
 </body>
 </html>
