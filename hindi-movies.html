@@ -116,7 +116,9 @@
     }
     
     .animate-fade-in {
-      animation: fadeIn 0.6s ease forwards;
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
     }
     
     .delay-100 { animation-delay: 0.1s; }
@@ -463,8 +465,8 @@ header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:non
 .hm-hero-shell{position:relative;isolation:isolate;overflow:hidden;width:min(1200px,calc(100% - 32px));min-height:clamp(330px,35vw,440px);margin:26px auto 38px;border:1px solid #ffcc0050;border-radius:22px;background:#070b14;box-shadow:0 22px 65px #0008}
 .hm-hero-bg{position:absolute;inset:-18px;z-index:-1;background-position:center;background-size:cover;filter:blur(3px) brightness(.38);transform:scale(1.05)}
 .hm-hero-inner{min-height:inherit;display:grid;grid-template-columns:minmax(155px,225px) minmax(0,1fr);align-items:center;gap:clamp(22px,4vw,50px);padding:clamp(22px,4vw,42px)}
-.hm-hero-poster{width:100%;max-width:225px;aspect-ratio:2/2.9;justify-self:center;filter:drop-shadow(0 16px 25px #000b)}
-.hm-hero-poster img{display:block;width:100%;height:100%;object-fit:cover;border:1px solid #ffffff55;border-radius:13px;background:#111827}
+.hm-hero-poster{width:100%;max-width:225px;aspect-ratio:2/2.9;justify-self:center;overflow:hidden;border-radius:13px;background:#111827;filter:drop-shadow(0 16px 25px #000b)}
+.hm-hero-poster img{display:block;width:100%;height:100%;aspect-ratio:2/2.9;object-fit:cover;border:1px solid #ffffff55;border-radius:13px;background:#111827;opacity:1;transition:none}
 .hm-hero-copy{min-width:0;color:#fff;text-align:left}.hm-hero-kicker{display:inline-flex;gap:8px;align-items:center;padding:7px 11px;border:1px solid #ffcc0066;border-radius:30px;background:#17130bbd;color:#ffe28a;font-size:9px;font-weight:800;letter-spacing:.12em}
 .hm-hero-meta{display:flex;gap:9px;margin-top:14px;color:#f8d76c;font-size:10px;font-weight:800;text-transform:uppercase}.hm-hero-copy h2{margin:10px 0;color:#fff;font-size:clamp(2rem,4.4vw,4rem);font-weight:800;line-height:1.05;letter-spacing:-.04em}.hm-hero-copy p{max-width:58ch;color:#e2e8f0;font-size:13px;line-height:1.65;margin:0 0 18px}
 .hm-hero-actions{display:flex;flex-wrap:wrap;gap:9px}.hm-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:41px;padding:0 14px;border:1px solid #ffffff35;border-radius:9px;background:#111827d9;color:#fff;text-decoration:none;font-size:10px;font-weight:800;cursor:pointer}.hm-hero-primary{border-color:transparent;background:linear-gradient(110deg,#ffe27b,#e6ad00);color:#171205}
@@ -501,7 +503,7 @@ header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:non
 <section id="hmHero" class="hm-hero-shell" aria-label="Featured Hindi movies">
  <div class="hm-hero-bg" id="hmHeroBg" aria-hidden="true"></div>
  <div class="hm-hero-inner">
-  <div class="hm-hero-poster"><img id="hmHeroPoster" alt="Featured Hindi movie poster" fetchpriority="high"></div>
+  <div class="hm-hero-poster"><img id="hmHeroPoster" alt="Featured Hindi movie poster" width="450" height="653" decoding="async" fetchpriority="high"></div>
   <div class="hm-hero-copy">
    <span class="hm-hero-kicker"><i class="fas fa-film"></i> HINDI CINEMA · FEATURED COLLECTION</span>
    <div id="hmHeroMeta" class="hm-hero-meta"></div>
@@ -810,19 +812,38 @@ header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:non
             { title: "Welcome to the Jungle", video: "https://mega.nz/embed/LbQihDJa#yUvolweD1KXWB37CXB-WDsBBu8ZjMBDhtVfbNHHZL8Y", image: "https://image.tmdb.org/t/p/w500/1JlfUuvvX5xLP2LIDah4JhWUtTx.jpg", category: "Hindi", year: 2026 },
          ];
 /* Featured carousel reads existing movie data and opens the original player */
-let hmIndex=0,hmOrder=[],hmPos=0,hmTimer=null,hmTouchX=null;
+let hmIndex=0,hmOrder=[],hmPos=0,hmTimer=null,hmTouchX=null,hmImageToken=0;
 function hmShuffle(except){const a=movies.map((_,i)=>i).filter(i=>i!==except);for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function hmShow(i){
- if(!movies.length)return;hmIndex=(i+movies.length)%movies.length;const m=movies[hmIndex];
- document.getElementById('hmHeroPoster').src=m.image||'';
- document.getElementById('hmHeroPoster').alt=(m.title||'Hindi movie')+' poster';
- document.getElementById('hmHeroBg').style.backgroundImage=m.image?'url("'+String(m.image).replace(/["\\]/g,'')+'")':'none';
- document.getElementById('hmHeroTitle').textContent=m.title||'Hindi Cinema';
- document.getElementById('hmHeroDescription').textContent=m.description||'Discover '+(m.title||'this film')+' from the Hindi cinema collection.';
- const meta=document.getElementById('hmHeroMeta');meta.textContent=[m.year,m.category||'Hindi'].filter(Boolean).join(' · ');
- document.getElementById('hmHeroCount').textContent=(hmIndex+1)+' / '+movies.length;
- document.querySelectorAll('#hmHeroDots button').forEach((b,n)=>b.classList.toggle('active',n===hmIndex%5));
-}
+  if(!movies.length)return;
+  hmIndex=(i+movies.length)%movies.length;
+  const m=movies[hmIndex];
+  const poster=document.getElementById('hmHeroPoster');
+  const bg=document.getElementById('hmHeroBg');
+  const imageUrl=m.image||'';
+  const imageToken=++hmImageToken;
+  poster.alt=(m.title||'Hindi movie')+' poster';
+  document.getElementById('hmHeroTitle').textContent=m.title||'Hindi Cinema';
+  document.getElementById('hmHeroDescription').textContent=m.description||'Discover '+(m.title||'this film')+' from the Hindi movie collection.';
+  const meta=document.getElementById('hmHeroMeta');
+  meta.textContent=[m.year,m.category||'Hindi'].filter(Boolean).join(' · ');
+  document.getElementById('hmHeroCount').textContent=(hmIndex+1)+' / '+movies.length;
+  document.querySelectorAll('#hmHeroDots button').forEach((b,n)=>b.classList.toggle('active',n===hmIndex%5));
+  if(!imageUrl){poster.removeAttribute('src');bg.style.backgroundImage='none';return;}
+  const preloader=new Image();
+  preloader.decoding='async';
+  preloader.src=imageUrl;
+  const applyImage=()=>{
+    if(imageToken!==hmImageToken)return;
+    poster.src=imageUrl;
+    bg.style.backgroundImage='url("'+String(imageUrl).replace(/["\\]/g,'')+'")';
+  };
+  if(typeof preloader.decode==='function'){
+    preloader.decode().then(applyImage).catch(()=>{if(preloader.complete&&preloader.naturalWidth)applyImage();});
+  }else{
+    preloader.onload=applyImage;
+  }
+ }
 function hmNext(){if(!hmOrder.length||hmPos>=hmOrder.length){hmOrder=hmShuffle(hmIndex);hmPos=0}hmShow(hmOrder[hmPos++])}
 function hmStop(){if(hmTimer){clearInterval(hmTimer);hmTimer=null}}
 function hmStart(){hmStop();if(!document.hidden&&movies.length>1)hmTimer=setInterval(hmNext,8500)}
@@ -1236,7 +1257,7 @@ function seekForward10() {
           const cardIndex = index;
           const delayClass = `delay-${(cardIndex % 5) * 100}`;
           const div = document.createElement('div');
-          div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+          div.className = `movie-card rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
           div.innerHTML = `
             <div class="relative overflow-hidden rounded-t-lg">
               <img src="${movie.image}" alt="${movie.title}" loading="lazy" decoding="async" class="w-full h-full object-cover movie-poster">
