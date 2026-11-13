@@ -555,6 +555,29 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
     <div class="category-scroll-container" id="categoryContainer"></div>
   </div>
 
+
+  <!-- Featured movie hero: driven by the existing catalogue and active filters -->
+  <section class="movie-hero-shell" id="movieHeroShell" aria-label="Featured movie">
+    <div class="movie-hero" id="movieHero">
+      <div class="movie-hero-bg" id="movieHeroBg" aria-hidden="true"></div>
+      <div class="movie-hero-inner">
+        <div class="movie-hero-poster-wrap"><img id="movieHeroPoster" alt="Featured movie poster" decoding="async" fetchpriority="high"></div>
+        <div class="movie-hero-copy">
+          <div class="movie-hero-kicker"><span>FEATURED MOVIE</span><span id="movieHeroCategory">CINEMA</span></div>
+          <h2 class="movie-hero-title" id="movieHeroTitle">Discover a movie</h2>
+          <div class="movie-hero-meta" id="movieHeroMeta"></div>
+          <p class="movie-hero-description" id="movieHeroDescription">Explore the collection.</p>
+          <div class="movie-hero-actions">
+            <button type="button" class="movie-hero-btn movie-hero-primary" id="movieHeroPlay"><i class="fas fa-play"></i> Watch now</button>
+            <button type="button" class="movie-hero-btn movie-hero-secondary" id="movieHeroNext"><i class="fas fa-forward"></i> Next movie</button>
+            <button type="button" class="movie-hero-btn movie-hero-secondary movie-hero-shuffle" id="movieHeroShuffle" aria-label="Surprise me"><i class="fas fa-shuffle"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="movie-hero-count" id="movieHeroCount"></div>
+    </div>
+  </section>
+
   <!-- Movies Grid -->
   <div class="mb-8">
     <div class="movie-grid" id="movies"></div>
@@ -8421,6 +8444,71 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
     const categoryContainer = document.getElementById("categoryContainer");
     const searchInput = document.getElementById("searchInput");
 
+    // Featured hero uses the same movie records and follows the active category/search.
+    const movieHeroShell = document.getElementById("movieHeroShell");
+    const movieHeroBg = document.getElementById("movieHeroBg");
+    const movieHeroPoster = document.getElementById("movieHeroPoster");
+    const movieHeroTitle = document.getElementById("movieHeroTitle");
+    const movieHeroCategory = document.getElementById("movieHeroCategory");
+    const movieHeroMeta = document.getElementById("movieHeroMeta");
+    const movieHeroDescription = document.getElementById("movieHeroDescription");
+    const movieHeroCount = document.getElementById("movieHeroCount");
+    let movieHeroCursor = 0;
+    let featuredMovieEntry = null;
+
+    function getMovieHeroEntries() {
+      const query = (searchInput.value || "").trim().toLocaleLowerCase();
+      return movies.map((movie, index) => ({ movie, index })).filter(({ movie }) => {
+        const category = movie.category || "Marathi";
+        const title = (movie.title || "").toLocaleLowerCase();
+        const description = (movie.description || "").toLocaleLowerCase();
+        return (activeCategory === "All" || category === activeCategory) &&
+          (!query || title.includes(query) || description.includes(query));
+      });
+    }
+
+    function renderMovieHero(mode) {
+      const pool = getMovieHeroEntries();
+      if (!pool.length) {
+        movieHeroShell.hidden = true;
+        featuredMovieEntry = null;
+        return;
+      }
+      movieHeroShell.hidden = false;
+      if (mode === "random" && pool.length > 1) {
+        let next = movieHeroCursor;
+        while (next === movieHeroCursor) next = Math.floor(Math.random() * pool.length);
+        movieHeroCursor = next;
+      } else if (mode === "next") {
+        movieHeroCursor = (movieHeroCursor + 1) % pool.length;
+      } else {
+        movieHeroCursor = 0;
+      }
+      movieHeroCursor %= pool.length;
+      featuredMovieEntry = pool[movieHeroCursor];
+      const movie = featuredMovieEntry.movie;
+      const image = movie.image || "";
+      movieHeroTitle.textContent = movie.title || "Untitled";
+      movieHeroCategory.textContent = movie.category || "Marathi";
+      movieHeroMeta.textContent = [movie.year, movie.duration].filter(Boolean).join("  ·  ");
+      movieHeroDescription.textContent = movie.description || "Discover this title from the Cloud TV collection.";
+      movieHeroCount.textContent = "FEATURED  " + String(movieHeroCursor + 1).padStart(2, "0") + " / " + pool.length;
+      movieHeroPoster.alt = (movie.title || "Featured movie") + " poster";
+      if (image) {
+        movieHeroPoster.src = image;
+        movieHeroBg.style.backgroundImage = 'url("' + image.replace(/["\\]/g, "") + '")';
+      } else {
+        movieHeroPoster.removeAttribute("src");
+        movieHeroBg.style.backgroundImage = "none";
+      }
+    }
+
+    document.getElementById("movieHeroPlay").addEventListener("click", () => {
+      if (featuredMovieEntry) openPlayer(featuredMovieEntry.index);
+    });
+    document.getElementById("movieHeroNext").addEventListener("click", () => renderMovieHero("next"));
+    document.getElementById("movieHeroShuffle").addEventListener("click", () => renderMovieHero("random"));
+
     // Original category selector, rebuilt with safe event binding.
     function initCategories() {
       const categories = ["All", ...Array.from(new Set(
@@ -8445,6 +8533,7 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
       activeCategory = cat;
       initCategories();
       renderMovies();
+      renderMovieHero("first");
     }
 
     // Progressive catalogue renderer: keep every title, but avoid mounting
@@ -8538,7 +8627,7 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
       movieLoadObserver.observe(movieLoadMore);
     }
 
-    searchInput.addEventListener("input", renderMovies);
+    searchInput.addEventListener("input", () => { renderMovies(); renderMovieHero("first"); });
 
     // Modal & Player Control logic supporting both `.video` and `.url` properties
     const modal = document.getElementById("playbackModal");
@@ -8709,6 +8798,7 @@ body.mode-standard .movie-grid,body.mode-dense .movie-grid,body.mode-card .movie
     // Initial Load
     initCategories();
     renderMovies();
+    renderMovieHero("first");
 
     // Support direct title links from universal search without changing normal browsing.
     const requestedMovie = new URLSearchParams(window.location.search).get("title");
@@ -9000,6 +9090,53 @@ body.mode-card #movies .movie-card{width:100%!important;min-width:0!important;ma
  body.mode-card #movies.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important}
  body.mode-card #movies .movie-poster{aspect-ratio:4/3!important}
  body.mode-card #movies .movie-title{font-size:12px!important;min-height:42px!important}
+}
+
+
+/* MOVIES PAGE CINEMATIC REDESIGN — isolated from catalogue/player logic */
+.movie-hero-shell{position:relative;margin:clamp(14px,2vw,24px) auto clamp(24px,3vw,38px);width:100%;max-width:100%;min-width:0}
+.movie-hero-shell[hidden]{display:none!important}
+.movie-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(300px,31vw,420px);border:1px solid rgba(255,200,87,.22);border-radius:22px;background:#090e19;box-shadow:0 22px 60px rgba(0,0,0,.34)}
+.movie-hero-bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center 35%;background-repeat:no-repeat;filter:brightness(.76) saturate(1.08);transform:scale(1.015);opacity:1;pointer-events:none;transition:background-image .2s}
+.movie-hero:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(5,9,17,.22),rgba(5,9,17,.66) 48%,rgba(5,9,17,.84)),linear-gradient(0deg,rgba(5,9,17,.42),transparent 72%)}
+.movie-hero-inner{position:relative;z-index:2;min-height:inherit;display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr);align-items:center;gap:clamp(22px,4vw,48px);padding:clamp(22px,4vw,42px)}
+.movie-hero-poster-wrap{width:100%;max-width:220px;aspect-ratio:2/3;border:1px solid rgba(255,255,255,.24);border-radius:14px;overflow:hidden;box-shadow:0 18px 44px rgba(0,0,0,.48);background:#111827}
+.movie-hero-poster-wrap img{display:block;width:100%;height:100%;object-fit:cover}
+.movie-hero-copy{min-width:0;max-width:720px;color:#fff}
+.movie-hero-kicker{display:flex;flex-wrap:wrap;align-items:center;gap:10px;color:#ffd477;font:800 9px/1.2 'Rajdhani',sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.movie-hero-kicker span+span{color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:5px 9px;letter-spacing:.1em}
+.movie-hero-title{margin:12px 0 8px;color:#fff;font:700 clamp(27px,4vw,48px)/1.02 'Rajdhani',sans-serif;letter-spacing:-.025em;text-shadow:0 3px 20px #0008}
+.movie-hero-meta{min-height:15px;color:#ffe2a1;font:700 10px/1.4 'Poppins',sans-serif;letter-spacing:.08em}
+.movie-hero-description{max-width:650px;margin:12px 0 18px;color:rgba(255,255,255,.84);font:400 clamp(10px,1.1vw,12px)/1.65 'Poppins',sans-serif;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.movie-hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.movie-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:41px;padding:0 16px;border-radius:10px;border:1px solid rgba(255,255,255,.2);font:700 11px 'Poppins',sans-serif;cursor:pointer;transition:transform .18s,filter .18s,background .18s}
+.movie-hero-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.movie-hero-primary{background:linear-gradient(115deg,#ffc857,#ff9654);color:#171923;border:0;box-shadow:0 8px 24px rgba(255,160,65,.24)}
+.movie-hero-secondary{background:rgba(12,18,30,.65);color:#fff;backdrop-filter:blur(10px)}
+.movie-hero-shuffle{width:41px;padding:0}
+.movie-hero-count{position:absolute;z-index:3;right:20px;bottom:17px;color:rgba(255,255,255,.72);font:800 9px 'Rajdhani',sans-serif;letter-spacing:.16em}
+body.light .movie-hero{border-color:rgba(71,85,105,.22);box-shadow:0 18px 45px rgba(15,23,42,.16)}
+body.light .movie-hero:after{background:linear-gradient(90deg,rgba(5,9,17,.28),rgba(5,9,17,.66) 48%,rgba(5,9,17,.82)),linear-gradient(0deg,rgba(5,9,17,.4),transparent 72%)}
+@media(max-width:640px){
+ .movie-hero-shell{margin:12px auto 22px}
+ .movie-hero{min-height:270px;border-radius:16px}
+ .movie-hero-inner{grid-template-columns:minmax(88px,27%) minmax(0,1fr);gap:clamp(11px,3vw,18px);padding:17px 13px 42px}
+ .movie-hero-poster-wrap{max-width:150px;border-radius:10px}
+ .movie-hero-title{font-size:clamp(20px,6vw,30px);margin:8px 0 6px}
+ .movie-hero-kicker{font-size:8px;gap:6px;letter-spacing:.13em}
+ .movie-hero-meta{font-size:8px}
+ .movie-hero-description{font-size:9px;line-height:1.48;margin:8px 0 11px;-webkit-line-clamp:4}
+ .movie-hero-actions{gap:6px}
+ .movie-hero-btn{min-height:34px;padding:0 9px;font-size:9px;gap:5px;border-radius:8px}
+ .movie-hero-shuffle{width:34px;padding:0}
+ .movie-hero-count{right:12px;bottom:13px;font-size:8px}
+}
+@media(max-width:380px){
+ .movie-hero{min-height:250px}
+ .movie-hero-inner{grid-template-columns:78px minmax(0,1fr);gap:10px;padding:14px 10px 39px}
+ .movie-hero-title{font-size:19px}
+ .movie-hero-description{-webkit-line-clamp:3;font-size:8px}
+ .movie-hero-btn{min-height:32px;padding:0 7px;font-size:8px}
 }
 
 </style>
