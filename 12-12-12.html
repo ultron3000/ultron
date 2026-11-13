@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080d12">
+<meta name="description" content="Explore 12 12 12, the 2026 Apple TV heist thriller starring Anthony Mackie and Jamie Dornan.">
+<title>12 12 12 (2026) | Series Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#080d12;--panel:#101a22;--panel2:#172631;--text:#f2f7fa;--muted:#9fb2bd;--line:rgba(174,211,226,.14);--rose:#8fd0df;--red:#b87942;--gold:#e2bd83;--shadow:0 24px 70px rgba(0,0,0,.48)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 0%,rgba(42,132,157,.17),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(178,121,66,.11),transparent 35%)}.shell{width:min(1320px,100%);margin:auto;padding:0 clamp(15px,4vw,54px)}
+.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(9,8,13,.88);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font:700 18px "Space Grotesk",sans-serif;letter-spacing:-.04em}.brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(140deg,var(--rose),var(--red));color:#170b10}.top-link{color:var(--muted);font-size:12px;font-weight:700}.top-link:hover{color:var(--rose)}
+/* Exact responsive hero system from series.html */
+.series-hero-shell{max-width:1320px;margin:18px auto 28px;padding:0 18px}
+.series-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(330px,34vw,455px);border:1px solid rgba(148,163,184,.28);border-radius:26px;background:#020617;box-shadow:0 26px 80px rgba(0,0,0,.42);touch-action:pan-y}
+.series-hero-bg{position:absolute;inset:0;z-index:-2;overflow:hidden;background-position:center;background-size:cover}
+.series-hero-bg iframe{position:absolute;top:50%;left:50%;width:177.78vh;height:56.25vw;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:0;pointer-events:none;opacity:.76}
+.series-hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,23,.66),rgba(2,6,23,.78) 48%,rgba(2,6,23,.9)),linear-gradient(0deg,rgba(2,6,23,.58),rgba(2,6,23,.12))}
+.series-hero-inner{position:relative;z-index:1;min-height:inherit;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(24px,4vw,58px);padding:clamp(22px,4vw,48px)}
+.series-hero-art{display:block;width:100%;max-width:245px;aspect-ratio:2/2.85;justify-self:center;transform:perspective(1100px) rotateY(-9deg) rotateX(2deg);transform-style:preserve-3d;filter:drop-shadow(0 24px 30px rgba(0,0,0,.62));transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.series-hero-art img{display:block;width:100%;height:100%;object-fit:cover;border-radius:15px;border:1px solid rgba(255,255,255,.4);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 18px 45px #0008}
+.series-hero:hover .series-hero-art{transform:perspective(1100px) rotateY(-3deg) rotateX(0) translateY(-5px) scale(1.015)}
+.series-hero-copy{max-width:760px;min-width:0;color:#fff;text-align:left}
+.series-hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid rgba(103,232,249,.38);border-radius:999px;background:rgba(8,47,73,.62);color:#a5f3fc;font-size:10px;font-weight:900;letter-spacing:.15em}
+.series-hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;color:#bae6fd;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.series-hero-title{margin:12px 0 10px;color:#fff;font-size:clamp(2rem,4.6vw,4.2rem);font-weight:950;line-height:1.02;letter-spacing:-.045em;text-wrap:balance;text-shadow:0 5px 25px #0009}
+.series-hero-description{max-width:62ch;margin:0 0 22px;color:#e2e8f0;font-size:clamp(13px,1.25vw,15px);line-height:1.7;text-shadow:0 2px 12px #000}
+.series-hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.series-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font-size:12px;font-weight:900;transition:transform .2s,filter .2s,background .2s;border:0;cursor:pointer}
+.series-hero-btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.series-hero-primary{color:#fff;background:linear-gradient(110deg,#0891b2,#4f46e5);box-shadow:0 9px 26px #0891b244}
+.series-hero-secondary{color:#fff;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(12px)}
+.series-hero-dots{display:flex;gap:5px;margin-top:19px}
+.series-hero-dots span{width:17px;height:3px;border-radius:8px;background:#ffffff55}
+.series-hero-dots span.active{width:32px;background:#67e8f9}
+@media(max-width:700px){
+ .series-hero-shell{padding:0 12px;margin:13px auto 21px}
+ .series-hero{min-height:310px;border-radius:20px}
+ .series-hero-bg iframe{width:177.78vh;height:56.25vw;opacity:.58}
+ .series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.78),rgba(2,6,23,.84)),linear-gradient(0deg,rgba(2,6,23,.78),rgba(2,6,23,.24))}
+ .series-hero-inner{grid-template-columns:minmax(88px,27%) minmax(0,1fr);gap:clamp(12px,3vw,20px);padding:20px 15px 62px;min-height:310px}
+ .series-hero-art{width:100%;max-width:150px;transform:perspective(800px) rotateY(-5deg)}
+ .series-hero-art img{border-radius:11px}
+ .series-hero:hover .series-hero-art{transform:perspective(800px) rotateY(-3deg) translateY(-2px)}
+ .series-hero-kicker{font-size:8px;padding:6px 9px;letter-spacing:.1em}
+ .series-hero-meta{font-size:9px;gap:6px;margin-top:10px}
+ .series-hero-title{font-size:clamp(1.35rem,5.5vw,2.25rem);line-height:1.04;margin:9px 0 8px}
+ .series-hero-description{font-size:11px;line-height:1.5;margin-bottom:13px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+ .series-hero-btn{min-height:37px;padding:0 11px;font-size:10px;gap:6px}
+ .series-hero-dots{margin-top:12px}
+}
+@media(max-width:390px){
+ .series-hero{min-height:292px}
+ .series-hero-inner{min-height:292px;grid-template-columns:82px minmax(0,1fr);gap:11px;padding:16px 12px 58px}
+ .series-hero-title{font-size:1.28rem}
+ .series-hero-description{-webkit-line-clamp:3;font-size:10px}
+ .series-hero-btn{padding:0 9px;font-size:9px}
+}
+
+.section{margin:42px 0 48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:17px}.overline{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.2em;text-transform:uppercase}.section-title{font:700 clamp(23px,3vw,32px)/1.1 "Space Grotesk",sans-serif;letter-spacing:-.05em;margin:6px 0 0}.section-desc{font-size:11px;color:var(--muted);margin-top:6px}.episode-tools{display:flex;gap:9px;align-items:center}.search{width:min(230px,38vw);height:39px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);padding:0 12px;outline:none;font-size:11px}.search:focus{border-color:var(--rose)}.season-pill{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;color:var(--text);font-size:11px;font-weight:700}
+.episode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}.episode-card{min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:linear-gradient(155deg,#1b1720,#100e14);transition:transform .22s,border-color .22s,box-shadow .22s;cursor:pointer}.episode-card:hover{transform:translateY(-5px);border-color:rgba(143,208,223,.55);box-shadow:0 14px 34px rgba(0,0,0,.3)}.episode-image-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:#211922}.episode-image{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s}.episode-date-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:14px;text-align:center;background:radial-gradient(circle at 50% 0%,rgba(143,208,223,.2),transparent 55%),linear-gradient(145deg,#142b36,#09141d 72%);color:#edfaff}.episode-date-placeholder:before{content:"";position:absolute;inset:12px;border:1px solid rgba(143,208,223,.2);border-radius:8px;pointer-events:none}.episode-date-placeholder .placeholder-eyebrow{font-size:8px;font-weight:900;letter-spacing:.22em;color:#8fd0df}.episode-date-placeholder strong{font:700 clamp(15px,2vw,22px)/1.1 "Space Grotesk",sans-serif;letter-spacing:-.03em}.episode-date-placeholder .placeholder-note{font-size:7px;letter-spacing:.16em;color:#9fb2bd}.episode-release-tag{position:absolute;right:9px;bottom:9px;border:1px solid rgba(143,208,223,.32);border-radius:999px;padding:5px 8px;background:rgba(5,14,20,.82);color:#b8eaf3;font-size:8px;font-weight:800;letter-spacing:.06em}.episode-card.is-upcoming{cursor:default}.episode-card.is-upcoming:hover{transform:none;border-color:rgba(143,208,223,.3);box-shadow:none}.episode-card:hover .episode-image{transform:scale(1.045)}.episode-number{position:absolute;top:10px;left:10px;background:rgba(8,7,12,.78);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:5px 8px;font-size:9px;font-weight:800;letter-spacing:.1em}.episode-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,7,12,.12);opacity:0;transition:.2s}.episode-play span{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:rgba(143,208,223,.96);color:#1b0c12;box-shadow:0 7px 24px rgba(0,0,0,.4)}.episode-card:hover .episode-play{opacity:1}.episode-info{padding:13px 14px 15px}.episode-kicker{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.episode-title{font:700 15px/1.25 "Space Grotesk",sans-serif;margin:7px 0 6px;min-height:38px}.episode-description{font-size:10px;line-height:1.6;color:#b9adb4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}.episode-runtime{font-size:9px;color:#8e838b;margin-top:10px}
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.about-panel{border:1px solid var(--line);border-radius:17px;padding:23px;background:linear-gradient(145deg,rgba(30,24,34,.94),rgba(17,14,20,.94))}.about-panel h3{font:700 18px "Space Grotesk",sans-serif;margin:0 0 10px}.about-panel p{font-size:12px;line-height:1.8;color:#c3b7be;margin:0}.cast-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.cast-chip{font-size:10px;color:#e5d8de;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+.footer{border-top:1px solid var(--line);padding:25px 0 35px;color:#8f858c;font-size:10px}.footer-inner{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.91);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(12px)}.modal-backdrop.active{display:flex}.modal-card{position:relative;width:min(100%,1020px);max-height:95vh;overflow:auto;background:#0d0b11;border:1px solid rgba(143,208,223,.22);border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.7)}.player-wrapper{position:relative;width:100%;aspect-ratio:16/9;background:#000}.player-wrapper video,.player-wrapper iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}.player-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;background:#131018;border-top:1px solid var(--line)}.meta-left{min-width:0}.player-meta h3{font:700 16px "Space Grotesk",sans-serif;margin:0}.player-meta p{font-size:10px;color:#a99da5;margin:5px 0 0}.controls-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}.player-btn{min-width:40px;height:39px;padding:0 11px;border:1px solid rgba(232,160,173,.35);border-radius:9px;background:#201923;color:#b8eaf3;font-size:11px}.player-btn:hover{background:#1b3945}.player-btn.close{color:#fff;background:#652c3b;border-color:#8c4055}#topCloseBtn{position:absolute;top:12px;right:12px;z-index:5;width:39px;height:39px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px}
+@media(max-width:900px){.episode-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{min-height:clamp(520px,calc(100svh - 68px),760px)}.hero-inner{grid-template-columns:minmax(175px,28%) minmax(0,1fr);gap:clamp(20px,4vw,38px);padding:28px clamp(22px,5vw,52px)}.about{grid-template-columns:1fr}}
+@media(max-width:620px){.topbar{height:59px}.hero{width:100vw;margin:0 0 30px calc(50% - 50vw);border-radius:0;min-height:calc(100svh - 59px);height:calc(100svh - 59px)}.hero-video{opacity:.31}.hero-video iframe{width:190%;height:190%;left:-45%;top:-45%}.hero-art{background:linear-gradient(90deg,rgba(8,7,12,.42),rgba(8,7,12,.84) 34%,rgba(8,7,12,.96)),linear-gradient(0deg,rgba(8,7,12,.75),transparent 85%)}.hero-inner{height:100%;min-height:0;display:grid;grid-template-columns:minmax(96px,31%) minmax(0,1fr);align-items:center;gap:clamp(10px,3vw,18px);padding:18px clamp(12px,4vw,22px)}.hero-poster{width:100%;max-width:190px;border-radius:10px;align-self:center}.hero-copy{width:100%;min-width:0}.eyebrow{font-size:8px;letter-spacing:.12em;gap:5px}.eyebrow:before{width:13px}h1{font-size:clamp(27px,8vw,43px);line-height:.98;letter-spacing:-.065em;margin:9px 0 10px}.hero-subtitle{font-size:clamp(9px,2.65vw,11px);line-height:1.5;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.meta{margin:10px 0;font-size:8px;gap:6px 9px}.meta span{gap:4px}.tags{gap:5px;margin:9px 0}.tag{font-size:7px;padding:4px 6px}.actions{margin-top:12px;gap:6px}.primary,.secondary{min-height:36px;padding:0 9px;font-size:9px;border-radius:8px;gap:5px}.trailer-note{font-size:8px;line-height:1.4;margin-top:9px}.section{margin:31px 0 37px}.section-head{align-items:flex-start;flex-direction:column}.episode-tools{width:100%}.search{flex:1;width:auto}.episode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.episode-card{border-radius:12px}.episode-info{padding:10px}.episode-title{font-size:13px;min-height:34px}.episode-description{font-size:9px;min-height:44px}.episode-runtime{font-size:8px}.episode-play{opacity:1}.episode-play span{width:34px;height:34px;font-size:12px}.about-panel{padding:17px}.modal-backdrop{padding:0;align-items:stretch}.modal-card{width:100%;max-height:100dvh;height:auto;align-self:center;border-radius:0;border-left:0;border-right:0}.player-wrapper{aspect-ratio:16/9;flex:none}.player-meta{flex-direction:column;align-items:stretch;padding:13px;gap:12px}.controls-row{justify-content:center;gap:8px}.player-btn{height:43px;min-width:45px;padding:0 10px}.meta-left{padding-right:45px}.player-meta h3{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Advertisement layout safety: keep fixed-size ad creatives inside the page */
+.ad-slot{display:flex;justify-content:center;align-items:flex-start;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box;margin:20px auto!important;padding:0 12px}
+.ad-slot iframe,.ad-slot ins,.ad-slot img{max-width:100%!important;box-sizing:border-box}
+.ad-slot.ad-banner-728 iframe{display:block;width:min(728px,100%)!important;max-width:100%!important;height:90px!important;margin:0 auto!important}
+.ad-slot.ad-banner-160 iframe{display:block;width:160px!important;max-width:100%!important;height:600px!important;margin:0 auto!important}
+.ad-slot.ad-native>div{max-width:100%;width:100%;overflow:hidden}
+@media(max-width:700px){
+ html,body{max-width:100%;overflow-x:clip}
+ .ad-slot{margin:14px auto!important;padding:0 10px}
+ .ad-slot.ad-banner-160{display:none!important}
+ .ad-slot.ad-banner-728 iframe{width:100%!important;max-width:100%!important;height:90px!important}
+ .ad-slot.ad-native iframe{max-width:100%!important}
+}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+<nav class="topbar"><div class="shell topbar-inner"><a class="brand" href="#top"><span class="brand-mark"><i class="fa-solid fa-vault"></i></span><span>12 12 12 <span style="color:var(--rose)">/ 2026</span></span></a><a class="top-link" href="series.html"><i class="fa-solid fa-arrow-left"></i> Back to series</a></div></nav>
+<main class="shell" id="top">
+<section class="series-hero-shell" aria-label="12 12 12 featured series">
+  <div class="series-hero" id="bodyHero">
+    <div class="series-hero-bg" id="bodyHeroVideo" aria-hidden="true" style="background-image:url('https://image.tmdb.org/t/p/w500/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg')">
+      <iframe id="bodyHeroTrailer" title="12 12 12 trailer background" src="https://www.youtube-nocookie.com/embed/pWdt8WMCqnc?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=pWdt8WMCqnc&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1"></iframe>
+    </div>
+    <div class="series-hero-inner">
+      <div class="series-hero-art"><img src="https://image.tmdb.org/t/p/w500/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg" alt="12 12 12 — Season 1 artwork" fetchpriority="high"></div>
+      <div class="series-hero-copy">
+        <div class="series-hero-kicker"><i class="fa-solid fa-shield-halved"></i><span>APPLE TV ORIGINAL SERIES</span></div>
+        <div class="series-hero-meta"><span>2026</span><span>8 Episodes</span><span>Crime · Thriller</span><span>TV-MA</span></div>
+        <h1 class="series-hero-title">12 12 12</h1>
+        <p class="series-hero-description">A disgraced FBI agent and an American career criminal are locked in a high-stakes game of cat and mouse across Europe. Their paths collide around an audacious raid on a bank vault buried beneath the streets of Zurich — told across 12 months of planning, 12 hours of action and 12 days of fallout.</p>
+        <div class="series-hero-actions">
+          <a class="series-hero-btn series-hero-primary" href="#episodes"><i class="fa-solid fa-layer-group"></i> View episodes</a>
+          <button class="series-hero-btn series-hero-secondary" id="trailerBtn" type="button"><i class="fa-brands fa-youtube"></i> Watch trailer</button>
+        </div>
+        <div class="series-hero-dots" aria-hidden="true"><span class="active"></span><span></span><span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section" id="episodes">
+  <div class="section-head"><div><div class="overline">Season one · 2026</div><h2 class="section-title">Every second is part of the plan.</h2><div class="section-desc">Eight chapters. Three timelines. One impossible heist.</div></div>
+    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"><span class="season-pill">Season 1</span></div>
+  </div>
+  <div class="episode-grid" id="episodeGrid"></div>
+</section>
+<section class="section">
+ <div class="section-head"><div><div class="overline">The operation</div><h2 class="section-title">Twelve months. Twelve hours. Twelve days.</h2></div></div>
+ <div class="about">
+  <article class="about-panel"><h3>The story</h3><p><em>12 12 12</em> is a high-stakes heist drama built around three connected timelines: the twelve months of preparation, the twelve hours of the robbery and the twelve days that follow. A disgraced FBI agent, Jack Strickland, pursues career criminal Paul Galvin through Europe as an audacious operation targets a bank vault deep beneath Zurich.</p></article>
+  <article class="about-panel"><h3>Production</h3><p><strong>Created by:</strong> Dudi Appleton &amp; Jim Keeble<br><strong>Network:</strong> Apple TV<br><strong>Production:</strong> Paramount Television Studios &amp; Anonymous Content<br><strong>Premiere:</strong> November 13, 2026<br><strong>Format:</strong> 1 season · 8 episodes</p><h3 style="margin-top:20px">Starring</h3><div class="cast-list"><span class="cast-chip">Anthony Mackie</span><span class="cast-chip">Jamie Dornan</span><span class="cast-chip">Jack Kesy</span><span class="cast-chip">Agathe Rousselle</span><span class="cast-chip">Sallie Harmsen</span><span class="cast-chip">Kali Reis</span><span class="cast-chip">José Garcia</span><span class="cast-chip">Ólafur Darri Ólafsson</span></div></article>
+ </div>
+</section>
+<footer class="footer"><div class="footer-inner"><span>12 12 12 · 2026</span><a href="https://www.imdb.com/title/tt32375763/episodes/" target="_blank" rel="noopener">Episode guide · IMDb <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div></footer>
+</main>
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+ <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="player-wrapper" id="playerWrapper"><video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="player-meta"><div class="meta-left"><h3 id="modalTitle">12 12 12</h3><p id="modalDesc">Season 1</p></div>
+   <div class="controls-row"><button class="player-btn" id="prevBtn" aria-label="Previous episode"><i class="fa-solid fa-backward-step"></i> <span>Prev</span></button><button class="player-btn" id="playPauseBtn" aria-label="Play or pause"><i class="fa-solid fa-play"></i></button><button class="player-btn" id="nextBtn" aria-label="Next episode"><span>Next</span> <i class="fa-solid fa-forward-step"></i></button><button class="player-btn" id="fullscreenBtn" aria-label="Fullscreen"><i class="fa-solid fa-expand"></i></button><button class="player-btn" id="muteBtn" aria-label="Mute"><i class="fa-solid fa-volume-high"></i></button><button class="player-btn close" id="closeBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
+  </div>
+ </div>
+</div>
+<script>
+const episodes = [
+ {title:"Episode 1",season:1,episode:1,runtime:"",releaseDate:"2026-11-13",description:"The first chapter of the Zurich operation begins as the players and their long game come into focus.",video:"00",image:"https://image.tmdb.org/t/p/w300/zfAMvnN5pgAEA012r9myHA6I7J0.jpg"},
+ {title:"Episode 2",season:1,episode:2,runtime:"",releaseDate:"2026-11-13",description:"The opening two-part premiere continues the tangled operation across the people pursuing it and those carrying it out.",video:"00",image:"https://image.tmdb.org/t/p/w300/7TStPkC8HY4StQPxrFb67SXSTzO.jpg"},
+ {title:"Episode 3",season:1,episode:3,runtime:"",releaseDate:"2026-11-20",description:"The next chapter in the eight-part heist drama. Available on its scheduled release date.",video:"00",image:"https://image.tmdb.org/t/p/w300/3316vkuK6fN6Kspw1zp4GBq1iAV.jpg"},
+ {title:"Episode 4",season:1,episode:4,runtime:"",releaseDate:"2026-11-27",description:"The fourth instalment continues the three-stage story of the Zurich vault operation.",video:"00",image:"https://image.tmdb.org/t/p/w300/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg"},
+ {title:"Episode 5",season:1,episode:5,runtime:"",releaseDate:"2026-12-04",description:"The fifth instalment advances the heist and its consequences across the series’ intersecting timelines.",video:"00",image:"https://image.tmdb.org/t/p/w300/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg"},
+ {title:"Episode 6",season:1,episode:6,runtime:"",releaseDate:"2026-12-11",description:"The sixth instalment brings the operation closer to its final reckoning.",video:"00",image:"https://image.tmdb.org/t/p/w300/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg"},
+ {title:"Episode 7",season:1,episode:7,runtime:"",releaseDate:"2026-12-18",description:"The penultimate chapter tightens the stakes as the aftermath of the heist comes into view.",video:"00",image:"https://image.tmdb.org/t/p/w300/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg"},
+ {title:"Episode 8",season:1,episode:8,runtime:"",releaseDate:"2026-12-25",description:"The season finale brings the eight-episode Zurich heist story to its conclusion.",video:"00",image:"https://image.tmdb.org/t/p/w300/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg"}
+];;
+const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch");
+const playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper");
+const modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc");
+const playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
+let currentHls=null,currentShaka=null,currentList=episodes,currentIndex=0;
+function formatReleaseDate(dateString){
+ const date=new Date(dateString+"T00:00:00");
+ return new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",year:"numeric"}).format(date);
+}
+function renderEpisodes(list){
+ grid.innerHTML="";
+ if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;padding:25px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No episodes match your search.</div>';return}
+ const today=new Date();today.setHours(0,0,0,0);
+ list.forEach(function(ep){
+  const release=new Date(ep.releaseDate+"T00:00:00");
+  const upcoming=release>today;
+  const dateLabel=formatReleaseDate(ep.releaseDate);
+  const card=document.createElement("article");card.className="episode-card"+(upcoming?" is-upcoming":"");card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label",upcoming?"Episode "+ep.episode+" releases "+dateLabel:"Play episode "+ep.episode+": "+ep.title);
+  const artwork=upcoming
+   ? '<div class="episode-date-placeholder" role="img" aria-label="Releases '+dateLabel+'"><span class="placeholder-eyebrow">NEXT CHAPTER</span><strong>'+dateLabel+'</strong><span class="placeholder-note">AVAILABLE ON RELEASE</span></div>'
+   : '<img class="episode-image" loading="lazy" src="'+ep.image+'" alt="'+ep.title.replace(/"/g,"&quot;")+'">';
+  card.innerHTML='<div class="episode-image-wrap">'+artwork+'<span class="episode-number">EP '+String(ep.episode).padStart(2,"0")+'</span>'+(upcoming?'<span class="episode-release-tag"><i class="fa-regular fa-calendar"></i> Coming soon</span>':'<span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span>')+'</div><div class="episode-info"><div class="episode-kicker">'+(upcoming?"RELEASES "+dateLabel.toUpperCase():"SEASON 1 · EPISODE "+ep.episode)+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime">'+(upcoming?'<i class="fa-regular fa-clock"></i> Scheduled release':'<i class="fa-solid fa-circle-check"></i> Released')+'</div></div>';
+  const play=function(){if(upcoming)return;openPlayer(episodes,episodes.indexOf(ep))};card.addEventListener("click",play);card.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();play()}});
+  grid.appendChild(card);
+ });
+}
+search.addEventListener("input",function(){const q=this.value.trim().toLowerCase();renderEpisodes(episodes.filter(function(ep){return ep.title.toLowerCase().includes(q)||ep.description.toLowerCase().includes(q)}))});
+function isHls(url){return /\.m3u8($|\?)/i.test(url)||/index.*\.txt/i.test(url)||/manifest|master/i.test(url)}
+function isMp4(url){return /\.mp4($|\?)/i.test(url)}
+function isYouTube(url){return /youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(url)}
+function resetPlayer(){
+ if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+ if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+ playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+}
+function showPlayer(){playbackModal.classList.add("active");playbackModal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden"}
+function closePlayer(){
+ const v=document.getElementById("modalVideo");if(v){try{v.pause();v.removeAttribute("src");v.load()}catch(e){}}
+ if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+ if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+ playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+ playbackModal.classList.remove("active");playbackModal.setAttribute("aria-hidden","true");document.body.style.overflow="";
+ playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>';
+}
+async function openPlayer(list,index){
+ if(!Array.isArray(list)||index<0||index>=list.length)return;
+ currentList=list;currentIndex=index;const item=list[index];
+ modalTitle.textContent=item.title;modalDesc.textContent="12 12 12 · Season "+item.season+" · Episode "+item.episode;
+ resetPlayer();showPlayer();
+ let src=typeof item.video==="object"&&item.video!==null?(item.video.high||item.video.medium||item.video.low||item.video.mpd||Object.values(item.video)[0]):item.video;
+ if(!src||String(src).trim()==="00"){modalDesc.textContent+=" · Video source not supplied yet";return}
+ const lower=String(src).toLowerCase();
+ const video=document.getElementById("modalVideo");
+ if(typeof item.video==="object"&&item.video!==null&&item.video.mpd&&window.shaka){
+  try{currentShaka=new shaka.Player(video);if(item.video.key){const parts=item.video.key.split(":");currentShaka.configure({drm:{clearKeys:{[parts[0]]:parts[1]}}})}await currentShaka.load(item.video.mpd);video.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}catch(err){console.warn("DASH playback error",err);modalDesc.textContent+=" · Stream could not be loaded";return}
+ }
+ if(isYouTube(src)){
+  let id="";try{const u=new URL(src);id=u.searchParams.get("v")||u.pathname.split("/").filter(Boolean).pop()}catch(e){}
+  const embed=id&&id!=="embed"? "https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1&rel=0&modestbranding=1":src;
+  playerWrapper.innerHTML='<iframe src="'+embed+'" title="12 12 12 video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ const iframeHosts=["turboembed.com","streamtape.com","dood","vidcdn","ok.ru","mega.nz","drive.google.com","voe.sx","filemoon","mixdrop","dailymotion.com"];
+ if(iframeHosts.some(function(host){return lower.includes(host)})&&!isHls(src)&&!isMp4(src)){
+  playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="12 12 12 episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ if(isHls(src)){
+  if(window.Hls&&Hls.isSupported()){
+   currentHls=new Hls({enableWorker:true,maxBufferLength:30,maxMaxBufferLength:60,backBufferLength:30});currentHls.loadSource(src);currentHls.attachMedia(video);
+   currentHls.on(Hls.Events.MANIFEST_PARSED,function(){video.play().catch(function(){})});
+   currentHls.on(Hls.Events.ERROR,function(event,data){if(data.fatal){if(data.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(data.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else modalDesc.textContent+=" · Playback error"}});
+  }else if(video.canPlayType("application/vnd.apple.mpegurl")){video.src=src;video.play().catch(function(){})}else modalDesc.textContent+=" · HLS is not supported by this browser";
+  playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ if(isMp4(src)||/\.webm($|\?)/i.test(src)||/\.mp3($|\?)/i.test(src)){
+  video.src=src;video.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ // Generic hosted pages and embed endpoints are handled in-frame.
+ if(/^https?:\/\//i.test(src)){
+  playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="12 12 12 episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+  document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
+ }
+ modalDesc.textContent+=" · Unsupported video source";
+}
+function playNext(){if(currentIndex<currentList.length-1)openPlayer(currentList,currentIndex+1)}
+function playPrev(){if(currentIndex>0)openPlayer(currentList,currentIndex-1)}
+function togglePlayPause(){const v=document.getElementById("modalVideo");if(!v)return;if(v.paused){v.play().catch(function(){});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>'}else{v.pause();playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}}
+function toggleFullscreen(){const el=document.getElementById("modalVideo")||playerWrapper.querySelector("iframe");if(!el)return;const fn=el.requestFullscreen||playerWrapper.requestFullscreen;if(!document.fullscreenElement&&fn)Promise.resolve(fn.call(el)).catch(function(){});else if(document.exitFullscreen)document.exitFullscreen()}
+function toggleMute(){const v=document.getElementById("modalVideo");if(!v)return;v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>'}
+document.getElementById("prevBtn").addEventListener("click",playPrev);document.getElementById("nextBtn").addEventListener("click",playNext);playPauseBtn.addEventListener("click",togglePlayPause);document.getElementById("fullscreenBtn").addEventListener("click",toggleFullscreen);muteBtn.addEventListener("click",toggleMute);document.getElementById("closeBtn").addEventListener("click",closePlayer);
+document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+playbackModal.addEventListener("click",function(e){if(e.target===playbackModal)closePlayer()});
+document.addEventListener("keydown",function(e){if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
+document.getElementById("trailerBtn").addEventListener("click",function(){openPlayer([{title:"12 12 12 — Official Trailer",season:1,episode:0,video:"https://www.youtube.com/watch?v=pWdt8WMCqnc"}],0)});
+renderEpisodes(episodes);
+</script>
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
+
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+
+<!-- 160x600 BANNER -->
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+
+<!-- 160x600 BANNER -->
+<div class="ad-slot ad-banner-160" style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+      'format' : 'iframe',
+      'height' : 600,
+      'width' : 160,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+</div>
+
+<!-- 728x90 BANNER -->
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+</div>
+
+
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+
+<!-- POPUNDER -->
+<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+
+<!-- SOCIAL BAR -->
+<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+
+<!-- NATIVE BANNER -->
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
+  <script async="async" data-cfasync="false" src="https://bendspecimen.com/ee55f774c6b8eed6b4287f9ed7923638/invoke.js"></script>
+  <div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+</div>
+
+<!-- 728x90 BANNER -->
+<div class="ad-slot ad-banner-728" style="text-align:center; margin:20px 0;">
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+</div>
+
+<!-- SMART LINK -->
+<!-- https://bendspecimen.com/xryvjm9rea?key=b4e26d6e3cb4df0655e816b8991eeae3 -->
+
+
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+
+ 
+</body>
+</html>
