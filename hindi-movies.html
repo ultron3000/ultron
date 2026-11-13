@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-  <script src="https://cdn.tailwindcss.com" defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <!-- hls.js for playing .m3u8 in browsers that support MediaSource -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js" defer></script>
@@ -487,7 +487,7 @@ header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:non
 <header class="hm-site-header">
  <a class="hm-header-brand" href="index.html" aria-label="Cloud TV home">
   <span class="hm-brand-logo-wrap"><img src="https://static.readdy.ai/image/0ece273271e400e488b9947cb1e99e9a/a79b6f32c71c4ee2094ead0eb9c84c9b.png" alt="Cloud TV Logo" class="hm-brand-logo" width="32" height="32" loading="eager" decoding="async" fetchpriority="high"></span>
-  <span class="hm-brand-copy"><strong>CLOUD TV</strong><small>HINDI MOVIES</small></span>
+
  </a>
  <span class="hm-header-edition">THE HINDI CINEMA COLLECTION</span>
 </header>
@@ -1223,37 +1223,38 @@ function seekForward10() {
      ******************************/
     const container = document.getElementById('movies');
 
+    let renderBatchToken = 0;
     function renderMovies(moviesToRender) {
-      container.innerHTML = '';
-      moviesToRender.forEach((movie, index) => {
-        const delayClass = `delay-${(index % 5) * 100}`;
-
-        const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
-        div.innerHTML = `
-          <div class="relative overflow-hidden rounded-t-lg">
-            <img src="${movie.image}" alt="${movie.title}" loading="lazy" decoding="async" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105">
-                <i class="fas fa-play mr-2"></i> Watch Now
-              </button>
+      const token = ++renderBatchToken;
+      container.replaceChildren();
+      let index = 0;
+      const batchSize = 24;
+      function appendBatch() {
+        if (token !== renderBatchToken) return;
+        const fragment = document.createDocumentFragment();
+        const stop = Math.min(index + batchSize, moviesToRender.length);
+        for (; index < stop; index++) {
+          const movie = moviesToRender[index];
+          const cardIndex = index;
+          const delayClass = `delay-${(cardIndex % 5) * 100}`;
+          const div = document.createElement('div');
+          div.className = `movie-card animate-fade-in ${delayClass} rounded-xl overflow-hidden bg-gray-800 hover:bg-gray-700 cursor-pointer relative group`;
+          div.innerHTML = `
+            <div class="relative overflow-hidden rounded-t-lg">
+              <img src="${movie.image}" alt="${movie.title}" loading="lazy" decoding="async" class="w-full h-full object-cover movie-poster">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                <button class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded-full transition transform hover:scale-105"><i class="fas fa-play mr-2"></i> Watch Now</button>
+              </div>
             </div>
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold text-lg truncate">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-2 text-sm text-gray-400">
-              <span>${movie.year}</span>
-            </div>
-          </div>
-        `;
-
-        // Open modal and use movies array for prev/next
-        div.addEventListener('click', () => {
-          openPlayer(moviesToRender, index);
-        });
-
-        container.appendChild(div);
-      });
+            <div class="p-4"><h3 class="font-semibold text-lg truncate">${movie.title}</h3><div class="flex justify-between items-center mt-2 text-sm text-gray-400"><span>${movie.year}</span></div></div>
+          `;
+          div.addEventListener('click', () => openPlayer(moviesToRender, cardIndex));
+          fragment.appendChild(div);
+        }
+        container.appendChild(fragment);
+        if (index < moviesToRender.length) requestAnimationFrame(appendBatch);
+      }
+      appendBatch();
     }
 
     // Initial render
@@ -1381,10 +1382,10 @@ function seekForward10() {
 <!-- ===================== -->
 
 <!-- POPUNDER -->
-<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+<script  async src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
 
 <!-- SOCIAL BAR -->
-<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
+<script type="text/javascript"  async src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
 
 <!-- 160x600 BANNER -->
 <div style="text-align:center; margin:20px 0;">
@@ -1397,7 +1398,7 @@ function seekForward10() {
       'params' : {}
     };
   </script>
-  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+  <script type="text/javascript"  async src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
 </div>
 
 <!-- 728x90 BANNER -->
@@ -1411,7 +1412,7 @@ function seekForward10() {
       'params' : {}
     };
   </script>
-  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+  <script type="text/javascript"  async src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
 </div>
 
 
@@ -1420,10 +1421,10 @@ function seekForward10() {
 <!-- ===================== -->
 
 <!-- POPUNDER -->
-<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+<script type="text/javascript"  async src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
 
 <!-- SOCIAL BAR -->
-<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
+<script type="text/javascript"  async src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
 
 <!-- 160x600 BANNER -->
 <div style="text-align:center; margin:20px 0;">
@@ -1436,7 +1437,7 @@ function seekForward10() {
       'params' : {}
     };
   </script>
-  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
+  <script type="text/javascript"  async src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
 </div>
 
 <!-- 728x90 BANNER -->
@@ -1450,7 +1451,7 @@ function seekForward10() {
       'params' : {}
     };
   </script>
-  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
+  <script type="text/javascript"  async src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
 </div>
 
 
@@ -1459,10 +1460,10 @@ function seekForward10() {
 <!-- ===================== -->
 
 <!-- POPUNDER -->
-<script type="text/javascript" src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
+<script type="text/javascript"  async src="https://bendspecimen.com/b8/60/f8/b860f80f711dcec864b5c9ced969d0cb.js"></script>
 
 <!-- SOCIAL BAR -->
-<script type="text/javascript" src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
+<script type="text/javascript"  async src="https://bendspecimen.com/51/1b/be/511bbe5e30110cdc1df906986d26abef.js"></script>
 
 <!-- NATIVE BANNER -->
 <div style="text-align:center; margin:20px 0;">
@@ -1481,7 +1482,7 @@ function seekForward10() {
       'params' : {}
     };
   </script>
-  <script type="text/javascript" src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
+  <script type="text/javascript"  async src="https://bendspecimen.com/44f6fc8fc8db36beacbc97b0453593a3/invoke.js"></script>
 </div>
 
 <!-- SMART LINK -->
@@ -1495,180 +1496,7 @@ function seekForward10() {
 
 
 
-<!-- Disable DevTools + View Source Protection -->
-<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
-
-<script>
-/* =========================
-   Mobile Detection
-========================= */
-const isMobile =
-    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-
-/* =========================
-   Disable DevTools
-========================= */
-DisableDevtool({
-    disable: true,
-    disableMenu: true,
-    clearLog: true,
-    disableSelect: true,
-    disableCopy: true,
-    disableCut: true,
-    disablePaste: true,
-
-    /* FIXED */
-    disableMobile: false,
-
-    interval: 100,
-
-    ondevtoolopen: function () {
-        // No page-clearing action: browser chrome and developer tools must not break rendering.
-    }
-});
-
-/* =========================
-   Block View Source Shortcuts
-========================= */
-document.addEventListener("keydown", function (e) {
-
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+U
-    if (e.ctrlKey && e.key.toLowerCase() === "u") {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    }
-
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "i") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+J
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "j") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+Shift+C
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+S
-    if (e.ctrlKey && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+P
-    if (e.ctrlKey && e.key.toLowerCase() === "p") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+A
-    if (e.ctrlKey && e.key.toLowerCase() === "a") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+C
-    if (e.ctrlKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+X
-    if (e.ctrlKey && e.key.toLowerCase() === "x") {
-        e.preventDefault();
-        return false;
-    }
-
-    // Ctrl+V
-    if (e.ctrlKey && e.key.toLowerCase() === "v") {
-        e.preventDefault();
-        return false;
-    }
-});
-
-/* =========================
-   Disable Right Click
-========================= */
-document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Dragging
-========================= */
-document.addEventListener("dragstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Selection
-========================= */
-document.addEventListener("selectstart", function (e) {
-    e.preventDefault();
-});
-
-/* =========================
-   Disable Copy Actions
-========================= */
-["copy", "cut", "paste"].forEach(function(evt) {
-
-    document.addEventListener(evt, function(e) {
-        e.preventDefault();
-    });
-
-});
-
-/* Desktop viewport polling removed: it caused false positives and blanked the page. */
-/* =========================
-   Disable Console
-========================= */
-(function () {
-
-    console.clear();
-
-    function block() {
-        return false;
-    }
-
-    console.log = block;
-    console.warn = block;
-    console.error = block;
-    console.info = block;
-    console.debug = block;
-    console.table = block;
-
-})();
-
-/* =========================
-   Block "view-source:"
-========================= */
-// Do not clear the document based on the current URL; this can create a blank-page failure.
-
-/* =========================
-   Prevent iframe inspection
-========================= */
-if (window.top !== window.self) {
-
-    try {
-        window.top.location = window.self.location;
-    } catch (e) {}
-
-}
-</script>
+<!-- Removed third-party developer-tools blocker; it delayed page startup. -->
 
 <style>
 html, body {
@@ -1698,7 +1526,7 @@ img {
 .hm-header-brand{display:inline-flex;align-items:center;gap:11px;text-decoration:none;min-width:0}
 .hm-brand-logo-wrap{width:43px;height:43px;display:grid;place-items:center;flex:0 0 auto;border-radius:12px;background:linear-gradient(135deg,#b91c1c,#ef4444);box-shadow:0 5px 18px #991b1b55}
 .hm-brand-logo{width:32px;height:32px;min-width:32px;min-height:32px;max-width:32px;max-height:32px;display:block;object-fit:cover;border-radius:50%;transform:none!important;animation:none!important;transition:none!important;flex:0 0 32px}
-.hm-brand-copy{display:flex;flex-direction:column;gap:3px}.hm-brand-copy strong{font:800 23px/1 'Rajdhani',sans-serif;letter-spacing:.12em;color:#fff}.hm-brand-copy small{font:700 8px/1.2 'Poppins',sans-serif;letter-spacing:.2em;color:#e6b95a}
+.hm-brand-copy{display:none!important}
 .hm-header-edition{font:700 9px 'Poppins',sans-serif;letter-spacing:.18em;color:#b7c2d4}
 .hm-catalogue-tools{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin:18px 0 12px;padding:10px 12px;border:1px solid rgba(245,196,81,.2);border-radius:12px;background:linear-gradient(110deg,rgba(15,23,42,.96),rgba(10,16,29,.94));box-shadow:0 8px 22px #0002}
 .hm-catalogue-heading{min-width:155px}.hm-section-eyebrow{font-size:8px;font-weight:800;letter-spacing:.2em;color:#e4b84f}.hm-catalogue-heading h2{margin:4px 0 2px;color:#f8fafc;font:700 clamp(18px,2vw,23px)/1.1 'Rajdhani',sans-serif;letter-spacing:.04em}.hm-catalogue-heading p{margin:0;color:#94a3b8;font-size:10px}
@@ -1731,7 +1559,7 @@ body.mode-dense #movies.movie-grid .movie-card .p-4{padding:6px!important}body.m
 body.mode-card #movies.movie-grid .movie-card .p-4{padding:10px!important}body.mode-card #movies.movie-grid .movie-card h3{font-size:12px}
 body.light{--hm-text:#172033;background:linear-gradient(145deg,#f8fafc,#e9eef6 60%,#f8fafc)!important;color:#172033}
 body.light .hm-site-header{background:rgba(255,255,255,.94);border-color:#d8e0ec;box-shadow:0 8px 24px #0f172a0d}
-body.light .hm-brand-copy strong{color:#172033}body.light .hm-brand-copy small{color:#916a13}body.light .hm-header-edition{color:#64748b}
+body.light .hm-header-edition{color:#64748b}
 body.light .hm-catalogue-tools{background:linear-gradient(110deg,#fff,#f3f6fb);border-color:#d9e1ed;box-shadow:0 8px 22px #0f172a0d}
 body.light .hm-catalogue-heading h2{color:#172033}body.light .hm-catalogue-heading p{color:#64748b}
 body.light .hm-search-wrap{background:#fff;border-color:#d5deea;color:#9a6b08}body.light .hm-search-wrap input{color:#172033}body.light .hm-search-wrap input::placeholder{color:#8994a8}
