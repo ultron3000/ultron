@@ -416,6 +416,59 @@
  .controls-row .btn span{display:none!important}
 }
 
+
+/* FINAL FIX: visible poster backdrop, compact mobile toolbar and theme/grid controls */
+.animation-hero{position:relative!important;isolation:isolate!important;background:#080b16!important;overflow:hidden!important}
+.animation-hero-backdrop{
+ position:absolute!important;inset:0!important;z-index:0!important;
+ background-repeat:no-repeat!important;background-size:cover!important;background-position:center 30%!important;
+ opacity:1!important;filter:none!important;-webkit-filter:none!important;transform:none!important;
+ transition:background-image .35s ease!important;pointer-events:none!important;
+}
+.animation-hero-shade{
+ position:absolute!important;inset:0!important;z-index:1!important;pointer-events:none!important;
+ background:linear-gradient(90deg,rgba(5,7,16,.22) 0%,rgba(5,7,16,.48) 45%,rgba(5,7,16,.78) 100%),
+            linear-gradient(0deg,rgba(5,7,16,.35),rgba(5,7,16,.04))!important;
+}
+.animation-hero-poster,.animation-hero-content{position:relative!important;z-index:2!important}
+.animation-hero-navigation{z-index:3!important}
+.catalog-toolbar{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:850px;margin:0 auto 10px}
+.catalog-search{position:relative;flex:1 1 520px;min-width:0;max-width:620px}
+.catalog-search>i{position:absolute;left:15px;top:50%;transform:translateY(-50%);z-index:2;color:#a78bfa;font-size:14px;pointer-events:none}
+.catalog-search #searchBar{display:block;width:100%;height:46px;min-width:0;padding:0 14px 0 42px!important;border-radius:13px!important;box-sizing:border-box}
+.catalog-tools{display:flex;flex:0 0 auto;align-items:center;gap:8px}
+.catalog-tool{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-width:78px;height:44px;padding:0 12px;border:1px solid rgba(167,139,250,.28);border-radius:12px;background:rgba(17,24,39,.86);color:#e5e7eb;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s}
+.catalog-tool:hover,.catalog-tool[aria-pressed=true]{background:rgba(109,40,217,.32);border-color:rgba(167,139,250,.7)}
+body.light{background:#f3f5fb!important;color:#172033!important;background-attachment:fixed}
+body.light .glow-header{background:linear-gradient(180deg,#e8eaff,#f3f5fb)!important}
+body.light .search-input{background:#fff!important;color:#172033!important;border-color:#cbd5e1!important}
+body.light .search-input::placeholder{color:#64748b!important}
+body.light .catalog-tool{background:#fff;color:#334155;border-color:#cbd5e1}
+body.light .movie-card{background:#fff!important;border-color:#dbe2ee!important;box-shadow:0 8px 22px rgba(15,23,42,.09)!important}
+body.light .movie-card h3{color:#172033!important}
+body.light .movie-card p{color:#64748b!important}
+body.light .animation-hero{box-shadow:0 18px 45px rgba(15,23,42,.16)!important}
+body.light .container>.border-t{border-color:#cbd5e1!important}
+body.mode-standard #movies{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+body.mode-dense #movies{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:11px!important}
+body.mode-card #movies{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:20px!important}
+@media(max-width:900px){body.mode-standard #movies{grid-template-columns:repeat(4,minmax(0,1fr))!important}body.mode-dense #movies{grid-template-columns:repeat(5,minmax(0,1fr))!important}body.mode-card #movies{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:640px){
+ .catalog-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:7px;margin:0 auto 8px}
+ .catalog-search{width:100%;max-width:none;min-width:0}
+ .catalog-search #searchBar{height:42px;font-size:12px!important;padding-left:37px!important;padding-right:9px!important}
+ .catalog-search>i{left:12px;font-size:12px}
+ .catalog-tools{gap:5px}
+ .catalog-tool{min-width:40px;width:40px;height:40px;padding:0;border-radius:10px;font-size:0;gap:0}
+ .catalog-tool i{font-size:15px}
+ .animation-hero-backdrop{background-position:58% center!important;opacity:1!important}
+ .animation-hero-shade{background:linear-gradient(90deg,rgba(5,7,16,.24),rgba(5,7,16,.55) 48%,rgba(5,7,16,.78)),linear-gradient(0deg,rgba(5,7,16,.32),rgba(5,7,16,.04))!important}
+ body.mode-standard #movies{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+ body.mode-dense #movies{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
+ body.mode-card #movies{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+}
+@media(max-width:370px){.catalog-toolbar{grid-template-columns:minmax(0,1fr) 84px}.catalog-tools{gap:4px}.catalog-tool{width:38px;min-width:38px;height:38px}}
+
 </style>
 </head>
 
@@ -430,11 +483,19 @@
         <!-- Page title is presented in the featured hero; keep the top brand mark clean. -->
       </header>
 
-      <!-- Search Bar -->
-      <div class="mb-5 flex justify-center">
-        <div class="relative w-full max-w-xl">
-          <input type="text" id="searchBar" placeholder="Search animated movies..." class="search-input w-full px-6 py-3.5 pl-12 rounded-2xl text-white placeholder-gray-400 focus:outline-none text-sm sm:text-base"/>
-          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-purple-400"></i>
+      <!-- Search and display controls -->
+      <div class="catalog-toolbar">
+        <div class="catalog-search relative">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input type="search" id="searchBar" placeholder="Search animated movies..." aria-label="Search animated movies" class="search-input w-full text-white placeholder-gray-400 focus:outline-none"/>
+        </div>
+        <div class="catalog-tools" role="group" aria-label="Display settings">
+          <button type="button" id="themeBtn" class="catalog-tool" aria-label="Switch to light mode" title="Switch theme">
+            <i id="themeIcon" class="fas fa-moon" aria-hidden="true"></i><span>Theme</span>
+          </button>
+          <button type="button" id="gridBtn" class="catalog-tool" aria-label="Change poster grid size" title="Change poster grid size">
+            <i class="fas fa-grip" aria-hidden="true"></i><span>Grid</span>
+          </button>
         </div>
       </div>
     </div>
@@ -2239,6 +2300,36 @@
       showAnimationHero(options[Math.floor(Math.random()*options.length)]);
     }
 
+    // Theme and poster-grid controls (same interaction model as movies.html).
+    const themeBtn = document.getElementById('themeBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const gridBtn = document.getElementById('gridBtn');
+    const gridModes = ['mode-standard','mode-dense','mode-card'];
+    let gridModeIndex = 0;
+    function applyAnimationTheme(theme) {
+      const light = theme === 'light';
+      document.body.classList.toggle('light', light);
+      themeIcon.className = light ? 'fas fa-sun' : 'fas fa-moon';
+      themeBtn.setAttribute('aria-pressed', String(light));
+      themeBtn.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
+      themeBtn.title = light ? 'Switch to dark mode' : 'Switch to light mode';
+      try { localStorage.setItem('cloudtv-animation-theme', theme); } catch (_) {}
+    }
+    let savedAnimationTheme = 'dark';
+    try { savedAnimationTheme = localStorage.getItem('cloudtv-animation-theme') || 'dark'; } catch (_) {}
+    applyAnimationTheme(savedAnimationTheme);
+    themeBtn.addEventListener('click', () => applyAnimationTheme(document.body.classList.contains('light') ? 'dark' : 'light'));
+    function setAnimationGridMode(index) {
+      gridModes.forEach(mode => document.body.classList.remove(mode));
+      gridModeIndex = (index + gridModes.length) % gridModes.length;
+      document.body.classList.add(gridModes[gridModeIndex]);
+      gridBtn.setAttribute('aria-pressed', String(gridModeIndex !== 0));
+      gridBtn.title = ['Standard poster grid','Compact poster grid','Large poster cards'][gridModeIndex] + ' (tap to change)';
+      gridBtn.setAttribute('aria-label', gridBtn.title);
+    }
+    setAnimationGridMode(0);
+    gridBtn.addEventListener('click', () => setAnimationGridMode(gridModeIndex + 1));
+
     renderMovies(movies);
     shuffleAnimationHero();
 
@@ -2303,39 +2394,7 @@
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me, cloudtv.store & cloudtv.site.je -->
 <!-- COPY & PASTE BEFORE 
-<style id="hero-background-visibility-fix">
-/* Keep the featured poster above the hero surface so it is actually visible. */
-.animation-hero { isolation:isolate; background:#0b0f19 !important; }
-.animation-hero-backdrop {
-  z-index:0 !important;
-  opacity:.72 !important;
-  background-repeat:no-repeat !important;
-  background-size:cover !important;
-  background-position:center 30% !important;
-  transform:none !important;
-  pointer-events:none !important;
-}
-.animation-hero-shade {
-  z-index:1 !important;
-  background:linear-gradient(90deg,rgba(7,9,20,.28) 0%,rgba(7,9,20,.62) 48%,rgba(7,9,20,.82) 100%),
-             linear-gradient(0deg,rgba(7,9,20,.42),rgba(7,9,20,.08)) !important;
-  pointer-events:none !important;
-}
-.animation-hero-poster,.animation-hero-content,.animation-hero-navigation {
-  position:relative;
-  z-index:2 !important;
-}
-.animation-hero-navigation { position:absolute !important; }
-@media(max-width:700px) {
-  .animation-hero-backdrop { opacity:.66 !important; background-position:58% center !important; }
-  .animation-hero-shade {
-    background:linear-gradient(90deg,rgba(7,9,20,.24),rgba(7,9,20,.68) 48%,rgba(7,9,20,.86)),
-               linear-gradient(0deg,rgba(7,9,20,.38),rgba(7,9,20,.08)) !important;
-  }
-}
-</style>
-
-</body> -->
+<!-- Previous hero CSS patch was misplaced inside this comment; corrected in the head stylesheet. -->
 <!-- ========================================================= -->
 
 <!-- ===================== -->
