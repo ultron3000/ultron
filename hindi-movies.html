@@ -474,6 +474,47 @@ header:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:non
 .hm-hero-nav{position:absolute;right:15px;bottom:13px;display:flex;align-items:center;gap:8px;color:#ffe28a;font-size:10px;font-weight:800}.hm-hero-nav button{width:32px;height:32px;border:1px solid #ffffff55;border-radius:50%;background:#111827dd;color:white;font-size:22px;line-height:1;cursor:pointer}
 @media(max-width:700px){.hm-hero-shell{width:calc(100% - 22px);min-height:290px;margin:14px auto 25px;border-radius:17px}.hm-hero-inner{min-height:290px;grid-template-columns:minmax(78px,25%) minmax(0,1fr);gap:12px;padding:16px 11px 54px}.hm-hero-poster{max-width:140px}.hm-hero-poster img{border-radius:9px}.hm-hero-kicker{font-size:7px;padding:6px 7px;letter-spacing:.06em}.hm-hero-meta{font-size:8px;margin-top:9px}.hm-hero-copy h2{font-size:clamp(1.2rem,5vw,1.9rem);margin:8px 0}.hm-hero-copy p{font-size:10px;line-height:1.45;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.hm-hero-actions{gap:5px}.hm-hero-btn{min-height:32px;padding:0 7px;font-size:8px;gap:4px}.hm-hero-dots{margin-top:10px}.hm-hero-nav{right:9px;bottom:7px}.hm-hero-nav button{width:28px;height:28px}}
 @media(max-width:380px){.hm-hero-inner{grid-template-columns:68px minmax(0,1fr);gap:9px}.hm-hero-copy p{-webkit-line-clamp:2;font-size:9px}.hm-hero-btn{padding:0 5px;font-size:7px}}
+
+/* TurboEmbed mobile sizing fix — scoped to this provider only */
+.player-wrapper.turboembed-active {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  overflow: hidden;
+}
+.player-wrapper.turboembed-active > iframe.turboembed-frame {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  transform: none !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 767px) {
+  .player-wrapper.turboembed-active {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  .player-wrapper.turboembed-active > iframe.turboembed-frame {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
 </style>
 <style>
 html, body {
@@ -985,6 +1026,7 @@ function initHindiHero(){
       if (currentHls) { try { currentHls.destroy(); } catch(e) {} currentHls = null; }
       if (currentShaka) { try { currentShaka.destroy(); } catch(e) {} currentShaka = null; }
       if (window.shakaPlayer) { try { window.shakaPlayer.destroy(); } catch(e) {} window.shakaPlayer = null; }
+      playerWrapper.classList.remove("turboembed-active");
       playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
     }
 
@@ -1085,8 +1127,17 @@ if (src.includes('m3u8') || src.includes('proxy.animanga.fun')) {
 }
 
 
-      // iframe-hosted common hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('turboembed.com') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+      // TurboEmbed gets an isolated responsive iframe treatment.
+      // Keep the shared modal and all other providers unchanged.
+      if (lc.includes('turboembed.com')) {
+        playerWrapper.classList.add("turboembed-active");
+        playerWrapper.innerHTML = `<iframe class="turboembed-frame" src="${src}" title="${(movie.title || 'Video player').replace(/"/g, '&quot;')}" width="100%" height="100%" frameborder="0" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        return;
+      }
+
+      // iframe-hosted common hosts (excluding TurboEmbed).
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
         playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
         playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
         return;
