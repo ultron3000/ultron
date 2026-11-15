@@ -93,6 +93,24 @@
 .series-hero-bg:after{content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;background:linear-gradient(90deg,rgba(2,6,23,.43) 0%,rgba(2,6,23,.48) 43%,rgba(2,6,23,.61) 100%),linear-gradient(0deg,rgba(2,6,23,.34) 0%,rgba(2,6,23,.08) 62%,rgba(2,6,23,.14) 100%)!important}
 @media(max-width:700px){.series-hero-bg iframe{width:max(100vw,177.78vh)!important;height:max(100vh,56.25vw)!important;opacity:1!important;filter:brightness(1.12) saturate(1.1)!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.48) 0%,rgba(2,6,23,.54) 48%,rgba(2,6,23,.64) 100%),linear-gradient(0deg,rgba(2,6,23,.38) 0%,rgba(2,6,23,.10) 70%,rgba(2,6,23,.18) 100%)!important}}
 </style>
+<style id="institute-episode-release-cards">
+.episode-image-wrap{aspect-ratio:16/9;min-height:0;background:#0b1423}
+.episode-image{width:100%;height:100%;min-height:0;object-fit:cover;object-position:center;display:block}
+.episode-upcoming,.episode-artwork-missing{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(5px,1vw,10px);overflow:hidden;padding:14px;text-align:center}
+.episode-upcoming{isolation:isolate;background:radial-gradient(ellipse at 50% 120%,rgba(49,91,145,.5),transparent 62%),linear-gradient(135deg,#101d31 0%,#111827 48%,#090d17 100%);color:#f4f8ff}
+.episode-upcoming:before,.episode-upcoming:after{content:"";position:absolute;z-index:-1;border:1px solid rgba(168,216,255,.16);border-radius:50%;width:clamp(150px,24vw,270px);aspect-ratio:1}
+.episode-upcoming:after{width:clamp(110px,18vw,205px);border-color:rgba(168,216,255,.12)}
+.upcoming-orbit{position:absolute;z-index:-1;width:75%;height:1px;background:linear-gradient(90deg,transparent,rgba(168,216,255,.22),transparent);transform:rotate(-28deg)}
+.upcoming-label{display:inline-flex;align-items:center;gap:7px;color:#a8d8ff;font-size:clamp(8px,.85vw,10px);font-weight:800;letter-spacing:.16em}
+.upcoming-date{font:700 clamp(17px,2.2vw,27px)/1.15 "Space Grotesk",sans-serif;letter-spacing:-.035em;color:#fff;text-shadow:0 3px 18px #0008}
+.upcoming-season{font-size:clamp(7px,.75vw,9px);font-weight:800;letter-spacing:.13em;color:#b9c9df}
+.upcoming-season .fa-circle{font-size:4px;vertical-align:middle;margin:0 4px;color:#78b9ed}
+.episode-artwork-missing{gap:8px;background:linear-gradient(145deg,#172235,#0c111c);color:#8293aa}
+.episode-artwork-missing i{font-size:24px;color:#a8d8ff}
+.episode-artwork-missing span{font-size:9px;font-weight:800;letter-spacing:.14em}
+.episode-card .episode-image-wrap.is-upcoming{cursor:default}
+@media(max-width:620px){.episode-upcoming{gap:6px;padding:8px}.upcoming-label{font-size:7px;letter-spacing:.1em}.upcoming-date{font-size:clamp(13px,4vw,19px)}.upcoming-season{font-size:6px;letter-spacing:.08em}.episode-artwork-missing i{font-size:19px}.episode-artwork-missing span{font-size:7px}}
+</style>
 </head>
 <body>
 <div class="ambient"></div>
@@ -175,14 +193,29 @@ const playPauseBtn=document.getElementById("playPauseBtn");
 const muteBtn=document.getElementById("muteBtn");
 let currentHls=null,currentShaka=null,currentList=[],currentIndex=0;
 
-function released(ep){return !ep.releaseAt || Date.now() >= new Date(ep.releaseAt).getTime()}
-function formatRelease(ep){
- const d=new Date(ep.releaseAt || (ep.date+"T21:00:00-05:00"));
- return new Intl.DateTimeFormat(undefined,{day:"numeric",month:"short",year:"numeric"}).format(d);
+function getReleaseTime(ep){
+ const value=ep.releaseAt || (ep.date ? ep.date+"T21:00:00-05:00" : "");
+ const time=value ? new Date(value).getTime() : NaN;
+ return Number.isFinite(time) ? time : null;
 }
-function makePlaceholder(ep){
- // Use the official series artwork; release information is rendered as readable HTML.
- return "https://image.tmdb.org/t/p/w500/4MwXkOAMd9ObxdacasPFM32n9dZ.jpg";
+function released(ep){
+ const releaseTime=getReleaseTime(ep);
+ return releaseTime===null || Date.now()>=releaseTime;
+}
+function formatRelease(ep){
+ const releaseTime=getReleaseTime(ep);
+ if(releaseTime===null)return "Release date TBA";
+ return new Intl.DateTimeFormat(undefined,{day:"numeric",month:"long",year:"numeric"}).format(new Date(releaseTime));
+}
+function episodeVisual(ep,available){
+ const image=typeof ep.image==="string" ? ep.image.trim() : "";
+ if(available && image){
+  return '<img class="episode-image" loading="lazy" src="'+image.replace(/"/g,"%22")+'" alt="'+ep.title.replace(/"/g,"&quot;")+'">';
+ }
+ if(!available){
+  return '<div class="episode-upcoming" aria-label="Upcoming episode. Releases '+formatRelease(ep)+'"><span class="upcoming-orbit" aria-hidden="true"></span><span class="upcoming-label"><i class="fa-regular fa-calendar"></i> UPCOMING EPISODE</span><strong class="upcoming-date">'+formatRelease(ep)+'</strong><span class="upcoming-season">SEASON '+ep.season+' <i class="fa-solid fa-circle"></i> EPISODE '+String(ep.episode).padStart(2,"0")+'</span></div>';
+ }
+ return '<div class="episode-artwork-missing"><i class="fa-regular fa-image"></i><span>EPISODE ARTWORK</span></div>';
 }
 function renderEpisodes(){
  const season=Number(seasonSelect.value);
@@ -197,9 +230,8 @@ function renderEpisodes(){
   card.className="episode-card";card.tabIndex=available?0:-1;
   card.setAttribute("role",available?"button":"group");
   card.setAttribute("aria-label",available?"Play "+ep.title:"Episode "+ep.episode+" releases "+formatRelease(ep));
-  const img=available&&ep.image?ep.image:makePlaceholder(ep);
   const dateLabel=available?"AVAILABLE":"RELEASES "+formatRelease(ep);
-  card.innerHTML='<div class="episode-image-wrap"><img class="episode-image" loading="lazy" src="'+img+'" alt="'+ep.title.replace(/"/g,"&quot;")+'"><span class="episode-number">S'+ep.season+' · EP '+String(ep.episode).padStart(2,"0")+'</span>'+(available?'<span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span>':'<span style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:12px;text-align:center;background:linear-gradient(180deg,rgba(5,12,25,.35),rgba(5,12,25,.88));color:#fff"><strong style="font-size:11px;letter-spacing:3px;color:#b9dcff">COMING SOON</strong><span style="font-size:clamp(17px,3vw,25px);font-weight:800;letter-spacing:.5px">'+formatRelease(ep)+'</span><small style="font-size:10px;letter-spacing:2px;color:#d7e8fa">SEASON '+ep.season+' · EPISODE '+String(ep.episode).padStart(2,"0")+'</small></span>')+'</div><div class="episode-info"><div class="episode-kicker">SEASON '+ep.season+' · '+dateLabel+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime"><i class="fa-regular fa-clock"></i> '+(available?"Episode guide · "+formatRelease(ep):"Release date · "+formatRelease(ep))+'</div></div>';
+  card.innerHTML='<div class="episode-image-wrap '+(available?"":"is-upcoming")+'">'+episodeVisual(ep,available)+'<span class="episode-number">S'+ep.season+' · EP '+String(ep.episode).padStart(2,"0")+'</span>'+(available&&ep.image?'<span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span>':'')+'</div><div class="episode-info"><div class="episode-kicker">SEASON '+ep.season+' · '+dateLabel+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime"><i class="fa-regular fa-clock"></i> '+(available?"Episode guide · "+(ep.runtime&&ep.runtime!=="—"?ep.runtime:formatRelease(ep)):"Release date · "+formatRelease(ep))+'</div></div>';
   if(available){const play=()=>openPlayer(currentList,currentList.indexOf(ep));card.addEventListener("click",play);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();play()}})}
   grid.appendChild(card);
  });
