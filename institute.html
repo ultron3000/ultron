@@ -181,9 +181,8 @@ function formatRelease(ep){
  return new Intl.DateTimeFormat(undefined,{day:"numeric",month:"short",year:"numeric"}).format(d);
 }
 function makePlaceholder(ep){
- const date=formatRelease(ep);
- return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(
- '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101d32"/><stop offset="1" stop-color="#1c1830"/></linearGradient></defs><rect width="640" height="360" fill="url(#g)"/><g fill="none" stroke="#8bc7ff" stroke-opacity=".35"><circle cx="320" cy="145" r="70"/><circle cx="320" cy="145" r="92"/><path d="M320 35v220M210 145h220"/></g><text x="320" y="135" fill="#d8eaff" font-family="Arial" font-size="22" text-anchor="middle" letter-spacing="5">THE INSTITUTE</text><text x="320" y="177" fill="#fff" font-family="Arial" font-size="35" font-weight="bold" text-anchor="middle">EPISODE "+String(ep.episode).padStart(2,"0")+"</text><text x="320" y="220" fill="#9fc8ed" font-family="Arial" font-size="19" text-anchor="middle">AVAILABLE "+date.toUpperCase()+"</text></svg>');
+ // Use the official series artwork; release information is rendered as readable HTML.
+ return "https://image.tmdb.org/t/p/w500/4MwXkOAMd9ObxdacasPFM32n9dZ.jpg";
 }
 function renderEpisodes(){
  const season=Number(seasonSelect.value);
@@ -200,7 +199,7 @@ function renderEpisodes(){
   card.setAttribute("aria-label",available?"Play "+ep.title:"Episode "+ep.episode+" releases "+formatRelease(ep));
   const img=available&&ep.image?ep.image:makePlaceholder(ep);
   const dateLabel=available?"AVAILABLE":"RELEASES "+formatRelease(ep);
-  card.innerHTML='<div class="episode-image-wrap"><img class="episode-image" loading="lazy" src="'+img+'" alt="'+ep.title.replace(/"/g,"&quot;")+'"><span class="episode-number">S'+ep.season+' · EP '+String(ep.episode).padStart(2,"0")+'</span>'+(available?'<span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span>':'<span class="episode-number" style="left:auto;right:10px;color:#cce7ff;border-color:#8bc7ff66">COMING SOON</span>')+'</div><div class="episode-info"><div class="episode-kicker">SEASON '+ep.season+' · '+dateLabel+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime"><i class="fa-regular fa-clock"></i> '+(available?"Episode guide · "+formatRelease(ep):"Release date · "+formatRelease(ep))+'</div></div>';
+  card.innerHTML='<div class="episode-image-wrap"><img class="episode-image" loading="lazy" src="'+img+'" alt="'+ep.title.replace(/"/g,"&quot;")+'"><span class="episode-number">S'+ep.season+' · EP '+String(ep.episode).padStart(2,"0")+'</span>'+(available?'<span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span>':'<span style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:12px;text-align:center;background:linear-gradient(180deg,rgba(5,12,25,.35),rgba(5,12,25,.88));color:#fff"><strong style="font-size:11px;letter-spacing:3px;color:#b9dcff">COMING SOON</strong><span style="font-size:clamp(17px,3vw,25px);font-weight:800;letter-spacing:.5px">'+formatRelease(ep)+'</span><small style="font-size:10px;letter-spacing:2px;color:#d7e8fa">SEASON '+ep.season+' · EPISODE '+String(ep.episode).padStart(2,"0")+'</small></span>')+'</div><div class="episode-info"><div class="episode-kicker">SEASON '+ep.season+' · '+dateLabel+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime"><i class="fa-regular fa-clock"></i> '+(available?"Episode guide · "+formatRelease(ep):"Release date · "+formatRelease(ep))+'</div></div>';
   if(available){const play=()=>openPlayer(currentList,currentList.indexOf(ep));card.addEventListener("click",play);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();play()}})}
   grid.appendChild(card);
  });
