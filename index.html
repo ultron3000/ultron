@@ -206,7 +206,12 @@ main{padding-bottom:90px}.hero{position:relative;min-height:clamp(320px,32vw,440
     var sectionTitle=section&&section.querySelector(".section-head h2"),meta=anchor.querySelector(".world-info p");
     return {title:(title?title.textContent:img.alt||"Curated collection").trim(),url:anchor.getAttribute("href"),image:img.getAttribute("src"),category:sectionTitle?sectionTitle.textContent.trim():"Curated World",language:"Collection",description:meta?meta.textContent.trim():"Explore this curated collection.",type:"collection",source:"curated-worlds.html"};
    }).filter(Boolean);
-   rail("rail-collections",shuffle(curatedRecords));
+   // Keep the first five Swarajya & Indian Cinema worlds fixed in their original order.
+   var heritageWorlds=curatedRecords.filter(function(record){return record.category==="Swarajya & Indian Cinema"}).slice(0,5);
+   var pinnedWorlds=heritageWorlds.slice();
+   var pinnedKeys=heritageWorlds.map(function(record){return record.url});
+   var rotatingWorlds=curatedRecords.filter(function(record){return pinnedKeys.indexOf(record.url)===-1});
+   rail("rail-collections",pinnedWorlds.concat(shuffle(rotatingWorlds)));
   }).catch(function(error){console.warn("Cloud TV curated worlds rail:",error);rail("rail-collections",[])});
   var heroMovies=movies.filter(function(r){return !!r.image}),heroSeries=series.filter(function(r){return !!r.image});heroItems=shuffle(heroMovies.concat(heroSeries));
   var dots=document.getElementById("heroDots");dots.replaceChildren();var dotCount=Math.min(8,heroItems.length);for(var i=0;i<dotCount;i++){(function(n){var b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Show featured title "+(n+1));b.addEventListener("click",function(){setHero(Math.floor(n*heroItems.length/dotCount));startHero()});dots.appendChild(b)})(i)}
