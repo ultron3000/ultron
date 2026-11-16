@@ -9,27 +9,82 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    .card:hover img {
-      transform: scale(1.08);
-    }
-    .card img {
-      transition: 0.4s ease;
-    }
+    :root{color-scheme:dark;--sf-bg:#080b12;--sf-panel:#111827;--sf-panel2:#151e2d;--sf-line:rgba(255,255,255,.09);--sf-text:#f5f7fb;--sf-muted:#98a5b8;--sf-accent:#7c9cff;--sf-glow:rgba(79,112,255,.18)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--sf-bg)}
+    body{margin:0;background:radial-gradient(ellipse at 50% -15%,rgba(63,91,177,.24),transparent 48%),var(--sf-bg);color:var(--sf-text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+    .sf-shell{width:min(1380px,100%);margin:0 auto;padding:0 clamp(14px,3vw,38px) 64px}
+    .sf-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0}
+    .sf-back{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--sf-line);border-radius:999px;color:#dce5f8;text-decoration:none;font-size:13px;font-weight:650;background:rgba(255,255,255,.045);transition:.2s}
+    .sf-back:hover{background:rgba(255,255,255,.1);transform:translateY(-1px)}
+    .sf-mark{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#9db4ff;font-weight:800}
+    .sf-hero{position:relative;isolation:isolate;overflow:hidden;min-height:260px;display:flex;align-items:flex-end;padding:clamp(22px,5vw,54px);border:1px solid rgba(151,174,255,.2);border-radius:26px;background:linear-gradient(105deg,rgba(7,11,21,.98) 0%,rgba(10,16,31,.88) 55%,rgba(16,26,52,.55) 100%),radial-gradient(circle at 85% 30%,rgba(83,119,255,.35),transparent 38%);box-shadow:0 24px 80px rgba(0,0,0,.32)}
+    .sf-hero:before,.sf-hero:after{content:"";position:absolute;z-index:-1;pointer-events:none}
+    .sf-hero:before{width:340px;height:340px;right:8%;top:-135px;border:1px solid rgba(164,185,255,.2);border-radius:50%;box-shadow:0 0 0 28px rgba(123,151,255,.035),0 0 0 58px rgba(123,151,255,.025),0 0 90px rgba(91,123,255,.16)}
+    .sf-hero:after{width:240px;height:240px;right:18%;bottom:-190px;background:rgba(93,125,255,.22);filter:blur(55px)}
+    .sf-hero-copy{max-width:720px}
+    .sf-eyebrow{display:inline-flex;align-items:center;gap:8px;color:#b8c8ff;font-size:10px;font-weight:850;letter-spacing:.22em;text-transform:uppercase}
+    .sf-eyebrow:before{content:"";width:22px;height:2px;background:#8da8ff;border-radius:2px}
+    .sf-hero h1{margin:13px 0 10px;font-size:clamp(32px,5vw,58px);line-height:1.02;letter-spacing:-.045em;font-weight:850}
+    .sf-hero h1 span{color:#9db4ff}
+    .sf-hero p{max-width:590px;margin:0;color:#aab6ca;font-size:clamp(13px,1.5vw,16px);line-height:1.65}
+    .sf-stats{display:flex;flex-wrap:wrap;gap:9px;margin-top:23px}
+    .sf-stat{padding:8px 12px;border:1px solid rgba(255,255,255,.11);border-radius:999px;background:rgba(255,255,255,.055);font-size:11px;color:#dbe4f5}
+    .sf-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:28px 0 17px}
+    .sf-toolbar-copy h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.02em}
+    .sf-toolbar-copy p{margin:4px 0 0;color:var(--sf-muted);font-size:12px}
+    .sf-search-wrap{position:relative;width:min(360px,100%)}
+    .sf-search-wrap:before{content:"⌕";position:absolute;left:14px;top:50%;transform:translateY(-53%);font-size:23px;color:#8fa2c5;pointer-events:none}
+    #studioSearch{width:100%;height:44px;padding:0 14px 0 42px;border:1px solid var(--sf-line);border-radius:13px;outline:none;background:#101827;color:#fff;font:inherit;font-size:13px;transition:.2s}
+    #studioSearch:focus{border-color:rgba(131,158,255,.65);box-shadow:0 0 0 3px var(--sf-glow)}
+    #studioSearch::placeholder{color:#7f8da3}
+    .sf-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:17px}
+    .category-card{display:flex;min-width:0;width:auto!important;flex-direction:column;overflow:hidden;flex-shrink:1!important;border:1px solid var(--sf-line);border-radius:17px;background:linear-gradient(155deg,#172235,#101722 72%);color:var(--sf-text);text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.17);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+    .category-card:hover{transform:translateY(-5px);border-color:rgba(139,164,255,.48);box-shadow:0 16px 34px rgba(0,0,0,.3),0 0 28px rgba(78,111,255,.09)}
+    .category-card>div:first-child{height:auto!important;aspect-ratio:16/9;position:relative;overflow:hidden;background:#0b1220}
+    .category-card>div:first-child:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(5,9,16,.48));pointer-events:none}
+    .category-card img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .55s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+    .category-card:hover img{transform:scale(1.07)}
+    .category-card>div:last-child{padding:13px 14px 15px!important}
+    .category-card h3{margin:0;color:#f4f7ff;font-size:14px;line-height:1.3;font-weight:750;letter-spacing:-.01em}
+    .category-card>div:last-child>div{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:7px!important}
+    .category-card span{color:#9eacc2!important;font-size:10px!important;line-height:1.4}
+    .category-card span.mx-2{margin:0!important;color:#52627a!important}
+    .sf-empty{display:none;padding:38px 16px;text-align:center;color:var(--sf-muted);border:1px dashed var(--sf-line);border-radius:16px}
+    .sf-empty strong{display:block;margin-bottom:5px;color:#e8edfa;font-size:15px}
+    .sf-footer{padding:30px 0 0;text-align:center;color:#6f7d92;font-size:11px}
+    @media(max-width:1100px){.sf-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}}
+    @media(max-width:760px){.sf-shell{padding:0 14px 42px}.sf-topbar{padding:13px 0}.sf-hero{min-height:230px;border-radius:20px;padding:25px 20px}.sf-hero:before{right:-120px;top:-120px}.sf-toolbar{align-items:stretch;flex-direction:column;margin:23px 0 14px}.sf-search-wrap{width:100%}.sf-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.category-card{border-radius:13px}.category-card>div:last-child{padding:10px 9px 11px!important}.category-card h3{font-size:12px}.category-card span{font-size:9px!important}}
+    @media(max-width:480px){.sf-hero{min-height:218px;padding:22px 17px}.sf-hero h1{font-size:34px}.sf-hero p{font-size:12px}.sf-stats{gap:6px;margin-top:16px}.sf-stat{font-size:10px;padding:7px 9px}.sf-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.category-card>div:first-child{aspect-ratio:16/10}.category-card h3{font-size:13px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
 
-<body class="bg-gray-50 text-gray-900">
+<body>
 
-  <!-- Page Header -->
-  <header class="py-10 text-center">
-    <h1 class="text-4xl font-extrabold">Studios & Franchises</h1>
-    <p class="text-gray-500 text-lg mt-2">Watch the best movies</p>
-  </header>
-
-  <!-- Grid Container -->
-  <div class="max-w-7xl mx-auto px-4 pb-20">
-
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+  <main class="sf-shell">
+    <nav class="sf-topbar" aria-label="Page navigation">
+      <a class="sf-back" href="index.html"><span aria-hidden="true">←</span> Back to Home</a>
+      <span class="sf-mark">Cloud TV · Collections</span>
+    </nav>
+    <header class="sf-hero">
+      <div class="sf-hero-copy">
+        <span class="sf-eyebrow">Explore the worlds of cinema</span>
+        <h1>Studios <span>&amp; Franchises</span></h1>
+        <p>Step into legendary movie universes, discover the studios behind the stories, and revisit the franchises that keep getting bigger.</p>
+        <div class="sf-stats">
+          <span class="sf-stat">Cinematic universes</span>
+          <span class="sf-stat">Iconic studios</span>
+          <span class="sf-stat" id="studioCount">17 collections</span>
+        </div>
+      </div>
+    </header>
+    <section aria-label="Browse studios and franchises">
+      <div class="sf-toolbar">
+        <div class="sf-toolbar-copy"><h2>Explore collections</h2><p>Choose a universe and start watching.</p></div>
+        <div class="sf-search-wrap"><input id="studioSearch" type="search" placeholder="Search studios or franchises..." autocomplete="off" aria-label="Search studios and franchises"></div>
+      </div>
+      <div class="sf-grid" id="studioGrid">
 
       <!-- CARD TEMPLATE START -->
      <a href="https://cloudtv.store/marvel" class="category-card w-40 sm:w-48 bg-white rounded-xl overflow-hidden shadow-sm cursor-pointer flex-shrink-0">
@@ -254,8 +309,33 @@
             </div>
           </a>
 
-    </div>
-  </div>
+      </div>
+      <div class="sf-empty" id="studioEmpty"><strong>No collections found</strong>Try another studio or franchise name.</div>
+    </section>
+    <footer class="sf-footer">Discover more stories. Explore more universes.</footer>
+  </main>
+  <script>
+    (function(){
+      var search=document.getElementById("studioSearch");
+      var grid=document.getElementById("studioGrid");
+      var empty=document.getElementById("studioEmpty");
+      var count=document.getElementById("studioCount");
+      if(!search||!grid)return;
+      var cards=Array.from(grid.querySelectorAll("a.category-card"));
+      function filterCards(){
+        var query=search.value.trim().toLowerCase(),visible=0;
+        cards.forEach(function(card){
+          var match=card.textContent.toLowerCase().includes(query)||(card.querySelector("img")?.alt||"").toLowerCase().includes(query);
+          card.hidden=!match;
+          if(match)visible++;
+        });
+        if(empty)empty.style.display=visible?"none":"block";
+        if(count)count.textContent=visible+" "+(visible===1?"collection":"collections");
+      }
+      search.addEventListener("input",filterCards);
+      filterCards();
+    })();
+  </script>
 <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
