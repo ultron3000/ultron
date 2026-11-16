@@ -196,7 +196,18 @@ main{padding-bottom:90px}.hero{position:relative;min-height:clamp(320px,32vw,440
    }).filter(Boolean);
    rail("rail-studios-franchise",shuffle(studioRecords));
   }).catch(function(error){console.warn("Cloud TV studios rail:",error);rail("rail-studios-franchise",[])});
-  rail("rail-live",shuffle(live),true);var sportsAndCricket=live.filter(function(r){return ["sports","cricket","football"].indexOf(String(r.category||"").toLowerCase())!==-1});rail("rail-sports",shuffle(sportsAndCricket),true);rail("rail-collections",collections);
+  rail("rail-live",shuffle(live),true);var sportsAndCricket=live.filter(function(r){return ["sports","cricket","football"].indexOf(String(r.category||"").toLowerCase())!==-1});rail("rail-sports",shuffle(sportsAndCricket),true);
+  // Keep the homepage Curated Worlds rail in sync with the dedicated curated-worlds.html catalogue.
+  fetch("curated-worlds.html",{cache:"no-store"}).then(function(response){if(!response.ok)throw new Error("Curated Worlds catalogue unavailable");return response.text()}).then(function(markup){
+   var doc=new DOMParser().parseFromString(markup,"text/html");
+   var curatedRecords=Array.from(doc.querySelectorAll(".world-card")).map(function(anchor){
+    var img=anchor.querySelector(".world-art img"),title=anchor.querySelector(".world-info h3"),section=anchor.closest(".world-section");
+    if(!img||!img.getAttribute("src")||!anchor.getAttribute("href"))return null;
+    var sectionTitle=section&&section.querySelector(".section-head h2"),meta=anchor.querySelector(".world-info p");
+    return {title:(title?title.textContent:img.alt||"Curated collection").trim(),url:anchor.getAttribute("href"),image:img.getAttribute("src"),category:sectionTitle?sectionTitle.textContent.trim():"Curated World",language:"Collection",description:meta?meta.textContent.trim():"Explore this curated collection.",type:"collection",source:"curated-worlds.html"};
+   }).filter(Boolean);
+   rail("rail-collections",shuffle(curatedRecords));
+  }).catch(function(error){console.warn("Cloud TV curated worlds rail:",error);rail("rail-collections",[])});
   var heroMovies=movies.filter(function(r){return !!r.image}),heroSeries=series.filter(function(r){return !!r.image});heroItems=shuffle(heroMovies.concat(heroSeries));
   var dots=document.getElementById("heroDots");dots.replaceChildren();var dotCount=Math.min(8,heroItems.length);for(var i=0;i<dotCount;i++){(function(n){var b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Show featured title "+(n+1));b.addEventListener("click",function(){setHero(Math.floor(n*heroItems.length/dotCount));startHero()});dots.appendChild(b)})(i)}
   document.getElementById("heroTotal").textContent=String(heroItems.length);setHero(Math.floor(Math.random()*heroItems.length));startHero();
