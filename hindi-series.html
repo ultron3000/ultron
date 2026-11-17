@@ -1353,15 +1353,43 @@ body.series-light-mode #seriesGrid .series-card p{color:#64748b!important}
  const theme=document.getElementById('categoryThemeToggle');
  theme.addEventListener('click',function(){document.body.classList.toggle('series-light-mode');const light=document.body.classList.contains('series-light-mode');theme.innerHTML=light?'<i class="fas fa-moon"></i><span class="tool-label">Theme</span>':'<i class="fas fa-sun"></i><span class="tool-label">Theme</span>';});
  const gridToggle=document.getElementById('categoryGridToggle');
- gridToggle.addEventListener('click',function(event){
-  event.preventDefault();event.stopPropagation();
-  const compact=!grid.classList.contains('series-grid-compact');
+ // Capture clicks at document level so overlays/other page handlers cannot swallow the grid action.
+ function applySeriesGridMode(compact){
+  grid.dataset.gridMode=compact?'compact':'standard';
   grid.classList.toggle('series-grid-compact',compact);
-  if(compact){grid.style.setProperty('grid-template-columns','repeat(auto-fill,minmax(118px,1fr))','important');grid.style.setProperty('gap','12px','important');}
-  else{grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('gap');}
-  gridToggle.setAttribute('aria-pressed',String(compact));
-  gridToggle.innerHTML=compact?'<i class="fas fa-grip"></i><span class="tool-label">Compact</span>':'<i class="fas fa-grip-horizontal"></i><span class="tool-label">Grid</span>';
- });
+  grid.classList.remove('grid-cols-2','sm:grid-cols-3','md:grid-cols-4','lg:grid-cols-5');
+  if(compact){
+   const width=window.innerWidth||document.documentElement.clientWidth;
+   const columns=width<560?3:(width<900?5:7);
+   grid.style.setProperty('display','grid','important');
+   grid.style.setProperty('grid-template-columns','repeat('+columns+',minmax(0,1fr))','important');
+   grid.style.setProperty('gap',width<560?'9px':'12px','important');
+   gridToggle.innerHTML='<i class="fas fa-grip"></i><span class="tool-label">Compact</span>';
+   gridToggle.setAttribute('aria-label','Switch to standard grid');
+   gridToggle.setAttribute('title','Switch to standard grid');
+   gridToggle.setAttribute('aria-pressed','true');
+  }else{
+   grid.style.removeProperty('grid-template-columns');
+   grid.style.removeProperty('gap');
+   grid.style.removeProperty('display');
+   gridToggle.innerHTML='<i class="fas fa-grip-horizontal"></i><span class="tool-label">Grid</span>';
+   gridToggle.setAttribute('aria-label','Switch to compact grid');
+   gridToggle.setAttribute('title','Switch to compact grid');
+   gridToggle.setAttribute('aria-pressed','false');
+  }
+ }
+ applySeriesGridMode(false);
+ document.addEventListener('click',function(event){
+  const button=event.target&&event.target.closest?event.target.closest('#categoryGridToggle'):null;
+  if(!button)return;
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  applySeriesGridMode(grid.dataset.gridMode!=='compact');
+ },true);
+ window.addEventListener('resize',function(){
+  if(grid.dataset.gridMode==='compact')applySeriesGridMode(true);
+ },{passive:true});
 })();
 </script>
 
