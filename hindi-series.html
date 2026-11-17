@@ -1307,8 +1307,15 @@ body.series-light-mode #seriesGrid .series-card p{color:#64748b!important}
   const current=state.order[state.index];
   state.order=items.map(function(_,i){return i;}).filter(function(i){return !keepCurrent||i!==current;});
   for(let i=state.order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[state.order[i],state.order[j]]=[state.order[j],state.order[i]];}
-  if(keepCurrent&&current!==undefined)state.order.unshift(current);
-  state.index=0;
+  if(keepCurrent&&current!==undefined){state.order.unshift(current);state.index=1;}
+  else{state.index=0;}
+ }
+ function surpriseSeries(){
+  const current=state.order[state.index];
+  const choices=items.map(function(_,i){return i;}).filter(function(i){return i!==current;});
+  if(!choices.length)return;
+  for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
+  state.order=choices;state.index=0;show();
  }
  function show(){
   const item=items[state.order[state.index]]||items[0];
@@ -1334,7 +1341,8 @@ body.series-light-mode #seriesGrid .series-card p{color:#64748b!important}
  shuffle(false);show();requestAnimationFrame(frame);
  document.getElementById('categoryHeroPrev').addEventListener('click',function(){step(-1,false);});
  document.getElementById('categoryHeroNext').addEventListener('click',function(){step(1,false);});
- document.getElementById('categoryHeroSurprise').addEventListener('click',function(){step(1,true);});
+ const surpriseButton=document.getElementById('categoryHeroSurprise');
+ surpriseButton.addEventListener('click',function(event){event.preventDefault();event.stopPropagation();surpriseSeries();});
  hero.addEventListener('mouseenter',function(){state.paused=true;});
  hero.addEventListener('mouseleave',function(){state.paused=false;state.started=performance.now();});
  hero.addEventListener('focusin',function(){state.paused=true;});
@@ -1344,7 +1352,16 @@ body.series-light-mode #seriesGrid .series-card p{color:#64748b!important}
  document.addEventListener('visibilitychange',function(){state.paused=document.hidden||window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(!document.hidden)state.started=performance.now();});
  const theme=document.getElementById('categoryThemeToggle');
  theme.addEventListener('click',function(){document.body.classList.toggle('series-light-mode');const light=document.body.classList.contains('series-light-mode');theme.innerHTML=light?'<i class="fas fa-moon"></i><span class="tool-label">Theme</span>':'<i class="fas fa-sun"></i><span class="tool-label">Theme</span>';});
- document.getElementById('categoryGridToggle').addEventListener('click',function(){grid.classList.toggle('series-grid-compact');this.innerHTML=grid.classList.contains('series-grid-compact')?'<i class="fas fa-grip"></i><span class="tool-label">Grid</span>':'<i class="fas fa-grip-horizontal"></i><span class="tool-label">Grid</span>';});
+ const gridToggle=document.getElementById('categoryGridToggle');
+ gridToggle.addEventListener('click',function(event){
+  event.preventDefault();event.stopPropagation();
+  const compact=!grid.classList.contains('series-grid-compact');
+  grid.classList.toggle('series-grid-compact',compact);
+  if(compact){grid.style.setProperty('grid-template-columns','repeat(auto-fill,minmax(118px,1fr))','important');grid.style.setProperty('gap','12px','important');}
+  else{grid.style.removeProperty('grid-template-columns');grid.style.removeProperty('gap');}
+  gridToggle.setAttribute('aria-pressed',String(compact));
+  gridToggle.innerHTML=compact?'<i class="fas fa-grip"></i><span class="tool-label">Compact</span>':'<i class="fas fa-grip-horizontal"></i><span class="tool-label">Grid</span>';
+ });
 })();
 </script>
 
