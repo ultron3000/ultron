@@ -68,6 +68,35 @@
       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
     }
 
+    /* CIA-style season selector, adapted to Stick's emerald theme. */
+    .season-filter {
+      appearance: none;
+      -webkit-appearance: none;
+      min-width: 145px;
+      padding: 10px 38px 10px 13px;
+      border: 1px solid rgba(16, 185, 129, 0.32);
+      border-radius: 10px;
+      background-color: #0f1c14;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      color: #f3f4f6;
+      font: 600 12px 'Outfit', sans-serif;
+      cursor: pointer;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .season-filter:hover,
+    .season-filter:focus {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, .12);
+    }
+    .season-filter option { background: #0f1c14; color: #f3f4f6; }
+    @media (max-width: 640px) {
+      #season-tabs { width: 100%; }
+      .season-filter { width: 100%; min-width: 0; }
+    }
+
     /* Modal player styling */
     .modal-backdrop { 
       position:fixed; inset:0; background: rgba(3, 7, 5, 0.95); 
@@ -177,12 +206,12 @@
         <i class="fas fa-layer-group text-[#10b981]"></i>
         <h3 class="text-lg font-bold text-white cinzel-font tracking-wider">SEASONS</h3>
       </div>
-      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-        <div class="flex items-center space-x-2 min-w-max" id="season-tabs">
-          <button class="season-btn active px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="all">All Seasons</button>
-          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="1">Season 1</button>
-          <button class="season-btn px-4 py-1.5 rounded-xl text-xs sm:text-sm" data-season="2">Season 2</button>
-        </div>
+      <div class="w-full sm:w-auto">
+        <select id="season-filter" class="season-filter" aria-label="Filter episodes by season">
+          <option value="all" selected>All seasons</option>
+          <option value="1">Season 1</option>
+          <option value="2">Season 2</option>
+        </select>
       </div>
     </div>
 
@@ -471,36 +500,34 @@
       openPlayer(null, null, 'https://www.youtube.com/embed/m6ArXts5JPk?autoplay=1');
     });
 
-    // Filter Season Tabs
-    document.querySelectorAll('.season-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        const s = this.dataset.season;
-        filteredList = s === 'all' ? [...episodes] : episodes.filter(e => e.season.toString() === s);
-        renderCards(filteredList);
-      });
-    });
-
-    // Search Handling
+    // Season selection and search share one filter so both controls work together.
+    const seasonFilter = document.getElementById('season-filter');
     const searchBtn = document.getElementById('search-btn');
     const searchBar = document.getElementById('search-bar');
     const searchInput = document.getElementById('global-search');
 
+    function updateEpisodeFilter() {
+      const q = searchInput.value.toLowerCase().trim();
+      const season = seasonFilter.value;
+      const seasonEpisodes = season === 'all'
+        ? episodes
+        : episodes.filter(ep => String(ep.season) === season);
+
+      filteredList = seasonEpisodes.filter(ep =>
+        ep.title.toLowerCase().includes(q) ||
+        (ep.description || '').toLowerCase().includes(q)
+      );
+      renderCards(filteredList);
+    }
+
+    // Search Handling
     searchBtn.addEventListener('click', () => {
       searchBar.classList.toggle('hidden');
       if(!searchBar.classList.contains('hidden')) searchInput.focus();
     });
 
-    searchInput.addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase().trim();
-      const activeSeasonBtn = document.querySelector('.season-btn.active');
-      const s = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
-      
-      let base = s === 'all' ? episodes : episodes.filter(ep => ep.season.toString() === s);
-      filteredList = base.filter(ep => ep.title.toLowerCase().includes(q) || ep.description.toLowerCase().includes(q));
-      renderCards(filteredList);
-    });
+    seasonFilter.addEventListener('change', updateEpisodeFilter);
+    searchInput.addEventListener('input', updateEpisodeFilter);
 
     // Watchlist Dropdown Toggle
     const watchlistBtn = document.getElementById('watchlist-btn');
