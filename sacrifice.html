@@ -86,13 +86,21 @@
  .ad-slot.ad-native iframe{max-width:100%!important}
 }
 
-.season-switch{display:flex;gap:9px;margin:0 0 18px;flex-wrap:wrap}
-.season-tab{display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--muted);font-size:11px;font-weight:800;cursor:pointer;transition:.2s}
-.season-tab span{display:grid;place-items:center;min-width:21px;height:21px;padding:0 5px;border-radius:7px;background:#ffffff0d;color:inherit;font-size:9px}
-.season-tab.active{background:linear-gradient(120deg,#7f1d2d,#a52c3d);border-color:#c44b5a;color:#fff;box-shadow:0 8px 22px #8f263533}
-.episode-card.is-upcoming{cursor:default}.episode-card.is-upcoming:hover{transform:none;border-color:var(--line);box-shadow:none}
-.episode-card.is-upcoming .episode-play{display:none}
-@media(max-width:620px){.season-switch{width:100%;gap:7px}.season-tab{flex:1;justify-content:center;padding:10px 9px}}
+
+/* Compact episode controls: match the body.html season pill treatment. */
+#episodes.section{margin-top:13px}
+.season-select{display:flex;align-items:center;gap:7px}
+.season-pill.season-tab{appearance:none;cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s,color .2s}
+.season-pill.season-tab.active{background:var(--panel2);border-color:var(--rose);color:var(--text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rose) 28%,transparent)}
+.season-pill.season-tab:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+@media(max-width:700px){
+ #episodes.section{margin-top:8px}
+ #episodes .section-head{align-items:flex-start;flex-direction:column;gap:12px;margin-bottom:13px}
+ #episodes .episode-tools{width:100%;display:flex;flex-wrap:wrap;gap:8px}
+ #episodes .search{flex:1;min-width:130px;width:auto}
+ .season-select{gap:6px}
+ .season-pill.season-tab{padding:10px 11px}
+}
 </style>
 <style id="english-hero-trailer-visibility">
 .series-hero{isolation:isolate;position:relative;overflow:hidden;background:#080a10}
@@ -129,9 +137,8 @@
 </section>
 <section class="section" id="episodes">
   <div class="section-head"><div><div class="overline" id="seasonOverline">Season 1 · 2021</div><h2 class="section-title" id="seasonHeading">The truth always has a price.</h2><div class="section-desc" id="seasonDescription">Daniella's world of power, loyalty and betrayal — all 11 episodes.</div></div>
-    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"></div>
+    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"><div class="season-select" role="group" aria-label="Choose a season"><button class="season-pill season-tab active" type="button" data-season="1" aria-pressed="true">Season 1</button><button class="season-pill season-tab" type="button" data-season="2" aria-pressed="false">Season 2</button></div></div>
   </div>
-  <div class="season-switch" role="group" aria-label="Choose a season"><button class="season-tab active" type="button" data-season="1">Season 1 <span>11</span></button><button class="season-tab" type="button" data-season="2">Season 2 <span>10</span></button></div>
   <div class="episode-grid" id="episodeGrid"></div>
 </section>
 <section class="section">
@@ -352,7 +359,7 @@ function renderEpisodes(list){
 }
 function setSeason(season){
  activeSeason=Number(season);
- document.querySelectorAll(".season-tab").forEach(btn=>btn.classList.toggle("active",Number(btn.dataset.season)===activeSeason));
+ document.querySelectorAll(".season-tab").forEach(btn=>{const active=Number(btn.dataset.season)===activeSeason;btn.classList.toggle("active",active);btn.setAttribute("aria-pressed",String(active));});
  document.getElementById("seasonOverline").textContent="Season "+activeSeason+" · "+(activeSeason===1?"2021":"2026");
  document.getElementById("seasonHeading").textContent=activeSeason===1?"The truth always has a price.":"Every secret comes back to collect.";
  document.getElementById("seasonDescription").textContent=activeSeason===1?"Daniella's world of power, loyalty and betrayal — all 11 episodes.":"Daniella faces new threats, old wounds and shifting alliances — 10 episodes.";
