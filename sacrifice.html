@@ -87,19 +87,14 @@
 }
 
 
-/* Compact episode controls: match the body.html season pill treatment. */
+/* CIA-style native season filter and compact episode spacing. */
 #episodes.section{margin-top:13px}
-.season-select{display:flex;align-items:center;gap:7px}
-.season-pill.season-tab{appearance:none;cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s,color .2s}
-.season-pill.season-tab.active{background:var(--panel2);border-color:var(--rose);color:var(--text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rose) 28%,transparent)}
-.season-pill.season-tab:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
 @media(max-width:700px){
  #episodes.section{margin-top:8px}
  #episodes .section-head{align-items:flex-start;flex-direction:column;gap:12px;margin-bottom:13px}
  #episodes .episode-tools{width:100%;display:flex;flex-wrap:wrap;gap:8px}
  #episodes .search{flex:1;min-width:130px;width:auto}
- .season-select{gap:6px}
- .season-pill.season-tab{padding:10px 11px}
+ #episodes .season-pill{white-space:nowrap;min-width:112px}
 }
 </style>
 <style id="english-hero-trailer-visibility">
@@ -137,7 +132,7 @@
 </section>
 <section class="section" id="episodes">
   <div class="section-head"><div><div class="overline" id="seasonOverline">Season 1 · 2021</div><h2 class="section-title" id="seasonHeading">The truth always has a price.</h2><div class="section-desc" id="seasonDescription">Daniella's world of power, loyalty and betrayal — all 11 episodes.</div></div>
-    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"><div class="season-select" role="group" aria-label="Choose a season"><button class="season-pill season-tab active" type="button" data-season="1" aria-pressed="true">Season 1</button><button class="season-pill season-tab" type="button" data-season="2" aria-pressed="false">Season 2</button></div></div>
+    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"><select class="season-pill" id="seasonFilter" aria-label="Filter by season"><option value="all">All seasons</option><option value="1" selected>Season 1</option><option value="2">Season 2</option></select></div>
   </div>
   <div class="episode-grid" id="episodeGrid"></div>
 </section>
@@ -329,15 +324,14 @@ const episodes = [
     "image": ""
   }
 ];
-const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch");
+const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch"),seasonFilter=document.getElementById("seasonFilter");
 const playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper");
 const modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc");
 const playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
 let currentHls=null,currentShaka=null,currentList=episodes,currentIndex=0;
-let activeSeason=1;
 function visibleEpisodes(){
- const q=search.value.trim().toLowerCase();
- return episodes.filter(ep=>ep.season===activeSeason&&(!q||ep.title.toLowerCase().includes(q)||ep.description.toLowerCase().includes(q)));
+ const q=search.value.trim().toLowerCase(),season=seasonFilter.value;
+ return episodes.filter(ep=>(season==="all"||String(ep.season)===season)&&(!q||ep.title.toLowerCase().includes(q)||ep.description.toLowerCase().includes(q)));
 }
 function renderEpisodes(list){
  grid.innerHTML="";
@@ -357,16 +351,15 @@ function renderEpisodes(list){
   grid.appendChild(card);
  });
 }
-function setSeason(season){
- activeSeason=Number(season);
- document.querySelectorAll(".season-tab").forEach(btn=>{const active=Number(btn.dataset.season)===activeSeason;btn.classList.toggle("active",active);btn.setAttribute("aria-pressed",String(active));});
- document.getElementById("seasonOverline").textContent="Season "+activeSeason+" · "+(activeSeason===1?"2021":"2026");
- document.getElementById("seasonHeading").textContent=activeSeason===1?"The truth always has a price.":"Every secret comes back to collect.";
- document.getElementById("seasonDescription").textContent=activeSeason===1?"Daniella's world of power, loyalty and betrayal — all 11 episodes.":"Daniella faces new threats, old wounds and shifting alliances — 10 episodes.";
+function filterEpisodes(){
+ const season=seasonFilter.value;
+ document.getElementById("seasonOverline").textContent=season==="all"?"Complete series · 2021–2026":"Season "+season+" · "+(season==="1"?"2021":"2026");
+ document.getElementById("seasonHeading").textContent=season==="all"?"Power has a price. Secrets have a cost.":season==="1"?"The truth always has a price.":"Every secret comes back to collect.";
+ document.getElementById("seasonDescription").textContent=season==="all"?"Explore all 21 episodes across both seasons.":season==="1"?"Daniella's world of power, loyalty and betrayal — all 11 episodes.":"Daniella faces new threats, old wounds and shifting alliances — 10 episodes.";
  renderEpisodes(visibleEpisodes());
 }
-document.querySelectorAll(".season-tab").forEach(btn=>btn.addEventListener("click",()=>setSeason(btn.dataset.season)));
-search.addEventListener("input",()=>renderEpisodes(visibleEpisodes()));
+search.addEventListener("input",filterEpisodes);
+seasonFilter.addEventListener("change",filterEpisodes);
 function isHls(url){return /\.m3u8($|\?)/i.test(url)||/index.*\.txt/i.test(url)||/manifest|master/i.test(url)}
 function isMp4(url){return /\.mp4($|\?)/i.test(url)}
 function isYouTube(url){return /youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(url)}
@@ -437,7 +430,7 @@ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
 playbackModal.addEventListener("click",function(e){if(e.target===playbackModal)closePlayer()});
 document.addEventListener("keydown",function(e){if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
 document.getElementById("trailerBtn").addEventListener("click",function(){openPlayer([{title:"Sacrifice — Official Trailer",season:1,episode:0,video:"https://www.youtube.com/watch?v=HghhpP85j2Y"}],0)});
-setSeason(1);
+filterEpisodes();
 </script>
 <!-- ========================================================= -->
 <!-- ========================================================= -->
