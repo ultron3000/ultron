@@ -86,7 +86,7 @@
  .ad-slot.ad-native iframe{max-width:100%!important}
 }
 
-/* Match body.html compact season pill placement and tighten hero-to-episodes spacing. */
+/* Match CIA native season-filter placement and retain compact episode spacing. */
 #episodes.section{margin-top:13px}
 @media(max-width:700px){
  #episodes.section{margin-top:8px}
@@ -131,7 +131,7 @@
 </section>
 <section class="section" id="episodes">
   <div class="section-head"><div><div class="overline">Season one · 2026</div><h2 class="section-title">Every second is part of the plan.</h2><div class="section-desc">Eight chapters. Three timelines. One impossible heist.</div></div>
-    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"><span class="season-pill">Season 1</span></div>
+    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Find an episode…" aria-label="Search episodes"><select class="season-pill" id="seasonFilter" aria-label="Filter by season"><option value="all" selected>All seasons</option><option value="1">Season 1</option></select></div>
   </div>
   <div class="episode-grid" id="episodeGrid"></div>
 </section>
@@ -163,7 +163,7 @@ const episodes = [
  {title:"Episode 7",season:1,episode:7,runtime:"",releaseDate:"2026-12-18",description:"The penultimate chapter tightens the stakes as the aftermath of the heist comes into view.",video:"00",image:"https://image.tmdb.org/t/p/w300/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg"},
  {title:"Episode 8",season:1,episode:8,runtime:"",releaseDate:"2026-12-25",description:"The season finale brings the eight-episode Zurich heist story to its conclusion.",video:"00",image:"https://image.tmdb.org/t/p/w300/bG4h6C6wRKmf3ryz8gdN6imXW4c.jpg"}
 ];;
-const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch");
+const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch"),seasonFilter=document.getElementById("seasonFilter");
 const playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper");
 const modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc");
 const playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
@@ -189,7 +189,14 @@ function renderEpisodes(list){
   grid.appendChild(card);
  });
 }
-search.addEventListener("input",function(){const q=this.value.trim().toLowerCase();renderEpisodes(episodes.filter(function(ep){return ep.title.toLowerCase().includes(q)||ep.description.toLowerCase().includes(q)}))});
+function filterEpisodes(){
+ const q=search.value.trim().toLowerCase(),season=seasonFilter.value;
+ renderEpisodes(episodes.filter(function(ep){
+  return (season==="all"||String(ep.season)===season)&&(!q||ep.title.toLowerCase().includes(q)||ep.description.toLowerCase().includes(q));
+ }));
+}
+search.addEventListener("input",filterEpisodes);
+seasonFilter.addEventListener("change",filterEpisodes);
 function isHls(url){return /\.m3u8($|\?)/i.test(url)||/index.*\.txt/i.test(url)||/manifest|master/i.test(url)}
 function isMp4(url){return /\.mp4($|\?)/i.test(url)}
 function isYouTube(url){return /youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(url)}
@@ -260,7 +267,7 @@ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
 playbackModal.addEventListener("click",function(e){if(e.target===playbackModal)closePlayer()});
 document.addEventListener("keydown",function(e){if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
 document.getElementById("trailerBtn").addEventListener("click",function(){openPlayer([{title:"12 12 12 — Official Trailer",season:1,episode:0,video:"https://www.youtube.com/watch?v=pWdt8WMCqnc"}],0)});
-renderEpisodes(episodes);
+filterEpisodes();
 </script>
 <!-- ========================================================= -->
 <!-- ========================================================= -->
