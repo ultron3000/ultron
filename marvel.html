@@ -235,6 +235,10 @@
       #movies-container{gap:7px!important}
     }
 
+
+    .marvel-search-row{max-width:520px;margin:0 0 12px auto}
+    .marvel-search-row input{min-height:42px;font-size:14px}
+    @media(max-width:640px){.marvel-search-row{max-width:none;margin:0 0 9px}.marvel-search-row input{min-height:38px;font-size:12px}}
 </style>
   <!-- HLS.js used by the Hawkeye player -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
@@ -291,6 +295,14 @@
 
   <!-- Main Content -->
   <main class="container mx-auto px-3 sm:px-4 pt-2 pb-8">
+    <!-- Search: restore the input required by the catalogue renderer -->
+    <div class="marvel-search-row">
+      <label class="sr-only" for="search-input">Search Marvel movies</label>
+      <div class="relative w-full">
+        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-marvel-gold/70"></i>
+        <input id="search-input" type="search" autocomplete="off" placeholder="Search Marvel movies..." class="w-full rounded-xl border border-marvel-gold/30 bg-marvel-dark text-white pl-11 pr-4 py-3 outline-none focus:border-marvel-red">
+      </div>
+    </div>
     <!-- Filters -->
     <div class="mb-3">
       <div class="flex flex-nowrap gap-2 sm:gap-3 mb-2 sm:mb-3 scrollbar-hide overflow-x-auto pb-2 px-1 sm:px-0">
@@ -1317,7 +1329,7 @@
     });
 
     // --- UI: filter/sort/search/theme/view handlers (kept) ---
-    searchInput.addEventListener('input', renderMovies);
+    if (searchInput) searchInput.addEventListener('input', renderMovies);
     filterButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         filterButtons.forEach(b => b.classList.remove('active'));
