@@ -240,45 +240,64 @@
     .marvel-search-row input{min-height:42px;font-size:14px}
     @media(max-width:640px){.marvel-search-row{max-width:none;margin:0 0 9px}.marvel-search-row input{min-height:38px;font-size:12px}}
 
-    /* Reliable responsive movie grid and working grid/list toggle */
-    .marvel-header-logo{display:block;width:clamp(112px,15vw,170px);height:42px;object-fit:contain;object-position:left center}
-    #movies-container.marvel-grid-view{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%;align-items:stretch}
-    #movies-container.marvel-list-view{display:flex!important;flex-direction:column!important;gap:10px!important;width:100%}
-    .marvel-movie-card{position:relative!important;display:block!important;min-width:0!important;height:clamp(205px,30vw,300px)!important;overflow:hidden!important;border-radius:10px!important;background:#11141b!important;border:1px solid rgba(255,255,255,.12)!important;cursor:pointer!important;isolation:isolate}
-    .marvel-movie-card .movie-poster{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;object-position:center!important;transition:transform .35s ease}
+    /* Three-step grid sizing — mirrors the working movies.html layout switch */
+    #movies-container{width:100%;min-width:0;align-items:stretch}
+    body.marvel-mode-standard #movies-container{
+      display:grid!important;
+      grid-template-columns:repeat(auto-fill,minmax(155px,1fr))!important;
+      gap:14px!important;
+    }
+    body.marvel-mode-dense #movies-container{
+      display:grid!important;
+      grid-template-columns:repeat(auto-fill,minmax(112px,1fr))!important;
+      gap:9px!important;
+    }
+    body.marvel-mode-card #movies-container{
+      display:grid!important;
+      grid-template-columns:repeat(auto-fill,minmax(min(245px,100%),1fr))!important;
+      gap:17px!important;
+    }
+    .marvel-movie-card{
+      position:relative!important;display:block!important;min-width:0!important;
+      height:clamp(205px,28vw,300px)!important;overflow:hidden!important;
+      border-radius:10px!important;background:#11141b!important;
+      border:1px solid rgba(255,255,255,.12)!important;cursor:pointer!important;isolation:isolate;
+    }
+    .marvel-movie-card .movie-poster{
+      position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+      display:block!important;object-fit:cover!important;object-position:center!important;
+      transition:transform .35s ease;
+    }
     .marvel-movie-card:hover .movie-poster{transform:scale(1.045)}
     .marvel-movie-card .movie-poster.poster-unavailable{opacity:0}
-    .marvel-card-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(0deg,rgba(0,0,0,.96) 0%,rgba(0,0,0,.08) 72%)}
+    .marvel-card-shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(0deg,rgba(0,0,0,.96),rgba(0,0,0,.06) 72%)}
     .marvel-card-info{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:11px;color:#fff;text-shadow:0 1px 5px #000;pointer-events:none}
     .marvel-card-title{font:700 14px/1.25 Arial,sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .marvel-card-meta{margin-top:5px;color:#f3c969;font:700 10px/1.3 Arial,sans-serif}
     .marvel-empty-state{grid-column:1/-1;width:100%;padding:28px 12px;text-align:center;color:rgba(255,255,255,.75);font:14px Arial,sans-serif}
-    #movies-container.marvel-list-view .marvel-movie-card{height:112px!important;flex:0 0 112px;display:block!important}
-    #movies-container.marvel-list-view .marvel-movie-card .movie-poster{right:auto!important;width:82px!important}
-    #movies-container.marvel-list-view .marvel-card-shade{background:linear-gradient(90deg,transparent 0,rgba(17,20,27,.18) 60px,#11141b 118px,#11141b 100%)}
-    #movies-container.marvel-list-view .marvel-card-info{left:96px;right:10px;top:50%;bottom:auto;transform:translateY(-50%);padding:8px}
-    #movies-container.marvel-list-view .marvel-card-title{font-size:14px}
-    #movies-container.marvel-list-view .marvel-card-meta{font-size:10px}
-    @media(min-width:640px){
-      .marvel-header-logo{height:48px;width:150px}
-      #movies-container.marvel-grid-view{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important}
-    }
-    @media(min-width:900px){
-      #movies-container.marvel-grid-view{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:15px!important}
-    }
-    @media(min-width:1200px){
-      #movies-container.marvel-grid-view{grid-template-columns:repeat(5,minmax(0,1fr))!important}
-    }
-    @media(max-width:480px){
-      .marvel-header-logo{width:106px;height:36px}
-      #movies-container.marvel-grid-view{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
-      .marvel-movie-card{height:clamp(205px,61vw,245px)!important;border-radius:8px!important}
+    body.marvel-mode-dense .marvel-card-info{padding:8px}
+    body.marvel-mode-dense .marvel-card-title{font-size:11px;line-height:1.2}
+    body.marvel-mode-dense .marvel-card-meta{font-size:8px;margin-top:3px}
+    body.marvel-mode-card .marvel-movie-card{height:auto!important;min-height:0!important}
+    body.marvel-mode-card .marvel-movie-card .movie-poster{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;aspect-ratio:16/10!important;object-fit:cover!important}
+    body.marvel-mode-card .marvel-card-shade{background:linear-gradient(0deg,rgba(0,0,0,.96),rgba(0,0,0,.02) 72%)}
+    body.marvel-mode-card .marvel-card-info{padding:12px}
+    @media(max-width:640px){
+      body.marvel-mode-standard #movies-container{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+      body.marvel-mode-dense #movies-container{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+      body.marvel-mode-card #movies-container{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+      .marvel-movie-card{height:clamp(195px,58vw,245px)!important;border-radius:8px!important}
       .marvel-card-info{padding:8px}
       .marvel-card-title{font-size:12px;line-height:1.22}
       .marvel-card-meta{font-size:9px;margin-top:4px}
-      #movies-container.marvel-list-view .marvel-movie-card{height:100px!important;flex-basis:100px}
-      #movies-container.marvel-list-view .marvel-movie-card .movie-poster{width:72px!important}
-      #movies-container.marvel-list-view .marvel-card-info{left:84px}
+      body.marvel-mode-dense .marvel-movie-card{height:clamp(155px,48vw,195px)!important}
+      body.marvel-mode-dense .marvel-card-title{font-size:10px}
+      body.marvel-mode-card .marvel-movie-card{height:auto!important}
+      body.marvel-mode-card .marvel-card-title{font-size:12px}
+    }
+    @media(min-width:900px){
+      body.marvel-mode-standard #movies-container{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important}
+      body.marvel-mode-dense #movies-container{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))!important}
     }
 
     /* Swipeable category rail with snap points and momentum scrolling */
@@ -985,7 +1004,9 @@
     // State
     let currentFilter = 'all';
     let currentSort = 'release';
-    let currentView = 'grid';
+    const marvelGridModes = ['marvel-mode-standard', 'marvel-mode-dense', 'marvel-mode-card'];
+    const marvelGridLabels = ['Standard grid', 'Compact grid', 'Large cards'];
+    let currentGridMode = 0;
     let currentVideo = null; // { index: number (within filtered), movie: {} }
     let currentHls = null;
 
@@ -1085,11 +1106,12 @@
         filtered = Array.isArray(movies) ? [...movies] : [];
       }
 
-      // Explicit responsive columns: two on phones, expanding on larger screens.
-      moviesContainer.classList.toggle('marvel-list-view', currentView === 'list');
-      moviesContainer.classList.toggle('marvel-grid-view', currentView !== 'list');
+      // Use the same three-step grid-size model as movies.html.
+      document.body.classList.remove(...marvelGridModes);
+      document.body.classList.add(marvelGridModes[currentGridMode]);
+      moviesContainer.classList.remove('marvel-list-view', 'marvel-grid-view');
       moviesContainer.style.setProperty('visibility', 'visible', 'important');
-      moviesContainer.style.setProperty('display', currentView === 'list' ? 'flex' : 'grid', 'important');
+      moviesContainer.style.removeProperty('display');
       moviesContainer.style.removeProperty('grid-template-columns');
       moviesContainer.innerHTML = '';
 
@@ -1442,17 +1464,23 @@
       if (icon) { icon.classList.toggle('fa-moon'); icon.classList.toggle('fa-sun'); }
       themeToggle.setAttribute('aria-label', document.body.classList.contains('light-theme') ? 'Switch to dark theme' : 'Switch to light theme');
     });
-    viewToggle.addEventListener('click', () => {
-      currentView = currentView === 'grid' ? 'list' : 'grid';
-      const icon = viewToggle.querySelector('i');
+    function setMarvelGridMode(index) {
+      currentGridMode = (index + marvelGridModes.length) % marvelGridModes.length;
+      document.body.classList.remove(...marvelGridModes);
+      document.body.classList.add(marvelGridModes[currentGridMode]);
+      const icon = viewToggle && viewToggle.querySelector('i');
       if (icon) {
-        icon.classList.toggle('fa-th-large', currentView === 'grid');
-        icon.classList.toggle('fa-list', currentView === 'list');
+        icon.classList.remove('fa-th-large', 'fa-grip', 'fa-table-cells-large', 'fa-list');
+        icon.classList.add(currentGridMode === 1 ? 'fa-grip' : currentGridMode === 2 ? 'fa-table-cells-large' : 'fa-th-large');
       }
-      viewToggle.setAttribute('aria-label', currentView === 'grid' ? 'Switch to list view' : 'Switch to grid view');
-      viewToggle.setAttribute('title', currentView === 'grid' ? 'Switch to list view' : 'Switch to grid view');
+      const label = 'Layout: ' + marvelGridLabels[currentGridMode] + ' (click to change)';
+      viewToggle.setAttribute('aria-label', label);
+      viewToggle.setAttribute('title', label);
+      viewToggle.setAttribute('aria-pressed', String(currentGridMode !== 0));
       renderMovies();
-    });
+    }
+    setMarvelGridMode(0);
+    viewToggle.addEventListener('click', () => setMarvelGridMode(currentGridMode + 1));
 
     // Render now (the catalogue markup is already in the document), then retry on page restore.
     function initializeMarvelCatalogue() {
