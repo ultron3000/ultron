@@ -1020,19 +1020,58 @@
     }
 
     function renderMovies() {
-      loadingSpinner.classList.remove('hidden');
+      if (!moviesContainer) return;
+      if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+
+      // Always expose the catalogue grid, independent of utility CSS loading order.
+      moviesContainer.style.setProperty('display', 'grid', 'important');
+      moviesContainer.style.setProperty('visibility', 'visible', 'important');
+      moviesContainer.style.setProperty('grid-template-columns', 'repeat(auto-fill,minmax(min(100%,190px),1fr))', 'important');
+      moviesContainer.style.setProperty('gap', '12px', 'important');
       moviesContainer.innerHTML = '';
-      const filtered = getFilteredMovies();
-      if (filtered.length === 0) {
-        moviesContainer.innerHTML = '<div class="col-span-full text-center py-10"><i class="fas fa-film text-5xl text-yellow-400 mb-4"></i><h3 class="text-xl font-semibold">No movies found</h3><p class="text-gray-400">Try adjusting your search or filter</p></div>';
-        loadingSpinner.classList.add('hidden');
+
+      let filtered;
+      try {
+        filtered = getFilteredMovies();
+      } catch (error) {
+        // Search/filter UI must never make the complete catalogue disappear.
+        filtered = Array.isArray(movies) ? [...movies] : [];
+      }
+
+      if (!Array.isArray(filtered) || filtered.length === 0) {
+        moviesContainer.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px 12px;color:#fff"><h3 style="font-size:20px">No movies found</h3><p style="opacity:.7;font-size:13px">Try another search or filter.</p></div>';
+        if (loadingSpinner) loadingSpinner.classList.add('hidden');
         return;
       }
+
       filtered.forEach((movie, idx) => {
-        const card = createMovieCard(movie, idx);
+        const card = document.createElement('article');
+        card.className = 'movie-card';
+        card.style.cssText = 'position:relative;display:block;min-width:0;height:clamp(190px,28vw,300px);overflow:hidden;border-radius:10px;background:#11141b;border:1px solid rgba(255,255,255,.12);cursor:pointer;isolation:isolate;';
+        const poster = document.createElement('img');
+        poster.className = 'movie-poster';
+        poster.src = movie.image || '';
+        poster.alt = (movie.title || 'Marvel movie') + ' poster';
+        poster.loading = idx < 10 ? 'eager' : 'lazy';
+        poster.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center;';
+        poster.onerror = () => { poster.style.opacity = '0'; };
+        const shade = document.createElement('div');
+        shade.style.cssText = 'position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.96),rgba(0,0,0,.04) 72%);pointer-events:none;';
+        const info = document.createElement('div');
+        info.style.cssText = 'position:absolute;z-index:2;left:0;right:0;bottom:0;padding:11px;color:#fff;text-shadow:0 1px 4px #000;pointer-events:none;';
+        const title = document.createElement('div');
+        title.textContent = movie.title || 'Untitled Marvel movie';
+        title.style.cssText = 'font:700 14px/1.25 Arial,sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
+        const meta = document.createElement('div');
+        meta.textContent = [movie.year || '', movie.phase ? String(movie.phase).replace(/^phase/i,'Phase ') : ''].filter(Boolean).join(' • ');
+        meta.style.cssText = 'margin-top:5px;color:#f3c969;font:700 10px/1.3 Arial,sans-serif;';
+        info.append(title,meta);
+        card.append(poster,shade,info);
+        card.addEventListener('click', () => playInModal(getFilteredMovies(), idx));
         moviesContainer.appendChild(card);
       });
-      loadingSpinner.classList.add('hidden');
+
+      if (loadingSpinner) loadingSpinner.classList.add('hidden');
     }
 
     // --- HAWKEYE-style modal playback implementation (integrated) ---
@@ -1353,23 +1392,26 @@
       renderMovies();
     });
 
-    // Initialize immediately: this script is already placed after the movie grid.
-    // Do not wait for DOMContentLoaded here; late ad scripts can delay page readiness.
+    // Render now (the catalogue markup is already in the document), then retry on page restore.
     function initializeMarvelCatalogue() {
-      try {
-        if (!moviesContainer || !loadingSpinner) return;
-        moviesContainer.style.display = 'grid';
-        moviesContainer.style.visibility = 'visible';
-        renderMovies();
-      } catch (error) {
-        if (moviesContainer) {
-          moviesContainer.innerHTML = '<div class="col-span-full text-center py-10 text-white"><h3 class="text-xl font-semibold">Marvel collection is loading</h3><p class="text-sm opacity-70">Please refresh the page.</p></div>';
-        }
-        if (loadingSpinner) loadingSpinner.classList.add('hidden');
+      if (!moviesContainer) return;
+      try { renderMovies(); }
+      catch (error) {
+        moviesContainer.style.setProperty('display','grid','important');
+        moviesContainer.innerHTML = '';
+        (Array.isArray(movies) ? movies : []).forEach((movie,idx) => {
+          const card=document.createElement('article');
+          card.style.cssText='position:relative;min-height:220px;overflow:hidden;border-radius:10px;background:#151515;color:white;';
+          const img=document.createElement('img');img.src=movie.image||'';img.alt=movie.title||'Marvel movie';img.style.cssText='width:100%;height:100%;position:absolute;inset:0;object-fit:cover;';
+          const name=document.createElement('strong');name.textContent=movie.title||'Marvel movie';name.style.cssText='position:absolute;bottom:10px;left:10px;right:10px;color:white;text-shadow:0 2px 5px black;';
+          card.append(img,name);card.addEventListener('click',()=>{if(typeof playInModal==='function')playInModal(movies,idx);});
+          moviesContainer.appendChild(card);
+        });
       }
+      if (loadingSpinner) loadingSpinner.classList.add('hidden');
     }
     initializeMarvelCatalogue();
-    window.addEventListener('pageshow', initializeMarvelCatalogue, { once: true });
+    window.addEventListener('pageshow', initializeMarvelCatalogue);
 
   </script>
  <!-- ========================================================= -->
