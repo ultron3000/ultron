@@ -1341,10 +1341,23 @@
       renderMovies();
     });
 
-    // init
-    document.addEventListener('DOMContentLoaded', () => {
-      renderMovies();
-    });
+    // Initialize immediately: this script is already placed after the movie grid.
+    // Do not wait for DOMContentLoaded here; late ad scripts can delay page readiness.
+    function initializeMarvelCatalogue() {
+      try {
+        if (!moviesContainer || !loadingSpinner) return;
+        moviesContainer.style.display = 'grid';
+        moviesContainer.style.visibility = 'visible';
+        renderMovies();
+      } catch (error) {
+        if (moviesContainer) {
+          moviesContainer.innerHTML = '<div class="col-span-full text-center py-10 text-white"><h3 class="text-xl font-semibold">Marvel collection is loading</h3><p class="text-sm opacity-70">Please refresh the page.</p></div>';
+        }
+        if (loadingSpinner) loadingSpinner.classList.add('hidden');
+      }
+    }
+    initializeMarvelCatalogue();
+    window.addEventListener('pageshow', initializeMarvelCatalogue, { once: true });
 
   </script>
  <!-- ========================================================= -->
