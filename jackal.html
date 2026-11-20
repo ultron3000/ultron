@@ -259,41 +259,74 @@ iframe:-webkit-full-screen {
   @media(prefers-reduced-motion:reduce){.series-hero-art,.episode-card,.episode-image{transition:none}}
 
 
+
+/* ===== Jackal header, trailer and responsive ad refinements ===== */
+html,body{max-width:100%;overflow-x:hidden}
+.jackal-topbar-inner{min-height:58px;gap:12px}
+.jackal-brand{min-width:0;gap:9px!important}
+.jackal-brand-title{display:block;min-width:0;margin:0;font-size:clamp(13px,2.2vw,20px);line-height:1.12;letter-spacing:.015em;white-space:normal;overflow-wrap:anywhere}
+.theme-switch{display:inline-flex;align-items:center;gap:7px;padding:5px 9px 5px 5px;border:1px solid rgba(154,211,77,.36);border-radius:999px;background:linear-gradient(135deg,rgba(154,211,77,.14),rgba(15,23,42,.92));color:#d8f4b7;box-shadow:0 5px 18px rgba(0,0,0,.24);transition:background .2s,border-color .2s,transform .2s;flex:0 0 auto}
+.theme-switch:hover{border-color:rgba(154,211,77,.75);transform:translateY(-1px)}
+.theme-switch-track{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#b8e978,#6eaa2d);color:#10170b;font-size:13px;box-shadow:0 2px 9px rgba(154,211,77,.25)}
+.theme-switch-track i{color:#10170b!important}
+.theme-switch-label{font-size:8px;font-weight:900;letter-spacing:.13em}
+.series-hero{min-height:clamp(285px,29vw,380px)}
+.series-hero-bg iframe{position:absolute!important;top:50%!important;left:50%!important;width:max(100vw,177.78vh)!important;height:max(100vh,56.25vw)!important;min-width:100%!important;min-height:100%!important;transform:translate(-50%,-50%)!important;opacity:.92!important;filter:brightness(1.12) saturate(1.12)!important}
+.series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.34) 0%,rgba(2,6,23,.48) 48%,rgba(2,6,23,.64) 100%),linear-gradient(0deg,rgba(2,6,23,.34),rgba(2,6,23,.10))!important}
+.series-hero-copy{align-self:center;text-align:left;min-width:0}
+.series-hero-title{max-width:100%;overflow-wrap:normal;word-break:normal}
+.ad-layout-guard{display:block;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box;contain:layout paint}
+.ad-layout-guard iframe,.ad-layout-guard img,.ad-layout-guard ins,.ad-layout-guard div{max-width:100%!important;box-sizing:border-box}
+.ad-layout-guard iframe{display:block;margin-left:auto!important;margin-right:auto!important}
+@media(max-width:700px){
+  .jackal-topbar-inner{min-height:54px;padding-top:7px!important;padding-bottom:7px!important}
+  .jackal-brand{gap:7px!important;max-width:calc(100% - 62px)}
+  .jackal-brand .w-8{width:29px;height:29px;flex:0 0 29px}
+  .jackal-brand .w-8 i{font-size:14px}
+  .jackal-brand-title{font-size:clamp(11px,3.6vw,15px);line-height:1.08;letter-spacing:0;max-width:100%}
+  .theme-switch{padding:4px 7px 4px 4px;gap:5px}
+  .theme-switch-track{width:27px;height:27px;font-size:12px}
+  .theme-switch-label{font-size:7px}
+  .series-hero-shell{margin:6px auto 9px;padding:0 9px}
+  .series-hero{min-height:235px}
+  .series-hero-bg iframe{opacity:.9!important;filter:brightness(1.15) saturate(1.14)!important}
+  .series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.40) 0%,rgba(2,6,23,.55) 55%,rgba(2,6,23,.69) 100%),linear-gradient(0deg,rgba(2,6,23,.35),rgba(2,6,23,.10))!important}
+  .series-hero-inner{min-height:235px;grid-template-columns:minmax(78px,23%) minmax(0,1fr);gap:11px;padding:13px 11px}
+  .series-hero-art{max-width:118px}
+  .series-hero-copy{width:100%;text-align:left;justify-self:stretch}
+  .series-hero-title{font-size:clamp(18px,5.1vw,27px);line-height:1.06;letter-spacing:-.035em;margin:8px 0 7px;max-width:100%;text-align:left}
+  .series-hero-meta{justify-content:flex-start}
+  .series-hero-description{max-width:100%}
+  .ad-layout-guard{padding-left:8px;padding-right:8px}
+  .ad-layout-guard iframe{max-width:100%!important}
+}
+@media(max-width:380px){
+  .jackal-brand-title{font-size:11px;max-width:185px}
+  .series-hero-inner{grid-template-columns:70px minmax(0,1fr);gap:9px;padding:11px 9px}
+  .series-hero-art{max-width:70px}
+  .series-hero-title{font-size:18px}
+  .series-hero-kicker{font-size:7px}
+  .series-hero-btn{font-size:8px;padding:0 7px}
+}
+
 </style>
 </head>
 <body class="bg-black text-gray-100 min-h-screen font-roboto">
   <!-- Header -->
   <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-2 sm:space-x-3">
+    <div class="jackal-topbar-inner container mx-auto px-4 py-2 flex justify-between items-center">
+      <div class="jackal-brand flex items-center space-x-2 sm:space-x-3">
         <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
         <i class="fas fa-crosshairs text-black text-xl"></i>
         </div>
-        <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">The Day of the Jackal</h1>
+        <h1 class="jackal-brand-title font-bold gradient-text marvel-font tracking-wide">The Day of the Jackal</h1>
       </div>
       
       <div class="flex items-center space-x-2 sm:space-x-4">
-        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-moon loki-accent"></i>
-          <span class="tooltip-text">Toggle Theme</span>
-        </button>
-        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-search loki-accent"></i>
-          <span class="tooltip-text">Search</span>
-        </button>
+        <button id="theme-toggle" class="theme-switch" type="button" aria-label="Toggle theme" title="Toggle theme"><span class="theme-switch-track"><i class="fas fa-moon loki-accent"></i></span><span class="theme-switch-label">MODE</span></button>
       </div>
     </div>
-    
-    <!-- Search Bar (hidden by default) -->
-    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
-      <div class="relative">
-        <input id="global-search" type="text" placeholder="Search episodes..." 
-               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400">
-        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d]"></i>
-      </div>
-    </div>
-    
-  </header>
+</header>
 
   <!-- Main Content -->
 <main class="w-full mx-auto py-0">
@@ -603,14 +636,8 @@ const movies = [
 
     /* preserved UI event wiring (search, theme, watchlist, modal controls) */
     const containerEl = document.getElementById('movies');
-    const searchBtn = document.getElementById('search-btn');
-    const searchBar = document.getElementById('search-bar');
     const themeToggle = document.getElementById('theme-toggle');
     const closeModal = document.getElementById('close-modal');
-
-    searchBtn.addEventListener('click', () => {
-      searchBar.classList.toggle('hidden');
-    });
 
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('bg-gray-100');
@@ -625,11 +652,7 @@ const movies = [
 
     // close modal by clicking background already wired above via playbackModal click
 
-    // watchlist close on outside click & search close
-    document.addEventListener('click', (e) => {
-      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
-      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
-    });
+    // Header search was removed; episode search remains in the catalogue.
 
     // attach video listeners placeholder (modal video element created on demand)
     function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
@@ -641,6 +664,7 @@ const movies = [
     });
   </script>
  
+<div class="ad-layout-guard" aria-label="Advertisement area">
 <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me, cloudtv.store, cloudtv.free.je & cloudtv.site.je -->
@@ -725,6 +749,7 @@ const movies = [
 </div>
 <!-- ========================================================= -->
 <!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+</div>
 <!-- ========================================================= -->
 
 </body>
