@@ -186,7 +186,19 @@
     .bond-action{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;min-height:42px!important;padding:0 17px!important;border-radius:8px!important;font-size:11px!important;font-weight:850!important;letter-spacing:.06em!important;line-height:1!important;white-space:nowrap!important}
     .bond-action.primary{background:linear-gradient(135deg,#f1d28a,#c69b43)!important;color:#15120b!important;box-shadow:0 7px 20px rgba(198,155,67,.2)!important}
     .bond-action.secondary{background:rgba(255,255,255,.09)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
-    .bond-action:active{transform:scale(.97)}
+    .bond-actions{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;flex-wrap:wrap!important;width:100%!important;margin:18px 0 0!important}
+    .bond-actions .bond-action{display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;vertical-align:middle!important;box-sizing:border-box!important;margin:0!important;height:42px!important;min-height:42px!important;line-height:1!important;text-align:center!important;white-space:nowrap!important}
+    .bond-actions .bond-action i{display:inline-block!important;line-height:1!important;margin:0!important}
+    .bond-hero-poster{transition:opacity .28s ease!important}
+    @media(max-width:640px){
+      .bond-actions{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:7px!important;flex-wrap:nowrap!important;margin-top:11px!important}
+      .bond-actions .bond-action{height:35px!important;min-height:35px!important;padding:0 10px!important;flex:0 1 auto!important;font-size:8px!important;letter-spacing:.02em!important}
+      .bond-actions .bond-action i{font-size:9px!important}
+    }
+    @media(max-width:370px){
+      .bond-actions{gap:5px!important}
+      .bond-actions .bond-action{padding:0 7px!important;font-size:7px!important}
+    }
     @media(max-width:640px){
       .bond-brand{gap:7px!important}
       .bond-brand-gun{font-size:20px!important}
@@ -819,9 +831,9 @@
     });
 
 
-    /* 007 featured-film presentation and compact display controls */
-    const bondHeroIndex = Math.floor(Math.random() * movies.length);
-    const bondFeatured = movies[bondHeroIndex] || movies[0];
+    /* 007 featured-film rotation: choose a fresh random title on load and every nine seconds. */
+    let bondHeroIndex = -1;
+    let bondHeroTimer = null;
     const bondHeroPoster = document.getElementById('bondHeroPoster');
     const bondHeroBg = document.getElementById('bondHeroBg');
     const bondHeroTitle = document.getElementById('bondHeroTitle');
@@ -829,17 +841,54 @@
     const bondHeroDescription = document.getElementById('bondHeroDescription');
     const bondHeroPlay = document.getElementById('bondHeroPlay');
     const bondCollectionCount = document.getElementById('bondCollectionCount');
-    if (bondFeatured) {
-      bondHeroPoster.src = bondFeatured.image || '';
-      bondHeroPoster.alt = (bondFeatured.title || 'James Bond') + ' poster';
-      bondHeroBg.style.backgroundImage = 'url("' + (bondFeatured.image || '') + '")';
-      bondHeroTitle.textContent = bondFeatured.title || 'James Bond';
-      bondHeroMeta.textContent = [bondFeatured.year, bondFeatured.actor, 'RATING ' + (bondFeatured.rating || '—')].filter(Boolean).join('  ·  ');
-      bondHeroDescription.textContent = bondFeatured.description || 'A legendary mission from the James Bond collection.';
-      bondHeroPlay.addEventListener('click', () => { currentList = movies.slice(); playInModalByIndex(currentList, bondHeroIndex); });
+    function renderBondFeatured() {
+      if (!Array.isArray(movies) || !movies.length) return;
+      let nextIndex = Math.floor(Math.random() * movies.length);
+      if (movies.length > 1) {
+        while (nextIndex === bondHeroIndex) nextIndex = Math.floor(Math.random() * movies.length);
+      }
+      bondHeroIndex = nextIndex;
+      const featured = movies[bondHeroIndex];
+      const image = featured.image || '';
+      bondHeroPoster.style.opacity = '0';
+      const preload = new Image();
+      preload.onload = () => {
+        bondHeroPoster.src = image;
+        bondHeroBg.style.backgroundImage = 'url("' + image.replace(/"/g, '%22') + '")';
+        requestAnimationFrame(() => { bondHeroPoster.style.opacity = '1'; });
+      };
+      preload.onerror = () => {
+        bondHeroPoster.src = image;
+        bondHeroBg.style.backgroundImage = image ? 'url("' + image.replace(/"/g, '%22') + '")' : 'none';
+        bondHeroPoster.style.opacity = '1';
+      };
+      preload.src = image;
+      bondHeroPoster.alt = (featured.title || 'James Bond') + ' poster';
+      bondHeroTitle.textContent = featured.title || 'James Bond';
+      bondHeroMeta.textContent = [featured.year, featured.actor, 'RATING ' + (featured.rating || '—')].filter(Boolean).join('  ·  ');
+      bondHeroDescription.textContent = featured.description || 'A legendary mission from the James Bond collection.';
     }
+    function restartBondHeroRotation() {
+      if (bondHeroTimer) clearInterval(bondHeroTimer);
+      bondHeroTimer = null;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      bondHeroTimer = setInterval(() => { if (!document.hidden) renderBondFeatured(); }, 9000);
+    }
+    if (bondHeroPlay) bondHeroPlay.addEventListener('click', () => {
+      if (bondHeroIndex < 0 || !movies[bondHeroIndex]) return;
+      currentList = movies.slice();
+      playInModalByIndex(currentList, bondHeroIndex);
+    });
     if (bondCollectionCount) bondCollectionCount.textContent = movies.length;
     document.getElementById('bondExplore').addEventListener('click', () => document.getElementById('movies').scrollIntoView({behavior:'smooth',block:'start'}));
+    renderBondFeatured();
+    restartBondHeroRotation();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (bondHeroTimer) clearInterval(bondHeroTimer);
+        bondHeroTimer = null;
+      } else restartBondHeroRotation();
+    });
     document.getElementById('bondThemeToggle').addEventListener('click', function(){
       document.body.classList.toggle('bond-light');
       const icon=this.querySelector('i');
