@@ -15,7 +15,7 @@
 <style>
 :root{color-scheme:dark;--bg:#09080d;--panel:#14121a;--panel2:#1c1923;--text:#f7f3f4;--muted:#b4a9b2;--line:rgba(255,220,230,.13);--rose:#e8a0ad;--red:#b94e67;--gold:#d9c1a0;--shadow:0 24px 70px rgba(0,0,0,.42)}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 0%,rgba(185,78,103,.15),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(120,73,91,.12),transparent 35%)}.shell{width:min(1320px,100%);margin:auto;padding:0 clamp(15px,4vw,54px)}
-.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(9,8,13,.88);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font:700 18px "Space Grotesk",sans-serif;letter-spacing:-.04em}.brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(140deg,var(--rose),var(--red));color:#170b10}.top-link{color:var(--muted);font-size:12px;font-weight:700}.top-link:hover{color:var(--rose)}
+.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(9,8,13,.88);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font:700 18px "Space Grotesk",sans-serif;letter-spacing:-.04em}.brand-mark{width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at center,#ffe2e8 0 10%,#b94e67 11% 18%,#26111a 19% 48%,#e8a0ad 49% 53%,#1b0e14 54%);color:#fff0f3;box-shadow:0 0 0 1px rgba(232,160,173,.45),0 0 18px rgba(185,78,103,.3);font-size:16px}.top-link{color:var(--muted);font-size:12px;font-weight:700}.top-link:hover{color:var(--rose)}
 /* Exact responsive hero system from series.html */
 .series-hero-shell{max-width:1320px;margin:18px auto 28px;padding:0 18px}
 .series-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(330px,34vw,455px);border:1px solid rgba(148,163,184,.28);border-radius:26px;background:#020617;box-shadow:0 26px 80px rgba(0,0,0,.42);touch-action:pan-y}
@@ -96,7 +96,7 @@
 </head>
 <body>
 <div class="ambient"></div>
-<nav class="topbar"><div class="shell topbar-inner"><a class="brand" href="#top"><span class="brand-mark"><i class="fa-solid fa-cross"></i></span><span>THE JACKAL <span style="color:var(--rose)">/ 2024</span></span></a><a class="top-link" href="series.html"><i class="fa-solid fa-arrow-left"></i> Back to series</a></div></nav>
+<nav class="topbar"><div class="shell topbar-inner"><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-crosshairs"></i></span><span>THE DAY OF THE JACKAL <span style="color:var(--rose)">/ 2024</span></span></a><a class="top-link" href="series.html"><i class="fa-solid fa-arrow-left"></i> Back to series</a></div></nav>
 <main class="shell" id="top">
 <section class="series-hero-shell" aria-label="The Day of the Jackal featured series">
   <div class="series-hero" id="jackalHero">
@@ -106,7 +106,7 @@
     <div class="series-hero-inner">
       <div class="series-hero-art"><img src="https://image.tmdb.org/t/p/w500/tYLecM3WSEjlkKhkGiH5G68Dprm.jpg" alt="The Day of the Jackal — Season 1 artwork" fetchpriority="high"></div>
       <div class="series-hero-copy">
-        <div class="series-hero-kicker"><i class="fa-solid fa-sparkles"></i><span>PEACOCK · ORIGINAL SERIES</span></div>
+        <div class="series-hero-kicker"><i class="fa-solid fa-crosshairs"></i><span>PEACOCK · ORIGINAL SERIES</span></div>
         <div class="series-hero-meta"><span>2024</span><span>10 Episodes</span><span>English</span><span>TV-MA</span></div>
         <h1 class="series-hero-title">The Day of the Jackal</h1>
         <p class="series-hero-description">An elusive, highly skilled assassin takes on high-profile contracts for the highest fee. When a tenacious British intelligence officer begins tracking him, a dangerous game of cat and mouse unfolds across Europe.</p>
@@ -219,8 +219,12 @@ async function openPlayer(list,index){
   document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
  }
  const iframeHosts=["turboembed.com","streamtape.com","dood","vidcdn","ok.ru","mega.nz","drive.google.com","voe.sx","filemoon","mixdrop","dailymotion.com"];
- if(iframeHosts.some(function(host){return lower.includes(host)})&&!isHls(src)&&!isMp4(src)){
-  playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="The Day of the Jackal episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ const isMega=/mega\.nz\/(?:embed|file)\//i.test(String(src));
+ if((isMega||iframeHosts.some(function(host){return lower.includes(host)}))&&!isHls(src)&&!isMp4(src)){
+  let iframeSrc=String(src).trim();
+  if(isMega){iframeSrc=iframeSrc.replace("https://mega.nz/file/","https://mega.nz/embed/");}
+  const safeSrc=iframeSrc.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+  playerWrapper.innerHTML='<iframe src="'+safeSrc+'" title="The Day of the Jackal episode player" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen webkitallowfullscreen mozallowfullscreen loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
   document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return;
  }
  if(isHls(src)){
@@ -250,7 +254,7 @@ document.getElementById("prevBtn").addEventListener("click",playPrev);document.g
 document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
 playbackModal.addEventListener("click",function(e){if(e.target===playbackModal)closePlayer()});
 document.addEventListener("keydown",function(e){if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
-document.getElementById("trailerBtn").addEventListener("click",function(){openPlayer([{title:"The Day of the Jackal — Official Trailer",season:1,episode:0,video:"https://www.youtube.com/watch?v=wl7uj7n7DoY"}],0)});
+document.getElementById("trailerBtn").addEventListener("click",function(){openPlayer([{title:"The Day of the Jackal — Official Trailer",season:1,episode:0,video:"https://www.youtube.com/watch?v=shsIx-ZVL0E"}],0)});
 renderEpisodes(episodes);
 </script>
 <!-- ========================================================= -->
