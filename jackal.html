@@ -575,7 +575,7 @@ const movies = [
     playPauseBtn.addEventListener('click',togglePlayPause);
     nextBtn.addEventListener('click',playNext);prevBtn.addEventListener('click',playPrev);
     fullscreenBtn.addEventListener('click',toggleFullscreen);muteBtn.addEventListener('click',toggleMute);
-    closeModalBtn.addEventListener('click',closeModalHandler);document.getElementById('closeBtn').addEventListener('click',closeModalHandler);
+    document.getElementById('closeBtn').addEventListener('click',closeModalHandler);
     playbackModal.addEventListener('click',e=>{if(e.target===playbackModal)closeModalHandler()});
     document.addEventListener('keydown',e=>{if(!playbackModal.classList.contains('active'))return;if(e.key==='Escape')closeModalHandler();if(e.key==='ArrowRight')playNext();if(e.key==='ArrowLeft')playPrev()});
     document.getElementById('trailerBtn').addEventListener('click',()=>openPlayer([{title:'The Day of the Jackal — Official Trailer',season:1,episode:0,video:'https://www.youtube.com/watch?v=shsIx-ZVL0E'}],0));
@@ -608,45 +608,30 @@ const movies = [
     const container = document.getElementById('movies');
     function renderMovies(list) {
       container.innerHTML = '';
-      list.forEach((movie, index) => {
+      if (!list.length) {
+        container.innerHTML = '<div style="grid-column:1/-1;padding:25px;border:1px dashed rgba(154,211,77,.3);border-radius:12px;color:#aeb7c1">No episodes match your search.</div>';
+        return;
+      }
+      list.forEach((movie) => {
         const card = document.createElement('article');
-        card.className = 'jackal-episode-card';
+        card.className = 'episode-card';
         card.tabIndex = 0;
         card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', 'Play ' + (movie.title || ('Episode ' + (index + 1))));
-
-        const episodeNumber = index + 1;
+        card.setAttribute('aria-label', 'Play ' + (movie.title || 'episode'));
+        const episodeNumber = movies.indexOf(movie) + 1;
         const safeTitle = String(movie.title || ('Episode ' + episodeNumber)).replace(/"/g, '&quot;');
         const safeDescription = String(movie.description || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const safeImage = String(movie.image || '');
         const runtime = movie.runtime || movie.duration || 'Episode';
-        card.innerHTML = `
-          <div class="jackal-episode-image-wrap">
-            <img class="jackal-episode-image" loading="lazy" src="${safeImage}" alt="${safeTitle}">
-            <span class="jackal-episode-number">EP ${String(episodeNumber).padStart(2, '0')}</span>
-            <span class="jackal-episode-play"><span><i class="fas fa-play"></i></span></span>
-          </div>
-          <div class="jackal-episode-info">
-            <div class="jackal-episode-kicker">SEASON 1 · EPISODE ${episodeNumber}</div>
-            <h3 class="jackal-episode-title">${safeTitle}</h3>
-            <p class="jackal-episode-description">${safeDescription}</p>
-            <div class="jackal-episode-runtime"><i class="far fa-clock"></i> ${runtime}</div>
-          </div>
-        `;
-
+        card.innerHTML = '<div class="episode-image-wrap"><img class="episode-image" loading="lazy" src="' + safeImage + '" alt="' + safeTitle + '"><span class="episode-number">EP ' + String(episodeNumber).padStart(2,'0') + '</span><span class="episode-play"><span><i class="fas fa-play"></i></span></span></div><div class="episode-info"><div class="episode-kicker">Season 1 · Episode ' + episodeNumber + '</div><h3 class="episode-title">' + safeTitle + '</h3><p class="episode-description">' + safeDescription + '</p><div class="episode-runtime"><i class="far fa-clock"></i> ' + runtime + '</div></div>';
         const play = () => {
-          const loadingSpinner = document.getElementById('loading-spinner');
-          if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-          openPlayer(list, index);
+          const index = movies.indexOf(movie);
+          openPlayer(movies, index);
           setTimeout(() => attachVideoListeners(), 200);
-          if (loadingSpinner) loadingSpinner.classList.add('hidden');
         };
         card.addEventListener('click', play);
-        card.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            play();
-          }
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); play(); }
         });
         container.appendChild(card);
       });
