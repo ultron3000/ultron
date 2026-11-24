@@ -1,783 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Panchayat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Marvel:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-  <!-- HLS.js (from Tukaram for HLS playback support) -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
-
-  <style>
-    /* PRESERVE original Hawkeye CSS and animations but adjust theme to Loki */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #07060b; }
-    ::-webkit-scrollbar-thumb { background: #9ad34d; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #bfe67a; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    @keyframes arrowBounce { 0%,100% { transform: translateY(0);} 50% { transform: translateY(5px);} }
-
-    .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-    .pulse-hover:hover { animation: pulse 1.5s infinite; }
-    .arrow-bounce { animation: arrowBounce 2s infinite; }
-
-    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
-
-    .glow-effect { position: relative; transition: transform 0.3s ease; }
-    .glow-effect:hover { transform: translateY(-5px); }
-    .glow-effect::after{ content:''; position:absolute; top:0; left:0; right:0; bottom:0; border-radius:12px; box-shadow:0 0 15px rgba(154,211,77,0); transition:box-shadow 0.3s; pointer-events:none;}
-    .glow-effect:hover::after { box-shadow:0 0 20px rgba(154,211,77,0.25); }
-
-    .gradient-text { background: linear-gradient(90deg, #9ad34d, #7f3cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
-    .marvel-font { font-family: 'Marvel', sans-serif; }
-
-    /* Responsive adjustments */
-    @media (max-width: 640px) { .movie-card { width: calc(50% - 1rem); } }
-    @media (max-width: 400px) { .movie-card { width: 100%; } }
-
-    /* Modal player container (Tukaram-style preserved) */
-    #modal-player { position: relative; padding-bottom: 56.25%; height: 0; background: black; }
-    #modal-player video, #modal-player iframe { position:absolute; top:0; left:0; width:100%; height:100%; background:black; }
-
-    /* small Loki tint changes to Hawkeye theme */
-    header { background: linear-gradient(90deg,#081018,#04040a); }
-    .bg-loki { background: linear-gradient(135deg,#7f3cff,#9ad34d); }
-    .loki-accent { color: #9ad34d; }
-    .btn-loki { background: #9ad34d; color: #061217; }
-    .btn-loki:hover { filter: brightness(0.95); }
-    .watchlist-checkbox .checkmark { border: 2px solid #9ad34d; }
-    .progress-bar-fill { background: #9ad34d; }
-
-    /* keep other original Hawkeye styles intact */
-    body { background: #07060b; color: #e6f3e9; font-family: Roboto, system-ui, -apple-system, 'Segoe UI', Arial; }
-
-    /* Illumination modal styles (keeps modal look consistent) */
-    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
-    .modal-backdrop.active { display:flex; }
-    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
-    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
-    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
-
-    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
-    .player-meta .meta-left { max-width:65%; }
-    .player-meta h3 { margin:0; font-size:1.125rem; }
-    .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
-
-    .controls-row { display:flex; gap:8px; align-items:center; }
-
-    .btn {
-      background:transparent; border:1px solid #9ad34d; color:#9ad34d;
-      padding:8px 12px; border-radius:8px; cursor:pointer;
-    }
-    .btn:hover { background: rgba(154,211,77,0.06); }
-
-    .hidden { display:none; }
-
-    @media(max-width:640px){
-      .player-meta .meta-left { max-width:55%; }
-      .btn { padding:6px 8px; font-size:0.9rem; }
-    }
-    /* ============================
-   MOBILE FIX — DOES NOT TOUCH DESKTOP
-   ============================ */
-
-@media (max-width: 767px) {
-
-  /* Proper mobile player layout (matches your working version) */
-  .player-wrapper {
-    padding-bottom: 56.25% !important;   /* keep 16:9 on mobile */
-    height: 0 !important;
-    position: relative !important;
-  }
-
-  .player-wrapper video,
-  .player-wrapper iframe {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  /* Proper stacked mobile controls */
-  .player-meta {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 12px !important;
-    background: #0b1220 !important;
-    z-index: 20 !important;
-  }
-
-  /* Mobile control row wraps properly */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 10px !important;
-  }
-
-  /* Mobile buttons use icon-only layout */
-  .btn {
-    padding: 8px !important;
-    font-size: 0 !important;      /* hides text on mobile */
-    min-width: 48px !important;
-    height: 44px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-
-  .btn i {
-    font-size: 1.1rem !important;
-    margin: 0 !important;
-  }
-
-  /* Close button always visible on mobile */
-  #topCloseBtn {
-    opacity: 1 !important;
-  }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09080d">
+<meta name="description" content="Explore Panchayat, the Hindi comedy-drama set in Phulera, following Abhishek Tripathi as he navigates village life and local politics.">
+<title>Panchayat | Hindi Series Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#09080d;--panel:#14121a;--panel2:#1c1923;--text:#f7f3f4;--muted:#b4a9b2;--line:rgba(255,220,230,.13);--rose:#e7b75b;--red:#9a5b32;--gold:#d6b36a;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 0%,rgba(154,91,50,.20),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(112,128,72,.15),transparent 35%)}.shell{width:min(1320px,100%);margin:auto;padding:0 clamp(15px,4vw,54px)}
+.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(9,8,13,.88);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font:700 18px "Space Grotesk",sans-serif;letter-spacing:-.04em}.brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(140deg,var(--rose),var(--red));color:#170b10}.top-link{color:var(--muted);font-size:12px;font-weight:700}.top-link:hover{color:var(--rose)}
+/* Exact responsive hero system from series.html */
+.series-hero-shell{max-width:1320px;margin:18px auto 28px;padding:0 18px}
+.series-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(330px,34vw,455px);border:1px solid rgba(148,163,184,.28);border-radius:26px;background:#020617;box-shadow:0 26px 80px rgba(0,0,0,.42);touch-action:pan-y}
+.series-hero-bg{position:absolute;inset:0;z-index:-2;overflow:hidden;background-position:center;background-size:cover}
+.series-hero-bg iframe{position:absolute;top:50%;left:50%;width:177.78vh;height:56.25vw;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:0;pointer-events:none;opacity:.76}
+.series-hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,23,.66),rgba(2,6,23,.78) 48%,rgba(2,6,23,.9)),linear-gradient(0deg,rgba(2,6,23,.58),rgba(2,6,23,.12))}
+.series-hero-inner{position:relative;z-index:1;min-height:inherit;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(24px,4vw,58px);padding:clamp(22px,4vw,48px)}
+.series-hero-art{display:block;width:100%;max-width:245px;aspect-ratio:2/2.85;justify-self:center;transform:perspective(1100px) rotateY(-9deg) rotateX(2deg);transform-style:preserve-3d;filter:drop-shadow(0 24px 30px rgba(0,0,0,.62));transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.series-hero-art img{display:block;width:100%;height:100%;object-fit:cover;border-radius:15px;border:1px solid rgba(255,255,255,.4);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 18px 45px #0008}
+.series-hero:hover .series-hero-art{transform:perspective(1100px) rotateY(-3deg) rotateX(0) translateY(-5px) scale(1.015)}
+.series-hero-copy{max-width:760px;min-width:0;color:#fff;text-align:left}
+.series-hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid rgba(231,183,91,.42);border-radius:999px;background:rgba(69,10,10,.68);color:#f5dfaa;font-size:10px;font-weight:900;letter-spacing:.15em}
+.series-hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;color:#f5dfaa;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.series-hero-title{margin:12px 0 10px;color:#fff;font-size:clamp(2rem,4.6vw,4.2rem);font-weight:950;line-height:1.02;letter-spacing:-.045em;text-wrap:balance;text-shadow:0 5px 25px #0009}
+.series-hero-description{max-width:62ch;margin:0 0 22px;color:#e2e8f0;font-size:clamp(13px,1.25vw,15px);line-height:1.7;text-shadow:0 2px 12px #000}
+.series-hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.series-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font-size:12px;font-weight:900;transition:transform .2s,filter .2s,background .2s;border:0;cursor:pointer}
+.series-hero-btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.series-hero-primary{color:#fff;background:linear-gradient(110deg,#9a5b32,#65402b);box-shadow:0 9px 26px #9a5b3244}
+.series-hero-secondary{color:#fff;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(12px)}
+.series-hero-dots{display:flex;gap:5px;margin-top:19px}
+.series-hero-dots span{width:17px;height:3px;border-radius:8px;background:#ffffff55}
+.series-hero-dots span.active{width:32px;background:#e7b75b}
+@media(max-width:700px){
+ .series-hero-shell{padding:0 12px;margin:13px auto 21px}
+ .series-hero{min-height:310px;border-radius:20px}
+ .series-hero-bg iframe{width:177.78vh;height:56.25vw;opacity:.58}
+ .series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.78),rgba(2,6,23,.84)),linear-gradient(0deg,rgba(2,6,23,.78),rgba(2,6,23,.24))}
+ .series-hero-inner{grid-template-columns:minmax(88px,27%) minmax(0,1fr);gap:clamp(12px,3vw,20px);padding:20px 15px 62px;min-height:310px}
+ .series-hero-art{width:100%;max-width:150px;transform:perspective(800px) rotateY(-5deg)}
+ .series-hero-art img{border-radius:11px}
+ .series-hero:hover .series-hero-art{transform:perspective(800px) rotateY(-3deg) translateY(-2px)}
+ .series-hero-kicker{font-size:8px;padding:6px 9px;letter-spacing:.1em}
+ .series-hero-meta{font-size:9px;gap:6px;margin-top:10px}
+ .series-hero-title{font-size:clamp(1.35rem,5.5vw,2.25rem);line-height:1.04;margin:9px 0 8px}
+ .series-hero-description{font-size:11px;line-height:1.45;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+ .series-hero-actions{gap:7px;align-items:center}
+ .series-hero-btn{min-height:36px;padding:0 9px;font-size:9px;gap:5px;white-space:nowrap}
+ .series-hero-dots{margin-top:12px}
+}
+@media(max-width:390px){
+ .series-hero{min-height:292px}
+ .series-hero-inner{min-height:292px;grid-template-columns:82px minmax(0,1fr);gap:11px;padding:16px 12px 58px}
+ .series-hero-title{font-size:1.28rem}
+ .series-hero-description{-webkit-line-clamp:2;font-size:10px;line-height:1.4;margin-bottom:8px}
+ .series-hero-actions{gap:6px}
+ .series-hero-btn{min-height:34px;padding:0 7px;font-size:8px;gap:4px}
 }
 
-  </style>
+.section{margin:42px 0 48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:17px}.overline{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.2em;text-transform:uppercase}.section-title{font:700 clamp(23px,3vw,32px)/1.1 "Space Grotesk",sans-serif;letter-spacing:-.05em;margin:6px 0 0}.section-desc{font-size:11px;color:var(--muted);margin-top:6px}.episode-tools{display:flex;gap:9px;align-items:center}.search{width:min(230px,38vw);height:39px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);padding:0 12px;outline:none;font-size:11px}.search:focus{border-color:var(--rose)}.season-pill{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;color:var(--text);font-size:11px;font-weight:700}
+.episode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}.episode-card{min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:linear-gradient(155deg,#1b1720,#100e14);transition:transform .22s,border-color .22s,box-shadow .22s;cursor:pointer}.episode-card:hover{transform:translateY(-5px);border-color:rgba(231,183,91,.55);box-shadow:0 14px 34px rgba(0,0,0,.3)}.episode-image-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:#211922}.episode-image{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s}.episode-card:hover .episode-image{transform:scale(1.045)}.episode-number{position:absolute;top:10px;left:10px;background:rgba(8,7,12,.78);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:5px 8px;font-size:9px;font-weight:800;letter-spacing:.1em}.episode-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,7,12,.12);opacity:0;transition:.2s}.episode-play span{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:rgba(231,183,91,.95);color:#1b0c12;box-shadow:0 7px 24px rgba(0,0,0,.4)}.episode-card:hover .episode-play{opacity:1}.episode-info{padding:13px 14px 15px}.episode-kicker{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.episode-title{font:700 15px/1.25 "Space Grotesk",sans-serif;margin:7px 0 6px;min-height:38px}.episode-description{font-size:10px;line-height:1.6;color:#b9adb4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}.episode-runtime{font-size:9px;color:#8e838b;margin-top:10px}
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.about-panel{border:1px solid var(--line);border-radius:17px;padding:23px;background:linear-gradient(145deg,rgba(30,24,34,.94),rgba(17,14,20,.94))}.about-panel h3{font:700 18px "Space Grotesk",sans-serif;margin:0 0 10px}.about-panel p{font-size:12px;line-height:1.8;color:#c3b7be;margin:0}.cast-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.cast-chip{font-size:10px;color:#e5d8de;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+.footer{border-top:1px solid var(--line);padding:25px 0 35px;color:#8f858c;font-size:10px}.footer-inner{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.91);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(12px)}.modal-backdrop.active{display:flex}.modal-card{position:relative;width:min(100%,1020px);max-height:95vh;overflow:auto;background:#0d0b11;border:1px solid rgba(231,183,91,.2);border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.7)}.player-wrapper{position:relative;width:100%;aspect-ratio:16/9;background:#000}.player-wrapper video,.player-wrapper iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}.player-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;background:#131018;border-top:1px solid var(--line)}.meta-left{min-width:0}.player-meta h3{font:700 16px "Space Grotesk",sans-serif;margin:0}.player-meta p{font-size:10px;color:#a99da5;margin:5px 0 0}.controls-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}.player-btn{min-width:40px;height:39px;padding:0 11px;border:1px solid rgba(231,183,91,.35);border-radius:9px;background:#201923;color:#f5dfaa;font-size:11px}.player-btn:hover{background:#38202d}.player-btn.close{color:#fff;background:#652c3b;border-color:#8c4055}#topCloseBtn{position:absolute;top:12px;right:12px;z-index:5;width:39px;height:39px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px}
+@media(max-width:900px){.episode-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{min-height:clamp(520px,calc(100svh - 68px),760px)}.hero-inner{grid-template-columns:minmax(175px,28%) minmax(0,1fr);gap:clamp(20px,4vw,38px);padding:28px clamp(22px,5vw,52px)}.about{grid-template-columns:1fr}}
+@media(max-width:620px){.topbar{height:59px}.hero{width:100vw;margin:0 0 30px calc(50% - 50vw);border-radius:0;min-height:calc(100svh - 59px);height:calc(100svh - 59px)}.hero-video{opacity:.31}.hero-video iframe{width:190%;height:190%;left:-45%;top:-45%}.hero-art{background:linear-gradient(90deg,rgba(8,7,12,.42),rgba(8,7,12,.84) 34%,rgba(8,7,12,.96)),linear-gradient(0deg,rgba(8,7,12,.75),transparent 85%)}.hero-inner{height:100%;min-height:0;display:grid;grid-template-columns:minmax(96px,31%) minmax(0,1fr);align-items:center;gap:clamp(10px,3vw,18px);padding:18px clamp(12px,4vw,22px)}.hero-poster{width:100%;max-width:190px;border-radius:10px;align-self:center}.hero-copy{width:100%;min-width:0}.eyebrow{font-size:8px;letter-spacing:.12em;gap:5px}.eyebrow:before{width:13px}h1{font-size:clamp(27px,8vw,43px);line-height:.98;letter-spacing:-.065em;margin:9px 0 10px}.hero-subtitle{font-size:clamp(9px,2.65vw,11px);line-height:1.5;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.meta{margin:10px 0;font-size:8px;gap:6px 9px}.meta span{gap:4px}.tags{gap:5px;margin:9px 0}.tag{font-size:7px;padding:4px 6px}.actions{margin-top:12px;gap:6px}.primary,.secondary{min-height:36px;padding:0 9px;font-size:9px;border-radius:8px;gap:5px}.trailer-note{font-size:8px;line-height:1.4;margin-top:9px}.section{margin:31px 0 37px}.section-head{align-items:flex-start;flex-direction:column}.episode-tools{width:100%}.search{flex:1;width:auto}.episode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.episode-card{border-radius:12px}.episode-info{padding:10px}.episode-title{font-size:13px;min-height:34px}.episode-description{font-size:9px;min-height:44px}.episode-runtime{font-size:8px}.episode-play{opacity:1}.episode-play span{width:34px;height:34px;font-size:12px}.about-panel{padding:17px}.modal-backdrop{padding:0;align-items:stretch}.modal-card{width:100%;max-height:100dvh;height:auto;align-self:center;border-radius:0;border-left:0;border-right:0}.player-wrapper{aspect-ratio:16/9;flex:none}.player-meta{flex-direction:column;align-items:stretch;padding:13px;gap:12px}.controls-row{justify-content:center;gap:8px}.player-btn{height:43px;min-width:45px;padding:0 10px}.meta-left{padding-right:45px}.player-meta h3{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Advertisement layout safety: keep fixed-size ad creatives inside the page */
+.ad-slot{display:flex;justify-content:center;align-items:flex-start;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box;margin:20px auto!important;padding:0 12px}
+.ad-slot iframe,.ad-slot ins,.ad-slot img{max-width:100%!important;box-sizing:border-box}
+.ad-slot.ad-banner-728 iframe{display:block;width:min(728px,100%)!important;max-width:100%!important;height:90px!important;margin:0 auto!important}
+.ad-slot.ad-banner-160 iframe{display:block;width:160px!important;max-width:100%!important;height:600px!important;margin:0 auto!important}
+.ad-slot.ad-native>div{max-width:100%;width:100%;overflow:hidden}
+@media(max-width:700px){
+ html,body{max-width:100%;overflow-x:clip}
+ .ad-slot{margin:14px auto!important;padding:0 10px}
+ .ad-slot.ad-banner-160{display:none!important}
+ .ad-slot.ad-banner-728 iframe{width:100%!important;max-width:100%!important;height:90px!important}
+ .ad-slot.ad-native iframe{max-width:100%!important}
+}
+</style>
+<style id="english-hero-trailer-visibility">.series-hero{isolation:isolate;position:relative;overflow:hidden;background:#080a10}.series-hero-bg{position:absolute!important;inset:0!important;z-index:-2!important;overflow:hidden!important;background-position:center!important;background-size:cover!important}.series-hero-bg iframe{position:absolute!important;top:50%!important;left:50%!important;width:max(100vw,177.78vh)!important;height:max(100vh,56.25vw)!important;min-width:100%!important;min-height:100%!important;transform:translate(-50%,-50%)!important;border:0!important;pointer-events:none!important;opacity:1!important;filter:brightness(1.08) saturate(1.08)!important}.series-hero-bg:after{content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;background:linear-gradient(90deg,rgba(2,6,23,.43),rgba(2,6,23,.48) 43%,rgba(2,6,23,.61)),linear-gradient(0deg,rgba(2,6,23,.34),rgba(2,6,23,.08) 62%,rgba(2,6,23,.14))!important}@media(max-width:700px){.series-hero-bg iframe{width:max(100vw,177.78vh)!important;height:max(100vh,56.25vw)!important;opacity:1!important;filter:brightness(1.12) saturate(1.1)!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.48),rgba(2,6,23,.54) 48%,rgba(2,6,23,.64)),linear-gradient(0deg,rgba(2,6,23,.38),rgba(2,6,23,.10) 70%,rgba(2,6,23,.18))!important}}</style>
 </head>
-<body class="bg-black text-gray-100 min-h-screen font-roboto">
-  <!-- Header -->
-  <header class="sticky top-0 z-50 bg-black bg-opacity-90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-2 sm:space-x-3">
-        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#7f3cff] to-[#9ad34d] rounded-full flex items-center justify-center pulse-hover">
-         <i class="fas fa-house-user text-white text-xl sm:text-2xl"></i>
+<body>
+<div class="ambient"></div>
+<nav class="topbar"><div class="shell topbar-inner"><a class="brand" href="#top"><span class="brand-mark"><i class="fa-solid fa-landmark"></i></span><span>PANCHAYAT <span style="color:var(--rose)">/ PHULERA</span></span></a><a class="top-link" href="series.html"><i class="fa-solid fa-arrow-left"></i> Back to series</a></div></nav>
+<main class="shell" id="top">
+<section class="series-hero-shell" aria-label="Panchayat featured series">
+  <div class="series-hero" id="panchayatHero">
+    <div class="series-hero-bg" id="panchayatHeroVideo" aria-hidden="true" style="background-image:url('https://image.tmdb.org/t/p/w500/cPPhduQk1eX0MAE2JDaQRh3UZB5.jpg')">
+      <iframe id="panchayatHeroTrailer" title="Panchayat trailer background" src="https://www.youtube-nocookie.com/embed/36a-E7A35F8?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=36a-E7A35F8&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1"></iframe>
+    </div>
+    <div class="series-hero-inner">
+      <div class="series-hero-art"><img src="https://image.tmdb.org/t/p/w500/cPPhduQk1eX0MAE2JDaQRh3UZB5.jpg" alt="Panchayat official poster" fetchpriority="high"></div>
+      <div class="series-hero-copy">
+        <div class="series-hero-kicker"><i class="fa-solid fa-sparkles"></i><span>TVF ORIGINAL · PRIME VIDEO</span></div>
+        <div class="series-hero-meta"><span>2020–2025</span><span>32 Episodes</span><span>4 Seasons</span><span>HINDI · UA 16+</span></div>
+        <h1 class="series-hero-title">Panchayat</h1>
+        <p class="series-hero-description">An engineering graduate, Abhishek Tripathi, reluctantly takes a government job as secretary of the gram panchayat in the remote village of Phulera. What begins as a temporary posting turns into a warm, funny and heartfelt journey through village politics, friendships and everyday life.</p>
+        <div class="series-hero-actions">
+          <a class="series-hero-btn series-hero-primary" href="#episodes"><i class="fa-solid fa-play"></i> Explore episodes</a>
+          <button class="series-hero-btn series-hero-secondary" id="trailerBtn" type="button"><i class="fa-brands fa-youtube"></i> Watch trailer</button>
         </div>
-        <h1 class="text-xl sm:text-2xl font-bold gradient-text marvel-font tracking-wide">Panchayat</h1>
-      </div>
-      
-      <div class="flex items-center space-x-2 sm:space-x-4">
-        <button id="watchlist-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition relative">
-          <i class="fas fa-bookmark loki-accent"></i>
-          <span class="tooltip-text">My Watchlist</span>
-        </button>
-        <button id="theme-toggle" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-moon loki-accent"></i>
-          <span class="tooltip-text">Toggle Theme</span>
-        </button>
-        <button id="search-btn" class="tooltip p-2 rounded-full hover:bg-gray-800 transition">
-          <i class="fas fa-search loki-accent"></i>
-          <span class="tooltip-text">Search</span>
-        </button>
+        <div class="series-hero-dots" aria-hidden="true"><span class="active"></span><span></span><span></span></div>
       </div>
     </div>
-    
-    <!-- Search Bar (hidden by default) -->
-    <div id="search-bar" class="hidden px-4 pb-4 bg-black/80">
-      <div class="relative">
-        <input id="global-search" type="text" placeholder="Search episodes..." 
-               class="w-full bg-gray-900 border border-[#9ad34d]/30 rounded-full py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-[#9ad34d] placeholder-gray-400">
-        <i class="fas fa-search absolute left-3 top-3 text-[#9ad34d]"></i>
-      </div>
-    </div>
-    
-    <!-- Watchlist dropdown (hidden by default) -->
-    <div id="watchlist-dropdown" class="hidden absolute right-4 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 py-2">
-      <div class="px-4 py-2 border-b border-gray-700">
-        <h3 class="font-semibold loki-accent">My Watchlist</h3>
-      </div>
-      <div id="watchlist-items" class="max-h-60 overflow-y-auto">
-        <div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-<main class="container mx-auto px-4 py-6">
-  <!-- Hero Section -->
-  <section class="mb-12 relative overflow-hidden rounded-xl shadow-2xl">
-    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
-    
-    <div class="relative w-full h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-hidden">
-      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <!-- Loki hero trailer (YouTube embed) -->
-        <iframe
-          src="https://www.youtube.com/embed/mojZJ7oeD_g?autoplay=1&mute=1&loop=1&playlist=mojZJ7oeD_g&controls=0&modestbranding=1"
-          frameborder="0"
-          allow="autoplay; fullscreen"
-          class="absolute top-1/2 left-1/2 w-[177.78vh] h-[100vh] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        ></iframe>
-      </div>
-      
-      <div class="absolute bottom-0 left-0 z-20 p-4 sm:p-6 md:p-8">
-        <div class="flex items-center mb-1 sm:mb-2">
-          <span class="bg-[#9ad34d] text-black text-xs font-bold px-1 sm:px-2 py-1 rounded mr-1 sm:mr-2">Prime</span>
-          <span class="text-[#9ad34d] text-xs sm:text-sm">Seasons 1-4</span>
-        </div>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2 gradient-text marvel-font tracking-wide">Panchayat</h2>
-        <div class="flex items-center mb-2 sm:mb-4">
-          <div class="flex items-center mr-2 sm:mr-4">
-            <i class="fas fa-star loki-accent mr-1 text-xs sm:text-sm"></i>
-            <span class="text-white text-xs sm:text-sm">8.0</span>
-          </div>
-          <span class="text-gray-300 text-xs sm:text-sm mr-2 sm:mr-4">TV-Series</span>
-        </div>
-        <p class="text-gray-300 mb-2 sm:mb-4 max-w-xs sm:max-w-lg text-xs sm:text-sm md:text-base">A comedy-drama, which captures the journey of an engineering graduate Abhishek, who for lack of a better job option joins as secretary of a Panchayat office in a remote village of Uttar Pradesh.</p>
-        <div class="flex space-x-2 sm:space-x-3">
-          <button id="play-all" class="btn-loki hover:bg-[#8fcf3a] font-semibold py-2 px-6 rounded-full transition flex items-center pulse-hover">
-            <i class="fas fa-play mr-2"></i> Play All
-          </button>
-          <button class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-full transition flex items-center">
-            <i class="fas fa-info-circle mr-2"></i> Details
-          </button>
-        </div>
-      </div>
-      <div class="absolute bottom-4 right-4 z-20">
-        <button id="scroll-down" class="bg-black/50 text-[#9ad34d] rounded-full p-2 border border-[#9ad34d]/30 hover:bg-[#9ad34d] hover:text-black transition">
-          <i class="fas fa-chevron-down arrow-bounce"></i>
-        </button>
-      </div>
-    </div>
-  </section>
+  </div>
+</section>
+<section class="section" id="episodes">
+  <div class="section-head"><div><div class="overline">SEASONS ONE–FOUR · 2020–2025</div><h2 class="section-title">Welcome to Phulera.</h2><div class="section-desc">Four seasons of village life, unexpected friendships and local politics.</div></div>
+    <div class="episode-tools"><input class="search" id="episodeSearch" type="search" placeholder="Search Panchayat episodes…" aria-label="Search episodes"><select class="season-pill" id="seasonFilter" aria-label="Filter by season"><option value="all">All seasons</option><option value="1">Season 1</option><option value="2">Season 2</option><option value="3">Season 3</option><option value="4">Season 4</option></select></div>
+  </div>
+  <div class="episode-grid" id="episodeGrid"></div>
+</section>
+<section class="section">
+ <div class="section-head"><div><div class="overline">INSIDE PHULERA</div><h2 class="section-title">Simple village. Big stories.</h2></div></div>
+ <div class="about">
+  <article class="about-panel"><h3>Series overview</h3><p><em>Panchayat</em> follows Abhishek Tripathi, an engineering graduate who joins the panchayat office in Phulera as its secretary. Through his interactions with Pradhan Ji, Manju Devi, Vikas, Prahlad and Rinki, he gradually finds himself drawn into the rhythms, relationships and politics of rural life.</p></article>
+  <article class="about-panel"><h3>Production</h3><p><strong>Created by:</strong> Chandan Kumar<br><strong>Production:</strong> The Viral Fever (TVF)<br><strong>Director:</strong> Deepak Kumar Mishra<br><strong>Original network:</strong> Amazon Prime Video<br><strong>Premiere:</strong> 3 April 2020<br><strong>Format:</strong> 4 seasons · 32 episodes</p><h3 style="margin-top:20px">Starring</h3><div class="cast-list"><span class="cast-chip">Jitendra Kumar</span><span class="cast-chip">Neena Gupta</span><span class="cast-chip">Raghubir Yadav</span><span class="cast-chip">Faisal Malik</span><span class="cast-chip">Chandan Roy</span><span class="cast-chip">Sanvikaa</span><span class="cast-chip">Durgesh Kumar</span><span class="cast-chip">Ashok Pathak</span></div></article>
+ </div>
+</section>
+<footer class="footer"><div class="footer-inner"><span>PANCHAYAT · TVF / PRIME VIDEO</span><a href="https://www.imdb.com/title/tt12004706/episodes/" target="_blank" rel="noopener">Episode guide · IMDb <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div></footer>
 </main>
-
-    <!-- Season Navigation -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 border-b border-gray-800 pb-4 container mx-auto px-4">
-      <h3 class="text-lg sm:text-xl font-semibold flex items-center mb-2 sm:mb-0">
-        <i class="fas fa-tv loki-accent mr-2"></i>
-        <span class="marvel-font">EPISODES</span>
-      </h3>
-      <div class="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-        <div class="flex items-center space-x-2 min-w-max">
-          <button class="season-btn active bg-[#c0392b] text-white px-3 py-1 rounded-full text-xs font-medium" data-season="all">All</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="1">Season 1</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="2">Season 2</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="3">Season 3</button>
-          <button class="season-btn px-3 sm:px-4 py-1 sm:py-2 rounded-full text-sm" data-season="4">Season 4</button>
-
-        </div>
-      </div>
-    </div>
-
-
-      
-
-
-    <!-- Episodes Grid -->
-    <section class="container mx-auto px-4">
-      <div id="movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-        <!-- Movie cards inserted by JS -->
-      </div>
-    </section>
-
-    <!-- Footer / Social -->
-  <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-400 hover:text-[#c0392b] transition px-2"><i class="fab fa-youtube"></i></a>
+<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+ <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="player-wrapper" id="playerWrapper"><video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="player-meta"><div class="meta-left"><h3 id="modalTitle">Panchayat</h3><p id="modalDesc">Season 1</p></div>
+   <div class="controls-row"><button class="player-btn" id="prevBtn" aria-label="Previous episode"><i class="fa-solid fa-backward-step"></i> <span>Prev</span></button><button class="player-btn" id="playPauseBtn" aria-label="Play or pause"><i class="fa-solid fa-play"></i></button><button class="player-btn" id="nextBtn" aria-label="Next episode"><span>Next</span> <i class="fa-solid fa-forward-step"></i></button><button class="player-btn" id="fullscreenBtn" aria-label="Fullscreen"><i class="fa-solid fa-expand"></i></button><button class="player-btn" id="muteBtn" aria-label="Mute"><i class="fa-solid fa-volume-high"></i></button><button class="player-btn close" id="closeBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
   </div>
+ </div>
+</div>
+<script>
+const episodes = [
+      { id:101, season:1, episode:1, title:"Gram Panchayat Phulera", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/v6PtkHbPeNNMqENjGyrkPeiHmmx.jpg", airDate:"2020-04-03", runtime:"", description:"Abhishek Tripathi arrives in Phulera to take charge as the new panchayat secretary." },
+      { id:102, season:1, episode:2, title:"Bhootha Ped", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/oK5J97VefWxcCvvOfNGwvk0OAPX.jpg", airDate:"2020-04-03", runtime:"", description:"Frequent power cuts disrupt Abhishek’s CAT preparation, prompting him to take matters into his own hands." },
+      { id:103, season:1, episode:3, title:"Chakke Wali Kursi", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/5Yn9mgP8piPhzW4bYS7FKIAMZ8I.jpg", airDate:"2020-04-03", runtime:"", description:"Abhishek’s new wheeled chair unexpectedly upsets the balance of power in the panchayat office." },
+      { id:104, season:1, episode:4, title:"Hamara Neta Kaisa Ho?", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/71CARu3MJEg2gnHJRdzfEUjx4Ct.jpg", airDate:"2020-04-03", runtime:"", description:"A government scheme puts pressure on Abhishek and Pradhan Ji to make an unpopular decision." },
+      { id:105, season:1, episode:5, title:"Computer Nahi Monitor", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/8eJE0BSs6UL0JQGWOosL9NHJ9JM.jpg", airDate:"2020-04-03", runtime:"", description:"Bored with his routine, Abhishek looks for a little excitement in village life." },
+      { id:106, season:1, episode:6, title:"Bahot Hua Samman", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/jzLjPaf1wuQvSK2bZfL5z6zDo9f.jpg", airDate:"2020-04-03", runtime:"", description:"Abhishek tries to put his ego aside so he can focus on his studies." },
+      { id:107, season:1, episode:7, title:"Ladka Tez Hai Lekin..", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/79QjZ5CCxAsGw61zaPcvpwK1lS1.jpg", airDate:"2020-04-03", runtime:"", description:"With the CAT exam approaching, Abhishek balances work and studies as Pradhan Ji considers him for a family match." },
+      { id:108, season:1, episode:8, title:"Jab Jaago Tabhi Savera", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/vvDtEUCYGEul4O52O06WIPwfyNZ.jpg", airDate:"2020-04-03", runtime:"", description:"After a disappointing CAT performance, Abhishek finds motivation in an unexpected place." },
+      { id:201, season:2, episode:1, title:"Naach", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/9HeXxIln1JCVDEzzipvj02eoyeP.jpg", airDate:"2022-05-18", runtime:"", description:"Abhishek tries to rescue a deal disrupted by Manju Devi’s enthusiasm." },
+      { id:202, season:2, episode:2, title:"Bol Chaal Band", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/mA92kXrhPsvNNT57fYeNo9Qsi69.jpg", airDate:"2022-05-18", runtime:"", description:"A communication breakdown creates fresh complications for the Phulera team." },
+      { id:203, season:2, episode:3, title:"Kranti", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/xEKcIbdAmBnT6QQYukihm5jLMYZ.jpg", airDate:"2022-05-18", runtime:"", description:"A new political challenge tests the village’s loyalties." },
+      { id:204, season:2, episode:4, title:"Tension", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/ypDblhkpuXvaFkXpKp41yt22t0e.jpg", airDate:"2022-05-18", runtime:"", description:"Tensions rise as Abhishek and the Pradhan household face competing pressures." },
+      { id:205, season:2, episode:5, title:"Jaise Ko Taisa", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/xEKcIbdAmBnT6QQYukihm5jLMYZ.jpg", airDate:"2022-05-18", runtime:"", description:"A village dispute turns into a test of patience and cooperation." },
+      { id:206, season:2, episode:6, title:"Aukaat", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/ypDblhkpuXvaFkXpKp41yt22t0e.jpg", airDate:"2022-05-18", runtime:"", description:"Abhishek’s place in the group is challenged as village politics intensify." },
+      { id:207, season:2, episode:7, title:"Dost Yaar", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/k15y7WpgDS0b1h3HPIbhmKLdHu9.jpg", airDate:"2022-05-18", runtime:"", description:"Friendships and loyalties are tested by changing circumstances." },
+      { id:208, season:2, episode:8, title:"Parivaar", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/9ZOqHGZcs0FxXG0wLfPhiwE9I74.jpg", airDate:"2022-05-18", runtime:"", description:"A political perception battle forces Pradhan Ji to make a difficult call." },
+      { id:301, season:3, episode:1, title:"Rangbaazi", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/ia9Rqzx2pCXoXMEYS87hgaAruLB.jpg", airDate:"2024-05-28", runtime:"", description:"Pradhan’s effort to stop Abhishek’s transfer deepens the rift with the MLA, while Prahlad faces a personal struggle." },
+      { id:302, season:3, episode:2, title:"Gaddha", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/dp5Jq8fVdNSCB6i1cqkanV25X2L.jpg", airDate:"2024-05-28", runtime:"", description:"Abhishek returns determined to avoid village politics, but Pradhan and Manju Devi need his help." },
+      { id:303, season:3, episode:3, title:"Ghar Ya Eent-Patthar?", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/ug4gJTqEzyB6YtbmJyJB9zQb4A8.jpg", airDate:"2024-05-28", runtime:"", description:"Bhushan sees an opening against Pradhan, drawing Abhishek into damage control." },
+      { id:304, season:3, episode:4, title:"Atma Manthan", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/uDTXXsIKkv8CZIdhh1ay6DY74kT.jpg", airDate:"2024-05-28", runtime:"", description:"An allegation of favouritism threatens Pradhan’s standing as Bhushan joins forces with the MLA." },
+      { id:305, season:3, episode:5, title:"Shanti Samjhauta", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/pSPL8qy28oIXRGs5dGUDg6G8HyD.jpg", airDate:"2024-05-28", runtime:"", description:"A proposed peace agreement creates uneasy compromises for the Phulera camp." },
+      { id:306, season:3, episode:6, title:"Chingaari", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/uMoMtZRFiUPL04n2VHm9KSmO6BX.jpg", airDate:"2024-05-28", runtime:"", description:"The Pradhan team tries to turn the MLA’s mistake to its advantage." },
+      { id:307, season:3, episode:7, title:"Shola", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/nlONfAXdlzFJ3tPD4fdi1jv0KMY.jpg", airDate:"2024-05-28", runtime:"", description:"The political trap tightens and the stakes rise for both camps." },
+      { id:308, season:3, episode:8, title:"Hamla", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/aD9G4T5tGBqGZTwPv2tmVd4FbkK.jpg", airDate:"2024-05-28", runtime:"", description:"Pradhan rallies Phulera for one last battle, while Abhishek is pulled deeper into politics." },
+      { id:401, season:4, episode:1, title:"Case-Mukadma", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/aD9G4T5tGBqGZTwPv2tmVd4FbkK.jpg", airDate:"2025-06-24", runtime:"", description:"A police case threatens Abhishek’s career, while Bhushan tries to use the crisis to his advantage." },
+      { id:402, season:4, episode:2, title:"Zakhm", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/koqAj1rHQL30zr6wh6RfoVwaU5A.jpg", airDate:"2025-06-24", runtime:"", description:"Wounded Pradhan begins his campaign with a public show, but Bhushan’s camp moves to steal the spotlight." },
+      { id:403, season:4, episode:3, title:"Vachan", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/u1D4JV54AeL3s49NL2PkSMEtI3r.jpg", airDate:"2025-06-24", runtime:"", description:"Pradhan spots a weakness in Bhushan’s camp and tries to exploit it." },
+      { id:404, season:4, episode:4, title:"Shakti Pradarshan", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/dyzmWzYdHI4VlyxWug9d6Ka9TC.jpg", airDate:"2025-06-24", runtime:"", description:"A grand nomination plan is threatened by a move from Bhushan and the MLA." },
+      { id:405, season:4, episode:5, title:"Ashirvaad", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/q3vLJfG3yxiwT99f0GKhK4oKdOm.jpg", airDate:"2025-06-24", runtime:"", description:"A clash between rival camps raises tensions just days before the election." },
+      { id:406, season:4, episode:6, title:"Sanjeevani", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/i1DsWGRc0nxfuYk3uUoabQbhG73.jpg", airDate:"2025-06-24", runtime:"", description:"An offer of help from the local MP creates a moral dilemma for the Pradhan camp." },
+      { id:407, season:4, episode:7, title:"Dramabaaz", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/aD6HOAUUiyaUEhFEsZl7YRKOQ0W.jpg", airDate:"2025-06-24", runtime:"", description:"A transformer failure causes a village-wide blackout on the eve of election day." },
+      { id:408, season:4, episode:8, title:"Dabdaba", video:"https://turboembed.com/", image:"https://image.tmdb.org/t/p/w300/vGPlDJq3xSC0DDAu9q1piDxf1ad.jpg", airDate:"2025-06-24", runtime:"", description:"As the election result approaches, Abhishek considers his future and Phulera awaits its fate." }
+    ];
 
-  <!-- === REPLACED PLAYBACK MODAL: Illumination-style modal inserted === -->
-  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true">
-      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-[#9ad34d] text-2xl bg-black/50 rounded-full p-2">
-        <i class="fas fa-times"></i>
-      </button>
+const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch"),seasonFilter=document.getElementById("seasonFilter");
+const playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper");
+const modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc");
+const playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
+let currentHls=null,currentShaka=null,currentList=episodes,currentIndex=0,watchlist=new Set();
+function isReleased(ep){return !ep.airDate||new Date(ep.airDate+"T23:59:59")<=new Date()}
+function episodeImage(ep){if(ep.image&&ep.image!=="00")return ep.image;const d=ep.airDate?new Date(ep.airDate).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"TBA";return "https://placehold.co/600x340/352516/E7B75B?text="+encodeURIComponent(isReleased(ep)?"Panchayat S"+ep.season+" E"+ep.episode:"Coming "+d)}
+function renderEpisodes(list){
+ grid.innerHTML="";
+ if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;padding:25px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No Panchayat episodes match your search.</div>';return}
+ list.forEach(ep=>{
+  const card=document.createElement("article");card.className="episode-card";card.tabIndex=0;card.setAttribute("role","button");
+  const released=isReleased(ep),saved=watchlist.has(ep.id);
+  card.innerHTML='<div class="episode-image-wrap"><img class="episode-image" loading="lazy" src="'+episodeImage(ep)+'" alt="'+ep.title.replace(/"/g,"&quot;")+'" onerror="this.onerror=null;this.src=\'https://placehold.co/600x340/211b12/E7B75B?text=Panchayat\'"><span class="episode-number">S'+ep.season+' · EP '+String(ep.episode).padStart(2,"0")+'</span><button class="save-episode" type="button" aria-label="Save episode"><i class="'+(saved?'fa-solid':'fa-regular')+' fa-bookmark"></i></button><span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span></div><div class="episode-info"><div class="episode-kicker">Season '+ep.season+' · Episode '+ep.episode+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime"><i class="fa-regular fa-clock"></i> '+ep.runtime+' · '+(released?'Available':'Coming soon')+'</div></div>';
+  const play=()=>openPlayer(list,list.indexOf(ep));card.addEventListener("click",play);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();play()}});
+  card.querySelector(".save-episode").addEventListener("click",e=>{e.stopPropagation();watchlist.has(ep.id)?watchlist.delete(ep.id):watchlist.add(ep.id);e.currentTarget.innerHTML='<i class="'+(watchlist.has(ep.id)?'fa-solid':'fa-regular')+' fa-bookmark"></i>'});
+  grid.appendChild(card);
+ });
+}
+function filterEpisodes(){const q=search.value.trim().toLowerCase(),s=seasonFilter.value;currentList=episodes.filter(ep=>(s==="all"||String(ep.season)===s)&&(!q||ep.title.toLowerCase().includes(q)||ep.description.toLowerCase().includes(q)));renderEpisodes(currentList)}
+search.addEventListener("input",filterEpisodes);seasonFilter.addEventListener("change",filterEpisodes);
+function isHls(url){return /\.m3u8($|\?)/i.test(url)||/index.*\.txt/i.test(url)||/manifest|master/i.test(url)}
+function isMp4(url){return /\.mp4($|\?)/i.test(url)}
+function resetPlayer(){if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer)}
+function showPlayer(){playbackModal.classList.add("active");playbackModal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden"}
+function closePlayer(){const v=document.getElementById("modalVideo");if(v){try{v.pause();v.removeAttribute("src");v.load()}catch(e){}}if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playbackModal.classList.remove("active");playbackModal.setAttribute("aria-hidden","true");document.body.style.overflow="";playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}
+async function openPlayer(list,index){
+ if(!Array.isArray(list)||index<0||index>=list.length)return;currentList=list;currentIndex=index;const item=list[index];
+ modalTitle.textContent=item.title;modalDesc.textContent="Panchayat · Season "+item.season+" · Episode "+item.episode;resetPlayer();showPlayer();
+ if(!item.video||item.video==="00"){modalDesc.textContent+=item.airDate?" · Scheduled "+new Date(item.airDate+"T12:00:00").toLocaleDateString():" · Video source unavailable";return}
+ const src=String(item.video),lower=src.toLowerCase(),video=document.getElementById("modalVideo");
+ const iframeHosts=["mega.nz","turboembed.com","streamtape.com","dood","vidcdn","ok.ru","drive.google.com","voe.sx","filemoon","mixdrop","dailymotion.com"];
+ if(iframeHosts.some(h=>lower.includes(h))&&!isHls(src)&&!isMp4(src)){playerWrapper.innerHTML='<iframe src="'+src.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="Panchayat episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}
+ if(isHls(src)){if(window.Hls&&Hls.isSupported()){currentHls=new Hls({enableWorker:true,maxBufferLength:30,maxMaxBufferLength:60,backBufferLength:30});currentHls.loadSource(src);currentHls.attachMedia(video);currentHls.on(Hls.Events.MANIFEST_PARSED,()=>video.play().catch(()=>{}));currentHls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else modalDesc.textContent+=" · Playback error"}})}else if(video.canPlayType("application/vnd.apple.mpegurl")){video.src=src;video.play().catch(()=>{})}else modalDesc.textContent+=" · HLS unsupported";return}
+ if(isMp4(src)||/\.webm($|\?)/i.test(src)){video.src=src;video.play().catch(()=>{});return}
+ if(/^https?:\/\//i.test(src)){playerWrapper.innerHTML='<iframe src="'+src.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="Panchayat episode player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);return}
+ modalDesc.textContent+=" · Unsupported video source";
+}
+function playNext(){if(currentIndex<currentList.length-1)openPlayer(currentList,currentIndex+1)}
+function playPrev(){if(currentIndex>0)openPlayer(currentList,currentIndex-1)}
+function togglePlayPause(){const v=document.getElementById("modalVideo");if(v){if(v.paused){v.play().catch(()=>{});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>'}else{v.pause();playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}}}
+function toggleFullscreen(){const el=document.getElementById("modalVideo")||playerWrapper.querySelector("iframe");if(el){const f=el.requestFullscreen||playerWrapper.requestFullscreen;if(f)Promise.resolve(f.call(el)).catch(()=>{})}}
+function toggleMute(){const v=document.getElementById("modalVideo");if(v){v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>'}}
+document.getElementById("prevBtn").addEventListener("click",playPrev);document.getElementById("nextBtn").addEventListener("click",playNext);playPauseBtn.addEventListener("click",togglePlayPause);document.getElementById("fullscreenBtn").addEventListener("click",toggleFullscreen);muteBtn.addEventListener("click",toggleMute);document.getElementById("closeBtn").addEventListener("click",closePlayer);document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+playbackModal.addEventListener("click",e=>{if(e.target===playbackModal)closePlayer()});document.addEventListener("keydown",e=>{if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
+document.getElementById("trailerBtn").addEventListener("click",()=>openPlayer([{title:"Panchayat — Official Trailer",season:1,episode:0,video:"https://www.youtube.com/embed/36a-E7A35F8"}],0));
+renderEpisodes(episodes);
+</script>
+<!-- ========================================================= -->
+<!-- ========================================================= -->
+<!-- ========================================================= -->
+<!-- COMPLETE ADSTERRA ADS BLOCK -->
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store, cloudtv.free.je & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE </body> -->
+<!-- ========================================================= -->
 
-      <div class="player-wrapper" id="playerWrapper">
-        <!-- video or iframe injected here -->
-        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      </div>
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
 
-      <div class="player-meta">
-        <div class="meta-left">
-          <h3 id="modalTitle">Episode Title</h3>
-          <p id="modalDesc" class="text-sm">Episode description will appear here.</p>
-        </div>
-        <div class="controls-row">
-          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
-          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
 
-  <!-- Loading Spinner -->
-  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#9ad34d]"></div>
-  </div>
+<!-- SOCIAL BAR -->
+<script data-cfasync="false" src="https://bancadeltempoidea.org/14/565e44d5eee19958a58343407baab82d"></script>
 
-  <script>
-// ========================
-// SEASON SELECTOR + DATA
-// ========================
 
-// Quantum Leap (2022) – Season 1 & 2
-const movies = [
-  // Season 1 (8 eps)
-  { title: 'S1-All Episodes', video:'https://mega.nz/embed/XloGRC7J#a8Jvnq5K2dDZYyj_auXAf5AqSttvwFz82zHXZU1pM9o', image:'https://images.travelandleisureasia.com/wp-content/uploads/sites/2/2024/05/20124520/Mahodiya-village-from-Panchayat-series-2.jpg?tr=w-480,f-jpg,pr-true', season:1 },
-  
-  // Season 2 (9 eps)
-  { title: 'S2-All Episodes', video:'https://mega.nz/embed/q45yTLpA#a_RLK5B5W5NrFeDiAMtPNDY79imd6_urXshlk2h6le8', image:'https://st1.bollywoodlife.com/wp-content/uploads/2025/06/Panchayat-season-4-2-1.jpg?impolicy=Medium_Resize&w=1280&h=900', season:2 },
-  
-  // Season 3 (8 eps)
-  { title: 'S3-All Episodes', video:'https://mega.nz/embed/yl4BCLYY#7HEZiYZX-nmKRb8RTFdzJGX93cL-xaKBKyDZJynEJ8A', image:'https://www.deccanchronicle.com/h-upload/2024/05/02/1087279-panchayat.webp', season:3 },
-  
- // Season 4 (8 eps)
-  { title: 'S4-All Episodes', video:'https://mega.nz/embed/XREk0BbZ#wZLQGuwEi6WlrQn35mu7sHrUsVBAOls7relU8o0Wf0Q', image:'https://english.cdn.zeenews.com/sites/default/files/2024/10/29/1565535-panchayat.jpg', season:4 },
- 
-];
+<!-- 728x90 BANNER -->
+<script>
+  atOptions = {
+    'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+</script>
+<script src="https://bancadeltempoidea.org/22/5a4dc7c6c5524517e3d815b39b121f28"></script>
 
-    /* ------------------------
-       Modal / playback implementation (Illumination-style)
-       ------------------------ */
-    const playerWrapper = document.getElementById('playerWrapper');
-    const playbackModal = document.getElementById('playbackModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
+<!-- NATIVE BANNER -->
+<script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/f597ce652736e3bafb711648bd385bc8"></script>
+<div id="container-f597ce652736e3bafb711648bd385bc8"></div>
 
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
 
-    let currentHls = null;
-    let currentFiltered = [];
-    let currentIndex = null;
+<!-- POPUNDER -->
+<script data-cfasync="false" src="https://capitalhospitals.org/1/110752a01a9d540163da6fbfb98926f4"></script>
 
-    function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
-    function isHls(u) {
-      if (!u) return false;
-      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master');
-    }
-    function isYouTube(u) {
-      if (!u) return false;
-      return u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/');
-    }
+<!-- SOCIAL BAR -->
+<script data-cfasync="false" src="https://czernik.org/14/7fed7f6cd54e4aaf8bcebbf9e31d8fc3"></script>
 
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-    }
+<!-- 160x600 BANNER -->
+<script>
+  atOptions = {
+    'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://czernik.org/22/32e2eca4a8cbe495b6e046fac6e1e00b"></script>
 
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
+<!-- NATIVE BANNER -->
+<script async="async" data-cfasync="false" src="https://czernik.org/21/71ffc1cc58abe6b59241de4cd0b8d267"></script>
+<div id="container-71ffc1cc58abe6b59241de4cd0b8d267"></div>
 
-    function showError(msg) { console.warn(msg); }
 
-    function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
-      currentFiltered = list;
-      currentIndex = index;
-      const item = list[index];
-      if (!item) { showError('Missing item'); return; }
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
 
-      modalTitle.textContent = item.title || '';
-      modalDesc.textContent = item.description || '';
+<!-- POPUNDER -->
+<script data-cfasync="false" src="https://aarems.org/1/b860f80f711dcec864b5c9ced969d0cb"></script>
 
-      resetPlayerContainer();
-      showModal();
+<!-- SOCIAL BAR -->
+<script data-cfasync="false" src="https://bancadeltempoidea.org/14/511bbe5e30110cdc1df906986d26abef"></script>
 
-      // pick source
-      let src = '';
-      if (typeof item.video === 'object' && item.video !== null) {
-        src = item.video.high || item.video.medium || item.video.low || Object.values(item.video)[0];
-      } else {
-        src = item.video;
-      }
-      if (!src) {
-        showError('No video url');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=`, 500);
-        return;
-      }
+<!-- NATIVE BANNER -->
+<script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/ee55f774c6b8eed6b4287f9ed7923638"></script>
+<div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
 
-      const lc = (src||'').toLowerCase();
+<!-- 728x90 BANNER -->
+<script>
+  atOptions = {
+    'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+</script>
+<script src="https://bancadeltempoidea.org/22/44f6fc8fc8db36beacbc97b0453593a3"></script>
 
-      // iframe hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
+<!-- SMART LINK -->
+<!-- https://directyp.org/4/b4e26d6e3cb4df0655e816b8991eeae3 -->
 
-      // youtube
-      if (isYouTube(src)) {
-        let embed = src;
-        try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch(e){}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
+<!-- ===================== -->
 
-      // HLS
-      if (isHls(src)) {
-        const v = document.getElementById('modalVideo');
-        if (!v) { showError('Video element missing'); return; }
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-          currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-            }
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-        }
-        return;
-      }
+<!-- cloudtv.free.je -->
 
-      // MP4
-      if (isMP4(src)) {
-        const v = document.getElementById('modalVideo');
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
-        v.src = src;
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
+<!-- ===================== -->
 
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(item.title||'')}&video=${encodeURIComponent(src||'')}`;
-    }
+<!-- POPUNDER -->
 
-    /* Controls */
-    function togglePlayPause() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-      }
-    }
-    function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
-    }
-    function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
-    }
-    function toggleFullscreen() {
-      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
-      } else {
-        document.exitFullscreen();
-      }
-    }
-    function toggleMute() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    }
+<script data-cfasync="false" src="https://aarems.org/1/f4119690b9b81a8203a78b7227d27ae3"></script>
 
-    /* Close modal & cleanup */
-    function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      const v = document.getElementById('modalVideo');
-      if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
-      }
-      resetPlayerContainer();
-      hideModal();
-      currentIndex = null;
-      currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-    }
+<!-- SOCIAL BAR -->
 
-    /* Events wiring */
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
+<script data-cfasync="false" src="https://bancadeltempoidea.org/14/71e6dde572b4578a13305bb9da33a604"></script>
 
-    closeModalBtn.addEventListener('click', closeModalHandler);
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
+<!-- NATIVE BANNER -->
 
-    // Keyboard shortcuts when modal active
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
-      }
-    });
+<div style="text-align:center; margin:20px 0;">
+<script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/16b6f5baac2813accec4e3af6c329594"></script>
+<div id="container-16b6f5baac2813accec4e3af6c329594"></div>
+</div>
 
-    /* Attach video timeupdate/ended listeners */
-    function attachVideoListeners() {
-      const v = document.getElementById('modalVideo');
-      if (!v) return;
-      v.removeEventListener('timeupdate', onTimeUpdate);
-      v.addEventListener('timeupdate', onTimeUpdate);
-      v.removeEventListener('ended', onEnded);
-      v.addEventListener('ended', onEnded);
-    }
-    function onTimeUpdate() {
-      // If the original progress bar exists, update it (preserved element)
-      const progressBarFill = document.getElementById('progress-bar-fill');
-      const videoEl = document.getElementById('modalVideo');
-      if (!progressBarFill || !videoEl || !videoEl.duration) return;
-      const p = (videoEl.currentTime / videoEl.duration) * 100;
-      progressBarFill.style.width = p + '%';
-    }
-    function onEnded() {
-      const playBtn = document.getElementById('play-btn') || playPauseBtn;
-      if (playBtn) playBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> Replay';
-    }
 
-    /* Render episodes grid (wired to openPlayer) */
-    const container = document.getElementById('movies');
-    function renderMovies(list) {
-      container.innerHTML = '';
-      list.forEach((movie, index) => {
-        const card = document.createElement('div');
-        card.className = 'movie-card fade-in delay-2 glow-effect rounded-xl overflow-hidden cursor-pointer';
-        card.innerHTML = `
-          <div class="relative group overflow-hidden rounded-xl">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-32 sm:h-40 md:h-48 lg:h-56 xl:h-64 object-cover rounded-xl">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-              <div>
-                <h3 class="text-white font-semibold text-sm sm:text-base md:text-lg">${movie.title}</h3>
-                <p class="text-gray-300 text-xs sm:text-sm">${movie.duration || ''}</p>
-              </div>
-            </div>
-            <div class="absolute top-3 right-3 bg-black bg-opacity-70 text-[#9ad34d] rounded-full w-10 h-10 flex items-center justify-center">
-              <i class="fas fa-play"></i>
-            </div>
-            <div class="absolute top-3 left-3 flex items-center bg-black/70 px-2 py-1 rounded-full">
-              <i class="fas fa-star text-[#9ad34d] text-xs mr-1"></i>
-              <span class="text-white text-xs">${movie.rating || ''}</span>
-            </div>
-          </div>
-          <div class="mt-3">
-            <h3 class="text-white font-medium">${movie.title}</h3>
-            <div class="flex items-center text-gray-400 text-sm mt-1">
-              <span>S${movie.season} • E${movie.episode}</span>
-              <span class="mx-2">•</span>
-              <span>${movie.duration || ''}</span>
-            </div>
-          </div>
-        `;
-        card.addEventListener('click', () => {
-          // show loading spinner while resolving
-          const loadingSpinner = document.getElementById('loading-spinner');
-          if (loadingSpinner) loadingSpinner.classList.remove('hidden');
-          // open with the full current list and index
-          openPlayer(list, index);
-          // attach listeners for the video element (a bit delayed to allow element to exist)
-          setTimeout(()=> attachVideoListeners(), 200);
-          if (loadingSpinner) loadingSpinner.classList.add('hidden');
-        });
-        container.appendChild(card);
-      });
-    }
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+<!-- ========================================================= -->
+<!-- ========================================================= -->
 
-    /* Init page (season filtering wired up) */
-    function initPage() {
-      renderMovies(movies);
-
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelector('.filter-btn.active').classList.remove('active', 'bg-[#9ad34d]', 'text-black');
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-        });
-      });
-
-      // Season buttons: filter content
-      const seasonBtns = document.querySelectorAll('.season-btn');
-      seasonBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-          seasonBtns.forEach(b => b.classList.remove('active', 'bg-[#9ad34d]', 'text-black'));
-          this.classList.add('active', 'bg-[#9ad34d]', 'text-black');
-          const season = this.dataset.season;
-          let filtered;
-          if (!season || season === 'all') filtered = movies;
-          else filtered = movies.filter(m => String(m.season) === String(season));
-          renderMovies(filtered);
-        });
-      });
-
-      // Play All behavior (starts at first)
-      const playAllBtn = document.getElementById('play-all');
-      if (playAllBtn) {
-        playAllBtn.addEventListener('click', () => {
-          openPlayer(movies, 0);
-          setTimeout(()=> attachVideoListeners(), 200);
-        });
-      }
-
-      // Global search wiring
-      const globalSearch = document.getElementById('global-search');
-      if (globalSearch) {
-        globalSearch.addEventListener('input', (e) => {
-          const q = e.target.value.trim().toLowerCase();
-          const activeSeasonBtn = document.querySelector('.season-btn.active');
-          const season = activeSeasonBtn ? activeSeasonBtn.dataset.season : 'all';
-          let list = season === 'all' ? movies : movies.filter(m => String(m.season) === String(season));
-          if (q) list = list.filter(m => m.title.toLowerCase().includes(q) || (m.description && m.description.toLowerCase().includes(q)));
-          renderMovies(list);
-        });
-      }
-
-      // Watchlist UI wiring preserved
-      updateWatchlist();
-    }
-
-    /* Watchlist functions (preserved) */
-    const watchlistItems = document.getElementById('watchlist-items');
-    function updateWatchlist() {
-      if (!watchlistItems) return;
-      watchlistItems.innerHTML = '';
-      const watchlistMovies = movies.filter(m => m.inWatchlist);
-      if (watchlistMovies.length === 0) {
-        watchlistItems.innerHTML = '<div class="px-4 py-3 text-center text-gray-400">Your watchlist is empty</div>';
-        return;
-      }
-      watchlistMovies.forEach((movie, idx) => {
-        const index = movies.indexOf(movie);
-        const item = document.createElement('div');
-        item.className = 'px-4 py-3 hover:bg-gray-800 transition cursor-pointer flex items-center justify-between';
-        item.innerHTML = `
-          <div class="flex items-center">
-            <span class="text-[#9ad34d] text-sm mr-2">${idx + 1}.</span>
-            <span class="text-white text-sm truncate">${movie.title}</span>
-          </div>
-          <button class="remove-from-watchlist text-gray-400 hover:text-red-500" data-index="${index}">
-            <i class="fas fa-times"></i>
-          </button>
-        `;
-        item.querySelector('.remove-from-watchlist').addEventListener('click', (e) => {
-          e.stopPropagation();
-          removeFromWatchlist(index);
-        });
-        item.addEventListener('click', () => {
-          openPlayer(movies, index);
-          document.getElementById('watchlist-dropdown').classList.add('hidden');
-        });
-        watchlistItems.appendChild(item);
-      });
-    }
-    function addToWatchlist(index) { movies[index].inWatchlist = true; updateWatchlist(); }
-    function removeFromWatchlist(index) { movies[index].inWatchlist = false; updateWatchlist(); }
-
-    /* preserved UI event wiring (search, theme, watchlist, modal controls) */
-    const containerEl = document.getElementById('movies');
-    const searchBtn = document.getElementById('search-btn');
-    const searchBar = document.getElementById('search-bar');
-    const themeToggle = document.getElementById('theme-toggle');
-    const watchlistBtn = document.getElementById('watchlist-btn');
-    const watchlistDropdown = document.getElementById('watchlist-dropdown');
-    const closeModal = document.getElementById('close-modal');
-
-    searchBtn.addEventListener('click', () => {
-      searchBar.classList.toggle('hidden');
-      watchlistDropdown.classList.add('hidden');
-    });
-
-    watchlistBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      watchlistDropdown.classList.toggle('hidden');
-      searchBar.classList.add('hidden');
-    });
-
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('bg-gray-100');
-      document.body.classList.toggle('text-gray-900');
-      document.body.classList.toggle('bg-black');
-      document.body.classList.toggle('text-gray-100');
-      const icon = themeToggle.querySelector('i');
-      if (document.body.classList.contains('bg-black')) {
-        icon.classList.remove('fa-sun'); icon.classList.add('fa-moon');
-      } else { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
-    });
-
-    // close modal by clicking background already wired above via playbackModal click
-
-    // watchlist close on outside click & search close
-    document.addEventListener('click', (e) => {
-      if (!watchlistBtn.contains(e.target) && !watchlistDropdown.contains(e.target)) watchlistDropdown.classList.add('hidden');
-      if (!searchBtn.contains(e.target) && !searchBar.contains(e.target)) searchBar.classList.add('hidden');
-    });
-
-    // attach video listeners placeholder (modal video element created on demand)
-    function safeAttach() { setTimeout(()=> attachVideoListeners(), 200); }
-
-    // init on DOMContentLoaded
-    window.addEventListener('DOMContentLoaded', () => {
-      initPage();
-      // ensure modal close button works
-      document.getElementById('closeModalBtn').addEventListener('click', closeModalHandler);
-    });
-  </script>
  
 </body>
 </html>
