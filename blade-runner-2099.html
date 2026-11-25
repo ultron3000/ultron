@@ -136,15 +136,53 @@
 </div>
 <script>
 const episodes = [
- {title:"Hades",season:1,episode:1,runtime:"1 hr 2 min · Nov 25, 2026",description:"A brutal raid presses Cora to infiltrate the Los Angeles Police Department to retrieve a confiscated item that exposes a buried truth.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/loZql7im40g0akyATdXP4LmArU0.jpg"},
- {title:"Birther of Worlds",season:1,episode:2,runtime:"1 hr 1 min · Nov 25, 2026",description:"Battling to cover up their own secrets, Cora and Olwen partner to hunt a rogue colleague.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/oEFiW5kxNtGQVYsdDF9vCs9KdOz.jpg"},
- {title:"Ho, Ho, Folks",season:1,episode:3,runtime:"55 min · Nov 25, 2026",description:"Cora risks exposure when her past deceit lands her brother in danger. Olwen's missteps force her to retrace her past with a missing Replicant.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/pQie95TBVyY7cBrnr9aHf7pmZgx.jpg"},
- {title:"Memory, Hither Come",season:1,episode:4,runtime:"52 min · Nov 25, 2026",description:"Cora and Olwen track runaways to a Mexico City hideout. As dark ambitions clash with hidden secrets, both women confront painful pasts.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/iC8YJWVnj5d1nQruikizxnn7FHw.jpg"},
- {title:"My Lord",season:1,episode:5,runtime:"54 min · Nov 25, 2026",description:"Cora investigates her past while Olwen faces new threats, forcing a dangerous reckoning.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/pK1w5D7piS4fqEeaGbrCJN6yV9p.jpg"},
- {title:"Kill the Killers",season:1,episode:6,runtime:"51 min · Nov 25, 2026",description:"Cora and Olwen forge an uneasy alliance to hunt a lost relic. On Cora's home turf, old ghosts and new dangers close in. Hunted themselves, they must choose: compete or survive together.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/iUz5oCe09KLaxIrl55cwlHdbk1S.jpg"},
- {title:"One More Kiss, Dear",season:1,episode:7,runtime:"57 min · Nov 25, 2026",description:"Out of time and out of options, Olwen turns to Cora. Their uneasy alliance is tested when the past catches up to their doorstep.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/cgcCITzfqyWXtaLJMg4X97RhQJA.jpg"},
- {title:"Share the Fantasy",season:1,episode:8,runtime:"1 hr 1 min · Nov 25, 2026",description:"Olwen's final hours meet Cora's desperate bid for legacy. When ambitions collide, no one escapes unchanged.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/mD3MqPL5hJcOEOAf6a8Mu0hnpU7.jpg"}
-]
+ {title:"Hades",season:1,episode:1,runtime:"1 hr 2 min",description:"A brutal raid presses Cora to infiltrate the Los Angeles Police Department to retrieve a confiscated item that exposes a buried truth.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/loZql7im40g0akyATdXP4LmArU0.jpg"},
+ {title:"Birther of Worlds",season:1,episode:2,runtime:"1 hr 1 min",description:"Battling to cover up their own secrets, Cora and Olwen partner to hunt a rogue colleague.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/oEFiW5kxNtGQVYsdDF9vCs9KdOz.jpg"},
+ {title:"Ho, Ho, Folks",season:1,episode:3,runtime:"55 min",description:"Cora risks exposure when her past deceit lands her brother in danger. Olwen's missteps force her to retrace her past with a missing Replicant.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/pQie95TBVyY7cBrnr9aHf7pmZgx.jpg"},
+ {title:"Memory, Hither Come",season:1,episode:4,runtime:"52 min",description:"Cora and Olwen track runaways to a Mexico City hideout. As dark ambitions clash with hidden secrets, both women confront painful pasts.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/iC8YJWVnj5d1nQruikizxnn7FHw.jpg"},
+ {title:"My Lord",season:1,episode:5,runtime:"54 min",description:"Cora investigates her past while Olwen faces new threats, forcing a dangerous reckoning.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/pK1w5D7piS4fqEeaGbrCJN6yV9p.jpg"},
+ {title:"Kill the Killers",season:1,episode:6,runtime:"51 min",description:"Cora and Olwen forge an uneasy alliance to hunt a lost relic. On Cora's home turf, old ghosts and new dangers close in. Hunted themselves, they must choose: compete or survive together.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/iUz5oCe09KLaxIrl55cwlHdbk1S.jpg"},
+ {title:"One More Kiss, Dear",season:1,episode:7,runtime:"57 min",description:"Out of time and out of options, Olwen turns to Cora. Their uneasy alliance is tested when the past catches up to their doorstep.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/cgcCITzfqyWXtaLJMg4X97RhQJA.jpg"},
+ {title:"Share the Fantasy",season:1,episode:8,runtime:"1 hr 1 min",description:"Olwen's final hours meet Cora's desperate bid for legacy. When ambitions collide, no one escapes unchanged.",video:"https://turboembed.com/",image:"https://image.tmdb.org/t/p/w300/mD3MqPL5hJcOEOAf6a8Mu0hnpU7.jpg"}
+];
+const grid=document.getElementById("episodeGrid"),search=document.getElementById("episodeSearch");
+const playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper");
+const modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc");
+const playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
+let currentHls=null,currentShaka=null,currentList=episodes,currentIndex=0;
+function renderEpisodes(list){
+ grid.innerHTML="";
+ if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;padding:25px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No episodes match your search.</div>';return}
+ list.forEach(function(ep){
+  const card=document.createElement("article");card.className="episode-card";card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label","Play episode "+ep.episode+": "+ep.title);
+  card.innerHTML='<div class="episode-image-wrap"><img class="episode-image" loading="lazy" src="'+ep.image+'" alt="'+ep.title.replace(/"/g,"&quot;")+'"><span class="episode-number">EP '+String(ep.episode).padStart(2,"0")+'</span><span class="episode-play"><span><i class="fa-solid fa-play"></i></span></span></div><div class="episode-info"><div class="episode-kicker">Season 1 · Episode '+ep.episode+'</div><h3 class="episode-title">'+ep.title+'</h3><p class="episode-description">'+ep.description+'</p><div class="episode-runtime"><i class="fa-regular fa-clock"></i> '+ep.runtime+'</div></div>';
+  const play=function(){openPlayer(episodes,episodes.indexOf(ep))};card.addEventListener("click",play);card.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();play()}});
+  grid.appendChild(card);
+ });
+}
+search.addEventListener("input",function(){const q=this.value.trim().toLowerCase();renderEpisodes(episodes.filter(function(ep){return ep.title.toLowerCase().includes(q)||ep.description.toLowerCase().includes(q)}))});
+function isHls(url){return /\.m3u8($|\?)/i.test(url)||/index.*\.txt/i.test(url)||/manifest|master/i.test(url)}
+function isMp4(url){return /\.mp4($|\?)/i.test(url)}
+function isYouTube(url){return /youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(url)}
+function resetPlayer(){
+ if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+ if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+ playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+}
+function showPlayer(){playbackModal.classList.add("active");playbackModal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden"}
+function closePlayer(){
+ const v=document.getElementById("modalVideo");if(v){try{v.pause();v.removeAttribute("src");v.load()}catch(e){}}
+ if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}
+ if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}
+ playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';
+ document.getElementById("topCloseBtn").addEventListener("click",closePlayer);
+ playbackModal.classList.remove("active");playbackModal.setAttribute("aria-hidden","true");document.body.style.overflow="";
+ playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>';
+}
+async function openPlayer(list,index){
+ if(!Array.isArray(list)||index<0||index>=list.length)return;
+ currentList=list;currentIndex=index;const item=list[index];
  modalTitle.textContent=item.title;modalDesc.textContent="Blade Runner 2099 · Season "+item.season+" · Episode "+item.episode;
  resetPlayer();showPlayer();
  let src=typeof item.video==="object"&&item.video!==null?(item.video.high||item.video.medium||item.video.low||item.video.mpd||Object.values(item.video)[0]):item.video;
