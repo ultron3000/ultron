@@ -1,495 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Batman Cinematic Universe</title>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<!-- HLS.js for HLS playback -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09080d">
+<meta name="description" content="Explore the complete Batman film collection.">
+<title>Batman | Complete Movie Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Poppins:wght@300;400;500;600;700&display=swap');
-    
-    :root {
-      --primary: #ffe600; /* Gotham Bat Yellow */
-      --secondary: #050811; /* Deep Shadow Black */
-      --accent: #e63946;  /* Gotham Crimson Highlight */
-      --muted: #94a3b8;
-    }
-    
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at 50% 50%, #0d1527 0%, #050811 100%);
-      color: #f8fafc;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-    
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    
-    .movie-card {
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      transform-origin: center;
-      background: rgba(11, 18, 32, 0.85) !important;
-      border: 1px solid rgba(255, 230, 0, 0.15);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-    }
-    
-    .movie-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: var(--primary);
-      box-shadow: 0 0 25px rgba(255, 230, 0, 0.35);
-    }
-    
-    .search-input {
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-    
-    .search-input:focus {
-      box-shadow: 0 0 15px rgba(255, 230, 0, 0.4);
-    }
-    
-    .header-glow {
-      text-shadow: 0 0 12px rgba(255, 230, 0, 0.8);
-      font-family: 'Share Tech Mono', monospace;
-    }
-    
-    .movie-poster {
-      aspect-ratio: 2/3;
-      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    
-    .movie-card:hover .movie-poster {
-      transform: scale(1.04);
-    }
-    
-    .category-tab {
-      transition: all 0.3s ease;
-    }
-    
-    .category-tab:hover {
-      transform: translateY(-2px);
-    }
-    
-    .category-tab.active {
-      background-color: var(--primary);
-      color: #000;
-      font-weight: 600;
-    }
-    
-    /* Custom Scrollbar styled for a tactical Gotham OS look */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: #050811;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: var(--primary);
-      border-radius: 3px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent);
-    }
-    
-    /* Animation */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-fade-in {
-      animation: fadeIn 0.6s ease forwards;
-    }
-    
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
-    .delay-400 { animation-delay: 0.4s; }
-    
-    /* Illumination modal styles (responsive) */
-    .modal-backdrop { 
-      position:fixed; 
-      inset:0; 
-      background: rgba(3, 5, 11, 0.95); 
-      display:none; 
-      align-items:center; 
-      justify-content:center; 
-      z-index:9999; 
-      padding: 0;
-      backdrop-filter: blur(8px);
-    }
-    .modal-backdrop.active { display:flex; }
-    .modal-card { 
-      width: 100%;
-      height: 100%;
-      max-width: 980px;
-      max-height: 90vh;
-      border-radius: 0;
-      overflow: hidden;
-      background: #070c18;
-      border: 1px solid rgba(255, 230, 0, 0.3);
-      box-shadow: 0 0 50px rgba(255, 230, 0, 0.25);
-      display: flex;
-      flex-direction: column;
-    }
-    .player-wrapper { 
-      position: relative;
-      flex: 1;
-      min-height: 0;
-      background: #000;
-      border-bottom: 2px solid rgba(255, 230, 0, 0.2);
-    }
-    #topCloseBtn { 
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 10;
-      background: rgba(255, 230, 0, 0.85);
-      color: #000;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 1;
-      transition: all 0.2s ease;
-      box-shadow: 0 0 10px rgba(255, 230, 0, 0.5);
-    }
-    #topCloseBtn:hover {
-      background: #ffe600;
-      transform: scale(1.1);
-    }
-    .player-wrapper video, 
-    .player-wrapper iframe { 
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .player-meta { 
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px;
-      color: #f8fafc;
-      background: #070c18;
-    }
-    .player-meta .meta-left { 
-      width: 100%;
-    }
-    .player-meta h3 { 
-      margin: 0;
-      font-size: 1.25rem;
-      font-family: 'Share Tech Mono', monospace;
-      letter-spacing: 1px;
-      color: var(--primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .player-meta p { 
-      margin: 6px 0 0 0;
-      color: var(--muted);
-      font-size: 0.9rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .controls-row { 
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Tactically Upgraded Buttons */
-    .btn {
-      background: rgba(255, 230, 0, 0.05);
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 6px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-family: 'Share Tech Mono', monospace;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      min-width: 40px;
-      flex: 1;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @media (min-width: 768px) {
-      .btn {
-        padding: 10px 14px;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        min-width: 60px;
-        gap: 8px;
-      }
-    }
-    .btn:hover { 
-      background: var(--primary);
-      color: #000;
-      box-shadow: 0 0 15px rgba(255, 230, 0, 0.6);
-    }
-    .btn i {
-      font-size: 0.9rem;
-    }
-
-    /* Responsive adjustments */
-    @media (min-width: 768px) {
-      .modal-card {
-        width: 92%;
-        height: auto;
-        border-radius: 8px;
-        max-height: 80vh;
-      }
-      .player-wrapper {
-        padding-bottom: 56.25%;
-        height: 0;
-      }
-      .player-meta {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-      }
-      .player-meta .meta-left {
-        max-width: 65%;
-      }
-      .controls-row {
-        flex-wrap: nowrap;
-        justify-content: flex-end;
-      }
-      .btn {
-        flex: 0;
-        min-width: auto;
-        padding: 8px 16px;
-      }
-      #topCloseBtn {
-        opacity: 0;
-      }
-      .player-wrapper:hover #topCloseBtn {
-        opacity: 1;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .btn {
-        padding: 8px;
-        font-size: 0;
-      }
-      .btn i {
-        font-size: 1rem;
-        margin: 0 !important;
-      }
-    }
-
-    /* Modal legacy styles (unused) */
-    .modal-overlay { display:none; }
-    /* ============================
-   DESKTOP FIX — DOES NOT TOUCH MOBILE
-   ============================ */
-
-@media (min-width: 768px) {
-
-  /* Fix video height so it doesn't cover controls */
-  .player-wrapper {
-    padding-bottom: 0 !important;     /* remove forced 16:9 only on desktop */
-    height: auto !important;
-    max-height: 60vh !important;       /* safe video height */
-    position: relative !important;
-  }
-
-  /* Ensure iframe/video stays inside wrapper */
-  .player-wrapper video,
-  .player-wrapper iframe {
-    height: 100% !important;
-    max-height: 60vh !important;
-    position: relative !important;
-  }
-
-  /* Make sure controls are ALWAYS visible above video */
-  .player-meta {
-    position: relative !important;
-    z-index: 100 !important;
-    background: #070c18 !important;      /* solid background for visibility */
-    padding-top: 10px !important;
-  }
-
-  /* Controls row layout */
-  .controls-row {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    gap: 12px !important;
-  }
-
-  /* Buttons behave normally */
-  .btn {
-    min-width: 95px !important;
-    padding: 10px 16px !important;
-    flex: unset !important;
-  }
-
-  /* Modal height adjustment to fit everything */
-  .modal-card {
-    max-height: 85vh !important;
-    overflow: visible !important;
-  }
+:root{color-scheme:dark;--bg:#09080d;--panel:#14121a;--panel2:#1c1923;--text:#f7f3f4;--muted:#b4a9b2;--line:rgba(255,220,230,.13);--rose:#d6b65d;--red:#6e5422;--gold:#f0d98c;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 0%,rgba(185,78,103,.15),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(120,73,91,.12),transparent 35%)}.shell{width:min(1320px,100%);margin:auto;padding:0 clamp(15px,4vw,54px)}
+.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(9,8,13,.88);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font:700 18px "Space Grotesk",sans-serif;letter-spacing:-.04em}.brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(140deg,var(--rose),var(--red));color:#170b10}.top-link{color:var(--muted);font-size:12px;font-weight:700}.top-link:hover{color:var(--rose)}
+/* Exact responsive hero system from series.html */
+.series-hero-shell{max-width:1320px;margin:18px auto 28px;padding:0 18px}
+.series-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(330px,34vw,455px);border:1px solid rgba(148,163,184,.28);border-radius:26px;background:#020617;box-shadow:0 26px 80px rgba(0,0,0,.42);touch-action:pan-y}
+.series-hero-bg{position:absolute;inset:0;z-index:-2;overflow:hidden;background-position:center;background-size:cover}
+.series-hero-bg iframe{position:absolute;top:50%;left:50%;width:177.78vh;height:56.25vw;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:0;pointer-events:none;opacity:.76}
+.series-hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,23,.66),rgba(2,6,23,.78) 48%,rgba(2,6,23,.9)),linear-gradient(0deg,rgba(2,6,23,.58),rgba(2,6,23,.12))}
+.series-hero-inner{position:relative;z-index:1;min-height:inherit;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(24px,4vw,58px);padding:clamp(22px,4vw,48px)}
+.series-hero-art{display:block;width:100%;max-width:245px;aspect-ratio:2/2.85;justify-self:center;transform:perspective(1100px) rotateY(-9deg) rotateX(2deg);transform-style:preserve-3d;filter:drop-shadow(0 24px 30px rgba(0,0,0,.62));transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.series-hero-art img{display:block;width:100%;height:100%;object-fit:cover;border-radius:15px;border:1px solid rgba(255,255,255,.4);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 18px 45px #0008}
+.series-hero:hover .series-hero-art{transform:perspective(1100px) rotateY(-3deg) rotateX(0) translateY(-5px) scale(1.015)}
+.series-hero-copy{max-width:760px;min-width:0;color:#fff;text-align:left}
+.series-hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid rgba(103,232,249,.38);border-radius:999px;background:rgba(8,47,73,.62);color:#a5f3fc;font-size:10px;font-weight:900;letter-spacing:.15em}
+.series-hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;color:#bae6fd;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.series-hero-title{margin:12px 0 10px;color:#fff;font-size:clamp(2rem,4.6vw,4.2rem);font-weight:950;line-height:1.02;letter-spacing:-.045em;text-wrap:balance;text-shadow:0 5px 25px #0009}
+.series-hero-description{max-width:62ch;margin:0 0 22px;color:#e2e8f0;font-size:clamp(13px,1.25vw,15px);line-height:1.7;text-shadow:0 2px 12px #000}
+.series-hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.series-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font-size:12px;font-weight:900;transition:transform .2s,filter .2s,background .2s;border:0;cursor:pointer}
+.series-hero-btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.series-hero-primary{color:#fff;background:linear-gradient(110deg,#0891b2,#4f46e5);box-shadow:0 9px 26px #0891b244}
+.series-hero-secondary{color:#fff;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(12px)}
+.series-hero-dots{display:flex;gap:5px;margin-top:19px}
+.series-hero-dots span{width:17px;height:3px;border-radius:8px;background:#ffffff55}
+.series-hero-dots span.active{width:32px;background:#67e8f9}
+@media(max-width:700px){
+ .series-hero-shell{padding:0 12px;margin:13px auto 21px}
+ .series-hero{min-height:310px;border-radius:20px}
+ .series-hero-bg iframe{width:177.78vh;height:56.25vw;opacity:.58}
+ .series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.78),rgba(2,6,23,.84)),linear-gradient(0deg,rgba(2,6,23,.78),rgba(2,6,23,.24))}
+ .series-hero-inner{grid-template-columns:minmax(88px,27%) minmax(0,1fr);gap:clamp(12px,3vw,20px);padding:20px 15px 62px;min-height:310px}
+ .series-hero-art{width:100%;max-width:150px;transform:perspective(800px) rotateY(-5deg)}
+ .series-hero-art img{border-radius:11px}
+ .series-hero:hover .series-hero-art{transform:perspective(800px) rotateY(-3deg) translateY(-2px)}
+ .series-hero-kicker{font-size:8px;padding:6px 9px;letter-spacing:.1em}
+ .series-hero-meta{font-size:9px;gap:6px;margin-top:10px}
+ .series-hero-title{font-size:clamp(1.35rem,5.5vw,2.25rem);line-height:1.04;margin:9px 0 8px}
+ .series-hero-description{font-size:11px;line-height:1.5;margin-bottom:13px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+ .series-hero-btn{min-height:37px;padding:0 11px;font-size:10px;gap:6px}
+ .series-hero-dots{margin-top:12px}
+}
+@media(max-width:390px){
+ .series-hero{min-height:292px}
+ .series-hero-inner{min-height:292px;grid-template-columns:82px minmax(0,1fr);gap:11px;padding:16px 12px 58px}
+ .series-hero-title{font-size:1.28rem}
+ .series-hero-description{-webkit-line-clamp:3;font-size:10px}
+ .series-hero-btn{padding:0 9px;font-size:9px}
 }
 
-/* === SMART FULLSCREEN VIDEO FIX (NO CROPPING, NO GAPS WHEN POSSIBLE) === */
-video:fullscreen,
-video:-webkit-full-screen,
-iframe:fullscreen,
-iframe:-webkit-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
+.section{margin:42px 0 48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:17px}.overline{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.2em;text-transform:uppercase}.section-title{font:700 clamp(23px,3vw,32px)/1.1 "Space Grotesk",sans-serif;letter-spacing:-.05em;margin:6px 0 0}.section-desc{font-size:11px;color:var(--muted);margin-top:6px}.episode-tools{display:flex;gap:9px;align-items:center}.search{width:min(230px,38vw);height:39px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);padding:0 12px;outline:none;font-size:11px}.search:focus{border-color:var(--rose)}.season-pill{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;color:var(--text);font-size:11px;font-weight:700}
+.episode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}.episode-card{min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:linear-gradient(155deg,#1b1720,#100e14);transition:transform .22s,border-color .22s,box-shadow .22s;cursor:pointer}.episode-card:hover{transform:translateY(-5px);border-color:rgba(232,160,173,.55);box-shadow:0 14px 34px rgba(0,0,0,.3)}.episode-image-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:#211922}.episode-image{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s}.episode-card:hover .episode-image{transform:scale(1.045)}.episode-number{position:absolute;top:10px;left:10px;background:rgba(8,7,12,.78);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:5px 8px;font-size:9px;font-weight:800;letter-spacing:.1em}.episode-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,7,12,.12);opacity:0;transition:.2s}.episode-play span{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:rgba(232,160,173,.95);color:#1b0c12;box-shadow:0 7px 24px rgba(0,0,0,.4)}.episode-card:hover .episode-play{opacity:1}.episode-info{padding:13px 14px 15px}.episode-kicker{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.episode-title{font:700 15px/1.25 "Space Grotesk",sans-serif;margin:7px 0 6px;min-height:38px}.episode-description{font-size:10px;line-height:1.6;color:#b9adb4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}.episode-runtime{font-size:9px;color:#8e838b;margin-top:10px}
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.about-panel{border:1px solid var(--line);border-radius:17px;padding:23px;background:linear-gradient(145deg,rgba(30,24,34,.94),rgba(17,14,20,.94))}.about-panel h3{font:700 18px "Space Grotesk",sans-serif;margin:0 0 10px}.about-panel p{font-size:12px;line-height:1.8;color:#c3b7be;margin:0}.cast-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.cast-chip{font-size:10px;color:#e5d8de;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+.footer{border-top:1px solid var(--line);padding:25px 0 35px;color:#8f858c;font-size:10px}.footer-inner{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.91);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(12px)}.modal-backdrop.active{display:flex}.modal-card{position:relative;width:min(100%,1020px);max-height:95vh;overflow:auto;background:#0d0b11;border:1px solid rgba(232,160,173,.2);border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.7)}.player-wrapper{position:relative;width:100%;aspect-ratio:16/9;background:#000}.player-wrapper video,.player-wrapper iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}.player-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;background:#131018;border-top:1px solid var(--line)}.meta-left{min-width:0}.player-meta h3{font:700 16px "Space Grotesk",sans-serif;margin:0}.player-meta p{font-size:10px;color:#a99da5;margin:5px 0 0}.controls-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}.player-btn{min-width:40px;height:39px;padding:0 11px;border:1px solid rgba(232,160,173,.35);border-radius:9px;background:#201923;color:#f3c3cd;font-size:11px}.player-btn:hover{background:#38202d}.player-btn.close{color:#fff;background:#652c3b;border-color:#8c4055}#topCloseBtn{position:absolute;top:12px;right:12px;z-index:5;width:39px;height:39px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px}
+@media(max-width:900px){.episode-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{min-height:clamp(520px,calc(100svh - 68px),760px)}.hero-inner{grid-template-columns:minmax(175px,28%) minmax(0,1fr);gap:clamp(20px,4vw,38px);padding:28px clamp(22px,5vw,52px)}.about{grid-template-columns:1fr}}
+@media(max-width:620px){.topbar{height:59px}.hero{width:100vw;margin:0 0 30px calc(50% - 50vw);border-radius:0;min-height:calc(100svh - 59px);height:calc(100svh - 59px)}.hero-video{opacity:.31}.hero-video iframe{width:190%;height:190%;left:-45%;top:-45%}.hero-art{background:linear-gradient(90deg,rgba(8,7,12,.42),rgba(8,7,12,.84) 34%,rgba(8,7,12,.96)),linear-gradient(0deg,rgba(8,7,12,.75),transparent 85%)}.hero-inner{height:100%;min-height:0;display:grid;grid-template-columns:minmax(96px,31%) minmax(0,1fr);align-items:center;gap:clamp(10px,3vw,18px);padding:18px clamp(12px,4vw,22px)}.hero-poster{width:100%;max-width:190px;border-radius:10px;align-self:center}.hero-copy{width:100%;min-width:0}.eyebrow{font-size:8px;letter-spacing:.12em;gap:5px}.eyebrow:before{width:13px}h1{font-size:clamp(27px,8vw,43px);line-height:.98;letter-spacing:-.065em;margin:9px 0 10px}.hero-subtitle{font-size:clamp(9px,2.65vw,11px);line-height:1.5;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.meta{margin:10px 0;font-size:8px;gap:6px 9px}.meta span{gap:4px}.tags{gap:5px;margin:9px 0}.tag{font-size:7px;padding:4px 6px}.actions{margin-top:12px;gap:6px}.primary,.secondary{min-height:36px;padding:0 9px;font-size:9px;border-radius:8px;gap:5px}.trailer-note{font-size:8px;line-height:1.4;margin-top:9px}.section{margin:31px 0 37px}.section-head{align-items:flex-start;flex-direction:column}.episode-tools{width:100%}.search{flex:1;width:auto}.episode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.episode-card{border-radius:12px}.episode-info{padding:10px}.episode-title{font-size:13px;min-height:34px}.episode-description{font-size:9px;min-height:44px}.episode-runtime{font-size:8px}.episode-play{opacity:1}.episode-play span{width:34px;height:34px;font-size:12px}.about-panel{padding:17px}.modal-backdrop{padding:0;align-items:stretch}.modal-card{width:100%;max-height:100dvh;height:auto;align-self:center;border-radius:0;border-left:0;border-right:0}.player-wrapper{aspect-ratio:16/9;flex:none}.player-meta{flex-direction:column;align-items:stretch;padding:13px;gap:12px}.controls-row{justify-content:center;gap:8px}.player-btn{height:43px;min-width:45px;padding:0 10px}.meta-left{padding-right:45px}.player-meta h3{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-  object-fit: contain !important;
-  background-color: black;
+/* Advertisement layout safety: keep fixed-size ad creatives inside the page */
+.ad-slot{display:flex;justify-content:center;align-items:flex-start;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box;margin:20px auto!important;padding:0 12px}
+.ad-slot iframe,.ad-slot ins,.ad-slot img{max-width:100%!important;box-sizing:border-box}
+.ad-slot.ad-banner-728 iframe{display:block;width:min(728px,100%)!important;max-width:100%!important;height:90px!important;margin:0 auto!important}
+.ad-slot.ad-banner-160 iframe{display:block;width:160px!important;max-width:100%!important;height:600px!important;margin:0 auto!important}
+.ad-slot.ad-native>div{max-width:100%;width:100%;overflow:hidden}
+@media(max-width:700px){
+ html,body{max-width:100%;overflow-x:clip}
+ .ad-slot{margin:14px auto!important;padding:0 10px}
+ .ad-slot.ad-banner-160{display:none!important}
+ .ad-slot.ad-banner-728 iframe{width:100%!important;max-width:100%!important;height:90px!important}
+ .ad-slot.ad-native iframe{max-width:100%!important}
 }
 
-/* Only cover when video aspect is cinematic */
-@media (min-aspect-ratio: 16/9) {
-  video:fullscreen,
-  video:-webkit-full-screen,
-  iframe:fullscreen,
-  iframe:-webkit-full-screen {
-    object-fit: cover !important;
-  }
-}
-
-  </style>
-</head>
-<body class="relative">
-<!-- Floating stars background -->
-<div class="fixed inset-0 overflow-hidden -z-10">
-<div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80"></div>
-<div class="stars"></div>
-<div class="stars2"></div>
-</div>
-<div class="container mx-auto px-4 py-8 max-w-7xl">
-
-<!-- Full-Width Video Header with Animated Logo -->
-<div class="relative w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px] overflow-hidden rounded-xl border border-yellow-500/20 shadow-lg shadow-yellow-500/5">
-  <!-- YouTube Video Background -->
-  <iframe 
-    src="https://www.youtube.com/embed/XLYAz6yuJOk?autoplay=1&mute=1&loop=1&playlist=uLx6el5dCwA&controls=0&modestbranding=1"
-    frameborder="0" 
-    allow="autoplay; fullscreen" 
-    class="absolute top-0 left-0 w-full h-full pointer-events-none">
-  </iframe>
-
-  <!-- Animated Logo at Top-Left -->
-  <img 
-    src="https://images.seeklogo.com/logo-png/30/2/batman-logo-png_seeklogo-302396.png" 
-    alt="Batman Logo" 
-    class="absolute top-2 left-2 sm:top-4 sm:left-4 h-10 sm:h-16 md:h-20 lg:h-24 animate-logo z-10"
-  />
-</div>
-
-<style>
-  /* Animated Logo */
-  .animate-logo {
-    animation: float-pulse 3s ease-in-out infinite, glow-logo 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes float-pulse {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-
-  @keyframes glow-logo {
-    0% { filter: drop-shadow(0 0 2px #ffe600) drop-shadow(0 0 4px #ffbe00); }
-    50% { filter: drop-shadow(0 0 6px #ffe600) drop-shadow(0 0 12px #ffbe00); }
-    100% { filter: drop-shadow(0 0 2px #ffe600) drop-shadow(0 0 4px #ffbe00); }
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .animate-logo { height: 4rem; top: 1rem; left: 1rem; }
-  }
+.series-hero-bg iframe{display:none!important;opacity:0!important;visibility:hidden!important}.series-hero-bg{background-position:center 30%!important;background-size:cover!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(3,5,9,.28),rgba(3,5,9,.50) 48%,rgba(3,5,9,.68)),linear-gradient(0deg,rgba(3,5,9,.38),rgba(3,5,9,.08))!important}@media(max-width:700px){.series-hero-bg{background-position:center 28%!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(3,5,9,.30),rgba(3,5,9,.51)),linear-gradient(0deg,rgba(3,5,9,.42),rgba(3,5,9,.10))!important}}
 </style>
+<style id="english-hero-trailer-visibility">
+.series-hero{isolation:isolate;position:relative;overflow:hidden;background:#080a10}
+.series-hero-bg{position:absolute!important;inset:0!important;z-index:-2!important;overflow:hidden!important;background-position:center!important;background-size:cover!important}
+.series-hero-bg iframe{position:absolute!important;top:50%!important;left:50%!important;width:max(100vw,177.78vh)!important;height:max(100vh,56.25vw)!important;min-width:100%!important;min-height:100%!important;transform:translate(-50%,-50%)!important;border:0!important;pointer-events:none!important;opacity:1!important;filter:brightness(1.08) saturate(1.08)!important}
+.series-hero-bg:after{content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;background:linear-gradient(90deg,rgba(2,6,23,.43) 0%,rgba(2,6,23,.48) 43%,rgba(2,6,23,.61) 100%),linear-gradient(0deg,rgba(2,6,23,.34) 0%,rgba(2,6,23,.08) 62%,rgba(2,6,23,.14) 100%)!important}
+@media(max-width:700px){.series-hero-bg iframe{width:max(100vw,177.78vh)!important;height:max(100vh,56.25vw)!important;opacity:1!important;filter:brightness(1.12) saturate(1.1)!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.48) 0%,rgba(2,6,23,.54) 48%,rgba(2,6,23,.64) 100%),linear-gradient(0deg,rgba(2,6,23,.38) 0%,rgba(2,6,23,.10) 70%,rgba(2,6,23,.18) 100%)!important}}
 
-</div>
+.series-hero-bg iframe{display:none!important;opacity:0!important;visibility:hidden!important}.series-hero-bg{background-position:center 30%!important;background-size:cover!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(3,5,9,.28),rgba(3,5,9,.50) 48%,rgba(3,5,9,.68)),linear-gradient(0deg,rgba(3,5,9,.38),rgba(3,5,9,.08))!important}@media(max-width:700px){.series-hero-bg{background-position:center 28%!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(3,5,9,.30),rgba(3,5,9,.51)),linear-gradient(0deg,rgba(3,5,9,.42),rgba(3,5,9,.10))!important}}
+</style>
+<style id="hunger-games-franchise-theme">
+:root{color-scheme:dark;--bg:#080909;--panel:#141514;--panel2:#20211d;--text:#f5f1e7;--muted:#b6ad9b;--line:rgba(222,190,112,.19);--rose:#d8a84c;--red:#a83d2c;--gold:#e8c36a;--shadow:0 24px 70px rgba(0,0,0,.48)}
+body{background:radial-gradient(ellipse at 50% -10%,rgba(154,58,29,.2),transparent 36%),radial-gradient(ellipse at 90% 40%,rgba(177,132,48,.09),transparent 35%),#080909}.ambient{background:radial-gradient(ellipse at 15% 0%,rgba(180,72,38,.17),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(191,145,59,.12),transparent 35%)}
+.topbar{background:rgba(8,9,8,.91);border-bottom-color:rgba(222,190,112,.2)}.brand-mark{background:radial-gradient(circle at 50% 50%,#f6e5ae 0 10%,#d8a84c 11% 28%,#8c3528 29% 100%);color:#21170b;box-shadow:0 0 23px rgba(216,168,76,.24)}.brand-mark i{font-size:17px}.top-link:hover{color:var(--gold)}
+.series-hero{border-color:rgba(221,174,82,.34);background:#080a09;box-shadow:0 26px 80px rgba(0,0,0,.54)}.series-hero-bg:after{background:linear-gradient(90deg,rgba(5,7,6,.42),rgba(5,7,6,.64) 48%,rgba(5,7,6,.84)),linear-gradient(0deg,rgba(5,7,6,.56),rgba(5,7,6,.1))}.series-hero-kicker{border-color:rgba(225,180,88,.5);background:rgba(64,35,17,.7);color:#f2d58e}.series-hero-meta{color:#ead6a7}.series-hero-title{font-family:"Space Grotesk",sans-serif;text-transform:uppercase;letter-spacing:-.055em}.series-hero-description{color:#e8e0d0}.series-hero-primary{background:linear-gradient(110deg,#a43b29,#d4a34c);color:#fff8e8;box-shadow:0 9px 26px rgba(177,91,39,.3)}.series-hero-secondary{background:rgba(22,20,16,.78);border-color:rgba(238,205,137,.35)}.series-hero-dots span.active{background:#e6b957}
+.overline,.movie-kicker{color:#e1b65c}.search:focus{border-color:#d8a84c}.season-pill{border-color:rgba(222,190,112,.22)}
+.movie-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}.movie-card{min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:linear-gradient(155deg,#1b1b17,#10110f);transition:transform .24s,border-color .24s,box-shadow .24s;cursor:pointer}.movie-card:hover{transform:translateY(-5px);border-color:rgba(230,185,87,.7);box-shadow:0 16px 36px rgba(0,0,0,.38)}
+.movie-image-wrap{position:relative;aspect-ratio:2/3;overflow:hidden;background:#211b13}.movie-poster{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s}.movie-card:hover .movie-poster{transform:scale(1.045)}.movie-number{position:absolute;top:10px;left:10px;padding:5px 8px;border:1px solid #ffffff38;border-radius:7px;background:#090909c9;color:#f1d28c;font-size:9px;font-weight:900;letter-spacing:.12em}.movie-status{position:absolute;right:9px;top:9px;padding:5px 8px;border-radius:7px;background:linear-gradient(110deg,#8c3528,#bd8a3d);color:white;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.movie-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.24);opacity:0;transition:opacity .2s}.movie-overlay span{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#dfb75e;color:#1b1409;box-shadow:0 8px 25px #0008}.movie-card:hover .movie-overlay{opacity:1}
+.movie-info{padding:13px 14px 15px}.movie-kicker{font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.movie-title{font:700 15px/1.3 "Space Grotesk",sans-serif;margin:7px 0 6px;min-height:39px}.movie-description{font-size:10px;line-height:1.6;color:#b9b0a1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}.movie-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:11px;color:#a99e8b;font-size:9px}.movie-meta strong{color:#e4c276;font-weight:800}
+.movie-grid.compact{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.movie-grid.compact .movie-info{padding:10px}.movie-grid.compact .movie-title{font-size:12px;min-height:32px}.movie-grid.compact .movie-description{display:none}.movie-grid.compact .movie-meta{margin-top:7px}
+.about-panel{background:linear-gradient(145deg,rgba(34,29,21,.96),rgba(15,16,14,.96))}.cast-chip{color:#eadcbf;border-color:rgba(222,190,112,.22)}.modal-card{background:#0d0e0c;border-color:rgba(222,174,82,.3)}.player-meta{background:#171711}.player-btn{border-color:rgba(222,174,82,.35);background:#252219;color:#f0d28c}.player-btn:hover{background:#3a3020}.player-btn.close{background:#713326;border-color:#a34c32;color:white}.footer{border-top-color:rgba(222,190,112,.18)}
+@media(max-width:900px){.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.movie-grid.compact{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:620px){.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.movie-grid.compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.movie-info{padding:10px}.movie-title{font-size:13px;min-height:35px}.movie-description{font-size:9px;min-height:44px}.movie-meta{font-size:8px}.movie-overlay{opacity:1}.movie-overlay span{width:34px;height:34px;font-size:11px}.movie-status{font-size:7px;padding:4px 6px}.section-head{align-items:flex-start;flex-direction:column}.movie-tools{width:100%;display:flex;gap:8px}.movie-tools .search{width:auto;flex:1}.series-hero-bg iframe{opacity:.88!important}}
+@media(prefers-reduced-motion:reduce){.movie-card,.movie-poster{transition:none!important}}
 
-<!-- Movies Grid -->
-<div class="mb-12 container mx-auto px-4 max-w-7xl">
-<div class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6" id="movies"></div>
-</div>
+/* Hunger Games: streamlined collection layout and touch-friendly hero */
+.top-link{white-space:nowrap}
+.series-hero-shell{margin:12px auto 12px}
+.series-hero{min-height:clamp(300px,31vw,410px);border-color:rgba(221,174,82,.4)}
+.series-hero-inner{padding:clamp(18px,3vw,34px);gap:clamp(20px,3vw,42px)}
+.series-hero-kicker{font-size:9px;letter-spacing:.12em}
+.series-hero-meta{margin:9px 0 0;gap:9px;font-size:10px}
+.series-hero-title{font-size:clamp(29px,4vw,52px);margin:8px 0 10px}
+.series-hero-description{font-size:12px;line-height:1.55;margin-bottom:14px;max-width:54ch;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.series-hero-dots{margin-top:13px;gap:6px}
+.series-hero-dots span{height:4px;width:13px;cursor:pointer}
+.series-hero-dots span.active{width:25px}
+.hero-arrow{position:absolute;z-index:5;top:50%;transform:translateY(-50%);width:39px;height:39px;display:grid;place-items:center;border:1px solid rgba(238,205,137,.48);border-radius:50%;background:rgba(12,12,10,.72);color:#f4d58f;backdrop-filter:blur(12px);cursor:pointer;transition:background .2s,transform .2s}
+.hero-arrow:hover{background:rgba(155,62,39,.92);transform:translateY(-50%) scale(1.06)}
+.hero-arrow-prev{left:13px}.hero-arrow-next{right:13px}
+#movies-section{margin:16px 0 38px}
+#movies-section .section-head{margin-bottom:12px;align-items:center}
+#movies-section .section-title{font-size:clamp(21px,2.5vw,28px);margin-top:3px}
+#movies-section .section-desc{display:none}
+#movies-section .overline{font-size:8px}
+@media(max-width:700px){
+ .series-hero-shell{padding:0 10px;margin:9px auto 8px}
+ .series-hero{min-height:255px;border-radius:17px}
+ .series-hero-inner{min-height:255px;grid-template-columns:minmax(76px,25%) minmax(0,1fr);gap:10px;padding:14px 38px 43px}
+ .series-hero-art{max-width:125px;transform:none;filter:drop-shadow(0 12px 16px #0009)}
+ .series-hero-art img{border-radius:8px}
+ .series-hero-kicker{font-size:7px;padding:5px 7px;letter-spacing:.07em;max-width:100%;white-space:nowrap}
+ .series-hero-kicker i{font-size:8px}
+ .series-hero-meta{font-size:8px;gap:4px 7px;margin-top:7px}
+ .series-hero-title{font-size:clamp(19px,5.3vw,29px);line-height:1.02;margin:7px 0}
+ .series-hero-description{font-size:9px;line-height:1.4;-webkit-line-clamp:2;margin-bottom:9px}
+ .series-hero-actions{gap:6px}
+ .series-hero-btn{min-height:32px;padding:0 9px;font-size:9px;border-radius:8px}
+ .series-hero-dots{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);margin:0;z-index:4;gap:5px}
+ .series-hero-dots span{width:9px;height:3px}
+ .series-hero-dots span.active{width:20px}
+ .hero-arrow{width:29px;height:29px;font-size:10px}
+ .hero-arrow-prev{left:6px}.hero-arrow-next{right:6px}
+ #movies-section{margin:10px 0 30px}
+ #movies-section .section-head{gap:9px;margin-bottom:10px}
+ #movies-section .section-title{font-size:21px}
+ #movies-section .overline{font-size:7px}
+ #movies-section .episode-tools{gap:6px}
+ #movies-section .search{height:36px;font-size:11px}
+ #movies-section .season-pill{min-height:36px;padding:0 9px;font-size:10px}
+}
+@media(max-width:390px){
+ .series-hero{min-height:238px}
+ .series-hero-inner{min-height:238px;grid-template-columns:70px minmax(0,1fr);gap:9px;padding:12px 34px 40px}
+ .series-hero-title{font-size:18px}
+ .series-hero-description{font-size:8px;-webkit-line-clamp:2}
+ .series-hero-kicker{font-size:6px}
+ .series-hero-btn{font-size:8px;padding:0 7px}
+}
 
-<!-- Footer / Social -->
-  <div class="border-t border-gray-900 mt-6 sm:mt-8 pt-4 sm:pt-6 text-center text-gray-500">
-    <a href="#" class="text-gray-500 hover:text-yellow-400 transition px-2"><i class="fab fa-facebook-f"></i></a>
-    <a href="#" class="text-gray-500 hover:text-yellow-400 transition px-2"><i class="fab fa-twitter"></i></a>
-    <a href="https://www.instagram.com/stark_4152/reels" class="text-gray-500 hover:text-yellow-400 transition px-2"><i class="fab fa-instagram"></i></a>
-    <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="text-gray-500 hover:text-yellow-400 transition px-2"><i class="fab fa-youtube"></i></a>
+/* Compact, responsive franchise poster cards */
+.movie-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:13px}
+.movie-card{border-radius:12px}
+.movie-image-wrap{aspect-ratio:2/3}
+.movie-info{padding:10px 10px 11px}
+.movie-kicker{font-size:8px;letter-spacing:.1em}
+.movie-title{font-size:12px;line-height:1.25;margin:5px 0 4px;min-height:31px}
+.movie-description{font-size:9px;line-height:1.4;-webkit-line-clamp:2;min-height:25px}
+.movie-meta{font-size:8px;margin-top:7px;gap:4px}
+.movie-number{top:7px;left:7px;padding:4px 6px;font-size:7px}
+.movie-status{top:7px;right:7px;padding:4px 6px;font-size:7px}
+.movie-overlay span{width:38px;height:38px}
+.movie-grid.compact{grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}
+@media(max-width:1150px){
+ .movie-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:11px}
+ .movie-grid.compact{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media(max-width:850px){
+ .movie-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+ .movie-grid.compact{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .movie-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .movie-grid.compact{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+ .movie-card{border-radius:10px}
+ .movie-info{padding:8px 8px 9px}
+ .movie-kicker{font-size:6px;letter-spacing:.08em}
+ .movie-title{font-size:10px;line-height:1.22;margin:4px 0;min-height:25px}
+ .movie-description{display:none}
+ .movie-meta{font-size:7px;margin-top:5px;flex-wrap:wrap}
+ .movie-number{font-size:6px;padding:3px 5px}
+ .movie-status{font-size:6px;padding:3px 5px}
+ .movie-overlay{opacity:1;background:transparent;place-items:end end;padding:7px}
+ .movie-overlay span{width:26px;height:26px;font-size:9px}
+ .movie-grid.compact .movie-info{padding:7px}
+ .movie-grid.compact .movie-title{font-size:9px;min-height:23px}
+}
+@media(max-width:370px){
+ .movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .movie-grid.compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .movie-title{font-size:11px;min-height:27px}
+}
+
+.series-hero-bg iframe{display:none!important;opacity:0!important;visibility:hidden!important}.series-hero-bg{background-position:center 30%!important;background-size:cover!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(3,5,9,.28),rgba(3,5,9,.50) 48%,rgba(3,5,9,.68)),linear-gradient(0deg,rgba(3,5,9,.38),rgba(3,5,9,.08))!important}@media(max-width:700px){.series-hero-bg{background-position:center 28%!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(3,5,9,.30),rgba(3,5,9,.51)),linear-gradient(0deg,rgba(3,5,9,.42),rgba(3,5,9,.10))!important}}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+<nav class="topbar"><div class="shell topbar-inner"><a class="brand" href="#top"><span class="brand-mark"><i class="fa-solid fa-mask"></i></span><span>BATMAN <span style="color:var(--rose)">/ GOTHAM KNIGHT</span></span></a><a class="top-link" href="movies.html"><i class="fa-solid fa-arrow-left"></i> Back to Movies</a></div></nav>
+<main class="shell" id="top"><section class="series-hero-shell" aria-label="Batman franchise feature"><div class="series-hero" id="franchiseHero">
+<div class="series-hero-bg" id="heroBackdrop" style="background-image:url('https://image.tmdb.org/t/p/w500/1ZEJuuDh0Zpi5ELM3Zev0GBhQ3R.jpg')"><iframe id="heroTrailer" title="Batman trailer background" src="https://www.youtube-nocookie.com/embed/lYXtL5TreOE?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=lYXtL5TreOE&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1"></iframe></div>
+<div class="series-hero-inner"><div class="series-hero-art"><img id="heroPoster" src="https://image.tmdb.org/t/p/w500/1ZEJuuDh0Zpi5ELM3Zev0GBhQ3R.jpg" alt="Batman movie poster" fetchpriority="high"></div><div class="series-hero-copy"><div class="series-hero-kicker"><i class="fa-solid fa-mask"></i><span>GOTHAM KNIGHT · THE COMPLETE FILM COLLECTION</span></div><div class="series-hero-meta" id="heroMeta"><span>1966</span><span>1h 45m</span><span>English</span><span>Feature Film</span></div><h1 class="series-hero-title" id="heroTitle">Batman</h1><p class="series-hero-description" id="heroDescription">In a dystopian future, sixteen-year-old Katniss Everdeen volunteers to take her younger sister's place in a televised fight to the death, pitting teenagers from twelve districts against one another.</p><div class="series-hero-actions"><button class="series-hero-btn series-hero-primary" id="heroPlayBtn" type="button"><i class="fa-solid fa-play"></i> Watch movie</button></div><button class="hero-arrow hero-arrow-prev" id="heroPrev" type="button" aria-label="Previous movie"><i class="fa-solid fa-chevron-left"></i></button><button class="hero-arrow hero-arrow-next" id="heroNext" type="button" aria-label="Next movie"><i class="fa-solid fa-chevron-right"></i></button><div class="series-hero-dots" id="heroDots" aria-label="Featured film selection"><span class="active" data-index="0"></span><span class="" data-index="1"></span><span class="" data-index="2"></span><span class="" data-index="3"></span><span class="" data-index="4"></span><span class="" data-index="5"></span><span class="" data-index="6"></span><span class="" data-index="7"></span><span class="" data-index="8"></span><span class="" data-index="9"></span><span class="" data-index="10"></span><span class="" data-index="11"></span></div></div></div></div></section>
+<section class="section" id="movies-section"><div class="section-head"><div><div class="overline">The complete collection · 11 films</div><h2 class="section-title">The legend of Gotham's Dark Knight.</h2><div class="section-desc">Explore the cinematic legacy of Batman.</div></div><div class="movie-tools episode-tools"><input class="search" id="movieSearch" type="search" placeholder="Search the films…" aria-label="Search Hunger Games movies"><select class="season-pill" id="movieSort" aria-label="Sort movies"><option value="chronological">Release order</option><option value="reverse">Newest first</option></select><button class="season-pill" id="gridToggle" type="button" aria-label="Toggle compact grid"><i class="fa-solid fa-grip"></i></button></div></div><div class="movie-grid" id="movieGrid"></div></section>
+<section class="section"><div class="section-head"><div><div class="overline">The world of Batman</div><h2 class="section-title">The legend of Gotham's Dark Knight.</h2></div></div><div class="about"><article class="about-panel"><h3>The legacy of Batman.</h3><p>The <em>Batman</em> collection brings together iconic heroes, unforgettable adversaries and landmark moments in superhero cinema. Explore the many cinematic eras of Batman, from the colorful 1966 adventure and Tim Burton's gothic Gotham to Christopher Nolan's grounded trilogy and Matt Reeves' noir detective story. The collection also includes the connected Justice League films.</p></article><article class="about-panel"><h3>Explore the collection</h3><p><strong>Franchise:</strong> Batman<br><strong>Based on:</strong> The novels by Suzanne Collins<br><strong>Genre:</strong> Science fiction · Action · Adventure · Drama<br><strong>Collection:</strong> 6 films<br><strong>Timeline:</strong> The 10th Hunger Games through the rebellion and beyond</p><h3 style="margin-top:20px">The Batman legacy</h3><div class="cast-list"><span class="cast-chip">Wayne Manor</span><span class="cast-chip">Batcave</span><span class="cast-chip">Gotham City</span><span class="cast-chip">The Joker</span><span class="cast-chip">The Dark Knight</span></div></article></div></section>
+<footer class="footer"><div class="footer-inner"><span>THE BATMAN · GOTHAM KNIGHT FILM COLLECTION</span><a href="https://www.imdb.com/find/?q=Batman" target="_blank" rel="noopener">Filmography · IMDb <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div></footer></main><div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+ <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="player-wrapper" id="playerWrapper"><video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="player-meta"><div class="meta-left"><h3 id="modalTitle">Batman</h3><p id="modalDesc">Panem · Feature film</p></div>
+   <div class="controls-row"><button class="player-btn" id="prevBtn" aria-label="Previous episode"><i class="fa-solid fa-backward-step"></i> <span>Prev</span></button><button class="player-btn" id="playPauseBtn" aria-label="Play or pause"><i class="fa-solid fa-play"></i></button><button class="player-btn" id="nextBtn" aria-label="Next episode"><span>Next</span> <i class="fa-solid fa-forward-step"></i></button><button class="player-btn" id="fullscreenBtn" aria-label="Fullscreen"><i class="fa-solid fa-expand"></i></button><button class="player-btn" id="muteBtn" aria-label="Mute"><i class="fa-solid fa-volume-high"></i></button><button class="player-btn close" id="closeBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
   </div>
+ </div>
 </div>
-
-<!-- === REPLACED: Illumination-style Modal Player === -->
-<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true">
-    <div class="player-wrapper" id="playerWrapper">
-      <!-- video or iframe injected here -->
-      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" class="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white rounded-full w-10 h-10 flex items-center justify-center transition">
-        <i class="fas fa-times text-xl"></i>
-      </button>
-    </div>
-
-    <div class="player-meta">
-      <div class="meta-left">
-        <h3 id="modalTitle">Title</h3>
-        <p id="modalDesc" class="text-sm"></p>
-      </div>
-      <div class="controls-row">
-        <button id="prevBtn" class="btn"><i class="fas fa-chevron-left"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-chevron-right"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i>Resize</button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i>Mute</button>
-        <button id="closeBtn" class="btn"><i class="fas fa-power-off"></i>Exit</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-    /******************************
-     * Movies array with enhanced Gotham details
-     ******************************/
-    const movies = [
+const movies = [
       { 
         title: "Batman", 
         video: "https://mega.nz/embed/wM5VlJiT#gnV_555AFMlZWOhn1W2MIUGnWXK_X9O0B9bFXf7vc0U", 
@@ -598,488 +339,37 @@ iframe:-webkit-full-screen {
         duration: "4h 02m",
         description: "Determined to ensure Superman's ultimate sacrifice was not in vain, Bruce Wayne aligns forces with Diana Prince to recruit a team of metahumans."
       }
-    ];
+ 
+const grid=document.getElementById("movieGrid"),search=document.getElementById("movieSearch"),sortSelect=document.getElementById("movieSort"),gridToggle=document.getElementById("gridToggle"),playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper"),modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc"),playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
+let currentHls=null,currentShaka=null,currentList=movies,currentIndex=0,heroIndex=0,heroTimer=null;
+function esc(v){return String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function setHero(i){heroIndex=(i+movies.length)%movies.length;const m=movies[heroIndex],p=document.getElementById("heroPoster");p.style.opacity=".2";setTimeout(()=>{p.src=m.image;p.alt=m.title+" poster";p.style.opacity="1"},130);document.getElementById("heroBackdrop").style.backgroundImage="url('"+m.image+"')";document.getElementById("heroTitle").textContent=m.title;document.getElementById("heroDescription").textContent=m.description;document.getElementById("heroMeta").innerHTML="<span>"+m.year+"</span><span>"+m.duration+"</span><span>English</span><span>"+(m.upcoming?"Coming Nov 20, 2026":"Feature film")+"</span>";const b=document.getElementById("heroPlayBtn");b.innerHTML=m.upcoming?'<i class="fa-regular fa-calendar"></i> Coming soon':'<i class="fa-solid fa-play"></i> Watch movie';b.disabled=!!m.upcoming;b.style.opacity=m.upcoming?".72":"1";document.querySelectorAll("#heroDots span").forEach((d,n)=>d.classList.toggle("active",n===heroIndex))}
+function startHeroShuffle(){if(heroTimer)clearInterval(heroTimer);heroTimer=setInterval(()=>{let n;do{n=Math.floor(Math.random()*movies.length)}while(n===heroIndex);setHero(n)},6500)}
 
-    /******************************
-     * DOM refs for modal controls
-     ******************************/
-    const playbackModal = document.getElementById('playbackModal');
-    const playerWrapper = document.getElementById('playerWrapper');
-    const modalVideoId = 'modalVideo';
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
-
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
-
-    let currentHls = null;
-    let currentFiltered = [];
-    let currentIndex = null;
-
-    /******************************
-     * Type detection helpers
-     ******************************/
-    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
-    function isHls(url) {
-      if (!url) return false;
-      return url.includes('.m3u8') || url.includes('index-') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
-    }
-    function isYouTube(url) {
-      if (!url) return false;
-      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
-    }
-
-    /******************************
-     * Reset player container
-     ******************************/
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-    }
-
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function showError(msg) {
-      console.warn(msg);
-    }
-
-    /******************************
-     * Core: open player (Illumination logic)
-     ******************************/
-    function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
-        showError('Invalid playback request');
-        return;
-      }
-      currentFiltered = list;
-      currentIndex = index;
-      const movie = list[index];
-      if (!movie) { showError('Movie missing'); return; }
-
-      // metadata
-      modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.title || '');
-
-      // reset & show
-      resetPlayerContainer();
-      showModal();
-
-      // pick src
-      let src = '';
-      if (typeof movie.video === 'object' && movie.video !== null) {
-        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
-      } else {
-        src = movie.video;
-      }
-      if (!src) {
-        showError('No video source');
-        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
-        return;
-      }
-
-      const lc = (src || '').toLowerCase();
-
-      // iframe-hosted common hosts
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // youtube
-      if (isYouTube(src)) {
-        let embed = src;
-        try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch (e) {}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // HLS
-      if (isHls(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) { showError('Video element missing'); return; }
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-          currentHls.on(Hls.Events.ERROR, function(event, data) {
-            console.warn('HLS error', data);
-            if (data && data.fatal) {
-              try { currentHls.destroy(); } catch(e){}
-              currentHls = null;
-              showError('HLS fatal error — redirecting to player.html');
-              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-            }
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        } else {
-          showError('HLS not supported — redirecting to player.html');
-          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
-        }
-        return;
-      }
-
-      // MP4
-      if (isMP4(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; return; }
-        v.src = src;
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      // fallback
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
-    }
-
-    /******************************
-     * Controls
-     ******************************/
-    function togglePlayPause() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-      }
-    }
-    function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-      else showError('No next video');
-    }
-    function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex == null) return showError('No current video');
-      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-      else showError('No previous video');
-    }
-    function toggleFullscreen() {
-      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
-      } else {
-        document.exitFullscreen();
-      }
-    }
-    function toggleMute() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    }
-
-    /******************************
-     * Close modal & cleanup
-     ******************************/
-    function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      const v = document.getElementById(modalVideoId);
-      if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
-      }
-      resetPlayerContainer();
-      hideModal();
-      currentIndex = null;
-      currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-    }
-
-    /******************************
-     * Events wiring
-     ******************************/
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
-    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
-    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
-
-    // close by clicking outside
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
-
-    // Escape & keyboard
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
-        case 'arrowleft': { const v = document.getElementById(modalVideoId); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-        case 'n': playNext(); break;
-        case 'p': playPrev(); break;
-      }
-    });
-
-    /******************************
-     * Render movies and wire to openPlayer
-     ******************************/
-    const container = document.getElementById('movies');
-
-    function renderMovies(moviesToRender) {
-      container.innerHTML = '';
-      moviesToRender.forEach((movie, index) => {
-        const delayClass = `delay-${(index % 5) * 100}`;
-
-        const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in ${delayClass} rounded-lg sm:rounded-xl overflow-hidden cursor-pointer relative group`;
-        div.innerHTML = `
-          <div class="relative overflow-hidden rounded-t-lg border-b border-yellow-500/10">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2 sm:p-4">
-              <button class="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1 px-2 sm:py-2 sm:px-4 rounded shadow-lg shadow-yellow-400/50 transition transform hover:scale-105 w-full font-mono text-xs sm:text-sm tracking-wider">
-                <i class="fas fa-play mr-1 sm:mr-2"></i> WATCH NOW
-              </button>
-            </div>
-          </div>
-          <div class="p-2 sm:p-3 md:p-4 bg-black/40">
-            <h3 class="font-semibold text-sm sm:text-base md:text-lg truncate font-mono tracking-wide text-white group-hover:text-yellow-400 transition-colors">${movie.title}</h3>
-            <div class="flex justify-between items-center mt-1 sm:mt-2 text-xs sm:text-sm text-gray-400 font-mono">
-              <span>${movie.year || ''}</span>
-              <span class="text-amber-400">${movie.duration || ''}</span>
-            </div>
-          </div>
-        `;
-
-        // Open modal and use movies array for prev/next
-        div.addEventListener('click', () => {
-          openPlayer(moviesToRender, index);
-        });
-
-        container.appendChild(div);
-      });
-    }
-
-    // Initial render
-    renderMovies(movies);
-
-    /******************************
-     * Backwards-compatible extras:
-     * Keep original search/category wiring but guard missing elements
-     ******************************/
-    const modalCloseBtn = document.getElementById('modal-close-btn');
-    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModalHandler);
-
-    // previous code referenced searchBar; guard that
-    const searchBarEl = document.getElementById('searchBar');
-    if (searchBarEl) {
-      searchBarEl.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const filteredMovies = movies.filter(movie => 
-          movie.title.toLowerCase().includes(searchTerm)
-        );
-        renderMovies(filteredMovies);
-      });
-    }
-
-    // Category tabs preservation (guard for existence)
-    document.querySelectorAll('.category-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Update active tab
-        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-
-        const category = this.dataset.category;
-        let filteredMovies;
-
-        if (category === 'all') {
-          filteredMovies = movies;
-        } else {
-          filteredMovies = movies.filter(movie => (movie.categories || []).includes(category));
-        }
-
-        renderMovies(filteredMovies);
-      });
-    });
-
-    /******************************
-     * Create floating stars background (existing)
-     ******************************/
-    function createStars(container, count, sizeRange, durationRange) {
-      for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'absolute rounded-full bg-white';
-
-        // Random position
-        const left = Math.random() * 100;
-        const top = Math.random() * 100;
-
-        // Random size
-        const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
-
-        // Random animation duration
-        const duration = durationRange[0] + Math.random() * (durationRange[1] - durationRange[0]);
-
-        star.style.left = `${left}%`;
-        star.style.top = `${top}%`;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.opacity = Math.random() * 0.5 + 0.1;
-        star.style.animation = `float ${duration}s infinite ease-in-out alternate`;
-        star.style.animationDelay = `${Math.random() * 5}s`;
-
-        container.appendChild(star);
-      }
-    }
-
-    const starsContainer = document.querySelector('.stars');
-    const starsContainer2 = document.querySelector('.stars2');
-    if (starsContainer) createStars(starsContainer, 50, [1, 3], [5, 15]);
-    if (starsContainer2) createStars(starsContainer2, 30, [2, 4], [10, 20]);
-
-    // Add floating animation
-    const style = document.createElement('style');
-    style.innerHTML = `
-      @keyframes float {
-        0% { transform: translateY(0) translateX(0); }
-        50% { transform: translateY(-20px) translateX(10px); }
-        100% { transform: translateY(0) translateX(0); }
-      }
-    `;
-    document.head.appendChild(style);
-
+function stepHero(delta){setHero(heroIndex+delta);startHeroShuffle()}
+document.getElementById("heroPrev").addEventListener("click",()=>stepHero(-1));
+document.getElementById("heroNext").addEventListener("click",()=>stepHero(1));
+const gestureSurface=document.getElementById("franchiseHero");let swipeStartX=0,swipeStartY=0;
+gestureSurface.addEventListener("touchstart",e=>{if(!e.touches||e.touches.length!==1)return;swipeStartX=e.touches[0].clientX;swipeStartY=e.touches[0].clientY},{passive:true});
+gestureSurface.addEventListener("touchend",e=>{if(!e.changedTouches||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-swipeStartX,dy=e.changedTouches[0].clientY-swipeStartY;if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.25)stepHero(dx<0?1:-1)},{passive:true});
+document.querySelectorAll("#heroDots span").forEach(d=>d.addEventListener("click",()=>{setHero(Number(d.dataset.index));startHeroShuffle()}));document.getElementById("heroPlayBtn").addEventListener("click",()=>{if(!movies[heroIndex].upcoming)openPlayer(movies,heroIndex)});
+function renderMovies(list){currentList=list;grid.innerHTML="";if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;padding:25px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No films match your search.</div>';return}list.forEach((m,i)=>{const n=movies.indexOf(m),c=document.createElement("article");c.className="movie-card";c.tabIndex=m.upcoming?-1:0;c.setAttribute("role",m.upcoming?"group":"button");c.setAttribute("aria-label",m.title+(m.upcoming?" — coming soon":" — play movie"));c.innerHTML='<div class="movie-image-wrap"><img class="movie-poster" loading="lazy" src="'+esc(m.image)+'" alt="'+esc(m.title)+' poster"><span class="movie-number">FILM '+String(n+1).padStart(2,"0")+'</span>'+(m.upcoming?'<span class="movie-status">Coming soon</span>':'')+'<div class="movie-overlay"><span><i class="fa-solid fa-play"></i></span></div></div><div class="movie-info"><div class="movie-kicker">'+(m.upcoming?"THE NEXT CHAPTER":"THE GOTHAM KNIGHT SAGA")+'</div><h3 class="movie-title">'+esc(m.title)+'</h3><p class="movie-description">'+esc(m.description)+'</p><div class="movie-meta"><strong>'+m.year+'</strong><span><i class="fa-regular fa-clock"></i> '+m.duration+'</span></div></div>';if(!m.upcoming){const fn=()=>openPlayer(list,i);c.addEventListener("click",fn);c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn()}})}grid.appendChild(c)})}
+function updateMovies(){const q=search.value.trim().toLowerCase();let list=movies.filter(m=>(m.title+" "+m.description+" "+m.year).toLowerCase().includes(q));if(sortSelect.value==="reverse")list=list.slice().reverse();renderMovies(list)}
+search.addEventListener("input",updateMovies);sortSelect.addEventListener("change",updateMovies);gridToggle.addEventListener("click",()=>{grid.classList.toggle("compact");gridToggle.innerHTML=grid.classList.contains("compact")?'<i class="fa-solid fa-table-cells-large"></i>':'<i class="fa-solid fa-grip"></i>';gridToggle.setAttribute("aria-label",grid.classList.contains("compact")?"Use standard grid":"Use compact grid")});
+function isHls(u){return /\.m3u8($|\?)/i.test(u)||/index.*\.txt/i.test(u)||/manifest|master/i.test(u)}function isMp4(u){return /\.mp4($|\?)/i.test(u)}function isYouTube(u){return /youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(u)}
+function resetPlayer(){if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer)}
+function showPlayer(){playbackModal.classList.add("active");playbackModal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden"}
+function closePlayer(){const v=document.getElementById("modalVideo");if(v){try{v.pause();v.removeAttribute("src");v.load()}catch(e){}}if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playbackModal.classList.remove("active");playbackModal.setAttribute("aria-hidden","true");document.body.style.overflow="";playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}
+async function openPlayer(list,index){if(!Array.isArray(list)||index<0||index>=list.length)return;currentList=list;currentIndex=index;const m=list[index];modalTitle.textContent=m.title;modalDesc.textContent="Batman · "+m.year+" · "+m.duration;resetPlayer();showPlayer();let src=typeof m.video==="object"&&m.video!==null?(m.video.high||m.video.medium||m.video.low||m.video.mpd||Object.values(m.video)[0]):m.video;if(!src){modalDesc.textContent+=" · Video source not supplied";return}const lower=String(src).toLowerCase(),v=document.getElementById("modalVideo");if(isYouTube(src)){let id="";try{const u=new URL(src);id=u.searchParams.get("v")||u.pathname.split("/").filter(Boolean).pop()}catch(e){}const embed=id&&id!=="embed"?"https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1&rel=0&modestbranding=1":src;playerWrapper.innerHTML='<iframe src="'+embed+'" title="Batman video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}const hosts=["turboembed.com","streamtape.com","dood","vidcdn","ok.ru","mega.nz","drive.google.com","voe.sx","filemoon","mixdrop","dailymotion.com"];if(hosts.some(h=>lower.includes(h))&&!isHls(src)&&!isMp4(src)){playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="Batman movie player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}if(isHls(src)){if(window.Hls&&Hls.isSupported()){currentHls=new Hls({enableWorker:true,maxBufferLength:30,maxMaxBufferLength:60,backBufferLength:30});currentHls.loadSource(src);currentHls.attachMedia(v);currentHls.on(Hls.Events.MANIFEST_PARSED,()=>v.play().catch(()=>{}));currentHls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else modalDesc.textContent+=" · Playback error"}})}else if(v.canPlayType("application/vnd.apple.mpegurl")){v.src=src;v.play().catch(()=>{})}else modalDesc.textContent+=" · HLS is not supported";playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}if(isMp4(src)||/\.webm($|\?)/i.test(src)){v.src=src;v.play().catch(()=>{});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}if(/^https?:\/\//i.test(src)){playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="Batman movie player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}modalDesc.textContent+=" · Unsupported video source"}
+function playNext(){if(currentIndex<currentList.length-1)openPlayer(currentList,currentIndex+1)}function playPrev(){if(currentIndex>0)openPlayer(currentList,currentIndex-1)}function togglePlayPause(){const v=document.getElementById("modalVideo");if(!v)return;if(v.paused){v.play().catch(()=>{});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>'}else{v.pause();playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}}function toggleFullscreen(){const el=document.getElementById("modalVideo")||playerWrapper.querySelector("iframe");if(!el)return;const fn=el.requestFullscreen||playerWrapper.requestFullscreen;if(!document.fullscreenElement&&fn)Promise.resolve(fn.call(el)).catch(()=>{});else if(document.exitFullscreen)document.exitFullscreen()}function toggleMute(){const v=document.getElementById("modalVideo");if(!v)return;v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>'}
+document.getElementById("prevBtn").addEventListener("click",playPrev);document.getElementById("nextBtn").addEventListener("click",playNext);playPauseBtn.addEventListener("click",togglePlayPause);document.getElementById("fullscreenBtn").addEventListener("click",toggleFullscreen);muteBtn.addEventListener("click",toggleMute);document.getElementById("closeBtn").addEventListener("click",closePlayer);document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playbackModal.addEventListener("click",e=>{if(e.target===playbackModal)closePlayer()});document.addEventListener("keydown",e=>{if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
+setHero(Math.floor(Math.random()*movies.length));startHeroShuffle();updateMovies();
 </script>
-    <!-- ========================================================= -->
+<!-- ========================================================= -->
+<!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
-<!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
-<!-- COPY & PASTE BEFORE </body> -->
-<!-- ========================================================= -->
-
-<!-- ===================== -->
-<!-- ultron3000.infinityfree.me -->
-<!-- ===================== -->
-
-<!-- POPUNDER -->
-<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
-
-<!-- SOCIAL BAR -->
-<script type="text/javascript" src="https://bendspecimen.com/7f/ed/7f/7fed7f6cd54e4aaf8bcebbf9e31d8fc3.js"></script>
-
-<!-- 160x600 BANNER -->
-<div style="text-align:center; margin:20px 0;">
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
-      'format' : 'iframe',
-      'height' : 600,
-      'width' : 160,
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
-</div>
-
-<!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
-      'format' : 'iframe',
-      'height' : 90,
-      'width' : 728,
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
-</div>
-
-
-<!-- ===================== -->
-<!-- cloudtv.store -->
-<!-- ===================== -->
-
-<!-- POPUNDER -->
-<script type="text/javascript" src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
-
-<!-- SOCIAL BAR -->
-<script type="text/javascript" src="https://bendspecimen.com/56/5e/44/565e44d5eee19958a58343407baab82d.js"></script>
-
-<!-- 160x600 BANNER -->
-<div style="text-align:center; margin:20px 0;">
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
-      'format' : 'iframe',
-      'height' : 600,
-      'width' : 160,
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="https://bendspecimen.com/32e2eca4a8cbe495b6e046fac6e1e00b/invoke.js"></script>
-</div>
-
-<!-- 728x90 BANNER -->
-<div style="text-align:center; margin:20px 0;">
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '5a4dc7c6c5524517e3d815b39b121f28',
-      'format' : 'iframe',
-      'height' : 90,
-      'width' : 728,
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="https://bendspecimen.com/5a4dc7c6c5524517e3d815b39b121f28/invoke.js"></script>
-</div>
-
-<!-- ========================================================= -->
-<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
-<!-- ========================================================= -->
-
-
-
-
-
-<!-- Disable DevTools + View Source Protection -->
-<script src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
-
-<script>
+<!-- FOR ultron3000.infinityfree.me, cloudtv.store, cloudtv.free.je & cloudtv.site.je -->
+<!-- COPY & PASTE BEFORE <script>
 /* =========================
    Mobile Detection
 ========================= */
@@ -1283,29 +573,90 @@ if (window.top !== window.self) {
 
 }
 </script>
+</body> -->
+<!-- ========================================================= -->
+<!-- ===================== -->
+<!-- ultron3000.infinityfree.me -->
+<!-- ===================== -->
+<!-- POPUNDER -->
+<script src="https://bendspecimen.com/56/61/c1/5661c15aebfd7d940105d7c42e76b1cc.js"></script>
+<!-- SOCIAL BAR -->
+<script data-cfasync="false" src="https://bancadeltempoidea.org/14/565e44d5eee19958a58343407baab82d"></script>
+<!-- 728x90 BANNER -->
+<script>
+  atOptions = {
+    'key' : '5a4dc7c6c5524517e3d815b39b121f28',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+</script>
+<script src="https://bancadeltempoidea.org/22/5a4dc7c6c5524517e3d815b39b121f28"></script>
+<!-- NATIVE BANNER -->
+<script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/f597ce652736e3bafb711648bd385bc8"></script>
+<div id="container-f597ce652736e3bafb711648bd385bc8"></div>
+<!-- ===================== -->
+<!-- cloudtv.store -->
+<!-- ===================== -->
+<!-- POPUNDER -->
+<script data-cfasync="false" src="https://capitalhospitals.org/1/110752a01a9d540163da6fbfb98926f4"></script>
+<!-- SOCIAL BAR -->
+<script data-cfasync="false" src="https://czernik.org/14/7fed7f6cd54e4aaf8bcebbf9e31d8fc3"></script>
+<!-- 160x600 BANNER -->
+<script>
+  atOptions = {
+    'key' : '32e2eca4a8cbe495b6e046fac6e1e00b',
+    'format' : 'iframe',
+    'height' : 600,
+    'width' : 160,
+    'params' : {}
+  };
+</script>
+<script src="https://czernik.org/22/32e2eca4a8cbe495b6e046fac6e1e00b"></script>
+<!-- NATIVE BANNER -->
+<script async="async" data-cfasync="false" src="https://czernik.org/21/71ffc1cc58abe6b59241de4cd0b8d267"></script>
+<div id="container-71ffc1cc58abe6b59241de4cd0b8d267"></div>
+<!-- ===================== -->
+<!-- cloudtv.site.je -->
+<!-- ===================== -->
+<!-- POPUNDER -->
+<script data-cfasync="false" src="https://aarems.org/1/b860f80f711dcec864b5c9ced969d0cb"></script>
+<!-- SOCIAL BAR -->
+<script data-cfasync="false" src="https://bancadeltempoidea.org/14/511bbe5e30110cdc1df906986d26abef"></script>
+<!-- NATIVE BANNER -->
+<script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/ee55f774c6b8eed6b4287f9ed7923638"></script>
+<div id="container-ee55f774c6b8eed6b4287f9ed7923638"></div>
+<!-- 728x90 BANNER -->
+<script>
+  atOptions = {
+    'key' : '44f6fc8fc8db36beacbc97b0453593a3',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+</script>
+<script src="https://bancadeltempoidea.org/22/44f6fc8fc8db36beacbc97b0453593a3"></script>
+<!-- SMART LINK -->
+<!-- https://directyp.org/4/b4e26d6e3cb4df0655e816b8991eeae3 -->
+<!-- ===================== -->
+<!-- cloudtv.free.je -->
+<!-- ===================== -->
+<!-- POPUNDER -->
+<script data-cfasync="false" src="https://aarems.org/1/f4119690b9b81a8203a78b7227d27ae3"></script>
+<!-- SOCIAL BAR -->
+<script data-cfasync="false" src="https://bancadeltempoidea.org/14/71e6dde572b4578a13305bb9da33a604"></script>
+<!-- NATIVE BANNER -->
+<div style="text-align:center; margin:20px 0;">
+<script async="async" data-cfasync="false" src="https://bancadeltempoidea.org/21/16b6f5baac2813accec4e3af6c329594"></script>
+<div id="container-16b6f5baac2813accec4e3af6c329594"></div>
+</div>
+<!-- ========================================================= -->
+<!-- END OF COMPLETE ADSTERRA ADS BLOCK -->
+<!-- ========================================================= -->
+<!-- ========================================================= -->
 
-<style>
-html, body {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    overflow-x: hidden;
-}
-
-/* Disable image dragging */
-img {
-    pointer-events: none;
-    -webkit-user-drag: none;
-}
-
-/* Hide selection */
-::selection {
-    background: transparent;
-}
-</style>
-
+ 
 </body>
 </html>
