@@ -1,403 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Hellboy — The Infernal Collection</title>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<!-- HLS.js for HLS playback -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09080d">
+<meta name="description" content="Explore the complete Hellboy film collection, from the original story to the Golden Army and the Crooked Man.">
+<title>Hellboy | The Infernal Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
-    
-    :root {
-      --primary: #d62828;
-      --primary-glow: rgba(214, 40, 40, 0.5);
-      --accent-orange: #f97316;
-      --secondary: #0a0303;
-      --muted: #9ca3af;
-    }
-    
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--secondary);
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(214, 40, 40, 0.2) 0%, transparent 70%),
-        radial-gradient(circle at 100% 100%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
-        linear-gradient(to bottom, rgba(10, 3, 3, 0.92), rgba(10, 3, 3, 0.98));
-      color: #f8fafc;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
+:root{color-scheme:dark;--bg:#09080d;--panel:#14121a;--panel2:#1c1923;--text:#f7f3f4;--muted:#b4a9b2;--line:rgba(255,220,230,.13);--rose:#f05a43;--red:#9f1d20;--gold:#f2a34a;--shadow:0 24px 70px rgba(0,0,0,.42)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:82px}body{margin:0;background:var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 15% 0%,rgba(214,40,40,.19),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(249,115,22,.13),transparent 35%)}.shell{width:min(1320px,100%);margin:auto;padding:0 clamp(15px,4vw,54px)}
+.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(9,8,13,.88);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.topbar-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;font:700 18px "Space Grotesk",sans-serif;letter-spacing:-.04em}.brand-mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(140deg,var(--rose),var(--red));color:#170b10}.top-link{color:var(--muted);font-size:12px;font-weight:700}.top-link:hover{color:var(--rose)}
+/* Exact responsive hero system from series.html */
+.series-hero-shell{max-width:1320px;margin:18px auto 28px;padding:0 18px}
+.series-hero{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(330px,34vw,455px);border:1px solid rgba(148,163,184,.28);border-radius:26px;background:#020617;box-shadow:0 26px 80px rgba(0,0,0,.42);touch-action:pan-y}
+.series-hero-bg{position:absolute;inset:0;z-index:-2;overflow:hidden;background-position:center;background-size:cover}
+.series-hero-bg iframe{position:absolute;top:50%;left:50%;width:177.78vh;height:56.25vw;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:0;pointer-events:none;opacity:.76}
+.series-hero-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,6,23,.66),rgba(2,6,23,.78) 48%,rgba(2,6,23,.9)),linear-gradient(0deg,rgba(2,6,23,.58),rgba(2,6,23,.12))}
+.series-hero-inner{position:relative;z-index:1;min-height:inherit;display:grid;grid-template-columns:minmax(170px,245px) minmax(0,1fr);align-items:center;gap:clamp(24px,4vw,58px);padding:clamp(22px,4vw,48px)}
+.series-hero-art{display:block;width:100%;max-width:245px;aspect-ratio:2/2.85;justify-self:center;transform:perspective(1100px) rotateY(-9deg) rotateX(2deg);transform-style:preserve-3d;filter:drop-shadow(0 24px 30px rgba(0,0,0,.62));transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.series-hero-art img{display:block;width:100%;height:100%;object-fit:cover;border-radius:15px;border:1px solid rgba(255,255,255,.4);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 18px 45px #0008}
+.series-hero:hover .series-hero-art{transform:perspective(1100px) rotateY(-3deg) rotateX(0) translateY(-5px) scale(1.015)}
+.series-hero-copy{max-width:760px;min-width:0;color:#fff;text-align:left}
+.series-hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid rgba(103,232,249,.38);border-radius:999px;background:rgba(8,47,73,.62);color:#a5f3fc;font-size:10px;font-weight:900;letter-spacing:.15em}
+.series-hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;color:#bae6fd;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.series-hero-title{margin:12px 0 10px;color:#fff;font-size:clamp(2rem,4.6vw,4.2rem);font-weight:950;line-height:1.02;letter-spacing:-.045em;text-wrap:balance;text-shadow:0 5px 25px #0009}
+.series-hero-description{max-width:62ch;margin:0 0 22px;color:#e2e8f0;font-size:clamp(13px,1.25vw,15px);line-height:1.7;text-shadow:0 2px 12px #000}
+.series-hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.series-hero-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 18px;border-radius:12px;font-size:12px;font-weight:900;transition:transform .2s,filter .2s,background .2s;border:0;cursor:pointer}
+.series-hero-btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.series-hero-primary{color:#fff;background:linear-gradient(110deg,#0891b2,#4f46e5);box-shadow:0 9px 26px #0891b244}
+.series-hero-secondary{color:#fff;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(12px)}
+.series-hero-dots{display:flex;gap:5px;margin-top:19px}
+.series-hero-dots span{width:17px;height:3px;border-radius:8px;background:#ffffff55}
+.series-hero-dots span.active{width:32px;background:#67e8f9}
+@media(max-width:700px){
+ .series-hero-shell{padding:0 12px;margin:13px auto 21px}
+ .series-hero{min-height:310px;border-radius:20px}
+ .series-hero-bg iframe{width:177.78vh;height:56.25vw;opacity:.58}
+ .series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.78),rgba(2,6,23,.84)),linear-gradient(0deg,rgba(2,6,23,.78),rgba(2,6,23,.24))}
+ .series-hero-inner{grid-template-columns:minmax(88px,27%) minmax(0,1fr);gap:clamp(12px,3vw,20px);padding:20px 15px 62px;min-height:310px}
+ .series-hero-art{width:100%;max-width:150px;transform:perspective(800px) rotateY(-5deg)}
+ .series-hero-art img{border-radius:11px}
+ .series-hero:hover .series-hero-art{transform:perspective(800px) rotateY(-3deg) translateY(-2px)}
+ .series-hero-kicker{font-size:8px;padding:6px 9px;letter-spacing:.1em}
+ .series-hero-meta{font-size:9px;gap:6px;margin-top:10px}
+ .series-hero-title{font-size:clamp(1.35rem,5.5vw,2.25rem);line-height:1.04;margin:9px 0 8px}
+ .series-hero-description{font-size:11px;line-height:1.5;margin-bottom:13px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+ .series-hero-btn{min-height:37px;padding:0 11px;font-size:10px;gap:6px}
+ .series-hero-dots{margin-top:12px}
+}
+@media(max-width:390px){
+ .series-hero{min-height:292px}
+ .series-hero-inner{min-height:292px;grid-template-columns:82px minmax(0,1fr);gap:11px;padding:16px 12px 58px}
+ .series-hero-title{font-size:1.28rem}
+ .series-hero-description{-webkit-line-clamp:3;font-size:10px}
+ .series-hero-btn{padding:0 9px;font-size:9px}
+}
 
-    .title-font { font-family: 'Cinzel', serif; }
-    .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
-    
-    .movie-card {
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      transform-origin: center;
-      border: 1px solid rgba(214, 40, 40, 0.25);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.9);
-      background: rgba(20, 8, 8, 0.75);
-      backdrop-filter: blur(10px);
-    }
-    
-    .movie-card:hover {
-      transform: translateY(-6px) scale(1.02);
-      border-color: var(--primary);
-      box-shadow: 0 0 25px rgba(214, 40, 40, 0.45);
-    }
-    
-    .movie-poster {
-      aspect-ratio: 2/3;
-      transition: transform 0.5s ease;
-    }
-    
-    .movie-card:hover .movie-poster {
-      transform: scale(1.05);
-    }
-    
-    /* Fiery Glowing Text */
-    .hellboy-glow-text {
-      background: linear-gradient(135deg, #ffffff 0%, #fca5a5 40%, #ef4444 70%, #991b1b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 15px rgba(214, 40, 40, 0.4);
-    }
+.section{margin:42px 0 48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:17px}.overline{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.2em;text-transform:uppercase}.section-title{font:700 clamp(23px,3vw,32px)/1.1 "Space Grotesk",sans-serif;letter-spacing:-.05em;margin:6px 0 0}.section-desc{font-size:11px;color:var(--muted);margin-top:6px}.episode-tools{display:flex;gap:9px;align-items:center}.search{width:min(230px,38vw);height:39px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);padding:0 12px;outline:none;font-size:11px}.search:focus{border-color:var(--rose)}.season-pill{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;color:var(--text);font-size:11px;font-weight:700}
+.episode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}.episode-card{min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:linear-gradient(155deg,#1b1720,#100e14);transition:transform .22s,border-color .22s,box-shadow .22s;cursor:pointer}.episode-card:hover{transform:translateY(-5px);border-color:rgba(232,160,173,.55);box-shadow:0 14px 34px rgba(0,0,0,.3)}.episode-image-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;background:#211922}.episode-image{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s}.episode-card:hover .episode-image{transform:scale(1.045)}.episode-number{position:absolute;top:10px;left:10px;background:rgba(8,7,12,.78);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:5px 8px;font-size:9px;font-weight:800;letter-spacing:.1em}.episode-play{position:absolute;inset:0;display:grid;place-items:center;background:rgba(8,7,12,.12);opacity:0;transition:.2s}.episode-play span{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:rgba(232,160,173,.95);color:#1b0c12;box-shadow:0 7px 24px rgba(0,0,0,.4)}.episode-card:hover .episode-play{opacity:1}.episode-info{padding:13px 14px 15px}.episode-kicker{font-size:9px;color:var(--rose);font-weight:800;letter-spacing:.13em;text-transform:uppercase}.episode-title{font:700 15px/1.25 "Space Grotesk",sans-serif;margin:7px 0 6px;min-height:38px}.episode-description{font-size:10px;line-height:1.6;color:#b9adb4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}.episode-runtime{font-size:9px;color:#8e838b;margin-top:10px}
+.about{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.about-panel{border:1px solid var(--line);border-radius:17px;padding:23px;background:linear-gradient(145deg,rgba(30,24,34,.94),rgba(17,14,20,.94))}.about-panel h3{font:700 18px "Space Grotesk",sans-serif;margin:0 0 10px}.about-panel p{font-size:12px;line-height:1.8;color:#c3b7be;margin:0}.cast-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.cast-chip{font-size:10px;color:#e5d8de;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+.footer{border-top:1px solid var(--line);padding:25px 0 35px;color:#8f858c;font-size:10px}.footer-inner{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.modal-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.91);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(12px)}.modal-backdrop.active{display:flex}.modal-card{position:relative;width:min(100%,1020px);max-height:95vh;overflow:auto;background:#0d0b11;border:1px solid rgba(232,160,173,.2);border-radius:17px;box-shadow:0 30px 90px rgba(0,0,0,.7)}.player-wrapper{position:relative;width:100%;aspect-ratio:16/9;background:#000}.player-wrapper video,.player-wrapper iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}.player-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;background:#131018;border-top:1px solid var(--line)}.meta-left{min-width:0}.player-meta h3{font:700 16px "Space Grotesk",sans-serif;margin:0}.player-meta p{font-size:10px;color:#a99da5;margin:5px 0 0}.controls-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end}.player-btn{min-width:40px;height:39px;padding:0 11px;border:1px solid rgba(232,160,173,.35);border-radius:9px;background:#201923;color:#f3c3cd;font-size:11px}.player-btn:hover{background:#38202d}.player-btn.close{color:#fff;background:#652c3b;border-color:#8c4055}#topCloseBtn{position:absolute;top:12px;right:12px;z-index:5;width:39px;height:39px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px}
+@media(max-width:900px){.episode-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{min-height:clamp(520px,calc(100svh - 68px),760px)}.hero-inner{grid-template-columns:minmax(175px,28%) minmax(0,1fr);gap:clamp(20px,4vw,38px);padding:28px clamp(22px,5vw,52px)}.about{grid-template-columns:1fr}}
+@media(max-width:620px){.topbar{height:59px}.hero{width:100vw;margin:0 0 30px calc(50% - 50vw);border-radius:0;min-height:calc(100svh - 59px);height:calc(100svh - 59px)}.hero-video{opacity:.31}.hero-video iframe{width:190%;height:190%;left:-45%;top:-45%}.hero-art{background:linear-gradient(90deg,rgba(8,7,12,.42),rgba(8,7,12,.84) 34%,rgba(8,7,12,.96)),linear-gradient(0deg,rgba(8,7,12,.75),transparent 85%)}.hero-inner{height:100%;min-height:0;display:grid;grid-template-columns:minmax(96px,31%) minmax(0,1fr);align-items:center;gap:clamp(10px,3vw,18px);padding:18px clamp(12px,4vw,22px)}.hero-poster{width:100%;max-width:190px;border-radius:10px;align-self:center}.hero-copy{width:100%;min-width:0}.eyebrow{font-size:8px;letter-spacing:.12em;gap:5px}.eyebrow:before{width:13px}h1{font-size:clamp(27px,8vw,43px);line-height:.98;letter-spacing:-.065em;margin:9px 0 10px}.hero-subtitle{font-size:clamp(9px,2.65vw,11px);line-height:1.5;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.meta{margin:10px 0;font-size:8px;gap:6px 9px}.meta span{gap:4px}.tags{gap:5px;margin:9px 0}.tag{font-size:7px;padding:4px 6px}.actions{margin-top:12px;gap:6px}.primary,.secondary{min-height:36px;padding:0 9px;font-size:9px;border-radius:8px;gap:5px}.trailer-note{font-size:8px;line-height:1.4;margin-top:9px}.section{margin:31px 0 37px}.section-head{align-items:flex-start;flex-direction:column}.episode-tools{width:100%}.search{flex:1;width:auto}.episode-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.episode-card{border-radius:12px}.episode-info{padding:10px}.episode-title{font-size:13px;min-height:34px}.episode-description{font-size:9px;min-height:44px}.episode-runtime{font-size:8px}.episode-play{opacity:1}.episode-play span{width:34px;height:34px;font-size:12px}.about-panel{padding:17px}.modal-backdrop{padding:0;align-items:stretch}.modal-card{width:100%;max-height:100dvh;height:auto;align-self:center;border-radius:0;border-left:0;border-right:0}.player-wrapper{aspect-ratio:16/9;flex:none}.player-meta{flex-direction:column;align-items:stretch;padding:13px;gap:12px}.controls-row{justify-content:center;gap:8px}.player-btn{height:43px;min-width:45px;padding:0 10px}.meta-left{padding-right:45px}.player-meta h3{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #0a0303; }
-    ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #dc2626; }
-    
-    /* Animation */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .animate-fade-in { animation: fadeIn 0.6s ease forwards; }
-    
-    /* Responsive Modal Styles (FIXED FOR DESKTOP - NO CROPPING) */
-    .modal-backdrop { 
-      position: fixed; 
-      inset: 0; 
-      background: rgba(10, 3, 3, 0.95); 
-      display: none; 
-      align-items: center; 
-      justify-content: center; 
-      z-index: 9999; 
-      padding: 0;
-      backdrop-filter: blur(12px);
-    }
-    .modal-backdrop.active { display: flex; }
-    .modal-card { 
-      width: 100%;
-      height: 100%;
-      max-width: 980px;
-      max-height: 90vh;
-      border-radius: 0;
-      overflow: hidden;
-      background: #0a0303;
-      border: 1px solid rgba(214, 40, 40, 0.4);
-      box-shadow: 0 0 50px rgba(214, 40, 40, 0.3);
-      display: flex;
-      flex-direction: column;
-    }
-    .player-wrapper { 
-      position: relative;
-      flex: 1;
-      min-height: 0;
-      background: #000;
-    }
-    #topCloseBtn { 
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 10;
-      background: rgba(0,0,0,0.8);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.2);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 1;
-      transition: all 0.2s ease;
-    }
-    #topCloseBtn:hover {
-      background: var(--primary);
-      color: #ffffff;
-      transform: scale(1.1);
-    }
-    .player-wrapper video, 
-    .player-wrapper iframe { 
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
+/* Advertisement layout safety: keep fixed-size ad creatives inside the page */
+.ad-slot{display:flex;justify-content:center;align-items:flex-start;width:100%;max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box;margin:20px auto!important;padding:0 12px}
+.ad-slot iframe,.ad-slot ins,.ad-slot img{max-width:100%!important;box-sizing:border-box}
+.ad-slot.ad-banner-728 iframe{display:block;width:min(728px,100%)!important;max-width:100%!important;height:90px!important;margin:0 auto!important}
+.ad-slot.ad-banner-160 iframe{display:block;width:160px!important;max-width:100%!important;height:600px!important;margin:0 auto!important}
+.ad-slot.ad-native>div{max-width:100%;width:100%;overflow:hidden}
+@media(max-width:700px){
+ html,body{max-width:100%;overflow-x:clip}
+ .ad-slot{margin:14px auto!important;padding:0 10px}
+ .ad-slot.ad-banner-160{display:none!important}
+ .ad-slot.ad-banner-728 iframe{width:100%!important;max-width:100%!important;height:90px!important}
+ .ad-slot.ad-native iframe{max-width:100%!important}
+}
 
-    .player-meta { 
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 14px;
-      color: #ddd;
-      background: #0a0303;
-      border-top: 1px solid rgba(214, 40, 40, 0.3);
-    }
-    .player-meta .meta-left { 
-      width: 100%;
-    }
-    .player-meta h3 { 
-      margin: 0;
-      font-size: 1.2rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      color: #ffffff;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .player-meta p { 
-      margin: 4px 0 0 0;
-      color: var(--muted);
-      font-size: 0.88rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+/* Hellboy collection: use each film poster as the hero backdrop, including on mobile. */
+.series-hero-bg iframe{display:none!important;opacity:0!important;visibility:hidden!important}
+.series-hero-bg{background-position:center 28%!important;background-size:cover!important}
+.series-hero-bg:after{background:linear-gradient(90deg,rgba(8,3,3,.28),rgba(8,3,3,.48) 48%,rgba(8,3,3,.68)),linear-gradient(0deg,rgba(8,3,3,.38),rgba(8,3,3,.08))!important}
+@media(max-width:700px){.series-hero-bg{background-position:center 28%!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(8,3,3,.32),rgba(8,3,3,.50)),linear-gradient(0deg,rgba(8,3,3,.42),rgba(8,3,3,.10))!important}}
+</style>
+<style id="english-hero-trailer-visibility">
+.series-hero{isolation:isolate;position:relative;overflow:hidden;background:#080a10}
+.series-hero-bg{position:absolute!important;inset:0!important;z-index:-2!important;overflow:hidden!important;background-position:center!important;background-size:cover!important}
+.series-hero-bg iframe{position:absolute!important;top:50%!important;left:50%!important;width:max(100vw,177.78vh)!important;height:max(100vh,56.25vw)!important;min-width:100%!important;min-height:100%!important;transform:translate(-50%,-50%)!important;border:0!important;pointer-events:none!important;opacity:1!important;filter:brightness(1.08) saturate(1.08)!important}
+.series-hero-bg:after{content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;background:linear-gradient(90deg,rgba(2,6,23,.43) 0%,rgba(2,6,23,.48) 43%,rgba(2,6,23,.61) 100%),linear-gradient(0deg,rgba(2,6,23,.34) 0%,rgba(2,6,23,.08) 62%,rgba(2,6,23,.14) 100%)!important}
+@media(max-width:700px){.series-hero-bg iframe{width:max(100vw,177.78vh)!important;height:max(100vh,56.25vw)!important;opacity:1!important;filter:brightness(1.12) saturate(1.1)!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(2,6,23,.48) 0%,rgba(2,6,23,.54) 48%,rgba(2,6,23,.64) 100%),linear-gradient(0deg,rgba(2,6,23,.38) 0%,rgba(2,6,23,.10) 70%,rgba(2,6,23,.18) 100%)!important}}
 
-    .controls-row { 
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-    }
+/* Hellboy collection: use each film poster as the hero backdrop, including on mobile. */
+.series-hero-bg iframe{display:none!important;opacity:0!important;visibility:hidden!important}
+.series-hero-bg{background-position:center 28%!important;background-size:cover!important}
+.series-hero-bg:after{background:linear-gradient(90deg,rgba(8,3,3,.28),rgba(8,3,3,.48) 48%,rgba(8,3,3,.68)),linear-gradient(0deg,rgba(8,3,3,.38),rgba(8,3,3,.08))!important}
+@media(max-width:700px){.series-hero-bg{background-position:center 28%!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(8,3,3,.32),rgba(8,3,3,.50)),linear-gradient(0deg,rgba(8,3,3,.42),rgba(8,3,3,.10))!important}}
+</style>
+<style id="hunger-games-franchise-theme">
+:root{color-scheme:dark;--bg:#080909;--panel:#141514;--panel2:#20211d;--text:#f5f1e7;--muted:#b6ad9b;--line:rgba(222,190,112,.19);--rose:#d8a84c;--red:#a83d2c;--gold:#e8c36a;--shadow:0 24px 70px rgba(0,0,0,.48)}
+body{background:radial-gradient(ellipse at 50% -10%,rgba(154,58,29,.2),transparent 36%),radial-gradient(ellipse at 90% 40%,rgba(177,132,48,.09),transparent 35%),#080909}.ambient{background:radial-gradient(ellipse at 15% 0%,rgba(180,72,38,.17),transparent 34%),radial-gradient(ellipse at 90% 28%,rgba(191,145,59,.12),transparent 35%)}
+.topbar{background:rgba(8,9,8,.91);border-bottom-color:rgba(222,190,112,.2)}.brand-mark{background:radial-gradient(circle at 50% 50%,#f6e5ae 0 10%,#d8a84c 11% 28%,#8c3528 29% 100%);color:#21170b;box-shadow:0 0 23px rgba(216,168,76,.24)}.brand-mark i{font-size:17px}.top-link:hover{color:var(--gold)}
+.series-hero{border-color:rgba(221,174,82,.34);background:#080a09;box-shadow:0 26px 80px rgba(0,0,0,.54)}.series-hero-bg:after{background:linear-gradient(90deg,rgba(5,7,6,.42),rgba(5,7,6,.64) 48%,rgba(5,7,6,.84)),linear-gradient(0deg,rgba(5,7,6,.56),rgba(5,7,6,.1))}.series-hero-kicker{border-color:rgba(225,180,88,.5);background:rgba(64,35,17,.7);color:#f2d58e}.series-hero-meta{color:#ead6a7}.series-hero-title{font-family:"Space Grotesk",sans-serif;text-transform:uppercase;letter-spacing:-.055em}.series-hero-description{color:#e8e0d0}.series-hero-primary{background:linear-gradient(110deg,#a43b29,#d4a34c);color:#fff8e8;box-shadow:0 9px 26px rgba(177,91,39,.3)}.series-hero-secondary{background:rgba(22,20,16,.78);border-color:rgba(238,205,137,.35)}.series-hero-dots span.active{background:#e6b957}
+.overline,.movie-kicker{color:#e1b65c}.search:focus{border-color:#d8a84c}.season-pill{border-color:rgba(222,190,112,.22)}
+.movie-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}.movie-card{min-width:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:linear-gradient(155deg,#1b1b17,#10110f);transition:transform .24s,border-color .24s,box-shadow .24s;cursor:pointer}.movie-card:hover{transform:translateY(-5px);border-color:rgba(230,185,87,.7);box-shadow:0 16px 36px rgba(0,0,0,.38)}
+.movie-image-wrap{position:relative;aspect-ratio:2/3;overflow:hidden;background:#211b13}.movie-poster{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s}.movie-card:hover .movie-poster{transform:scale(1.045)}.movie-number{position:absolute;top:10px;left:10px;padding:5px 8px;border:1px solid #ffffff38;border-radius:7px;background:#090909c9;color:#f1d28c;font-size:9px;font-weight:900;letter-spacing:.12em}.movie-status{position:absolute;right:9px;top:9px;padding:5px 8px;border-radius:7px;background:linear-gradient(110deg,#8c3528,#bd8a3d);color:white;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.movie-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.24);opacity:0;transition:opacity .2s}.movie-overlay span{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#dfb75e;color:#1b1409;box-shadow:0 8px 25px #0008}.movie-card:hover .movie-overlay{opacity:1}
+.movie-info{padding:13px 14px 15px}.movie-kicker{font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.movie-title{font:700 15px/1.3 "Space Grotesk",sans-serif;margin:7px 0 6px;min-height:39px}.movie-description{font-size:10px;line-height:1.6;color:#b9b0a1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}.movie-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:11px;color:#a99e8b;font-size:9px}.movie-meta strong{color:#e4c276;font-weight:800}
+.movie-grid.compact{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.movie-grid.compact .movie-info{padding:10px}.movie-grid.compact .movie-title{font-size:12px;min-height:32px}.movie-grid.compact .movie-description{display:none}.movie-grid.compact .movie-meta{margin-top:7px}
+.about-panel{background:linear-gradient(145deg,rgba(34,29,21,.96),rgba(15,16,14,.96))}.cast-chip{color:#eadcbf;border-color:rgba(222,190,112,.22)}.modal-card{background:#0d0e0c;border-color:rgba(222,174,82,.3)}.player-meta{background:#171711}.player-btn{border-color:rgba(222,174,82,.35);background:#252219;color:#f0d28c}.player-btn:hover{background:#3a3020}.player-btn.close{background:#713326;border-color:#a34c32;color:white}.footer{border-top-color:rgba(222,190,112,.18)}
+@media(max-width:900px){.movie-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.movie-grid.compact{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:620px){.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.movie-grid.compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.movie-info{padding:10px}.movie-title{font-size:13px;min-height:35px}.movie-description{font-size:9px;min-height:44px}.movie-meta{font-size:8px}.movie-overlay{opacity:1}.movie-overlay span{width:34px;height:34px;font-size:11px}.movie-status{font-size:7px;padding:4px 6px}.section-head{align-items:flex-start;flex-direction:column}.movie-tools{width:100%;display:flex;gap:8px}.movie-tools .search{width:auto;flex:1}.series-hero-bg iframe{opacity:.88!important}}
+@media(prefers-reduced-motion:reduce){.movie-card,.movie-poster{transition:none!important}}
 
-    .btn {
-      background: rgba(214, 40, 40, 0.15);
-      border: 1px solid var(--primary);
-      color: #ffffff;
-      padding: 10px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      min-width: 60px;
-      flex: 1;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 600;
-    }
-    .btn:hover { 
-      background: var(--primary);
-      color: #ffffff;
-      box-shadow: 0 0 15px rgba(214, 40, 40, 0.7);
-    }
+/* Hunger Games: streamlined collection layout and touch-friendly hero */
+.top-link{white-space:nowrap}
+.series-hero-shell{margin:12px auto 12px}
+.series-hero{min-height:clamp(300px,31vw,410px);border-color:rgba(221,174,82,.4)}
+.series-hero-inner{padding:clamp(18px,3vw,34px);gap:clamp(20px,3vw,42px)}
+.series-hero-kicker{font-size:9px;letter-spacing:.12em}
+.series-hero-meta{margin:9px 0 0;gap:9px;font-size:10px}
+.series-hero-title{font-size:clamp(29px,4vw,52px);margin:8px 0 10px}
+.series-hero-description{font-size:12px;line-height:1.55;margin-bottom:14px;max-width:54ch;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.series-hero-dots{margin-top:13px;gap:6px}
+.series-hero-dots span{height:4px;width:13px;cursor:pointer}
+.series-hero-dots span.active{width:25px}
+.hero-arrow{position:absolute;z-index:5;top:50%;transform:translateY(-50%);width:39px;height:39px;display:grid;place-items:center;border:1px solid rgba(238,205,137,.48);border-radius:50%;background:rgba(12,12,10,.72);color:#f4d58f;backdrop-filter:blur(12px);cursor:pointer;transition:background .2s,transform .2s}
+.hero-arrow:hover{background:rgba(155,62,39,.92);transform:translateY(-50%) scale(1.06)}
+.hero-arrow-prev{left:13px}.hero-arrow-next{right:13px}
+#movies-section{margin:16px 0 38px}
+#movies-section .section-head{margin-bottom:12px;align-items:center}
+#movies-section .section-title{font-size:clamp(21px,2.5vw,28px);margin-top:3px}
+#movies-section .section-desc{display:none}
+#movies-section .overline{font-size:8px}
+@media(max-width:700px){
+ .series-hero-shell{padding:0 10px;margin:9px auto 8px}
+ .series-hero{min-height:255px;border-radius:17px}
+ .series-hero-inner{min-height:255px;grid-template-columns:minmax(76px,25%) minmax(0,1fr);gap:10px;padding:14px 38px 43px}
+ .series-hero-art{max-width:125px;transform:none;filter:drop-shadow(0 12px 16px #0009)}
+ .series-hero-art img{border-radius:8px}
+ .series-hero-kicker{font-size:7px;padding:5px 7px;letter-spacing:.07em;max-width:100%;white-space:nowrap}
+ .series-hero-kicker i{font-size:8px}
+ .series-hero-meta{font-size:8px;gap:4px 7px;margin-top:7px}
+ .series-hero-title{font-size:clamp(19px,5.3vw,29px);line-height:1.02;margin:7px 0}
+ .series-hero-description{font-size:9px;line-height:1.4;-webkit-line-clamp:2;margin-bottom:9px}
+ .series-hero-actions{gap:6px}
+ .series-hero-btn{min-height:32px;padding:0 9px;font-size:9px;border-radius:8px}
+ .series-hero-dots{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);margin:0;z-index:4;gap:5px}
+ .series-hero-dots span{width:9px;height:3px}
+ .series-hero-dots span.active{width:20px}
+ .hero-arrow{width:29px;height:29px;font-size:10px}
+ .hero-arrow-prev{left:6px}.hero-arrow-next{right:6px}
+ #movies-section{margin:10px 0 30px}
+ #movies-section .section-head{gap:9px;margin-bottom:10px}
+ #movies-section .section-title{font-size:21px}
+ #movies-section .overline{font-size:7px}
+ #movies-section .episode-tools{gap:6px}
+ #movies-section .search{height:36px;font-size:11px}
+ #movies-section .season-pill{min-height:36px;padding:0 9px;font-size:10px}
+}
+@media(max-width:390px){
+ .series-hero{min-height:238px}
+ .series-hero-inner{min-height:238px;grid-template-columns:70px minmax(0,1fr);gap:9px;padding:12px 34px 40px}
+ .series-hero-title{font-size:18px}
+ .series-hero-description{font-size:8px;-webkit-line-clamp:2}
+ .series-hero-kicker{font-size:6px}
+ .series-hero-btn{font-size:8px;padding:0 7px}
+}
 
-    /* DESKTOP FIXES — PREVENTS BUTTON CROPPING AND VIDEO OVERFLOW */
-    @media (min-width: 768px) {
-      .modal-card {
-        width: 92%;
-        height: auto;
-        border-radius: 8px;
-        max-height: 85vh !important;
-        overflow: visible !important;
-      }
-      .player-wrapper {
-        padding-bottom: 0 !important;
-        height: auto !important;
-        max-height: 60vh !important;
-        position: relative !important;
-      }
+/* Compact, responsive franchise poster cards */
+.movie-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:13px}
+.movie-card{border-radius:12px}
+.movie-image-wrap{aspect-ratio:2/3}
+.movie-info{padding:10px 10px 11px}
+.movie-kicker{font-size:8px;letter-spacing:.1em}
+.movie-title{font-size:12px;line-height:1.25;margin:5px 0 4px;min-height:31px}
+.movie-description{font-size:9px;line-height:1.4;-webkit-line-clamp:2;min-height:25px}
+.movie-meta{font-size:8px;margin-top:7px;gap:4px}
+.movie-number{top:7px;left:7px;padding:4px 6px;font-size:7px}
+.movie-status{top:7px;right:7px;padding:4px 6px;font-size:7px}
+.movie-overlay span{width:38px;height:38px}
+.movie-grid.compact{grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}
+@media(max-width:1150px){
+ .movie-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:11px}
+ .movie-grid.compact{grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media(max-width:850px){
+ .movie-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+ .movie-grid.compact{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .movie-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .movie-grid.compact{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+ .movie-card{border-radius:10px}
+ .movie-info{padding:8px 8px 9px}
+ .movie-kicker{font-size:6px;letter-spacing:.08em}
+ .movie-title{font-size:10px;line-height:1.22;margin:4px 0;min-height:25px}
+ .movie-description{display:none}
+ .movie-meta{font-size:7px;margin-top:5px;flex-wrap:wrap}
+ .movie-number{font-size:6px;padding:3px 5px}
+ .movie-status{font-size:6px;padding:3px 5px}
+ .movie-overlay{opacity:1;background:transparent;place-items:end end;padding:7px}
+ .movie-overlay span{width:26px;height:26px;font-size:9px}
+ .movie-grid.compact .movie-info{padding:7px}
+ .movie-grid.compact .movie-title{font-size:9px;min-height:23px}
+}
+@media(max-width:370px){
+ .movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .movie-grid.compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .movie-title{font-size:11px;min-height:27px}
+}
 
-      .player-wrapper video,
-      .player-wrapper iframe {
-        height: 100% !important;
-        max-height: 60vh !important;
-        position: relative !important;
-      }
-
-      .player-meta {
-        position: relative !important;
-        z-index: 100 !important;
-        background: #0a0303 !important;
-        padding-top: 10px !important;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-      }
-      .player-meta .meta-left {
-        max-width: 60%;
-      }
-
-      .controls-row {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        justify-content: flex-end !important;
-        gap: 10px !important;
-      }
-
-      .btn {
-        min-width: 90px !important;
-        padding: 10px 14px !important;
-        flex: unset !important;
-      }
-
-      #topCloseBtn { opacity: 0; }
-      .player-wrapper:hover #topCloseBtn { opacity: 1; }
-    }
-
-    @media (max-width: 480px) {
-      .btn { padding: 8px; font-size: 0; }
-      .btn i { font-size: 1rem; margin: 0 !important; }
-    }
-
-    /* Smart Fullscreen Video Fit */
-    video:fullscreen,
-    video:-webkit-full-screen,
-    iframe:fullscreen,
-    iframe:-webkit-full-screen {
-      width: 100vw !important;
-      height: 100vh !important;
-      max-width: 100vw !important;
-      max-height: 100vh !important;
-      object-fit: contain !important;
-      background-color: black;
-    }
-
-    @media (min-aspect-ratio: 16/9) {
-      video:fullscreen,
-      video:-webkit-full-screen,
-      iframe:fullscreen,
-      iframe:-webkit-full-screen {
-        object-fit: cover !important;
-      }
-    }
+/* Hellboy collection: use each film poster as the hero backdrop, including on mobile. */
+.series-hero-bg iframe{display:none!important;opacity:0!important;visibility:hidden!important}
+.series-hero-bg{background-position:center 28%!important;background-size:cover!important}
+.series-hero-bg:after{background:linear-gradient(90deg,rgba(8,3,3,.28),rgba(8,3,3,.48) 48%,rgba(8,3,3,.68)),linear-gradient(0deg,rgba(8,3,3,.38),rgba(8,3,3,.08))!important}
+@media(max-width:700px){.series-hero-bg{background-position:center 28%!important}.series-hero-bg:after{background:linear-gradient(90deg,rgba(8,3,3,.32),rgba(8,3,3,.50)),linear-gradient(0deg,rgba(8,3,3,.42),rgba(8,3,3,.10))!important}}
 </style>
 </head>
-<body class="relative">
-
-<!-- Interactive Fire / Ember Particles Canvas -->
-<canvas id="fireCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
-
-<div class="container mx-auto px-4 py-8 max-w-7xl relative z-10">
-
-  <!-- Hero Header Banner Section -->
-  <div class="relative w-full h-[260px] sm:h-[320px] md:h-[420px] rounded-2xl overflow-hidden border border-red-900/40 shadow-[0_0_40px_rgba(214,40,40,0.25)] mb-8">
-    <!-- YouTube Video Background -->
-    <iframe 
-      src="https://www.youtube.com/embed/FphzzDHFbyM?autoplay=1&mute=1&loop=1&playlist=FphzzDHFbyM&controls=0&modestbranding=1"
-      frameborder="0" 
-      allow="autoplay; fullscreen" 
-      class="absolute top-0 left-0 w-full h-full pointer-events-none scale-125">
-    </iframe>
-
-    <div class="absolute inset-0 bg-gradient-to-t from-[#0a0303] via-black/40 to-transparent"></div>
-
-    <!-- Animated Logo at Top-Left -->
-    <div class="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-3">
-      <img 
-        src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Hellboy_movie_logo.png" 
-        alt="Hellboy Logo" 
-        class="h-12 sm:h-16 md:h-20 animate-logo filter drop-shadow-[0_0_15px_rgba(214,40,40,0.8)]"
-      />
-      <div>
-        <h1 class="title-font text-xl sm:text-2xl md:text-4xl font-black uppercase hellboy-glow-text tracking-widest">HELLBOY</h1>
-        <p class="font-rajdhani text-[10px] sm:text-xs md:text-sm text-red-500 font-bold tracking-wider uppercase">INFERNAL ARCHIVES</p>
-      </div>
-    </div>
+<body>
+<div class="ambient"></div>
+<nav class="topbar"><div class="shell topbar-inner"><a class="brand" href="#top"><span class="brand-mark"><i class="fa-solid fa-skull-crossbones"></i></span><span>HELLBOY <span style="color:var(--rose)">/ THE INFERNAL COLLECTION</span></span></a><a class="top-link" href="movies.html"><i class="fa-solid fa-arrow-left"></i> Back to Movies</a></div></nav>
+<main class="shell" id="top"><section class="series-hero-shell" aria-label="Hellboy franchise feature"><div class="series-hero" id="franchiseHero">
+<div class="series-hero-bg" id="heroBackdrop" style="background-image:url('https://image.tmdb.org/t/p/w500/hjblR6bPZR0PvFwztHcEBCjYf7d.jpg')"><iframe id="heroTrailer" title="Hellboy trailer background" src="https://www.youtube-nocookie.com/embed/lYXtL5TreOE?autoplay=1&amp;mute=1&amp;controls=0&amp;loop=1&amp;playlist=lYXtL5TreOE&amp;playsinline=1&amp;rel=0&amp;modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1"></iframe></div>
+<div class="series-hero-inner"><div class="series-hero-art"><img id="heroPoster" src="https://image.tmdb.org/t/p/w500/hjblR6bPZR0PvFwztHcEBCjYf7d.jpg" alt="Hellboy movie poster" fetchpriority="high"></div><div class="series-hero-copy"><div class="series-hero-kicker"><i class="fa-solid fa-skull-crossbones"></i><span>THE INFERNAL COLLECTION · THE COMPLETE FILM COLLECTION</span></div><div class="series-hero-meta" id="heroMeta"><span>2012</span><span>2h 22m</span><span>English</span><span>Feature Film</span></div><h1 class="series-hero-title" id="heroTitle">Hellboy</h1><p class="series-hero-description" id="heroDescription">In a dystopian future, sixteen-year-old Katniss Everdeen volunteers to take her younger sister's place in a televised fight to the death, pitting teenagers from twelve districts against one another.</p><div class="series-hero-actions"><button class="series-hero-btn series-hero-primary" id="heroPlayBtn" type="button"><i class="fa-solid fa-play"></i> Watch movie</button></div><button class="hero-arrow hero-arrow-prev" id="heroPrev" type="button" aria-label="Previous movie"><i class="fa-solid fa-chevron-left"></i></button><button class="hero-arrow hero-arrow-next" id="heroNext" type="button" aria-label="Next movie"><i class="fa-solid fa-chevron-right"></i></button><div class="series-hero-dots" id="heroDots" aria-label="Featured film selection"><span class="active" data-index="0"></span><span class="" data-index="1"></span><span class="" data-index="2"></span><span class="" data-index="3"></span></div></div></div></div></section>
+<section class="section" id="movies-section"><div class="section-head"><div><div class="overline">The complete collection · 4 films</div><h2 class="section-title">The world of Hellboy.</h2><div class="section-desc">From the B.P.R.D. to the ancient Golden Army.</div></div><div class="movie-tools episode-tools"><input class="search" id="movieSearch" type="search" placeholder="Search the films…" aria-label="Search Hellboy movies"><select class="season-pill" id="movieSort" aria-label="Sort movies"><option value="chronological">Release order</option><option value="reverse">Newest first</option></select><button class="season-pill" id="gridToggle" type="button" aria-label="Toggle compact grid"><i class="fa-solid fa-grip"></i></button></div></div><div class="movie-grid" id="movieGrid"></div></section>
+<section class="section"><div class="section-head"><div><div class="overline">The world of Hellboy</div><h2 class="section-title">Between the human world and the supernatural.</h2></div></div><div class="about"><article class="about-panel"><h3>A demon destined to protect humanity.</h3><p>The <em>Hellboy</em> film collection follows the red-skinned paranormal investigator from his origins in the B.P.R.D. to battles against ancient magic, mythical armies and apocalyptic supernatural forces. Across four films, Hellboy struggles with his demonic heritage while choosing to protect humanity.</p></article><article class="about-panel"><h3>Explore the collection</h3><p><strong>Franchise:</strong> Hellboy<br><strong>Based on:</strong> The novels by Suzanne Collins<br><strong>Genre:</strong> Science fiction · Action · Adventure · Drama<br><strong>Collection:</strong> 6 films<br><strong>Timeline:</strong> The 10th Hunger Games through the rebellion and beyond</p><h3 style="margin-top:20px">The B.P.R.D. files</h3><div class="cast-list"><span class="cast-chip">B.P.R.D.</span><span class="cast-chip">Anung Un Rama</span><span class="cast-chip">The Golden Army</span><span class="cast-chip">The Blood Queen</span><span class="cast-chip">The Crooked Man</span></div></article></div></section>
+<footer class="footer"><div class="footer-inner"><span>THE HELLBOY · THE INFERNAL COLLECTION FILM COLLECTION</span><a href="https://www.imdb.com/find/?q=Hellboy" target="_blank" rel="noopener">Filmography · IMDb <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div></footer></main><div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+ <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="player-wrapper" id="playerWrapper"><video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="player-meta"><div class="meta-left"><h3 id="modalTitle">Hellboy</h3><p id="modalDesc">Hellboy · Feature film</p></div>
+   <div class="controls-row"><button class="player-btn" id="prevBtn" aria-label="Previous episode"><i class="fa-solid fa-backward-step"></i> <span>Prev</span></button><button class="player-btn" id="playPauseBtn" aria-label="Play or pause"><i class="fa-solid fa-play"></i></button><button class="player-btn" id="nextBtn" aria-label="Next episode"><span>Next</span> <i class="fa-solid fa-forward-step"></i></button><button class="player-btn" id="fullscreenBtn" aria-label="Fullscreen"><i class="fa-solid fa-expand"></i></button><button class="player-btn" id="muteBtn" aria-label="Mute"><i class="fa-solid fa-volume-high"></i></button><button class="player-btn close" id="closeBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
   </div>
-
-  <style>
-    .animate-logo {
-      animation: float-pulse 3s ease-in-out infinite, glow-logo 2.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes float-pulse {
-      0%, 100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-6px) scale(1.03); }
-    }
-
-    @keyframes glow-logo {
-      0% { filter: drop-shadow(0 0 4px #ff4d4d) drop-shadow(0 0 8px #d62828); }
-      100% { filter: drop-shadow(0 0 12px #ff4d4d) drop-shadow(0 0 22px #d62828); }
-    }
-  </style>
-
-  <!-- Movies Grid Container (2 Columns on Mobile) -->
-  <div class="mb-12">
-    <div class="flex items-center justify-between border-b border-red-900/40 pb-4 mb-6">
-      <h2 class="font-rajdhani text-lg sm:text-2xl font-bold uppercase tracking-wider text-white">
-        <i class="fas fa-fire text-red-600 mr-2"></i>AVAILABLE ARCHIVES
-      </h2>
-      <span class="text-[10px] sm:text-xs font-mono text-red-400 bg-red-950/60 px-2.5 py-1 rounded border border-red-900/40">4 MOVIES</span>
-    </div>
-
-    <!-- Responsive Grid Layout (2 cols on mobile, 2 on tablet, 4 on desktop) -->
-    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6" id="movies"></div>
-  </div>
-
-  <!-- Footer / Social -->
-  <footer class="border-t border-red-900/30 mt-12 pt-6 text-center text-gray-400">
-    <div class="flex justify-center gap-6 mb-3">
-      <a href="#" class="hover:text-red-500 transition"><i class="fab fa-facebook-f text-lg"></i></a>
-      <a href="#" class="hover:text-red-500 transition"><i class="fab fa-twitter text-lg"></i></a>
-      <a href="https://www.instagram.com/stark_4152/reels" class="hover:text-red-500 transition"><i class="fab fa-instagram text-lg"></i></a>
-      <a href="https://www.youtube.com/channel/UCD9dGWVkAjrdm3D_7gkbi2g" class="hover:text-red-500 transition"><i class="fab fa-youtube text-lg"></i></a>
-    </div>
-    <p class="font-rajdhani text-xs tracking-wider text-gray-500 uppercase">© HELLBOY UNIVERSE CINEMATIC COLLECTION</p>
-  </footer>
+ </div>
 </div>
-
-<!-- Modal Player -->
-<div id="playbackModal" class="modal-backdrop" aria-hidden="true">
-  <div class="modal-card" role="dialog" aria-modal="true">
-    <div class="player-wrapper" id="playerWrapper">
-      <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
-      <button id="topCloseBtn" title="Close Player">
-        <i class="fas fa-times text-xl"></i>
-      </button>
-    </div>
-
-    <div class="player-meta">
-      <div class="meta-left">
-        <h3 id="modalTitle">Title</h3>
-        <p id="modalDesc" class="text-sm"></p>
-      </div>
-      <div class="controls-row">
-        <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
-        <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
-        <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
-        <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
-        <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
-        <button id="closeBtn" class="btn"><i class="fas fa-times"></i></button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-    /******************************
-     * Movies Array (Updated with descriptions & ratings)
-     ******************************/
-    const movies = [
+const movies = [
       {
         title: "Hellboy",
         year: 2004,
@@ -438,314 +283,33 @@
         image: "https://i.ebayimg.com/images/g/JXwAAOSwN5pm5GPS/s-l400.jpg",
         video: "https://mega.nz/embed/ljVmgI6A#bdu8qYCQmoE9Njs8PexMDtZSqA-luVaQJ85dfzk_gWg"
       }
-    ];
+    ]
+const grid=document.getElementById("movieGrid"),search=document.getElementById("movieSearch"),sortSelect=document.getElementById("movieSort"),gridToggle=document.getElementById("gridToggle"),playbackModal=document.getElementById("playbackModal"),playerWrapper=document.getElementById("playerWrapper"),modalTitle=document.getElementById("modalTitle"),modalDesc=document.getElementById("modalDesc"),playPauseBtn=document.getElementById("playPauseBtn"),muteBtn=document.getElementById("muteBtn");
+let currentHls=null,currentShaka=null,currentList=movies,currentIndex=0,heroIndex=0,heroTimer=null;
+function esc(v){return String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function setHero(i){heroIndex=(i+movies.length)%movies.length;const m=movies[heroIndex],p=document.getElementById("heroPoster");p.style.opacity=".2";setTimeout(()=>{p.src=m.image;p.alt=m.title+" poster";p.style.opacity="1"},130);document.getElementById("heroBackdrop").style.backgroundImage="url('"+m.image+"')";document.getElementById("heroTitle").textContent=m.title;document.getElementById("heroDescription").textContent=m.description;document.getElementById("heroMeta").innerHTML="<span>"+m.year+"</span><span>"+m.duration+"</span><span>English</span><span>"+(m.upcoming?"Coming Nov 20, 2026":"Feature film")+"</span>";const b=document.getElementById("heroPlayBtn");b.innerHTML=m.upcoming?'<i class="fa-regular fa-calendar"></i> Coming soon':'<i class="fa-solid fa-play"></i> Watch movie';b.disabled=!!m.upcoming;b.style.opacity=m.upcoming?".72":"1";document.querySelectorAll("#heroDots span").forEach((d,n)=>d.classList.toggle("active",n===heroIndex))}
+function startHeroShuffle(){if(heroTimer)clearInterval(heroTimer);heroTimer=setInterval(()=>{let n;do{n=Math.floor(Math.random()*movies.length)}while(n===heroIndex);setHero(n)},6500)}
 
-    const playbackModal = document.getElementById('playbackModal');
-    const playerWrapper = document.getElementById('playerWrapper');
-    const modalVideoId = 'modalVideo';
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
-
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const muteBtn = document.getElementById('muteBtn');
-
-    let currentHls = null;
-    let currentFiltered = [];
-    let currentIndex = null;
-
-    function isMP4(url) { return /\.mp4($|\?)/i.test((url||'')); }
-    function isHls(url) {
-      if (!url) return false;
-      return url.includes('.m3u8') || url.includes('index-') || url.includes('cf-master') || /index.*\.txt/i.test(url) || url.includes('manifest') || url.includes('master');
-    }
-    function isYouTube(url) {
-      if (!url) return false;
-      return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com') || url.includes('/embed/');
-    }
-
-    function resetPlayerContainer() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      playerWrapper.innerHTML = `<video id="${modalVideoId}" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
-    }
-
-    function showModal() {
-      playbackModal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function hideModal() {
-      playbackModal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function openPlayer(list, index) {
-      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) return;
-      currentFiltered = list;
-      currentIndex = index;
-      const movie = list[index];
-      if (!movie) return;
-
-      modalTitle.textContent = movie.title || '';
-      modalDesc.textContent = movie.description || (movie.title || '');
-
-      resetPlayerContainer();
-      showModal();
-
-      let src = typeof movie.video === 'object' && movie.video !== null 
-        ? (movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0]) 
-        : movie.video;
-
-      if (!src || src === "00") {
-        playerWrapper.innerHTML = `
-          <div class="flex flex-col items-center justify-center h-full text-center p-6 text-gray-400 font-rajdhani">
-            <i class="fas fa-exclamation-triangle text-4xl text-red-600 mb-3"></i>
-            <p class="text-base font-bold text-white uppercase">STREAM FEED OFFLINE</p>
-            <p class="text-xs text-gray-500 mt-1">SOURCE UNREACHABLE [ERR: 00]</p>
-          </div>`;
-        return;
-      }
-
-      const lc = (src || '').toLowerCase();
-
-      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
-        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      if (isYouTube(src)) {
-        let embed = src;
-        try {
-          if (src.includes('watch') && src.includes('v=')) {
-            const v = new URLSearchParams(src.split('?')[1]).get('v');
-            if (v) embed = `https://www.youtube.com/embed/${v}`;
-          } else if (src.includes('youtu.be/')) {
-            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
-            if (p) embed = `https://www.youtube.com/embed/${p}`;
-          }
-        } catch (e) {}
-        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        return;
-      }
-
-      if (isHls(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (!v) return;
-        if (window.Hls && Hls.isSupported()) {
-          currentHls = new Hls();
-          try {
-            currentHls.loadSource(src);
-            currentHls.attachMedia(v);
-          } catch (e) { console.warn('HLS attach error', e); }
-          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
-            v.play().catch(()=>{});
-            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-          });
-        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        }
-        return;
-      }
-
-      if (isMP4(src)) {
-        const v = document.getElementById(modalVideoId);
-        if (v) {
-          v.src = src;
-          v.play().catch(()=>{});
-          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-        }
-        return;
-      }
-
-      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
-    }
-
-    function togglePlayPause() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      if (v.paused) {
-        v.play().catch(()=>{});
-        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-      } else {
-        v.pause();
-        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-      }
-    }
-    function playNext() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex != null && currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
-    }
-    function playPrev() {
-      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = movies.slice();
-      if (currentIndex != null && currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
-    }
-    function toggleFullscreen() {
-      const el = document.getElementById(modalVideoId) || playerWrapper.querySelector('iframe');
-      if (!el) return;
-      if (!document.fullscreenElement) {
-        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=>{});
-      } else {
-        document.exitFullscreen();
-      }
-    }
-    function toggleMute() {
-      const v = document.getElementById(modalVideoId);
-      if (!v) return;
-      v.muted = !v.muted;
-      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    }
-
-    function closeModalHandler() {
-      if (currentHls) {
-        try { currentHls.destroy(); } catch(e) {}
-        currentHls = null;
-      }
-      const v = document.getElementById(modalVideoId);
-      if (v) {
-        try { v.pause(); } catch(e){}
-        try { v.removeAttribute('src'); v.load(); } catch(e){}
-      }
-      resetPlayerContainer();
-      hideModal();
-      currentIndex = null;
-      currentFiltered = [];
-      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
-    }
-
-    playPauseBtn.addEventListener('click', togglePlayPause);
-    nextBtn.addEventListener('click', playNext);
-    prevBtn.addEventListener('click', playPrev);
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
-    muteBtn.addEventListener('click', toggleMute);
-    document.getElementById('closeBtn').addEventListener('click', closeModalHandler);
-    document.getElementById('topCloseBtn').addEventListener('click', closeModalHandler);
-
-    playbackModal.addEventListener('click', function(e){
-      if (e.target === playbackModal) closeModalHandler();
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (!playbackModal.classList.contains('active')) return;
-      switch (e.key.toLowerCase()) {
-        case 'escape': closeModalHandler(); break;
-        case ' ': e.preventDefault(); togglePlayPause(); break;
-        case 'arrowright': playNext(); break;
-        case 'arrowleft': playPrev(); break;
-        case 'f': toggleFullscreen(); break;
-        case 'm': toggleMute(); break;
-      }
-    });
-
-    /******************************
-     * Render Movies Grid
-     ******************************/
-    const container = document.getElementById('movies');
-
-    function renderMovies(moviesToRender) {
-      container.innerHTML = '';
-      moviesToRender.forEach((movie, index) => {
-        const div = document.createElement('div');
-        div.className = `movie-card animate-fade-in rounded-xl overflow-hidden cursor-pointer relative group flex flex-col justify-between`;
-        div.innerHTML = `
-          <div class="relative overflow-hidden">
-            <img src="${movie.image}" alt="${movie.title}" class="w-full h-full object-cover movie-poster">
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2 sm:p-4">
-              <button class="bg-red-600 hover:bg-red-700 text-white font-rajdhani font-bold py-1.5 px-3 sm:py-2.5 sm:px-5 rounded transition transform hover:scale-105 shadow-[0_0_15px_rgba(214,40,40,0.8)] text-xs sm:text-sm flex items-center gap-1.5 uppercase tracking-wider">
-                <i class="fas fa-play"></i> Watch Stream
-              </button>
-            </div>
-            <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-black/80 border border-red-600/40 text-red-400 text-[9px] sm:text-[10px] font-rajdhani px-1.5 py-0.5 rounded uppercase">${movie.rating || 'N/A'}</span>
-          </div>
-          <div class="p-2.5 sm:p-4 flex flex-col justify-between flex-1">
-            <div>
-              <h3 class="font-rajdhani font-bold text-sm sm:text-lg text-white truncate tracking-wide">${movie.title}</h3>
-              <p class="text-[11px] sm:text-xs text-gray-400 mt-1 line-clamp-2">${movie.description}</p>
-            </div>
-            <div class="flex justify-between items-center mt-2.5 sm:mt-3 pt-2 border-t border-red-900/30 text-[10px] sm:text-xs font-rajdhani text-gray-400">
-              <span><i class="far fa-calendar-alt mr-1 text-red-500"></i>${movie.year}</span>
-              <span><i class="far fa-clock mr-1 text-red-500"></i>${movie.duration}</span>
-            </div>
-          </div>
-        `;
-
-        div.addEventListener('click', () => {
-          openPlayer(moviesToRender, index);
-        });
-
-        container.appendChild(div);
-      });
-    }
-
-    renderMovies(movies);
-
-    /******************************
-     * Dynamic Fire / Ember Particles
-     ******************************/
-    const canvas = document.getElementById('fireCanvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    class Particle {
-      constructor() {
-        this.reset();
-      }
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + Math.random() * 20;
-        this.size = Math.random() * 2.5 + 0.8;
-        this.speedX = (Math.random() - 0.5) * 0.8;
-        this.speedY = -(Math.random() * 1.5 + 0.5);
-        this.color = Math.random() > 0.4 ? '#d62828' : '#f97316';
-        this.alpha = Math.random() * 0.5 + 0.2;
-      }
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        this.alpha -= 0.002;
-        if (this.y < -10 || this.alpha <= 0) {
-          this.reset();
-        }
-      }
-      draw() {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, this.alpha);
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-
-    for (let i = 0; i < 65; i++) {
-      particles.push(new Particle());
-    }
-
-    function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.update();
-        p.draw();
-      });
-      requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
+function stepHero(delta){setHero(heroIndex+delta);startHeroShuffle()}
+document.getElementById("heroPrev").addEventListener("click",()=>stepHero(-1));
+document.getElementById("heroNext").addEventListener("click",()=>stepHero(1));
+const gestureSurface=document.getElementById("franchiseHero");let swipeStartX=0,swipeStartY=0;
+gestureSurface.addEventListener("touchstart",e=>{if(!e.touches||e.touches.length!==1)return;swipeStartX=e.touches[0].clientX;swipeStartY=e.touches[0].clientY},{passive:true});
+gestureSurface.addEventListener("touchend",e=>{if(!e.changedTouches||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-swipeStartX,dy=e.changedTouches[0].clientY-swipeStartY;if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.25)stepHero(dx<0?1:-1)},{passive:true});
+document.querySelectorAll("#heroDots span").forEach(d=>d.addEventListener("click",()=>{setHero(Number(d.dataset.index));startHeroShuffle()}));document.getElementById("heroPlayBtn").addEventListener("click",()=>{if(!movies[heroIndex].upcoming)openPlayer(movies,heroIndex)});
+function renderMovies(list){currentList=list;grid.innerHTML="";if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;padding:25px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)">No films match your search.</div>';return}list.forEach((m,i)=>{const n=movies.indexOf(m),c=document.createElement("article");c.className="movie-card";c.tabIndex=m.upcoming?-1:0;c.setAttribute("role",m.upcoming?"group":"button");c.setAttribute("aria-label",m.title+(m.upcoming?" — coming soon":" — play movie"));c.innerHTML='<div class="movie-image-wrap"><img class="movie-poster" loading="lazy" src="'+esc(m.image)+'" alt="'+esc(m.title)+' poster"><span class="movie-number">FILM '+String(n+1).padStart(2,"0")+'</span>'+(m.upcoming?'<span class="movie-status">Coming soon</span>':'')+'<div class="movie-overlay"><span><i class="fa-solid fa-play"></i></span></div></div><div class="movie-info"><div class="movie-kicker">'+(m.upcoming?"THE NEXT CHAPTER":"THE THE INFERNAL COLLECTION SAGA")+'</div><h3 class="movie-title">'+esc(m.title)+'</h3><p class="movie-description">'+esc(m.description)+'</p><div class="movie-meta"><strong>'+m.year+'</strong><span><i class="fa-regular fa-clock"></i> '+m.duration+'</span></div></div>';if(!m.upcoming){const fn=()=>openPlayer(list,i);c.addEventListener("click",fn);c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fn()}})}grid.appendChild(c)})}
+function updateMovies(){const q=search.value.trim().toLowerCase();let list=movies.filter(m=>(m.title+" "+m.description+" "+m.year).toLowerCase().includes(q));if(sortSelect.value==="reverse")list=list.slice().reverse();renderMovies(list)}
+search.addEventListener("input",updateMovies);sortSelect.addEventListener("change",updateMovies);gridToggle.addEventListener("click",()=>{grid.classList.toggle("compact");gridToggle.innerHTML=grid.classList.contains("compact")?'<i class="fa-solid fa-table-cells-large"></i>':'<i class="fa-solid fa-grip"></i>';gridToggle.setAttribute("aria-label",grid.classList.contains("compact")?"Use standard grid":"Use compact grid")});
+function isHls(u){return /\.m3u8($|\?)/i.test(u)||/index.*\.txt/i.test(u)||/manifest|master/i.test(u)}function isMp4(u){return /\.mp4($|\?)/i.test(u)}function isYouTube(u){return /youtube\.com|youtu\.be|youtube-nocookie\.com/i.test(u)}
+function resetPlayer(){if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer)}
+function showPlayer(){playbackModal.classList.add("active");playbackModal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden"}
+function closePlayer(){const v=document.getElementById("modalVideo");if(v){try{v.pause();v.removeAttribute("src");v.load()}catch(e){}}if(currentHls){try{currentHls.destroy()}catch(e){}currentHls=null}if(currentShaka){try{currentShaka.destroy()}catch(e){}currentShaka=null}playerWrapper.innerHTML='<video id="modalVideo" controls playsinline preload="metadata"></video><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playbackModal.classList.remove("active");playbackModal.setAttribute("aria-hidden","true");document.body.style.overflow="";playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}
+async function openPlayer(list,index){if(!Array.isArray(list)||index<0||index>=list.length)return;currentList=list;currentIndex=index;const m=list[index];modalTitle.textContent=m.title;modalDesc.textContent="Hellboy · "+m.year+" · "+m.duration;resetPlayer();showPlayer();let src=typeof m.video==="object"&&m.video!==null?(m.video.high||m.video.medium||m.video.low||m.video.mpd||Object.values(m.video)[0]):m.video;if(!src){modalDesc.textContent+=" · Video source not supplied";return}const lower=String(src).toLowerCase(),v=document.getElementById("modalVideo");if(isYouTube(src)){let id="";try{const u=new URL(src);id=u.searchParams.get("v")||u.pathname.split("/").filter(Boolean).pop()}catch(e){}const embed=id&&id!=="embed"?"https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1&rel=0&modestbranding=1":src;playerWrapper.innerHTML='<iframe src="'+embed+'" title="Hellboy video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}const hosts=["turboembed.com","streamtape.com","dood","vidcdn","ok.ru","mega.nz","drive.google.com","voe.sx","filemoon","mixdrop","dailymotion.com"];if(hosts.some(h=>lower.includes(h))&&!isHls(src)&&!isMp4(src)){playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="Hellboy movie player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="no-referrer"></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}if(isHls(src)){if(window.Hls&&Hls.isSupported()){currentHls=new Hls({enableWorker:true,maxBufferLength:30,maxMaxBufferLength:60,backBufferLength:30});currentHls.loadSource(src);currentHls.attachMedia(v);currentHls.on(Hls.Events.MANIFEST_PARSED,()=>v.play().catch(()=>{}));currentHls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal){if(d.type===Hls.ErrorTypes.NETWORK_ERROR)currentHls.startLoad();else if(d.type===Hls.ErrorTypes.MEDIA_ERROR)currentHls.recoverMediaError();else modalDesc.textContent+=" · Playback error"}})}else if(v.canPlayType("application/vnd.apple.mpegurl")){v.src=src;v.play().catch(()=>{})}else modalDesc.textContent+=" · HLS is not supported";playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}if(isMp4(src)||/\.webm($|\?)/i.test(src)){v.src=src;v.play().catch(()=>{});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}if(/^https?:\/\//i.test(src)){playerWrapper.innerHTML='<iframe src="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" title="Hellboy movie player" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><button id="topCloseBtn" aria-label="Close player"><i class="fa-solid fa-xmark"></i></button>';document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>';return}modalDesc.textContent+=" · Unsupported video source"}
+function playNext(){if(currentIndex<currentList.length-1)openPlayer(currentList,currentIndex+1)}function playPrev(){if(currentIndex>0)openPlayer(currentList,currentIndex-1)}function togglePlayPause(){const v=document.getElementById("modalVideo");if(!v)return;if(v.paused){v.play().catch(()=>{});playPauseBtn.innerHTML='<i class="fa-solid fa-pause"></i>'}else{v.pause();playPauseBtn.innerHTML='<i class="fa-solid fa-play"></i>'}}function toggleFullscreen(){const el=document.getElementById("modalVideo")||playerWrapper.querySelector("iframe");if(!el)return;const fn=el.requestFullscreen||playerWrapper.requestFullscreen;if(!document.fullscreenElement&&fn)Promise.resolve(fn.call(el)).catch(()=>{});else if(document.exitFullscreen)document.exitFullscreen()}function toggleMute(){const v=document.getElementById("modalVideo");if(!v)return;v.muted=!v.muted;muteBtn.innerHTML=v.muted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>'}
+document.getElementById("prevBtn").addEventListener("click",playPrev);document.getElementById("nextBtn").addEventListener("click",playNext);playPauseBtn.addEventListener("click",togglePlayPause);document.getElementById("fullscreenBtn").addEventListener("click",toggleFullscreen);muteBtn.addEventListener("click",toggleMute);document.getElementById("closeBtn").addEventListener("click",closePlayer);document.getElementById("topCloseBtn").addEventListener("click",closePlayer);playbackModal.addEventListener("click",e=>{if(e.target===playbackModal)closePlayer()});document.addEventListener("keydown",e=>{if(!playbackModal.classList.contains("active"))return;if(e.key==="Escape")closePlayer();if(e.key==="ArrowRight")playNext();if(e.key==="ArrowLeft")playPrev()});
+setHero(Math.floor(Math.random()*movies.length));startHeroShuffle();updateMovies();
 </script>
+<!-- ========================================================= -->
 <!-- ========================================================= -->
 <!-- COMPLETE ADSTERRA ADS BLOCK -->
 <!-- FOR ultron3000.infinityfree.me & cloudtv.store -->
